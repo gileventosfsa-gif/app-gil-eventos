@@ -13,32 +13,31 @@
         .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
         .page-title { font-size: 1.5em; margin: 5px 0 0 0; color: #fff; }
 
-        /* PAINEL DE CONTROLE (SÓ ADMIN) */
+        /* PAINEL ADMIN */
         #adminPanel { background: #1E1E1E; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 30px; display: none; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .full-width { grid-column: 1 / -1; }
+        input, select, textarea { width: 100%; padding: 12px; background: #2A2A2A; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
-        input, select { width: 100%; padding: 12px; background: #2A2A2A; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        
-        /* MULTI-NOTAS ESTILO */
+        /* NOTAS DINÂMICAS */
         .notes-container { margin-top: 10px; background: #252525; padding: 10px; border-radius: 8px; }
         .note-input-row { display: flex; gap: 10px; margin-bottom: 8px; }
         .note-input-row input { flex: 1; }
         .btn-remove-note { background: #D32F2F; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; }
         .btn-add-note { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: 0.2s; }
-        .btn-add-note:hover { border-color: #FF9500; color: #FF9500; }
-
+        
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
         .btn-add { background: linear-gradient(90deg, #FF6700, #FF9500); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 2; }
         .btn-cancel-edit { background: #444; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; display: none; }
 
-        /* LISTA DE AGENDAMENTOS */
+        /* CARD DE EVENTO */
         .event-card { background: #1a1a1a; border-left: 5px solid #555; padding: 20px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; transition: 0.3s; position: relative; }
         .event-card:hover { transform: translateX(5px); background: #222; }
         
         .status-confirmado { border-left-color: #4CAF50; }
         .status-pendente { border-left-color: #FFD580; }
         .status-concluido { border-left-color: #888; opacity: 0.7; }
+        .status-bloqueado { border-left-color: #FF4444; background: #251010; } /* Status Novo para Bloqueios */
 
         .date-box { text-align: center; background: #252525; padding: 10px; border-radius: 8px; min-width: 70px; }
         .day { font-size: 1.5em; font-weight: bold; display: block; line-height: 1; color: #fff; }
@@ -49,11 +48,12 @@
         .client-name { font-size: 1.2em; font-weight: bold; color: #fff; display: block; }
         .event-type { color: #aaa; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; display: block; }
         
-        /* ANOTAÇÕES DO ADMIN (NA LISTA) */
-        .admin-notes-list { margin-top: 10px; border-top: 1px dashed #444; padding-top: 5px; }
-        .admin-note-tag { display: block; font-size: 0.85em; color: #FFD580; background: rgba(255, 213, 128, 0.1); padding: 4px 8px; border-radius: 4px; margin-top: 4px; }
-        
-        /* DADOS SENSÍVEIS */
+        /* SISTEMA DE NOTAS RETRÁTIL (NOVO) */
+        .notes-wrapper { margin-top: 10px; }
+        .btn-toggle-notes { background: none; border: none; color: #FFD580; font-size: 0.85em; cursor: pointer; text-decoration: underline; padding: 0; }
+        .notes-list-hidden { display: none; margin-top: 5px; border-left: 2px solid #444; padding-left: 10px; }
+        .note-item-display { display: block; font-size: 0.85em; color: #ccc; margin-bottom: 4px; }
+
         .sensitive-data { font-family: monospace; color: #4CAF50; background: rgba(76, 175, 80, 0.1); padding: 5px 10px; border-radius: 5px; font-size: 1.1em; display: inline-block; margin-top: 5px; }
         .blurred { filter: blur(6px); user-select: none; cursor: default; }
 
@@ -61,9 +61,7 @@
         .btn-icon { background: #333; border: 1px solid #555; color: #fff; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-block; font-size: 0.9em; }
         .btn-icon:hover { background: #FF9500; color: #000; border-color: #FF9500; }
         .btn-danger { color: #FF4444; border-color: #FF4444; }
-        .btn-danger:hover { background: #FF4444; color: white; }
         .btn-edit { color: #2196F3; border-color: #2196F3; }
-        .btn-edit:hover { background: #2196F3; color: white; }
 
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { text-align: center; }
@@ -108,22 +106,22 @@
         <div id="adminPanel">
             <h3 style="color:#FF9500; margin-top:0;" id="tituloForm">Novo Agendamento</h3>
             <div class="form-grid">
-                <input type="text" id="novoCliente" placeholder="Nome do Cliente">
+                <input type="text" id="novoCliente" placeholder="Nome do Cliente ou Motivo">
                 <input type="date" id="novoData">
                 <input type="time" id="novoHorario">
-                <input type="text" id="novoTipo" placeholder="Tipo (Ex: Casamento)">
+                <input type="text" id="novoTipo" placeholder="Tipo (Ex: Casamento, Manutenção)">
                 <select id="novoStatus">
-                    <option value="confirmado">Confirmado (Verde)</option>
-                    <option value="pendente">Pendente (Amarelo)</option>
-                    <option value="concluido">Concluído (Cinza)</option>
+                    <option value="confirmado">✅ Confirmado (Verde)</option>
+                    <option value="pendente">⚠️ Pendente/Em Negociação (Amarelo)</option>
+                    <option value="bloqueado">🚫 Data Bloqueada/Interno (Vermelho)</option>
+                    <option value="concluido">🏁 Concluído (Cinza)</option>
                 </select>
                 <input type="number" id="novoValor" placeholder="Valor (R$)">
                 <input type="text" id="novoLink" placeholder="ID do Evento no Bar (Opcional)">
                 
                 <div class="full-width">
                     <label style="color:#888; font-size:0.9em;">Anotações Internas (Cliente NÃO VÊ)</label>
-                    <div class="notes-container" id="containerNotas">
-                        </div>
+                    <div class="notes-container" id="containerNotas"></div>
                     <button class="btn-add-note" onclick="adicionarInputNota()">+ Nova Nota</button>
                 </div>
             </div>
@@ -164,10 +162,7 @@
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('adminControls').style.display = 'block';
                 carregarAgenda();
-            } else { 
-                document.getElementById('msgErro').style.display = 'block';
-                document.getElementById('senhaInput').value = '';
-            }
+            } else { document.getElementById('msgErro').style.display = 'block'; document.getElementById('senhaInput').value = ''; }
         }
 
         function entrarModoPublico() {
@@ -176,15 +171,11 @@
             carregarAgenda();
         }
 
-        // --- SISTEMA DE NOTAS DINÂMICAS ---
         function adicionarInputNota(valor = "") {
             const container = document.getElementById('containerNotas');
             const div = document.createElement('div');
             div.className = 'note-input-row';
-            div.innerHTML = `
-                <input type="text" class="input-nota-item" placeholder="Ex: Levar gelo extra..." value="${valor}">
-                <button class="btn-remove-note" onclick="this.parentElement.remove()">X</button>
-            `;
+            div.innerHTML = `<input type="text" class="input-nota-item" placeholder="Nota..." value="${valor}"><button class="btn-remove-note" onclick="this.parentElement.remove()">X</button>`;
             container.appendChild(div);
         }
 
@@ -198,68 +189,61 @@
 
                 snapshot.forEach(doc => {
                     const e = doc.data();
-                    
                     const dataObj = new Date(e.data_evento + "T00:00:00");
                     const dia = dataObj.getDate().toString().padStart(2, '0');
                     const mes = dataObj.toLocaleString('pt-BR', { month: 'short' }).replace('.', '');
                     const horaDisplay = e.hora_evento ? `🕗 ${e.hora_evento}` : '';
-
                     const valorDisplay = e.valor ? `R$ ${parseFloat(e.valor).toFixed(2)}` : 'R$ 0,00';
                     const classeBlur = HIDE_VALUES ? 'blurred' : '';
                     
-                    // --- SEGURANÇA DAS NOTAS ---
+                    // --- ÁREA DE NOTAS (RETRÁTIL) ---
                     let notasHtml = '';
                     if(IS_ADMIN) {
-                        // Verifica se tem notas novas (array) ou velha (string)
                         let arrayNotas = e.anotacoes || [];
-                        if(e.observacao) arrayNotas.push(e.observacao); // Suporte legado
+                        if(e.observacao) arrayNotas.push(e.observacao); 
 
                         if(arrayNotas.length > 0) {
-                            notasHtml = '<div class="admin-notes-list">';
-                            arrayNotas.forEach(nota => {
-                                notasHtml += `<span class="admin-note-tag">🔒 ${nota}</span>`;
-                            });
-                            notasHtml += '</div>';
+                            notasHtml = `
+                                <div class="notes-wrapper">
+                                    <button class="btn-toggle-notes" onclick="toggleNotes(this)">📝 Ver ${arrayNotas.length} Anotações</button>
+                                    <div class="notes-list-hidden">
+                                        ${arrayNotas.map(n => `<span class="note-item-display">🔒 ${n}</span>`).join('')}
+                                    </div>
+                                </div>`;
                         }
                     }
-                    // ---------------------------
 
                     let botoesAdmin = '';
                     if(IS_ADMIN) {
                         let btnLink = e.link_id ? `<a href="dashboard.html?evento=${e.link_id}" target="_blank" class="btn-icon" style="background:#2196F3; border:none;">🔗 Bar</a>` : '';
-                        
                         const dadosJson = JSON.stringify(e).replace(/'/g, "&#39;");
-                        
                         botoesAdmin = `
                             <div class="actions">
                                 <span class="sensitive-data ${classeBlur}">${valorDisplay}</span>
                                 ${btnLink}
                                 <button class="btn-icon btn-edit" onclick='prepararEdicao("${doc.id}", ${dadosJson})'>✏️</button>
                                 <button class="btn-icon btn-danger" onclick="excluirEvento('${doc.id}')">🗑️</button>
-                            </div>
-                        `;
+                            </div>`;
                     } else {
                         botoesAdmin = `<span style="font-size:0.8em; color:#555; text-transform:uppercase; letter-spacing:1px;">${e.status}</span>`;
                     }
 
                     const html = `
                         <div class="event-card status-${e.status}">
-                            <div class="date-box">
-                                <span class="day">${dia}</span>
-                                <span class="month">${mes}</span>
-                                <span class="time">${horaDisplay}</span>
-                            </div>
-                            <div class="info-box">
-                                <span class="client-name">${e.cliente}</span>
-                                <span class="event-type">${e.tipo}</span>
-                                ${notasHtml}
-                            </div>
+                            <div class="date-box"><span class="day">${dia}</span><span class="month">${mes}</span><span class="time">${horaDisplay}</span></div>
+                            <div class="info-box"><span class="client-name">${e.cliente}</span><span class="event-type">${e.tipo}</span>${notasHtml}</div>
                             ${botoesAdmin}
-                        </div>
-                    `;
+                        </div>`;
                     lista.innerHTML += html;
                 });
             });
+        }
+
+        // Função para abrir/fechar notas
+        window.toggleNotes = function(btn) {
+            const div = btn.nextElementSibling;
+            if (div.style.display === "block") { div.style.display = "none"; btn.innerText = btn.innerText.replace("Ocultar", "Ver"); } 
+            else { div.style.display = "block"; btn.innerText = btn.innerText.replace("Ver", "Ocultar"); }
         }
 
         function salvarAgendamento() {
@@ -271,40 +255,16 @@
             const valor = document.getElementById('novoValor').value;
             const link = document.getElementById('novoLink').value;
             
-            // Coletar todas as notas
             let notasArr = [];
-            document.querySelectorAll('.input-nota-item').forEach(inp => {
-                if(inp.value.trim()) notasArr.push(inp.value.trim());
-            });
+            document.querySelectorAll('.input-nota-item').forEach(inp => { if(inp.value.trim()) notasArr.push(inp.value.trim()); });
 
             if(!cliente || !data) return alert("Preencha Nome e Data!");
 
-            const dadosEvento = {
-                cliente: cliente,
-                data_evento: data,
-                hora_evento: hora,
-                tipo: tipo,
-                status: status,
-                valor: valor,
-                link_id: link,
-                anotacoes: notasArr // Salva como Array
-            };
+            const dadosEvento = { cliente, data_evento: data, hora_evento: hora, tipo, status, valor, link_id: link, anotacoes: notasArr };
+            const btn = document.getElementById('btnSalvarAgenda'); btn.disabled = true; btn.innerText = "Salvando...";
 
-            const btn = document.getElementById('btnSalvarAgenda');
-            btn.disabled = true;
-            btn.innerText = "Salvando...";
-
-            if(EDITING_ID) {
-                db.collection("agendamentos").doc(EDITING_ID).update(dadosEvento).then(() => {
-                    alert("Atualizado com sucesso!");
-                    limparFormulario();
-                });
-            } else {
-                db.collection("agendamentos").add(dadosEvento).then(() => {
-                    alert("Agendado!");
-                    limparFormulario();
-                });
-            }
+            if(EDITING_ID) { db.collection("agendamentos").doc(EDITING_ID).update(dadosEvento).then(() => { alert("Atualizado!"); limparFormulario(); }); } 
+            else { db.collection("agendamentos").add(dadosEvento).then(() => { alert("Agendado!"); limparFormulario(); }); }
         }
 
         function prepararEdicao(id, dados) {
@@ -317,16 +277,10 @@
             document.getElementById('novoValor').value = dados.valor;
             document.getElementById('novoLink').value = dados.link_id || '';
             
-            // Preenche as notas dinamicamente
             document.getElementById('containerNotas').innerHTML = '';
             let notasParaEditar = dados.anotacoes || [];
-            if(dados.observacao) notasParaEditar.push(dados.observacao); // Legado
-            
-            if(notasParaEditar.length > 0) {
-                notasParaEditar.forEach(n => adicionarInputNota(n));
-            } else {
-                adicionarInputNota(); // Adiciona um vazio se não tiver nada
-            }
+            if(dados.observacao) notasParaEditar.push(dados.observacao);
+            if(notasParaEditar.length > 0) notasParaEditar.forEach(n => adicionarInputNota(n)); else adicionarInputNota();
 
             EDITING_ID = id;
             document.getElementById('tituloForm').innerText = "Editando Evento ✏️";
@@ -338,14 +292,8 @@
 
         function limparFormulario() {
             EDITING_ID = null;
-            document.getElementById('novoCliente').value = '';
-            document.getElementById('novoData').value = '';
-            document.getElementById('novoHorario').value = '';
-            document.getElementById('novoTipo').value = '';
-            document.getElementById('novoValor').value = '';
-            document.getElementById('novoLink').value = '';
-            document.getElementById('containerNotas').innerHTML = ''; // Limpa notas
-            
+            document.getElementById('novoCliente').value = ''; document.getElementById('novoData').value = ''; document.getElementById('novoHorario').value = ''; document.getElementById('novoTipo').value = ''; document.getElementById('novoValor').value = ''; document.getElementById('novoLink').value = '';
+            document.getElementById('containerNotas').innerHTML = '';
             document.getElementById('tituloForm').innerText = "Novo Agendamento";
             document.getElementById('btnSalvarAgenda').innerText = "SALVAR NA AGENDA";
             document.getElementById('btnSalvarAgenda').style.background = "linear-gradient(90deg, #FF6700, #FF9500)";
