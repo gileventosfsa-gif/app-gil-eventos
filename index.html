@@ -14,7 +14,6 @@
         .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
         .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 30px 0 15px 0; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
         
-        /* CARDS */
         .drink-card { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); position: relative; }
         .drink-card.premium-style { border-color: rgba(255, 213, 128, 0.3); background: linear-gradient(160deg, rgba(30,30,30,0.8), rgba(20,20,10,0.8)); }
         .drink-card.esgotado { opacity: 0.5; filter: grayscale(1); }
@@ -32,7 +31,6 @@
         .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 20px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; }
         .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
 
-        /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal-box { background: #1E1E1E; padding: 20px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; }
         
@@ -59,11 +57,12 @@
         .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 0; }
         .msg-time { font-size: 0.7em; opacity: 0.7; display: block; text-align: right; margin-top: 3px; }
 
-        /* LISTA PEDIDOS */
         .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; }
         .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 8px; font-size: 0.8em; border-radius: 4px; margin-top: 8px; display: block; border: 1px dashed #FF4444; text-align: center; }
-        
-        /* CONFETTI & NOTIF */
+        .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
+        .btn-i-paid { background: #4CAF50; color: white; }
+        .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
+
         .ready-alert { animation: pulse 1s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 100% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); } }
         #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 12px 20px; border-radius: 30px; display:none; border:1px solid #FFD580; z-index:950; white-space:nowrap; }
@@ -98,7 +97,6 @@
         </div>
 
         <div id="tab-pedidos" class="tab-content active">
-            
             <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #FFD580; text-align:left;">
                 <small style="color:#FFD580; font-weight:bold;">🔔 Fique por dentro!</small>
                 <div style="display:flex; gap:5px; margin-top:5px;">
@@ -106,19 +104,13 @@
                     <button onclick="salvarZap()" style="background:#4CAF50; border:none; color:white; padding:5px 10px; border-radius:5px;">Salvar</button>
                 </div>
             </div>
-
             <div id="listaMeusPedidosHTML"></div>
         </div>
 
         <div id="tab-chat" class="tab-content">
             <div class="chat-container">
-                <div class="chat-messages" id="chatMessages">
-                    <p style="text-align:center; color:#555; font-size:0.8em;">Envie uma mensagem para o barman.</p>
-                </div>
-                <div class="chat-input-area">
-                    <input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem...">
-                    <button class="chat-send" onclick="enviarMensagem()">➤</button>
-                </div>
+                <div class="chat-messages" id="chatMessages"><p style="text-align:center; color:#555; font-size:0.8em;">Envie uma mensagem para o barman.</p></div>
+                <div class="chat-input-area"><input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem..."><button class="chat-send" onclick="enviarMensagem()">➤</button></div>
             </div>
         </div>
 
@@ -164,14 +156,13 @@
             }
         });
         if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
-        if(NOME_CONVIDADO) carregarChat(); // Inicia chat
+        if(NOME_CONVIDADO) carregarChat(); 
     }
 
-    // --- LÓGICA DO CHAT ---
+    // --- CHAT CORRIGIDO (ORDENAÇÃO JS) ---
     function mudarAba(aba) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
         if(aba === 'pedidos') {
             document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
             document.getElementById('tab-pedidos').classList.add('active');
@@ -185,41 +176,30 @@
     function enviarMensagem() {
         const txt = document.getElementById('chatInput').value;
         if(!txt.trim()) return;
-        
-        db.collection("chat_mensagens").add({
-            evento_id: EVENTO_ID,
-            nome: NOME_CONVIDADO,
-            mensagem: txt,
-            remetente: 'cliente',
-            data: new Date()
-        });
+        db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: txt, remetente: 'cliente', data: new Date() });
         document.getElementById('chatInput').value = '';
     }
 
     function carregarChat() {
-        db.collection("chat_mensagens")
-            .where("evento_id", "==", EVENTO_ID)
-            .where("nome", "==", NOME_CONVIDADO)
-            .orderBy("data", "asc")
-            .onSnapshot((snapshot) => {
-                const div = document.getElementById('chatMessages');
-                div.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const m = doc.data();
-                    const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                    const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin';
-                    div.innerHTML += `
-                        <div class="msg ${classe}">
-                            ${m.mensagem}
-                            <span class="msg-time">${hora}</span>
-                        </div>`;
-                });
-                rolarChat();
+        // SEM ORDERBY para evitar erro de índice
+        db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => {
+            const div = document.getElementById('chatMessages');
+            div.innerHTML = '';
+            
+            let msgs = [];
+            snapshot.forEach(doc => msgs.push(doc.data()));
+            msgs.sort((a,b) => a.data - b.data); // Ordena JS
+
+            msgs.forEach(m => {
+                const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin';
+                div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`;
             });
+            rolarChat();
+        });
     }
     function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
 
-    // --- RESTANTE DO CÓDIGO (PEDIDOS) ---
     function salvarZap() {
         const zap = document.getElementById('mktZap').value;
         if(!zap) return alert("Digite o número!");
@@ -229,7 +209,6 @@
 
     function rastrearPedidos() {
         if(MEUS_PEDIDOS_IDS.length === 0) return;
-        // Ordenação manual para evitar erro de índice
         db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => {
             const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0;
             
@@ -250,22 +229,19 @@
                 else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; }
                 else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; }
 
-                if(podeCancelar) extraHTML += `<button onclick="cancelarPedidoCliente('${p.id}')" style="background:none; border:1px solid #555; color:#aaa; width:100%; margin-top:5px; border-radius:5px;">Cancelar</button>`;
+                if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
 
                 listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong><span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`;
             });
-            
             const btn = document.getElementById('btnMeusPedidos');
             if(snapshot.size > 0) { btn.style.display = 'flex'; document.getElementById('badgeMeusPedidos').innerText = contagemAtivos; } else { btn.style.display = 'none'; }
         });
     }
 
-    // Funções auxiliares mantidas...
     function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
     function cancelarPedidoCliente(id) { if(confirm("Cancelar?")) { db.collection("pedidos").doc(id).update({ status: 'cancelado' }); } }
     let pedidosNotificados = []; 
     function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
-    
     function getIcone(n) { n = n.toLowerCase(); if(n.includes('gin'))return '🍸'; if(n.includes('caipir'))return '🍋'; if(n.includes('morango')||n.includes('rubi'))return '🍓'; if(n.includes('tropical')||n.includes('sol'))return '🍍'; if(n.includes('uva'))return '🍇'; if(n.includes('mojito')||n.includes('brisa'))return '🌿'; return '🍹'; }
 
     function renderizarCardapio() {
@@ -308,7 +284,7 @@
         document.getElementById('inputObservacao').value = '';
         const div = document.getElementById('conteudoConfirmacao');
         if(tipo === 'extra') {
-            div.innerHTML = `<p style="color:#ddd">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor:</span><strong style="font-size:1.5em; color:#fff;">R$ ${preco},00</strong><hr style="border-color:#444;"><span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span><button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText);alert('Copiado!')">Copiar Chave</button></div><p style="font-size:0.8em; color:#FFD580;">⚠️ Realize o pagamento para iniciar o preparo.</p>`;
+            div.innerHTML = `<p style="color:#ddd">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor:</span><strong style="font-size:1.5em; color:#fff;">R$ ${preco},00</strong><hr style="border-color:#444;"><span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span><button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="copiarPix()">Copiar Chave</button></div><p style="font-size:0.8em; color:#FFD580;">⚠️ Realize o pagamento para iniciar o preparo.</p>`;
             document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI";
         } else {
             div.innerHTML = `<p style="color:#ddd">Pedir <strong>${nome}</strong>?</p>`;
@@ -331,6 +307,7 @@
 
     function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
     function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; rastrearPedidos(); carregarChat(); }
+    function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText); alert("Copiado!"); }
     function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
     function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
     function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
