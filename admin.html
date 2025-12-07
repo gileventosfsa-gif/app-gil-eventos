@@ -49,7 +49,7 @@
         <label>Chave PIX (Para vendas)</label>
         <input type="text" id="chavePix" placeholder="E-mail ou CPF">
 
-        <label style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Cardápio Oficial</label>
+        <label style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Cardápio Oficial & Preços</label>
         <div id="listaDrinksEditor"></div>
         <button class="btn-add" onclick="adicionarNovoDrink()">+ ADICIONAR NOVO DRINK</button>
 
@@ -81,20 +81,23 @@
     const params = new URLSearchParams(window.location.search);
     const EVENTO_ID = params.get('evento');
 
-    // --- MENU OFICIAL CADASTRADO ---
+    // --- MENU OFICIAL GIL EVENTOS ATUALIZADO ---
     let cardapioAtual = [
-        { nome: "Elixir do Sol", desc: "Abacaxi, hortelã, cítrico e especiarias. Leve e dourado.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 10 },
-        { nome: "Desejo Proibido", desc: "Frutas vermelhas, cítrico, hortelã e vodka. Doce e envolvente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 10 },
-        { nome: "Encanto Noturno", desc: "Uva roxa, cítrico e manjericão. Elegante e aromático.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 10 },
-        { nome: "Tropical Mix", desc: "Tangerina, Kiwi e Abacaxi, hortelã e manjericão. Refrescante.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 12 },
-        { nome: "Brisa Verde", desc: "Limão, gengibre, manjericão e açúcar de cana. Herbal.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 10 },
-        { nome: "Fúria Rubi", desc: "Morango, tangerina, maracujá e manjericão. Explosão de sabor.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 12 },
-        { nome: "Caipirinha Premium", desc: "Limão taiti e aguardente. Refrescante e autêntica.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 10 },
-        { nome: "Segredo da Casa", desc: "Criação autoral e envolvente com frutas tropicais.", categoria: "classico", tipo_cobranca: "pacote", preco: 17, preco_prevenda: 17 },
-        { nome: "Aperol Sunset", desc: "Aperol, espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 25 },
-        { nome: "Gin Tropical", desc: "Gin, abacaxi grelhado, limão siciliano e hortelã.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 25 },
-        { nome: "Mojito da Ilha", desc: "Rum, hortelã, limão e água com gás.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 25 },
-        { nome: "Coquetel Kids", desc: "Mix cremoso de frutas vermelhas (sem álcool).", categoria: "classico", tipo_cobranca: "pacote", preco: 15, preco_prevenda: 15 }
+        { nome: "Elixir do Sol", desc: "Abacaxi, hortelã, cítrico e especiarias. Leve e dourado.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Desejo Proibido", desc: "Frutas vermelhas, cítrico, hortelã e vodka. Doce e envolvente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Encanto Noturno", desc: "Uva roxa, cítrico e manjericão. Elegante e aromático.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Tropical Mix", desc: "Tangerina, Kiwi e Abacaxi, hortelã e manjericão. Refrescante.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
+        { nome: "Brisa Verde", desc: "Limão, gengibre, manjericão e açúcar de cana. Herbal.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Fúria Rubi", desc: "Morango, tangerina, maracujá e manjericão. Explosão de sabor.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
+        { nome: "Caipirinha Premium", desc: "Limão taiti e aguardente. Refrescante e autêntica.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Segredo da Casa", desc: "Criação autoral e envolvente com frutas tropicais.", categoria: "classico", tipo_cobranca: "pacote", preco: 17, preco_prevenda: 15 },
+        
+        { nome: "Coquetel Personalizado", desc: "O cliente escolhe as frutas e combinações. Pode ser com ou sem álcool.", categoria: "classico", tipo_cobranca: "pacote", preco: 15, preco_prevenda: 12 },
+        { nome: "Coquetel Kids", desc: "Mix cremoso de frutas vermelhas. Pode ser preparado com ou sem álcool.", categoria: "classico", tipo_cobranca: "pacote", preco: 15, preco_prevenda: 15 },
+
+        { nome: "Aperol Sunset", desc: "Aperol, espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 },
+        { nome: "Gin Tropical", desc: "Gin, abacaxi grelhado, limão siciliano e hortelã.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 },
+        { nome: "Mojito da Ilha", desc: "Rum, hortelã, limão e água com gás.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 }
     ];
 
     if(EVENTO_ID) {
