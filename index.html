@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cardápio Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; }
+        .container { max-width: 600px; margin: auto; }
+        .header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
+        .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 30px 0 15px 0; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
+
+        .drink-card { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); position: relative; }
+        .drink-card.premium-style { border-color: rgba(255, 213, 128, 0.3); background: linear-gradient(160deg, rgba(30,30,30,0.8), rgba(20,20,10,0.8)); }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .drink-icon { font-size: 2.2em; background: #111; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .drink-details { flex: 1; margin-left: 15px; }
+        .drink-title { font-size: 1.1em; font-weight: 700; color: #fff; margin: 0; }
+        .drink-desc { font-size: 0.85em; color: #aaa; margin: 5px 0 10px 0; }
+
+        .btn-action { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; font-size: 0.9em; text-transform: uppercase; }
+        .btn-free { background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; }
+        .btn-paid { background: transparent; border: 1px solid #FFD580; color: #FFD580; }
+        .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
+
+        /* FLOATING BUTTON (MEUS PEDIDOS) */
+        .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 20px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; }
+        .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7em; }
+
+        /* MODAIS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .modal-box { background: #1E1E1E; padding: 30px 25px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 1px solid #333; max-height: 80vh; overflow-y: auto; }
+        .input-nome { width: 100%; padding: 15px; margin: 20px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; text-align: center; font-size: 1.1em; box-sizing: border-box; }
+        .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
+        
+        /* LISTA MEUS PEDIDOS */
+        .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #555; }
+        .my-order-item.pendente { border-color: #FFD580; } /* Em preparo */
+        .my-order-item.servido { border-color: #4CAF50; } /* Pronto */
+        .status-tag { float: right; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; background: #333; text-transform: uppercase; }
+
+        /* ALERT PRONTO */
+        .ready-alert { animation: pulse 1s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
+
+        #avisoPacote { background: rgba(255, 68, 68, 0.1); border: 1px solid #FF4444; color: #FF4444; padding: 10px; border-radius: 8px; text-align: center; font-size: 0.9em; margin-bottom: 20px; display: none; }
+        .pix-area { background: #2a2a2a; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; }
+        .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <span class="brand-subtitle">GIL EVENTOS</span>
+        <div class="event-name" id="nomeEvento">Carregando...</div>
+        <div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div>
+    </div>
+    <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
+    <div id="listaCardapio"></div>
+</div>
+
+<div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">
+    🍹 Meus Pedidos <div class="float-badge" id="badgeMeusPedidos">0</div>
+</div>
+
+<div class="modal-overlay" id="modalNome" style="display:flex;">
+    <div class="modal-box">
+        <h3>Bem-vindo!</h3>
+        <p style="color:#aaa;">Seu nome para o pedido:</p>
+        <input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome">
+        <button class="btn-confirm" onclick="salvarNome()">ENTRAR</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalConfirm">
+    <div class="modal-box">
+        <h2 style="color:#FFD580; margin-top:0;">Confirmar</h2>
+        <div id="conteudoConfirmacao"></div>
+        <button class="btn-confirm" id="btnFinalizar">ENVIAR PEDIDO</button>
+        <button class="btn-cancel" onclick="document.getElementById('modalConfirm').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalListaPedidos">
+    <div class="modal-box">
+        <h3>Meus Pedidos</h3>
+        <div id="listaMeusPedidosHTML" style="margin-top:20px;"></div>
+        <button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'">FECHAR</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalPronto">
+    <div class="modal-box ready-alert">
+        <div style="font-size:4em;">✅</div>
+        <h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2>
+        <p style="color:#fff;">Pode buscar no balcão.</p>
+        <button class="btn-confirm" style="background:#4CAF50; color:white;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button>
+    </div>
+</div>
+
+<div id="notification" style="position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:12px 20px; border-radius:30px; display:none; border:1px solid #FFD580; z-index:950; white-space:nowrap;"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk",
+        authDomain: "gil-eventos-app-911fe.firebaseapp.com",
+        projectId: "gil-eventos-app-911fe",
+        storageBucket: "gil-eventos-app-911fe.firebasestorage.app",
+        messagingSenderId: "503025880352",
+        appId: "1:503025880352:web:694b7f2889cff501c7db45",
+        measurementId: "G-3DZ1P5C0M3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const params = new URLSearchParams(window.location.search);
+    const EVENTO_ID = params.get('evento');
+    let DADOS_EVENTO = null;
+    let NOME_CONVIDADO = localStorage.getItem('nome_usuario_gil');
+    let TIMER_MINUTOS = 15;
+    let ITEM_ATUAL = null;
+    let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
+
+    if(NOME_CONVIDADO) {
+        document.getElementById('modalNome').style.display = 'none';
+        document.getElementById('displayNome').innerText = NOME_CONVIDADO;
+    }
+    if(EVENTO_ID) iniciarApp();
+
+    function iniciarApp() {
+        // Carrega Evento
+        db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
+            if(doc.exists) {
+                DADOS_EVENTO = doc.data();
+                if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15;
+                renderizarCardapio();
+                verificarTimer();
+            }
+        });
+
+        // ESCUTA MEUS PEDIDOS (RASTREIO)
+        if(MEUS_PEDIDOS_IDS.length > 0) {
+            rastrearPedidos();
+        }
+    }
+
+    function rastrearPedidos() {
+        if(MEUS_PEDIDOS_IDS.length === 0) return;
+        
+        // Firestore "in" limit is 10, so ideally we filter by user name, but IDs is safer for duplicates
+        // Simplificação: Filtra por nome do convidado E evento
+        db.collection("pedidos")
+            .where("evento_id", "==", EVENTO_ID)
+            .where("nome_convidado", "==", NOME_CONVIDADO)
+            .orderBy("data", "desc")
+            .limit(10)
+            .onSnapshot((snapshot) => {
+                const listaHTML = document.getElementById('listaMeusPedidosHTML');
+                listaHTML.innerHTML = '';
+                let contagemAtivos = 0;
+
+                snapshot.forEach(doc => {
+                    const p = doc.data();
+                    let statusText = "Fila";
+                    let cor = "#888";
+                    
+                    if(p.status === 'pendente') { statusText = "👨‍🍳 Preparando"; cor = "#FFD580"; contagemAtivos++; }
+                    else if(p.status === 'aguardando_pagamento') { statusText = "💰 Aguardando Pagamento"; cor = "#FF4444"; contagemAtivos++; }
+                    else if(p.status === 'servido') { 
+                        statusText = "✅ Pronto!"; cor = "#4CAF50"; 
+                        // Verifica se acabou de ficar pronto para alertar
+                        verificarAlertaPronto(doc.id, p.status);
+                    }
+                    else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; }
+
+                    listaHTML.innerHTML += `
+                        <div class="my-order-item" style="border-color:${cor}">
+                            <strong>${p.drink}</strong>
+                            <span class="status-tag" style="color:${cor}">${statusText}</span>
+                            <div style="font-size:0.8em; color:#aaa; margin-top:5px;">${p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                        </div>
+                    `;
+                });
+
+                // Atualiza Botão Flutuante
+                const btn = document.getElementById('btnMeusPedidos');
+                if(snapshot.size > 0) {
+                    btn.style.display = 'flex';
+                    document.getElementById('badgeMeusPedidos').innerText = contagemAtivos;
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+    }
+
+    // Controle para não vibrar o mesmo pedido duas vezes
+    let pedidosNotificados = []; 
+    function verificarAlertaPronto(id, status) {
+        if(status === 'servido' && !pedidosNotificados.includes(id)) {
+            // Toca Vibração
+            if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            // Mostra Modal
+            document.getElementById('modalPronto').style.display = 'flex';
+            pedidosNotificados.push(id);
+        }
+    }
+
+    function getIcone(n) { n = n.toLowerCase(); if(n.includes('gin'))return '🍸'; if(n.includes('caipir'))return '🍋'; if(n.includes('morango')||n.includes('rubi'))return '🍓'; if(n.includes('tropical'))return '🍍'; if(n.includes('uva'))return '🍇'; return '🍹'; }
+
+    function renderizarCardapio() {
+        document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome;
+        const lista = document.getElementById('listaCardapio');
+        lista.innerHTML = '';
+
+        let esgotado = false;
+        if(DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) {
+            esgotado = true;
+            document.getElementById('avisoPacote').style.display = 'block';
+        }
+
+        // Agrupar por Categoria (Classico x Premium)
+        const classicos = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico');
+        const premiums = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium');
+
+        const renderGrupo = (titulo, items) => {
+            if(items.length === 0) return '';
+            let html = `<div class="section-title">${titulo}</div>`;
+            items.forEach(item => {
+                // Lógica: Se for 'pago' OU pacote esgotou, vira pago
+                let isPaid = item.tipo_cobranca === 'pago' || esgotado;
+                // Exceção: Se for clássico e o evento for tradicional (open), nunca cobra (a menos que explicitamente pago)
+                if(DADOS_EVENTO.tipo_servico === 'tradicional' && item.tipo_cobranca === 'pacote') isPaid = false;
+
+                let preco = item.preco || 0;
+                let btnHtml = isPaid 
+                    ? `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${preco})">💲 Pedir (R$ ${preco})</button>`
+                    : `<button class="btn-action btn-free btn-pacote" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 Pedir</button>`;
+
+                let classeCard = item.categoria === 'premium' ? 'drink-card premium-style' : 'drink-card';
+
+                html += `
+                <div class="${classeCard}">
+                    <div class="card-top">
+                        <div class="drink-icon">${getIcone(item.nome)}</div>
+                        <div class="drink-details">
+                            <h3 class="drink-title">${item.nome}</h3>
+                            <p class="drink-desc">${item.desc || ''}</p>
+                        </div>
+                    </div>
+                    ${btnHtml}
+                </div>`;
+            });
+            return html;
+        };
+
+        lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', classicos);
+        lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums);
+    }
+
+    function abrirConfirmacao(nome, tipo, preco) {
+        if(tipo === 'pacote') {
+            const restante = getTempoRestante();
+            if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
+        }
+        ITEM_ATUAL = { nome, tipo, preco };
+        const div = document.getElementById('conteudoConfirmacao');
+        
+        if(tipo === 'extra') {
+            div.innerHTML = `
+                <p style="color:#ddd">Você pediu: <strong>${nome}</strong></p>
+                <div class="pix-area">
+                    <span style="display:block; color:#aaa; font-size:0.8em;">Valor:</span>
+                    <strong style="font-size:1.5em; color:#fff;">R$ ${preco},00</strong>
+                    <hr style="border-color:#444;">
+                    <span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span>
+                    <span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span>
+                    <button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="copiarPix()">Copiar Chave</button>
+                </div>`;
+            document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI";
+        } else {
+            div.innerHTML = `<p style="color:#ddd">Pedir <strong>${nome}</strong>?</p>`;
+            document.getElementById('btnFinalizar').innerText = "CONFIRMAR";
+        }
+        document.getElementById('modalConfirm').style.display = 'flex';
+    }
+
+    document.getElementById('btnFinalizar').onclick = function() {
+        const btn = this; btn.innerText = "..."; btn.disabled = true;
+        let statusInicial = ITEM_ATUAL.tipo === 'extra' ? 'aguardando_pagamento' : 'pendente';
+
+        db.collection("pedidos").add({
+            evento_id: EVENTO_ID,
+            drink: ITEM_ATUAL.nome,
+            tipo: ITEM_ATUAL.tipo,
+            preco: ITEM_ATUAL.preco,
+            nome_convidado: NOME_CONVIDADO || "Anônimo",
+            status: statusInicial,
+            data: new Date()
+        }).then((docRef) => {
+            document.getElementById('modalConfirm').style.display = 'none';
+            btn.disabled = false; btn.innerText = "CONFIRMAR";
+            
+            if(ITEM_ATUAL.tipo === 'pacote') salvarTimer();
+            
+            // Salva ID no localStorage para rastrear
+            MEUS_PEDIDOS_IDS.push(docRef.id);
+            localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS));
+            rastrearPedidos(); // Inicia rastreio se não tiver iniciado
+
+            mostrarNotificacao(ITEM_ATUAL.tipo === 'extra' ? "⏳ Aguardando confirmação do pagamento." : "✅ Pedido enviado!");
+        });
+    }
+
+    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
+    function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; rastrearPedidos(); }
+    function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText); alert("Copiado!"); }
+    
+    function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
+    function getTempoRestante() {
+        const last = localStorage.getItem(`timer_${EVENTO_ID}`);
+        if(!last) return 0;
+        const diff = new Date().getTime() - parseInt(last);
+        const limit = TIMER_MINUTOS * 60000;
+        return diff < limit ? (limit - diff)/1000 : 0;
+    }
+    function verificarTimer() {
+        const restante = getTempoRestante();
+        document.querySelectorAll('.btn-pacote').forEach(btn => {
+            if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; }
+            else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; }
+        });
+        if(restante > 0) setTimeout(verificarTimer, 5000);
+    }
+    function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
+</script>
+</body>
+</html>

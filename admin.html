@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Evento - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; padding: 20px; }
+        .container { max-width: 850px; margin: auto; }
+        h1 { color: #FFD580; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        .card { background: #1E1E1E; padding: 25px; border-radius: 15px; border: 1px solid #333; margin-bottom: 20px; }
+        
+        label { display: block; margin-top: 15px; color: #FFD580; font-size: 0.9em; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; background: #2A2A2A; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: white; font-weight: bold; border-radius: 8px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
+        
+        /* EDITOR AVANÇADO */
+        .drink-item { background: #252525; border: 1px solid #444; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        .drink-header { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .input-nome { flex: 2; }
+        .input-preco { width: 80px !important; text-align: right; }
+        
+        .configs-row { display: flex; gap: 10px; margin-top: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px; }
+        .config-group { flex: 1; }
+        .config-label { font-size: 0.75em; color: #888; margin-bottom: 3px; display: block; }
+        .select-mini { width: 100%; padding: 8px; font-size: 0.9em; border: 1px solid #555; }
+
+        .btn-add { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        .row { display: flex; gap: 10px; } .col { flex: 1; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Configurar Evento ⚙️</h1>
+    <div class="card">
+        <label>Nome do Evento</label>
+        <input type="text" id="nomeEvento" placeholder="Ex: Casamento Ana & Pedro">
+        
+        <div class="row">
+            <div class="col">
+                <label>Modelo do Contrato</label>
+                <select id="tipoServico" onchange="togglePacote()">
+                    <option value="pacote">📦 Pacote Fechado</option>
+                    <option value="tradicional">🍹 Tradicional (Open)</option>
+                </select>
+            </div>
+            <div class="col" id="boxQuantidade">
+                <label>Limite Total (Drinks)</label>
+                <input type="number" id="qtdPacote" placeholder="Ex: 300">
+            </div>
+        </div>
+
+        <label>Chave PIX (Para drinks pagos)</label>
+        <input type="text" id="chavePix" placeholder="E-mail ou CPF">
+
+        <label style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Cardápio & Regras de Cobrança</label>
+        <div id="listaDrinksEditor"></div>
+        <button class="btn-add" onclick="adicionarNovoDrink()">+ ADICIONAR NOVO DRINK</button>
+
+        <label>Timer de Bloqueio (minutos)</label>
+        <input type="number" id="timerBloqueio" value="15">
+
+        <label>Senha Admin</label>
+        <input type="password" id="senhaAdmin" placeholder="Senha mestre">
+
+        <button class="btn" onclick="criarEvento()">CRIAR EVENTO</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk",
+        authDomain: "gil-eventos-app-911fe.firebaseapp.com",
+        projectId: "gil-eventos-app-911fe",
+        storageBucket: "gil-eventos-app-911fe.firebasestorage.app",
+        messagingSenderId: "503025880352",
+        appId: "1:503025880352:web:694b7f2889cff501c7db45",
+        measurementId: "G-3DZ1P5C0M3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // SEU MENU PADRÃO (Com as novas propriedades)
+    let cardapioAtual = [
+        { nome: "Elixir do Sol", desc: "Abacaxi, hortelã e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10 },
+        { nome: "Desejo Proibido", desc: "Frutas vermelhas e vodka.", categoria: "classico", tipo_cobranca: "pacote", preco: 10 },
+        { nome: "Encanto Noturno", desc: "Uva e manjericão.", categoria: "classico", tipo_cobranca: "pacote", preco: 10 },
+        { nome: "Tropical Mix", desc: "Mix de frutas tropicais.", categoria: "classico", tipo_cobranca: "pacote", preco: 12 },
+        { nome: "Caipirinha", desc: "Limão e cachaça.", categoria: "classico", tipo_cobranca: "pacote", preco: 10 },
+        { nome: "Aperol Sunset", desc: "Aperol e espumante.", categoria: "premium", tipo_cobranca: "pago", preco: 25 },
+        { nome: "Gin Tropical", desc: "Gin e energético.", categoria: "premium", tipo_cobranca: "pago", preco: 25 }
+    ];
+
+    function renderizarEditor() {
+        const container = document.getElementById('listaDrinksEditor');
+        container.innerHTML = '';
+        cardapioAtual.forEach((drink, index) => {
+            const div = document.createElement('div');
+            div.className = 'drink-item';
+            
+            // Lógica para mostrar input de preço apenas se for pago
+            const displayPreco = drink.tipo_cobranca === 'pago' ? 'block' : 'none';
+
+            div.innerHTML = `
+                <div class="drink-header">
+                    <input type="text" value="${drink.nome}" class="input-nome" placeholder="Nome">
+                    <button style="background:#ff4444; border:none; color:white; border-radius:5px; padding:5px 10px; cursor:pointer;" onclick="removerDrink(${index})">🗑️</button>
+                </div>
+                <textarea rows="2" class="input-desc" placeholder="Descrição">${drink.desc}</textarea>
+                
+                <div class="configs-row">
+                    <div class="config-group">
+                        <span class="config-label">CATEGORIA VISUAL</span>
+                        <select class="select-mini input-cat">
+                            <option value="classico" ${drink.categoria==='classico'?'selected':''}>🥃 Clássico da Casa</option>
+                            <option value="premium" ${drink.categoria==='premium'?'selected':''}>💎 Premium / Especial</option>
+                        </select>
+                    </div>
+                    <div class="config-group">
+                        <span class="config-label">REGRA DE COBRANÇA</span>
+                        <select class="select-mini input-cob" onchange="togglePrecoInput(this)">
+                            <option value="pacote" ${drink.tipo_cobranca==='pacote'?'selected':''}>🆓 Incluso no Pacote</option>
+                            <option value="pago" ${drink.tipo_cobranca==='pago'?'selected':''}>💲 Pago (Extra)</option>
+                        </select>
+                    </div>
+                    <div class="config-group div-preco" style="display:${displayPreco}">
+                        <span class="config-label">VALOR (R$)</span>
+                        <input type="number" value="${drink.preco}" class="input-preco select-mini">
+                    </div>
+                </div>`;
+            container.appendChild(div);
+        });
+    }
+
+    // Função global para mostrar/esconder preço
+    window.togglePrecoInput = function(select) {
+        const divPreco = select.closest('.configs-row').querySelector('.div-preco');
+        divPreco.style.display = select.value === 'pago' ? 'block' : 'none';
+    }
+
+    function adicionarNovoDrink() { 
+        cardapioAtual.push({ nome: "", desc: "", categoria: "classico", tipo_cobranca: "pacote", preco: 0 }); 
+        renderizarEditor(); 
+    }
+    function removerDrink(index) { cardapioAtual.splice(index, 1); renderizarEditor(); }
+    
+    function togglePacote() {
+        const tipo = document.getElementById('tipoServico').value;
+        const box = document.getElementById('boxQuantidade');
+        box.style.display = (tipo === 'tradicional') ? 'none' : 'block';
+        if(tipo === 'tradicional') document.getElementById('qtdPacote').value = 999999;
+    }
+
+    function criarEvento() {
+        const nome = document.getElementById('nomeEvento').value;
+        const tipo = document.getElementById('tipoServico').value;
+        const qtd = parseInt(document.getElementById('qtdPacote').value) || 0;
+        const pix = document.getElementById('chavePix').value || "Não informada";
+        const timer = parseInt(document.getElementById('timerBloqueio').value);
+        const senha = document.getElementById('senhaAdmin').value;
+        
+        let cardapioFinal = [];
+        document.querySelectorAll('.drink-item').forEach(item => {
+            const cobranca = item.querySelector('.input-cob').value;
+            cardapioFinal.push({
+                nome: item.querySelector('.input-nome').value,
+                desc: item.querySelector('.input-desc').value,
+                categoria: item.querySelector('.input-cat').value, // Classico ou Premium
+                tipo_cobranca: cobranca, // Pacote ou Pago
+                preco: cobranca === 'pago' ? (parseFloat(item.querySelector('.input-preco').value) || 0) : 0
+            });
+        });
+
+        if(!nome || !senha) return alert("Preencha campos obrigatórios!");
+
+        const btn = document.querySelector('.btn');
+        btn.innerText = "Criando..."; btn.disabled = true;
+
+        db.collection("eventos").add({
+            nome: nome,
+            tipo_servico: tipo,
+            total_contratado: qtd,
+            total_consumido: 0,
+            total_vendas_extra: 0,
+            total_faturamento: 0,
+            chave_pix: pix,
+            timer_minutos: timer,
+            senha_admin: senha,
+            cardapio: cardapioFinal,
+            ativo: true,
+            data_criacao: new Date()
+        }).then((docRef) => {
+            window.location.href = `dashboard.html?evento=${docRef.id}`;
+        });
+    }
+    togglePacote(); renderizarEditor();
+</script>
+</body>
+</html>
