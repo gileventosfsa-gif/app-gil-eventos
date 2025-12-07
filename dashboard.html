@@ -35,6 +35,7 @@
         .btn-pay { flex: 2; background: #FFD580; border: none; padding: 10px; border-radius: 5px; color: #000; cursor: pointer; font-weight: bold; }
         .btn-deny { flex: 1; background: #D32F2F; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .btn-cancel { flex: 1; background: transparent; border: 1px solid #777; padding: 10px; border-radius: 5px; color: #aaa; cursor: pointer; }
+        .btn-prio { background: #2196F3; border: none; color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; position: absolute; top: 10px; right: 60px; }
         
         .sound-control { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 15px; border-radius: 30px; border: 1px solid #444; }
         .stock-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
@@ -50,13 +51,18 @@
         .chat-layout { display: flex; height: 400px; gap: 10px; }
         .chat-users { width: 30%; background: #111; border-right: 1px solid #333; overflow-y: auto; }
         .chat-area { width: 70%; display: flex; flex-direction: column; }
-        .user-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; }
+        .user-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; position: relative; }
         .user-item:hover, .user-item.active { background: #222; color: #FFD580; }
+        .user-unread { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; display: inline-block; margin-left: 5px; } /* Bolinha vermelha */
         .chat-msgs { flex-grow: 1; background: #222; padding: 10px; overflow-y: auto; margin-bottom: 10px; border-radius: 5px; }
         .msg { padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; max-width: 80%; font-size: 0.9em; }
         .msg-client { background: #444; align-self: flex-start; }
         .msg-admin { background: #007bff; align-self: flex-end; text-align: right; }
         .chat-controls { display: flex; gap: 5px; }
+        
+        /* BOTÃO CHAT COM BADGE */
+        .btn-chat-wrapper { position: relative; }
+        .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
 
         #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { display: none; }
@@ -89,7 +95,7 @@
                 </div>
             </div>
         </div>
-        <button onclick="document.getElementById('chatOverlay').style.display='none'" class="btn-top" style="margin-top:10px;">Fechar</button>
+        <button onclick="fecharChatAdmin()" class="btn-top" style="margin-top:10px;">Fechar</button>
     </div></div>
 
     <div id="eyeAuthOverlay"><div class="login-box"><h3>👁️ Senha</h3><input type="password" id="senhaEyeInput"><br><br><button class="btn-top" onclick="confirmarSenhaEye()">VER</button><button onclick="document.getElementById('eyeAuthOverlay').style.display='none'" class="btn-top">Cancelar</button></div></div>
@@ -99,7 +105,10 @@
         <div><span id="nomeEvento">Carregando...</span><span class="badge-event" id="tipoEvento">...</span> <button onclick="editarEvento()" class="btn-top" style="background:#333; border:1px solid #555; color:#aaa; font-size:0.8em;">✏️ Editar</button></div>
         <div class="sound-control"><span style="font-size:1.2em;">🔊</span><input type="range" min="0" max="1" step="0.1" value="1" onchange="document.getElementById('somAlerta').volume=this.value"></div>
         <div>
-            <button onclick="abrirChatAdmin()" class="btn-top" style="background:#009688;">💬 Chat</button>
+            <div style="display:inline-block; position:relative;">
+                <button onclick="abrirChatAdmin()" class="btn-top" style="background:#009688;">💬 Chat</button>
+                <div class="chat-badge" id="chatBadgeGlobal">0</div>
+            </div>
             <button onclick="abrirContatos()" class="btn-top" style="background:#9C27B0;">👥 Leads</button>
             <button onclick="toggleModoPreco()" class="btn-top" id="btnModoPreco" style="background:#555;">💲 Modo Normal</button>
             <button onclick="abrirEstoque()" class="btn-top" style="background:#2196F3;">📦 Estoque</button>
@@ -139,6 +148,7 @@
         let FATURAMENTO_VISIVEL = false;
         let wakeLock = null;
         let SELECTED_CHAT_USER = null;
+        let CHAT_UNREAD_COUNT = 0;
 
         if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
         if(EVENTO_ID) iniciarTorreControle();
@@ -179,7 +189,6 @@
                     if(p.status === 'aguardando_pagamento' || p.status === 'pagamento_rejeitado') {
                         classe = 'pagamento';
                         badge = `🔴 AGUARDANDO PGTO (R$ ${p.preco}) ${p.sinalizou_pagamento ? '👉 CLIENTE PAGOU' : ''}`;
-                        // BOTÕES PARA PAGAMENTO - COM CONFIRM
                         btnHtml = `
                             <button class="btn-deny" onclick="recusarPagamento('${p.id}')">🚫 NÃO CONSTA</button>
                             <button class="btn-pay" onclick="confirmarPagamento('${p.id}', ${p.preco})">💰 CONFIRMAR</button>
@@ -187,7 +196,6 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
-                        // BOTÃO PRONTO - COM CONFIRM
                         btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}')">✅ PRONTO</button>`;
                     }
 
@@ -207,12 +215,44 @@
                 const l = document.getElementById('listaHistorico'); l.innerHTML = ''; 
                 s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); 
             });
+
+            // INICIA O VIGIA DO CHAT
+            monitorarChat();
         }
 
-        // --- CHAT ADMIN CORRIGIDO ---
+        // --- CHAT ADMIN CORRIGIDO (COM ALERTA) ---
+        function monitorarChat() {
+            db.collection("chat_mensagens")
+                .where("evento_id", "==", EVENTO_ID)
+                .onSnapshot(snapshot => {
+                    let novasMensagens = 0;
+                    snapshot.docChanges().forEach(change => {
+                        const m = change.doc.data();
+                        if (change.type === 'added' && m.remetente === 'cliente') {
+                            novasMensagens++;
+                            // Toca som se o chat estiver fechado
+                            if(document.getElementById('chatOverlay').style.display === 'none') {
+                                document.getElementById('somAlerta').play().catch(()=>{});
+                            }
+                        }
+                    });
+                    
+                    // Atualiza Badge Global
+                    if(novasMensagens > 0) {
+                        CHAT_UNREAD_COUNT += novasMensagens;
+                        const badge = document.getElementById('chatBadgeGlobal');
+                        badge.innerText = CHAT_UNREAD_COUNT;
+                        badge.style.display = 'flex';
+                    }
+                });
+        }
+
         function abrirChatAdmin() {
             document.getElementById('chatOverlay').style.display = 'flex';
-            // Busca apenas por evento, ordena no JS
+            // Zera o badge ao abrir
+            CHAT_UNREAD_COUNT = 0;
+            document.getElementById('chatBadgeGlobal').style.display = 'none';
+
             db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => {
                 const usuarios = new Set();
                 s.forEach(d => usuarios.add(d.data().nome));
@@ -225,12 +265,15 @@
             });
         }
 
+        function fecharChatAdmin() {
+            document.getElementById('chatOverlay').style.display = 'none';
+        }
+
         function carregarConversa(nome) {
             SELECTED_CHAT_USER = nome;
             const area = document.getElementById('chatAdminMsgs');
             area.innerHTML = 'Carregando...';
             
-            // Busca mensagens e ordena no JS (sem orderBy)
             db.collection("chat_mensagens")
                 .where("evento_id", "==", EVENTO_ID)
                 .where("nome", "==", nome)
@@ -238,7 +281,7 @@
                     area.innerHTML = '';
                     let msgs = [];
                     s.forEach(doc => msgs.push(doc.data()));
-                    msgs.sort((a,b) => a.data - b.data); // Ordena por data
+                    msgs.sort((a,b) => a.data - b.data);
 
                     msgs.forEach(m => {
                         const classe = m.remetente === 'admin' ? 'msg-admin' : 'msg-client';
