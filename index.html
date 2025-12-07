@@ -5,48 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cardápio Digital</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; }
+        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
         .container { max-width: 600px; margin: auto; }
+        
         .header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
         .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 5px; }
         .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .welcome-user { font-size: 0.9em; color: #888; margin-top: 5px; }
+        
         .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 30px 0 15px 0; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
         
         .drink-card { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); position: relative; }
         .drink-card.premium-style { border-color: rgba(255, 213, 128, 0.3); background: linear-gradient(160deg, rgba(30,30,30,0.8), rgba(20,20,10,0.8)); }
         .drink-card.esgotado { opacity: 0.5; filter: grayscale(1); }
+        
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
         .drink-icon { font-size: 2.2em; background: #111; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .drink-details { flex: 1; margin-left: 15px; }
         .drink-title { font-size: 1.1em; font-weight: 700; color: #fff; margin: 0; }
         .drink-desc { font-size: 0.85em; color: #aaa; margin: 5px 0 10px 0; }
+        
         .btn-action { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; font-size: 0.9em; text-transform: uppercase; }
         .btn-free { background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; }
         .btn-paid { background: transparent; border: 1px solid #FFD580; color: #FFD580; }
         .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
 
-        .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 20px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; }
-        .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7em; }
+        /* BOTÃO FLUTUANTE */
+        .float-btn { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(45deg, #FFD580, #FFAA00); color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; transition: transform 0.2s; }
+        .float-btn:active { transform: scale(0.95); }
+        .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-box { background: #1E1E1E; padding: 30px 25px; border-radius: 20px; text-align: center; width: 85%; max-width: 350px; border: 1px solid #333; max-height: 80vh; overflow-y: auto; }
+        /* MODAIS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: #1E1E1E; padding: 30px 20px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        
         .input-nome { width: 100%; padding: 15px; margin: 20px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; text-align: center; font-size: 1.1em; box-sizing: border-box; }
         .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
-        
-        .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #555; position: relative; }
-        .ready-alert { animation: pulse 1s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
-        
-        .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 8px; font-size: 0.8em; border-radius: 4px; margin-top: 8px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: bold; }
-        .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
-        .btn-i-paid { background: #4CAF50; color: white; }
-        .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
+        .btn-cancel { background: transparent; border: none; color: #888; margin-top: 15px; text-decoration: underline; cursor: pointer; }
 
-        #avisoPacote { background: rgba(255, 68, 68, 0.1); border: 1px solid #FF4444; color: #FF4444; padding: 10px; border-radius: 8px; text-align: center; font-size: 0.9em; margin-bottom: 20px; display: none; }
+        /* LISTA MEUS PEDIDOS */
+        .my-order-item { background: #252525; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 5px solid #555; position: relative; }
+        .status-tag { float: right; font-size: 0.75em; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.3); font-weight: bold; text-transform: uppercase; }
+        .btn-client-action { width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 0.85em; text-transform: uppercase; }
+        .btn-i-paid { background: #4CAF50; color: white; }
+        .btn-client-cancel { background: transparent; border: 1px solid #FF4444; color: #FF4444; }
+        
+        .payment-alert { background: rgba(255, 68, 68, 0.15); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: bold; }
+        
+        /* ANIMAÇÃO PRONTO */
+        .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
+
+        #avisoPacote { background: rgba(255, 68, 68, 0.1); border: 1px solid #FF4444; color: #FF4444; padding: 12px; border-radius: 8px; text-align: center; font-size: 0.9em; margin-bottom: 25px; display: none; font-weight: bold; }
         .pix-area { background: #2a2a2a; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; }
         .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; }
+        
+        #notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 12px 25px; border-radius: 50px; font-size: 0.9em; box-shadow: 0 5px 20px rgba(0,0,0,0.8); display: none; z-index: 1000; border: 1px solid #FFD580; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -57,21 +73,57 @@
         <div class="event-name" id="nomeEvento">Carregando...</div>
         <div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div>
     </div>
+    
     <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
     <div id="listaCardapio"></div>
 </div>
 
-<div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">🍹 Meus Pedidos <div class="float-badge" id="badgeMeusPedidos">0</div></div>
+<div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">
+    🛒 Meus Pedidos <div class="float-badge" id="badgeMeusPedidos">0</div>
+</div>
 
-<div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Seu nome para o pedido:</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
-<div class="modal-overlay" id="modalConfirm"><div class="modal-box"><h2 style="color:#FFD580; margin-top:0;">Confirmar</h2><div id="conteudoConfirmacao"></div><button class="btn-confirm" id="btnFinalizar">ENVIAR PEDIDO</button><button class="btn-cancel" onclick="document.getElementById('modalConfirm').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button></div></div>
-<div class="modal-overlay" id="modalListaPedidos"><div class="modal-box"><h3>Meus Pedidos</h3><div id="listaMeusPedidosHTML" style="margin-top:20px;"></div><button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'">FECHAR</button></div></div>
-<div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">✅</div><h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2><p style="color:#fff;">Pode buscar no balcão.</p><button class="btn-confirm" style="background:#4CAF50; color:white;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
-<div id="notification" style="position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:12px 20px; border-radius:30px; display:none; border:1px solid #FFD580; z-index:950; white-space:nowrap;"></div>
+<div class="modal-overlay" id="modalNome" style="display:flex;">
+    <div class="modal-box">
+        <h2 style="color:#FFD580;">Bem-vindo!</h2>
+        <p style="color:#aaa; margin-bottom:20px;">Como devemos chamar você no bar?</p>
+        <input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Digite seu Nome ou Apelido">
+        <button class="btn-confirm" onclick="salvarNome()">ENTRAR NA FESTA</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalConfirm">
+    <div class="modal-box">
+        <h2 style="color:#FFD580; margin-top:0;">Confirmar Pedido</h2>
+        <div id="conteudoConfirmacao"></div>
+        <button class="btn-confirm" id="btnFinalizar">ENVIAR PEDIDO</button>
+        <button class="btn-cancel" onclick="document.getElementById('modalConfirm').style.display='none'">Cancelar</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalListaPedidos">
+    <div class="modal-box">
+        <h3 style="color:#FFD580; margin-top:0;">Meus Pedidos</h3>
+        <div id="listaMeusPedidosHTML" style="margin-top:20px; text-align:left;">
+            </div>
+        <button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:20px;">FECHAR</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalPronto">
+    <div class="modal-box ready-alert">
+        <div style="font-size:4em;">🎉</div>
+        <h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2>
+        <p style="color:#fff; font-size:1.1em;">Pode buscar no balcão agora.</p>
+        <button class="btn-confirm" style="background:#4CAF50; color:white;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button>
+    </div>
+</div>
+
+<div id="notification"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 <script>
+    // --- CONFIGURAÇÃO ---
     const firebaseConfig = {
         apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk",
         authDomain: "gil-eventos-app-911fe.firebaseapp.com",
@@ -83,18 +135,28 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
     const params = new URLSearchParams(window.location.search);
     const EVENTO_ID = params.get('evento');
     let DADOS_EVENTO = null;
     let NOME_CONVIDADO = localStorage.getItem('nome_usuario_gil');
     let TIMER_MINUTOS = 15;
     let ITEM_ATUAL = null;
-    let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
 
-    if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
-    if(EVENTO_ID) iniciarApp();
+    // --- INICIALIZAÇÃO ---
+    if(NOME_CONVIDADO) {
+        document.getElementById('modalNome').style.display = 'none';
+        document.getElementById('displayNome').innerText = NOME_CONVIDADO;
+    }
+
+    if(EVENTO_ID) {
+        iniciarApp();
+    } else {
+        document.body.innerHTML = "<h3 style='color:white;text-align:center;margin-top:50px;'>Erro: QR Code inválido.</h3>";
+    }
 
     function iniciarApp() {
+        // 1. Carrega dados do evento
         db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
             if(doc.exists) {
                 DADOS_EVENTO = doc.data();
@@ -103,78 +165,173 @@
                 verificarTimer();
             }
         });
-        if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
+
+        // 2. Rastreia pedidos (Se tiver nome)
+        if(NOME_CONVIDADO) {
+            rastrearPedidos();
+        }
     }
 
+    // --- RASTREAMENTO DE PEDIDOS (CORRIGIDO) ---
     function rastrearPedidos() {
-        if(MEUS_PEDIDOS_IDS.length === 0) return;
-        db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).orderBy("data", "desc").limit(10).onSnapshot((snapshot) => {
-            const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0;
-            snapshot.forEach(doc => {
-                const p = doc.data();
-                let statusText = "Fila", cor = "#888", extraHTML = "";
-                let podeCancelar = true;
-                
-                if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; }
-                else if(p.status === 'aguardando_pagamento') { 
-                    statusText = "🔴 Aguardando Pagamento"; cor = "#FF4444"; contagemAtivos++;
-                    // Botão Já Paguei
-                    if(!p.sinalizou_pagamento) {
-                        extraHTML += `<button class="btn-client-action btn-i-paid" onclick="avisarPagamento('${doc.id}')">✅ JÁ FIZ O PIX</button>`;
-                    } else {
-                        extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando Pagamento...</span>`;
+        if(!NOME_CONVIDADO) return;
+
+        db.collection("pedidos")
+            .where("evento_id", "==", EVENTO_ID)
+            .where("nome_convidado", "==", NOME_CONVIDADO)
+            // Removida ordenação para evitar erro de índice no Firebase
+            .onSnapshot((snapshot) => {
+                const listaHTML = document.getElementById('listaMeusPedidosHTML');
+                listaHTML.innerHTML = '';
+                let contagemAtivos = 0;
+
+                if(snapshot.empty) {
+                    listaHTML.innerHTML = "<p style='color:#777; text-align:center;'>Você ainda não fez pedidos.</p>";
+                    document.getElementById('btnMeusPedidos').style.display = 'none';
+                    return;
+                }
+
+                // Convertemos para array para ordenar manualmente no JS (já que tiramos do Firebase)
+                let pedidos = [];
+                snapshot.forEach(doc => pedidos.push({id: doc.id, ...doc.data()}));
+                pedidos.sort((a, b) => b.data - a.data); // Mais recentes primeiro
+
+                pedidos.forEach(p => {
+                    let statusText = "Fila", cor = "#888", extraHTML = "";
+                    let podeCancelar = true;
+                    
+                    if(p.status === 'pendente') { 
+                        statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; 
                     }
-                }
-                else if(p.status === 'pagamento_rejeitado') {
-                    statusText = "❌ Pix Não Encontrado"; cor = "#FF4444";
-                    extraHTML += `<span class="payment-alert">O caixa não identificou seu pagamento. Tente novamente ou vá ao balcão.</span>`;
-                }
-                else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(doc.id, p.status); podeCancelar = false; }
-                else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; }
+                    else if(p.status === 'aguardando_pagamento') { 
+                        statusText = "🔴 Aguardando Pagamento"; cor = "#FF4444"; contagemAtivos++;
+                        
+                        if(!p.sinalizou_pagamento) {
+                            extraHTML += `<button class="btn-client-action btn-i-paid" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`;
+                            extraHTML += `<span class="payment-alert">⚠️ Realize o PIX para seu drink ser preparado!</span>`;
+                        } else {
+                            extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando Pagamento...</span>`;
+                        }
+                    }
+                    else if(p.status === 'pagamento_rejeitado') {
+                        statusText = "❌ Pix Não Encontrado"; cor = "#FF4444";
+                        extraHTML += `<span class="payment-alert">O caixa não identificou o pagamento. Tente novamente ou vá ao balcão.</span>`;
+                    }
+                    else if(p.status === 'servido') { 
+                        statusText = "🟢 Pronto!"; cor = "#4CAF50"; 
+                        verificarAlertaPronto(p.id, p.status); 
+                        podeCancelar = false; 
+                    }
+                    else if(p.status === 'cancelado') { 
+                        statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; 
+                    }
 
-                if(podeCancelar) {
-                    extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${doc.id}')">Cancelar Pedido</button>`;
-                }
+                    if(podeCancelar) {
+                        extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
+                    }
 
-                listaHTML.innerHTML += `<div class="my-order-item" style="border-color:${cor}"><strong>${p.drink}</strong><span class="status-tag" style="color:${cor}; float:right; font-weight:bold;">${statusText}</span><div style="font-size:0.8em; color:#aaa; margin-top:5px;">${p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>${extraHTML}</div>`;
+                    const hora = p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+                    listaHTML.innerHTML += `
+                        <div class="my-order-item" style="border-left-color:${cor}">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong>${p.drink}</strong>
+                                <span class="status-tag" style="color:${cor};">${statusText}</span>
+                            </div>
+                            <div style="font-size:0.8em; color:#aaa; margin-top:5px;">Pedido às ${hora}</div>
+                            ${extraHTML}
+                        </div>
+                    `;
+                });
+
+                const btn = document.getElementById('btnMeusPedidos');
+                if(contagemAtivos > 0) {
+                    btn.style.display = 'flex';
+                    document.getElementById('badgeMeusPedidos').innerText = contagemAtivos;
+                } else {
+                    btn.style.display = 'none';
+                }
             });
-            const btn = document.getElementById('btnMeusPedidos');
-            if(snapshot.size > 0) { btn.style.display = 'flex'; document.getElementById('badgeMeusPedidos').innerText = contagemAtivos; } else { btn.style.display = 'none'; }
-            
-            // Abre o modal automaticamente se tiver pedido novo aguardando pagamento
-            // if(contagemAtivos > 0) document.getElementById('modalListaPedidos').style.display='flex';
-        });
     }
 
+    // --- FUNÇÕES DE AÇÃO ---
     function avisarPagamento(id) {
-        db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true });
-        mostrarNotificacao("Avisamos ao caixa! Aguarde a confirmação.");
+        if(confirm("Você confirma que já fez a transferência PIX?")) {
+            db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true });
+            mostrarNotificacao("Avisamos ao caixa! Aguarde a confirmação.");
+        }
     }
 
     function cancelarPedidoCliente(id) {
-        if(confirm("Deseja mesmo cancelar?")) {
+        if(confirm("Deseja mesmo cancelar este pedido?")) {
             db.collection("pedidos").doc(id).update({ status: 'cancelado' });
         }
     }
 
-    let pedidosNotificados = []; 
-    function verificarAlertaPronto(id, status) { 
-        if(status === 'servido' && !pedidosNotificados.includes(id)) { 
-            if(navigator.vibrate) navigator.vibrate([200, 100, 200]); 
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            document.getElementById('modalPronto').style.display = 'flex'; 
-            pedidosNotificados.push(id); 
-        } 
-    }
+    // --- ALERTA SONORO E VISUAL (CONFETES) ---
+    let pedidosNotificados = [];
     
-    function getIcone(n) { n = n.toLowerCase(); if(n.includes('gin'))return '🍸'; if(n.includes('caipir'))return '🍋'; if(n.includes('morango')||n.includes('rubi'))return '🍓'; if(n.includes('tropical')||n.includes('sol'))return '🍍'; if(n.includes('uva'))return '🍇'; if(n.includes('mojito')||n.includes('brisa'))return '🌿'; return '🍹'; }
+    // Função para tocar som "Beep" (Funciona sem arquivo MP3)
+    function tocarBeep() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) {
+                const ctx = new AudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
+                setTimeout(() => osc.stop(), 500);
+            }
+        } catch(e) { console.log("Audio API não suportada"); }
+    }
+
+    function verificarAlertaPronto(id, status) {
+        if(status === 'servido' && !pedidosNotificados.includes(id)) {
+            // Tenta vibrar
+            if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
+            
+            // Toca Som
+            tocarBeep();
+
+            // Solta Confetes
+            try {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            } catch(e) { console.log("Erro confetti"); }
+
+            // Mostra Modal
+            document.getElementById('modalPronto').style.display = 'flex';
+            pedidosNotificados.push(id);
+        }
+    }
+
+    // --- RENDERIZAÇÃO DO CARDÁPIO ---
+    function getIcone(n) { 
+        n = n.toLowerCase(); 
+        if(n.includes('gin')) return '🍸'; 
+        if(n.includes('caipir')) return '🍋'; 
+        if(n.includes('morango')||n.includes('rubi')||n.includes('coquetel')) return '🍓'; 
+        if(n.includes('tropical')||n.includes('sol')) return '🍍'; 
+        if(n.includes('uva')||n.includes('encanto')) return '🍇'; 
+        if(n.includes('mojito')||n.includes('brisa')) return '🌿'; 
+        if(n.includes('aperol')) return '🧡'; 
+        return '🍹'; 
+    }
 
     function renderizarCardapio() {
         document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome;
         const lista = document.getElementById('listaCardapio');
         lista.innerHTML = '';
+
         let esgotado = false;
-        if(DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) esgotado = true;
+        if(DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) {
+            esgotado = true;
+            document.getElementById('avisoPacote').style.display = 'block';
+        }
 
         const classicos = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico');
         const premiums = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium');
@@ -184,6 +341,7 @@
             let html = `<div class="section-title">${titulo}</div>`;
             items.forEach(item => {
                 let disponivel = item.disponivel !== false;
+                
                 let precoFinal = item.preco || 0;
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
 
@@ -199,13 +357,24 @@
                 } else if(isPaid) {
                     btnHtml = `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal})">💲 Pedir (R$ ${precoFinal})</button>`;
                 } else {
-                    btnHtml = `<button class="btn-action btn-free btn-pacote" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 Pedir do Pacote</button>`;
+                    btnHtml = `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 Pedir do Pacote</button>`;
                 }
 
-                html += `<div class="drink-card ${classeExtra}"><div class="card-top"><div class="drink-icon">${getIcone(item.nome)}</div><div class="drink-details"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${item.desc || ''}</p></div></div>${btnHtml}</div>`;
+                html += `
+                <div class="drink-card ${classeExtra}">
+                    <div class="card-top">
+                        <div class="drink-icon">${getIcone(item.nome)}</div>
+                        <div class="drink-details">
+                            <h3 class="drink-title">${item.nome}</h3>
+                            <p class="drink-desc">${item.desc || ''}</p>
+                        </div>
+                    </div>
+                    ${btnHtml}
+                </div>`;
             });
             return html;
         };
+
         lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', classicos);
         lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums);
     }
@@ -214,9 +383,21 @@
         if(tipo === 'pacote') { const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`); }
         ITEM_ATUAL = { nome, tipo, preco };
         const div = document.getElementById('conteudoConfirmacao');
+        
         if(tipo === 'extra') {
-            div.innerHTML = `<p style="color:#ddd">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor:</span><strong style="font-size:1.5em; color:#fff;">R$ ${preco},00</strong><hr style="border-color:#444;"><span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span><button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="copiarPix()">Copiar Chave</button></div><p style="font-size:0.8em; color:#FFD580;">⚠️ Realize o pagamento para iniciar o preparo.</p>`;
-            document.getElementById('btnFinalizar').innerText = "ENVIAR PEDIDO";
+            div.innerHTML = `
+                <p style="color:#ddd">Você pediu: <strong>${nome}</strong></p>
+                <div class="pix-area">
+                    <span style="display:block; color:#aaa; font-size:0.8em;">Valor a pagar:</span>
+                    <strong style="font-size:1.5em; color:#fff;">R$ ${preco},00</strong>
+                    <hr style="border-color:#444;">
+                    <span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span>
+                    <span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span>
+                    <button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="copiarPix()">Copiar Chave</button>
+                </div>
+                <p style="font-size:0.8em; color:#FFD580;">⚠️ Realize o pagamento agora para iniciar o preparo.</p>
+            `;
+            document.getElementById('btnFinalizar').innerText = "JÁ FIZ O PIX / ENVIAR";
         } else {
             div.innerHTML = `<p style="color:#ddd">Pedir <strong>${nome}</strong>?</p>`;
             document.getElementById('btnFinalizar').innerText = "CONFIRMAR";
@@ -227,22 +408,48 @@
     document.getElementById('btnFinalizar').onclick = function() {
         const btn = this; btn.innerText = "..."; btn.disabled = true;
         let statusInicial = ITEM_ATUAL.tipo === 'extra' ? 'aguardando_pagamento' : 'pendente';
-        db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: ITEM_ATUAL.nome, tipo: ITEM_ATUAL.tipo, preco: ITEM_ATUAL.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", status: statusInicial, data: new Date() }).then((docRef) => {
-            document.getElementById('modalConfirm').style.display = 'none'; btn.disabled = false; btn.innerText = "CONFIRMAR";
+        
+        db.collection("pedidos").add({
+            evento_id: EVENTO_ID,
+            drink: ITEM_ATUAL.nome,
+            tipo: ITEM_ATUAL.tipo,
+            preco: ITEM_ATUAL.preco,
+            nome_convidado: NOME_CONVIDADO || "Anônimo",
+            status: statusInicial,
+            sinalizou_pagamento: false,
+            data: new Date()
+        }).then((docRef) => {
+            document.getElementById('modalConfirm').style.display = 'none';
+            btn.disabled = false;
             if(ITEM_ATUAL.tipo === 'pacote') salvarTimer();
-            MEUS_PEDIDOS_IDS.push(docRef.id); localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); rastrearPedidos();
-            mostrarNotificacao(ITEM_ATUAL.tipo === 'extra' ? "⏳ Aguardando pagamento..." : "✅ Pedido enviado!");
-            // Abre o modal de pedidos para o cliente ver o status
-            setTimeout(abrirMeusPedidos, 500);
+            
+            mostrarNotificacao(ITEM_ATUAL.tipo === 'extra' ? "Aguardando confirmação do pagamento..." : "Pedido enviado!");
+            
+            // Abre lista de pedidos automaticamente para o cliente ver o status
+            setTimeout(abrirMeusPedidos, 600);
         });
     }
 
-    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
-    function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; rastrearPedidos(); }
+    function abrirMeusPedidos() { 
+        document.getElementById('modalListaPedidos').style.display='flex';
+        // Se a lista estiver vazia (bug de cache), tenta rastrear de novo
+        if(document.getElementById('listaMeusPedidosHTML').innerHTML === "") rastrearPedidos();
+    }
+
+    function salvarNome() {
+        const val = document.getElementById('inputNomeConvidado').value;
+        if(!val) return alert("Digite seu nome!");
+        NOME_CONVIDADO = val;
+        localStorage.setItem('nome_usuario_gil', val);
+        document.getElementById('modalNome').style.display = 'none';
+        document.getElementById('displayNome').innerText = val;
+        rastrearPedidos(); // Começa a rastrear assim que salva o nome
+    }
+
     function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText); alert("Copiado!"); }
     function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
     function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
-    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
+    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-free').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.style.opacity = '0.5'; btn.innerText = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.style.opacity = '1'; btn.innerText = `🆓 Pedir do Pacote`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
     function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
 </script>
 </body>
