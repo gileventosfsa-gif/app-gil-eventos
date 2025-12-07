@@ -7,13 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; }
+        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
         .container { max-width: 600px; margin: auto; }
         .header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
         .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 5px; }
         .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
         .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 30px 0 15px 0; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
         
+        /* CARDS */
         .drink-card { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); position: relative; }
         .drink-card.premium-style { border-color: rgba(255, 213, 128, 0.3); background: linear-gradient(160deg, rgba(30,30,30,0.8), rgba(20,20,10,0.8)); }
         .drink-card.esgotado { opacity: 0.5; filter: grayscale(1); }
@@ -22,37 +23,53 @@
         .drink-details { flex: 1; margin-left: 15px; }
         .drink-title { font-size: 1.1em; font-weight: 700; color: #fff; margin: 0; }
         .drink-desc { font-size: 0.85em; color: #aaa; margin: 5px 0 10px 0; }
+        
         .btn-action { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; font-size: 0.9em; text-transform: uppercase; }
         .btn-free { background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; }
         .btn-paid { background: transparent; border: 1px solid #FFD580; color: #FFD580; }
         .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
 
         .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 20px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; }
-        .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7em; }
+        .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
 
+        /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-box { background: #1E1E1E; padding: 30px 25px; border-radius: 20px; text-align: center; width: 85%; max-width: 350px; border: 1px solid #333; max-height: 85vh; overflow-y: auto; }
-        .input-nome { width: 100%; padding: 15px; margin: 20px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; text-align: center; font-size: 1.1em; box-sizing: border-box; }
-        .input-obs { width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; font-family: 'Poppins', sans-serif; resize: none; box-sizing: border-box; }
+        .modal-box { background: #1E1E1E; padding: 20px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; }
+        
+        .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; }
         .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
         
-        .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #555; position: relative; }
-        .ready-alert { animation: pulse 1s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
+        /* ABAS DO MODAL MEUS PEDIDOS */
+        .modal-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
+        .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 10px; font-weight: bold; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
         
-        .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 8px; font-size: 0.8em; border-radius: 4px; margin-top: 8px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: bold; }
-        .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
-        .btn-i-paid { background: #4CAF50; color: white; }
-        .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
+        .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
+        .tab-content.active { display: block; }
 
-        .marketing-box { background: linear-gradient(135deg, #2a2a2a, #1f1f1f); padding: 15px; border-radius: 10px; border: 1px solid #FFD580; margin-bottom: 20px; text-align: left; }
-        .marketing-title { color: #FFD580; font-weight: bold; margin-bottom: 5px; display: block; }
-        .marketing-text { font-size: 0.8em; color: #ccc; margin-bottom: 10px; line-height: 1.4; }
+        /* CHAT STYLES */
+        .chat-container { display: flex; flex-direction: column; height: 300px; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-input-area { display: flex; gap: 5px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
+        .chat-input { flex: 1; background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 20px; }
+        .chat-send { background: #FFD580; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; }
+        
+        .msg { padding: 8px 12px; border-radius: 10px; max-width: 80%; font-size: 0.9em; line-height: 1.4; }
+        .msg-mine { background: #4CAF50; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
+        .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 0; }
+        .msg-time { font-size: 0.7em; opacity: 0.7; display: block; text-align: right; margin-top: 3px; }
 
-        #avisoPacote { background: rgba(255, 68, 68, 0.1); border: 1px solid #FF4444; color: #FF4444; padding: 10px; border-radius: 8px; text-align: center; font-size: 0.9em; margin-bottom: 20px; display: none; }
+        /* LISTA PEDIDOS */
+        .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; }
+        .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 8px; font-size: 0.8em; border-radius: 4px; margin-top: 8px; display: block; border: 1px dashed #FF4444; text-align: center; }
+        
+        /* CONFETTI & NOTIF */
+        .ready-alert { animation: pulse 1s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 100% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); } }
+        #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 12px 20px; border-radius: 30px; display:none; border:1px solid #FFD580; z-index:950; white-space:nowrap; }
+        
         .pix-area { background: #2a2a2a; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; }
         .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; }
-        #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 12px 20px; border-radius: 30px; display:none; border:1px solid #FFD580; z-index:950; white-space:nowrap; }
     </style>
 </head>
 <body>
@@ -63,34 +80,53 @@
         <div class="event-name" id="nomeEvento">Carregando...</div>
         <div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div>
     </div>
-    <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
+    <div id="avisoPacote" style="display:none; text-align:center; color:#FF4444; margin-bottom:20px;">⚠️ PACOTE ESGOTADO</div>
     <div id="listaCardapio"></div>
 </div>
 
 <div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">🍹 Meus Pedidos <div class="float-badge" id="badgeMeusPedidos">0</div></div>
 
-<div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Seu nome para o pedido:</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
+<div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Seu nome:</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
 
-<div class="modal-overlay" id="modalConfirm"><div class="modal-box"><h2 style="color:#FFD580; margin-top:0;">Confirmar</h2><div id="conteudoConfirmacao"></div>
-    <textarea id="inputObservacao" class="input-obs" placeholder="Observação? (Opcional)"></textarea>
-    <button class="btn-confirm" id="btnFinalizar">ENVIAR PEDIDO</button><button class="btn-cancel" onclick="document.getElementById('modalConfirm').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button></div></div>
+<div class="modal-overlay" id="modalConfirm"><div class="modal-box"><h2 style="color:#FFD580; margin:0;">Confirmar</h2><div id="conteudoConfirmacao"></div><textarea id="inputObservacao" class="input-obs" placeholder="Observação? (Opcional)"></textarea><button class="btn-confirm" id="btnFinalizar">ENVIAR</button><button onclick="document.getElementById('modalConfirm').style.display='none'" style="background:none; border:none; color:#888; margin-top:10px;">Cancelar</button></div></div>
 
 <div class="modal-overlay" id="modalListaPedidos">
-    <div class="modal-box">
-        <div class="marketing-box" id="boxMarketing">
-            <span class="marketing-title">🔔 Fique por dentro!</span>
-            <p class="marketing-text">Adicione seu número para receber avisos.</p>
-            <input type="text" id="mktNome" class="input-nome" placeholder="Seu Nome" style="margin:5px 0; font-size:0.9em; padding:10px;">
-            <input type="tel" id="mktZap" class="input-nome" placeholder="Seu WhatsApp" style="margin:5px 0; font-size:0.9em; padding:10px;">
-            <button class="btn-confirm" onclick="salvarContatoMarketing()" style="font-size:0.9em; padding:10px; margin-top:5px;">SALVAR CONTATO</button>
+    <div class="modal-box" style="height: 500px;">
+        <div class="modal-tabs">
+            <button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Pedidos</button>
+            <button class="tab-btn" onclick="mudarAba('chat')">💬 Fale com o Bar</button>
         </div>
-        <h3 style="color:#FFD580; margin-top:0;">Meus Pedidos</h3>
-        <div id="listaMeusPedidosHTML" style="margin-top:20px;"></div>
-        <button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'">FECHAR</button>
+
+        <div id="tab-pedidos" class="tab-content active">
+            
+            <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #FFD580; text-align:left;">
+                <small style="color:#FFD580; font-weight:bold;">🔔 Fique por dentro!</small>
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                    <input type="tel" id="mktZap" style="background:#111; border:1px solid #444; color:white; padding:5px; border-radius:5px; flex:1;" placeholder="WhatsApp">
+                    <button onclick="salvarZap()" style="background:#4CAF50; border:none; color:white; padding:5px 10px; border-radius:5px;">Salvar</button>
+                </div>
+            </div>
+
+            <div id="listaMeusPedidosHTML"></div>
+        </div>
+
+        <div id="tab-chat" class="tab-content">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <p style="text-align:center; color:#555; font-size:0.8em;">Envie uma mensagem para o barman.</p>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem...">
+                    <button class="chat-send" onclick="enviarMensagem()">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:10px; padding:10px;">FECHAR</button>
     </div>
 </div>
 
-<div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">✅</div><h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2><p style="color:#fff;">Pode buscar no balcão.</p><button class="btn-confirm" style="background:#4CAF50; color:white;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
+<div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">🎉</div><h2 style="color:#4CAF50;">PRONTO!</h2><p style="color:#fff;">Pode buscar seu drink.</p><button class="btn-confirm" style="background:#4CAF50;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
 <div id="notification"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -115,7 +151,7 @@
     let ITEM_ATUAL = null;
     let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
 
-    if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; document.getElementById('mktNome').value = NOME_CONVIDADO; }
+    if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
     if(EVENTO_ID) iniciarApp();
 
     function iniciarApp() {
@@ -128,59 +164,108 @@
             }
         });
         if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
+        if(NOME_CONVIDADO) carregarChat(); // Inicia chat
     }
 
-    function salvarContatoMarketing() {
-        const nome = document.getElementById('mktNome').value;
-        const zap = document.getElementById('mktZap').value;
-        if(!nome || !zap) return alert("Preencha nome e WhatsApp!");
-        db.collection("clientes_marketing").add({ nome: nome, whatsapp: zap, evento_id: EVENTO_ID, data_cadastro: new Date() }).then(() => {
-            document.getElementById('boxMarketing').innerHTML = "<p style='color:#4CAF50; text-align:center;'>✅ Obrigado! Contato salvo.</p>";
-            NOME_CONVIDADO = nome; localStorage.setItem('nome_usuario_gil', nome);
+    // --- LÓGICA DO CHAT ---
+    function mudarAba(aba) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        if(aba === 'pedidos') {
+            document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+            document.getElementById('tab-pedidos').classList.add('active');
+        } else {
+            document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            document.getElementById('tab-chat').classList.add('active');
+            rolarChat();
+        }
+    }
+
+    function enviarMensagem() {
+        const txt = document.getElementById('chatInput').value;
+        if(!txt.trim()) return;
+        
+        db.collection("chat_mensagens").add({
+            evento_id: EVENTO_ID,
+            nome: NOME_CONVIDADO,
+            mensagem: txt,
+            remetente: 'cliente',
+            data: new Date()
         });
+        document.getElementById('chatInput').value = '';
+    }
+
+    function carregarChat() {
+        db.collection("chat_mensagens")
+            .where("evento_id", "==", EVENTO_ID)
+            .where("nome", "==", NOME_CONVIDADO)
+            .orderBy("data", "asc")
+            .onSnapshot((snapshot) => {
+                const div = document.getElementById('chatMessages');
+                div.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const m = doc.data();
+                    const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin';
+                    div.innerHTML += `
+                        <div class="msg ${classe}">
+                            ${m.mensagem}
+                            <span class="msg-time">${hora}</span>
+                        </div>`;
+                });
+                rolarChat();
+            });
+    }
+    function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
+
+    // --- RESTANTE DO CÓDIGO (PEDIDOS) ---
+    function salvarZap() {
+        const zap = document.getElementById('mktZap').value;
+        if(!zap) return alert("Digite o número!");
+        db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() });
+        alert("Salvo!");
     }
 
     function rastrearPedidos() {
         if(MEUS_PEDIDOS_IDS.length === 0) return;
-        // REMOVIDA ORDENAÇÃO DO DB PARA EVITAR ERRO DE ÍNDICE
-        db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).limit(10).onSnapshot((snapshot) => {
-            const listaHTML = document.getElementById('listaMeusPedidosHTML');
-            listaHTML.innerHTML = '';
-            let contagemAtivos = 0;
-
-            // ORDENAÇÃO MANUAL JS (CORREÇÃO DE BUG)
+        // Ordenação manual para evitar erro de índice
+        db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => {
+            const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0;
+            
             let pedidos = [];
-            snapshot.forEach(doc => pedidos.push({id: doc.id, ...doc.data()}));
-            pedidos.sort((a, b) => b.data - a.data);
+            snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()}));
+            pedidos.sort((a,b) => b.data - a.data);
 
             pedidos.forEach(p => {
                 let statusText = "Fila", cor = "#888", extraHTML = "";
                 let podeCancelar = true;
-                
                 if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; }
                 else if(p.status === 'aguardando_pagamento') { 
-                    statusText = "🔴 Aguardando Confirmação"; cor = "#FF4444"; contagemAtivos++; 
-                    if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`;
-                    else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando Pagamento...</span>`;
+                    statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; contagemAtivos++; 
+                    if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`;
+                    else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`;
                 }
-                else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Encontrado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não identificou o pagamento.</span>`; }
+                else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; }
                 else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; }
                 else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; }
 
-                if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
+                if(podeCancelar) extraHTML += `<button onclick="cancelarPedidoCliente('${p.id}')" style="background:none; border:1px solid #555; color:#aaa; width:100%; margin-top:5px; border-radius:5px;">Cancelar</button>`;
 
-                listaHTML.innerHTML += `<div class="my-order-item" style="border-color:${cor}"><strong>${p.drink}</strong><span class="status-tag" style="color:${cor}; float:right; font-weight:bold;">${statusText}</span><div style="font-size:0.8em; color:#aaa; margin-top:5px;">${p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>${extraHTML}</div>`;
+                listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong><span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`;
             });
+            
             const btn = document.getElementById('btnMeusPedidos');
             if(snapshot.size > 0) { btn.style.display = 'flex'; document.getElementById('badgeMeusPedidos').innerText = contagemAtivos; } else { btn.style.display = 'none'; }
         });
     }
 
-    function avisarPagamento(id) { if(confirm("Confirma que fez o PIX?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); mostrarNotificacao("Avisamos ao caixa!"); } }
-    function cancelarPedidoCliente(id) { if(confirm("Cancelar pedido?")) { db.collection("pedidos").doc(id).update({ status: 'cancelado' }); } }
-    
+    // Funções auxiliares mantidas...
+    function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
+    function cancelarPedidoCliente(id) { if(confirm("Cancelar?")) { db.collection("pedidos").doc(id).update({ status: 'cancelado' }); } }
     let pedidosNotificados = []; 
     function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
+    
     function getIcone(n) { n = n.toLowerCase(); if(n.includes('gin'))return '🍸'; if(n.includes('caipir'))return '🍋'; if(n.includes('morango')||n.includes('rubi'))return '🍓'; if(n.includes('tropical')||n.includes('sol'))return '🍍'; if(n.includes('uva'))return '🍇'; if(n.includes('mojito')||n.includes('brisa'))return '🌿'; return '🍹'; }
 
     function renderizarCardapio() {
@@ -220,10 +305,10 @@
     function abrirConfirmacao(nome, tipo, preco) {
         if(tipo === 'pacote') { const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`); }
         ITEM_ATUAL = { nome, tipo, preco };
-        document.getElementById('inputObservacao').value = ''; 
+        document.getElementById('inputObservacao').value = '';
         const div = document.getElementById('conteudoConfirmacao');
         if(tipo === 'extra') {
-            div.innerHTML = `<p style="color:#ddd">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor:</span><strong style="font-size:1.5em; color:#fff;">R$ ${preco},00</strong><hr style="border-color:#444;"><span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span><button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="copiarPix()">Copiar Chave</button></div><p style="font-size:0.8em; color:#FFD580;">⚠️ Realize o pagamento para iniciar o preparo.</p>`;
+            div.innerHTML = `<p style="color:#ddd">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor:</span><strong style="font-size:1.5em; color:#fff;">R$ ${preco},00</strong><hr style="border-color:#444;"><span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span><button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText);alert('Copiado!')">Copiar Chave</button></div><p style="font-size:0.8em; color:#FFD580;">⚠️ Realize o pagamento para iniciar o preparo.</p>`;
             document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI";
         } else {
             div.innerHTML = `<p style="color:#ddd">Pedir <strong>${nome}</strong>?</p>`;
@@ -240,18 +325,15 @@
             document.getElementById('modalConfirm').style.display = 'none'; btn.disabled = false; btn.innerText = "CONFIRMAR";
             if(ITEM_ATUAL.tipo === 'pacote') salvarTimer();
             MEUS_PEDIDOS_IDS.push(docRef.id); localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); rastrearPedidos();
-            mostrarNotificacao(ITEM_ATUAL.tipo === 'extra' ? "⏳ Aguardando pagamento..." : "✅ Pedido enviado!");
             setTimeout(abrirMeusPedidos, 500);
         });
     }
 
-    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; if(document.getElementById('listaMeusPedidosHTML').innerHTML === "") rastrearPedidos(); }
-    function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; rastrearPedidos(); }
-    function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText); alert("Copiado!"); }
+    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
+    function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; rastrearPedidos(); carregarChat(); }
     function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
     function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
     function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
-    function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
 </script>
 </body>
 </html>
