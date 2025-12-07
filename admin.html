@@ -15,17 +15,13 @@
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; background: #2A2A2A; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: white; font-weight: bold; border-radius: 8px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
         
-        /* EDITOR AVANÇADO */
         .drink-item { background: #252525; border: 1px solid #444; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
         .drink-header { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
         .input-nome { flex: 2; }
-        .input-preco { width: 80px !important; text-align: right; }
-        
-        .configs-row { display: flex; gap: 10px; margin-top: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px; }
+        .configs-row { display: flex; gap: 10px; margin-top: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px; align-items: flex-end; }
         .config-group { flex: 1; }
         .config-label { font-size: 0.75em; color: #888; margin-bottom: 3px; display: block; }
         .select-mini { width: 100%; padding: 8px; font-size: 0.9em; border: 1px solid #555; }
-
         .btn-add { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
         .row { display: flex; gap: 10px; } .col { flex: 1; }
     </style>
@@ -51,10 +47,12 @@
             </div>
         </div>
 
-        <label>Chave PIX (Para drinks pagos)</label>
+        <label>Chave PIX (Para vendas)</label>
         <input type="text" id="chavePix" placeholder="E-mail ou CPF">
 
-        <label style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Cardápio & Regras de Cobrança</label>
+        <label style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Cardápio & Preços</label>
+        <small style="color:#FFD580; margin-bottom:10px; display:block;">⚠️ IMPORTANTE: Defina o preço de venda para TODOS os drinks. Se o pacote acabar, esse preço será cobrado automaticamente.</small>
+        
         <div id="listaDrinksEditor"></div>
         <button class="btn-add" onclick="adicionarNovoDrink()">+ ADICIONAR NOVO DRINK</button>
 
@@ -83,14 +81,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // SEU MENU PADRÃO (Com as novas propriedades)
     let cardapioAtual = [
-        { nome: "Elixir do Sol", desc: "Abacaxi, hortelã e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10 },
-        { nome: "Desejo Proibido", desc: "Frutas vermelhas e vodka.", categoria: "classico", tipo_cobranca: "pacote", preco: 10 },
-        { nome: "Encanto Noturno", desc: "Uva e manjericão.", categoria: "classico", tipo_cobranca: "pacote", preco: 10 },
-        { nome: "Tropical Mix", desc: "Mix de frutas tropicais.", categoria: "classico", tipo_cobranca: "pacote", preco: 12 },
-        { nome: "Caipirinha", desc: "Limão e cachaça.", categoria: "classico", tipo_cobranca: "pacote", preco: 10 },
-        { nome: "Aperol Sunset", desc: "Aperol e espumante.", categoria: "premium", tipo_cobranca: "pago", preco: 25 },
+        { nome: "Elixir do Sol", desc: "Abacaxi, hortelã e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 15 },
+        { nome: "Desejo Proibido", desc: "Frutas vermelhas e vodka.", categoria: "classico", tipo_cobranca: "pacote", preco: 15 },
+        { nome: "Caipirinha", desc: "Limão e cachaça.", categoria: "classico", tipo_cobranca: "pacote", preco: 12 },
         { nome: "Gin Tropical", desc: "Gin e energético.", categoria: "premium", tipo_cobranca: "pago", preco: 25 }
     ];
 
@@ -100,10 +94,6 @@
         cardapioAtual.forEach((drink, index) => {
             const div = document.createElement('div');
             div.className = 'drink-item';
-            
-            // Lógica para mostrar input de preço apenas se for pago
-            const displayPreco = drink.tipo_cobranca === 'pago' ? 'block' : 'none';
-
             div.innerHTML = `
                 <div class="drink-header">
                     <input type="text" value="${drink.nome}" class="input-nome" placeholder="Nome">
@@ -113,38 +103,29 @@
                 
                 <div class="configs-row">
                     <div class="config-group">
-                        <span class="config-label">CATEGORIA VISUAL</span>
+                        <span class="config-label">CATEGORIA</span>
                         <select class="select-mini input-cat">
-                            <option value="classico" ${drink.categoria==='classico'?'selected':''}>🥃 Clássico da Casa</option>
-                            <option value="premium" ${drink.categoria==='premium'?'selected':''}>💎 Premium / Especial</option>
+                            <option value="classico" ${drink.categoria==='classico'?'selected':''}>🥃 Clássico</option>
+                            <option value="premium" ${drink.categoria==='premium'?'selected':''}>💎 Premium</option>
                         </select>
                     </div>
                     <div class="config-group">
-                        <span class="config-label">REGRA DE COBRANÇA</span>
-                        <select class="select-mini input-cob" onchange="togglePrecoInput(this)">
+                        <span class="config-label">CONTRATO INICIAL</span>
+                        <select class="select-mini input-cob">
                             <option value="pacote" ${drink.tipo_cobranca==='pacote'?'selected':''}>🆓 Incluso no Pacote</option>
                             <option value="pago" ${drink.tipo_cobranca==='pago'?'selected':''}>💲 Pago (Extra)</option>
                         </select>
                     </div>
-                    <div class="config-group div-preco" style="display:${displayPreco}">
-                        <span class="config-label">VALOR (R$)</span>
-                        <input type="number" value="${drink.preco}" class="input-preco select-mini">
+                    <div class="config-group">
+                        <span class="config-label">PREÇO VENDA (R$)</span>
+                        <input type="number" value="${drink.preco}" class="input-preco select-mini" placeholder="Se vender">
                     </div>
                 </div>`;
             container.appendChild(div);
         });
     }
 
-    // Função global para mostrar/esconder preço
-    window.togglePrecoInput = function(select) {
-        const divPreco = select.closest('.configs-row').querySelector('.div-preco');
-        divPreco.style.display = select.value === 'pago' ? 'block' : 'none';
-    }
-
-    function adicionarNovoDrink() { 
-        cardapioAtual.push({ nome: "", desc: "", categoria: "classico", tipo_cobranca: "pacote", preco: 0 }); 
-        renderizarEditor(); 
-    }
+    function adicionarNovoDrink() { cardapioAtual.push({ nome: "", desc: "", categoria: "classico", tipo_cobranca: "pacote", preco: 0 }); renderizarEditor(); }
     function removerDrink(index) { cardapioAtual.splice(index, 1); renderizarEditor(); }
     
     function togglePacote() {
@@ -164,13 +145,13 @@
         
         let cardapioFinal = [];
         document.querySelectorAll('.drink-item').forEach(item => {
-            const cobranca = item.querySelector('.input-cob').value;
             cardapioFinal.push({
                 nome: item.querySelector('.input-nome').value,
                 desc: item.querySelector('.input-desc').value,
-                categoria: item.querySelector('.input-cat').value, // Classico ou Premium
-                tipo_cobranca: cobranca, // Pacote ou Pago
-                preco: cobranca === 'pago' ? (parseFloat(item.querySelector('.input-preco').value) || 0) : 0
+                categoria: item.querySelector('.input-cat').value,
+                tipo_cobranca: item.querySelector('.input-cob').value,
+                preco: parseFloat(item.querySelector('.input-preco').value) || 0,
+                disponivel: true // NOVO: Drink começa disponivel
             });
         });
 
