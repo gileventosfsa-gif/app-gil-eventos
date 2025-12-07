@@ -142,16 +142,16 @@
 
     function rastrearPedidos() {
         if(MEUS_PEDIDOS_IDS.length === 0) return;
-        // REMOVIDA ORDENAÇÃO DB PARA EVITAR ERRO
+        // REMOVIDA ORDENAÇÃO DO DB PARA EVITAR ERRO DE ÍNDICE
         db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).limit(10).onSnapshot((snapshot) => {
             const listaHTML = document.getElementById('listaMeusPedidosHTML');
             listaHTML.innerHTML = '';
             let contagemAtivos = 0;
 
-            // ORDENAR NO JAVASCRIPT
+            // ORDENAÇÃO MANUAL JS (CORREÇÃO DE BUG)
             let pedidos = [];
             snapshot.forEach(doc => pedidos.push({id: doc.id, ...doc.data()}));
-            pedidos.sort((a, b) => b.data - a.data); // Mais recentes primeiro
+            pedidos.sort((a, b) => b.data - a.data);
 
             pedidos.forEach(p => {
                 let statusText = "Fila", cor = "#888", extraHTML = "";
@@ -159,7 +159,7 @@
                 
                 if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; }
                 else if(p.status === 'aguardando_pagamento') { 
-                    statusText = "🔴 Aguardando Pagamento"; cor = "#FF4444"; contagemAtivos++; 
+                    statusText = "🔴 Aguardando Confirmação"; cor = "#FF4444"; contagemAtivos++; 
                     if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`;
                     else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando Pagamento...</span>`;
                 }
@@ -250,7 +250,7 @@
     function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText); alert("Copiado!"); }
     function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
     function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
-    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir do Pacote`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
+    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
     function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
 </script>
 </body>
