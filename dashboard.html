@@ -15,31 +15,25 @@
         .col-queue { background: #181818; border-radius: 12px; padding: 15px; border: 1px solid #333; display: flex; flex-direction: column; }
         .col-history { background: #151515; border-radius: 12px; padding: 15px; overflow-y: auto; border: 1px solid #222; }
         .card-box { background: #1E1E1E; padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; }
-        .eye-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.2em; color: #888; background: none; border: none; }
         .big-stat { font-size: 2em; font-weight: 800; color: #4CAF50; }
         .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; }
+        
         .btn-drink { width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: #fff; margin-bottom: 8px; border-radius: 6px; cursor: pointer; text-align: left; transition: 0.2s; }
         .btn-drink:hover { background: #FFD580; color: #000; border-color: #FFD580; }
+        .btn-drink.pausado { opacity: 0.5; text-decoration: line-through; border-color: red; }
+        
         .order-card { background: #222; border-left: 5px solid #888; border-radius: 8px; padding: 15px; margin-bottom: 15px; animation: slideIn 0.3s; position: relative; }
         .order-card.extra { border-left-color: #FFD580; background: #2A2210; } 
         .order-card.pacote { border-left-color: #4CAF50; } 
         .order-card.pagamento { border-left-color: #FF4444; background: #2a1010; border: 1px dashed #FF4444; }
         .order-info h3 { margin: 5px 0; font-size: 1.3em; }
-        .client { color: #aaa; font-size: 0.9em; }
         .time { position: absolute; top: 10px; right: 10px; font-size: 0.8em; color: #666; font-family: monospace; }
         .actions { display: flex; gap: 10px; margin-top: 10px; }
         .btn-ok { flex: 2; background: #2E7D32; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
         .btn-pay { flex: 2; background: #FFD580; border: none; padding: 10px; border-radius: 5px; color: #000; cursor: pointer; font-weight: bold; }
         .btn-cancel { flex: 1; background: transparent; border: 1px solid #D32F2F; padding: 10px; border-radius: 5px; color: #D32F2F; cursor: pointer; }
-        .sound-control { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 15px; border-radius: 30px; border: 1px solid #444; }
-        input[type=range] { width: 80px; accent-color: #FFD580; }
-        #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #eyeAuthOverlay, #qrOverlay, #stockOverlay { display: none; }
-        .login-box { text-align: center; background: #222; padding: 30px; border-radius: 15px; border: 1px solid #444; min-width: 300px; }
-        .btn-top { background: #444; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
         
         .stock-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
-        .stock-item.pausado span { color: #777; text-decoration: line-through; }
         .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 34px; }
@@ -47,42 +41,25 @@
         input:checked + .slider { background-color: #4CAF50; }
         input:checked + .slider:before { transform: translateX(26px); }
 
+        #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #eyeAuthOverlay, #qrOverlay, #stockOverlay { display: none; }
+        .login-box { text-align: center; background: #222; padding: 30px; border-radius: 15px; border: 1px solid #444; min-width: 300px; }
+        .btn-top { background: #444; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
         @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; height: auto; } .col-commands, .col-queue, .col-history { height: 500px; margin-bottom: 20px; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-
     <audio id="somAlerta" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-
     <div id="loginOverlay"><div class="login-box"><h1 style="margin-bottom:20px;">🔒 Área Restrita</h1><input type="password" id="senhaInput" placeholder="Senha" style="padding:10px; border-radius:5px;"><br><br><button class="btn-top" style="background:#FFD580; color:black;" onclick="verificarSenha()">ACESSAR</button><p id="erroSenha" style="color:red; display:none; margin-top:10px;">Senha Incorreta!</p></div></div>
-    
-    <div id="stockOverlay"><div class="login-box" style="width: 400px; max-height: 80vh; overflow-y: auto;">
-        <h2 style="color:#FFD580;">Gerenciar Cardápio</h2>
-        <div id="listaEstoque"></div>
-        <button onclick="document.getElementById('stockOverlay').style.display='none'" class="btn-top" style="margin-top:20px; width:100%;">FECHAR</button>
-    </div></div>
-
-    <div id="eyeAuthOverlay"><div class="login-box"><h3>👁️ Mostrar Dados</h3><input type="password" id="senhaEyeInput" placeholder="Senha"><div style="display:flex; gap:10px; justify-content:center; margin-top:10px;"><button class="btn-top" onclick="confirmarSenhaEye()">VER</button><button onclick="document.getElementById('eyeAuthOverlay').style.display='none'" class="btn-top" style="background:transparent; border:1px solid #555;">Cancelar</button></div></div></div>
-    <div id="qrOverlay"><div class="login-box"><h2 style="color:#FFD580;">📲 Escaneie para Pedir</h2><div id="qrcodeDisplay" style="background:white; padding:15px; border-radius:10px; display:inline-block; margin:20px 0;"></div><br><button onclick="document.getElementById('qrOverlay').style.display='none'" class="btn-top">Fechar</button></div></div>
+    <div id="stockOverlay"><div class="login-box" style="width: 400px; max-height: 80vh; overflow-y: auto;"><h2 style="color:#FFD580;">Gerenciar Cardápio</h2><div id="listaEstoque"></div><button onclick="document.getElementById('stockOverlay').style.display='none'" class="btn-top" style="margin-top:20px; width:100%;">FECHAR</button></div></div>
+    <div id="eyeAuthOverlay"><div class="login-box"><h3>👁️ Senha</h3><input type="password" id="senhaEyeInput"><br><br><button class="btn-top" onclick="confirmarSenhaEye()">VER</button><button onclick="document.getElementById('eyeAuthOverlay').style.display='none'" class="btn-top">Cancelar</button></div></div>
+    <div id="qrOverlay"><div class="login-box"><h2 style="color:#FFD580;">📲 QR Code</h2><div id="qrcodeDisplay" style="background:white; padding:15px; border-radius:10px; display:inline-block; margin:20px 0;"></div><br><button onclick="document.getElementById('qrOverlay').style.display='none'" class="btn-top">Fechar</button></div></div>
 
     <div class="header">
-        <div>
-            <span id="nomeEvento">Carregando...</span>
-            <span class="badge-event" id="tipoEvento">...</span>
-            <button onclick="editarEvento()" class="btn-top" style="background:#333; border:1px solid #555; color:#aaa; font-size:0.8em;">✏️ Editar</button>
-        </div>
-        <div class="sound-control">
-            <span style="font-size:1.2em;">🔊</span>
-            <input type="range" min="0" max="1" step="0.1" value="1" onchange="mudarVolume(this.value)">
-        </div>
-        <div>
-            <button onclick="toggleModoPreco()" class="btn-top" id="btnModoPreco" style="background:#555;">💲 Modo Normal</button>
-            <button onclick="abrirEstoque()" class="btn-top" style="background:#2196F3;">📦 Estoque</button>
-            <button onclick="mostrarQR()" class="btn-top">📱 QR Code</button>
-            <button onclick="copiarLink()" class="btn-top">🔗 Link Convite</button>
-            <button onclick="window.close()" class="btn-top" style="background:transparent; border:1px solid #555; color:#888;">Sair</button>
-        </div>
+        <div><span id="nomeEvento">Carregando...</span><span class="badge-event" id="tipoEvento">...</span> <button onclick="editarEvento()" class="btn-top" style="background:#333; border:1px solid #555; color:#aaa; font-size:0.8em;">✏️ Editar</button></div>
+        <div class="sound-control"><span style="font-size:1.2em;">🔊</span><input type="range" min="0" max="1" step="0.1" value="1" onchange="document.getElementById('somAlerta').volume=this.value"></div>
+        <div><button onclick="toggleModoPreco()" class="btn-top" id="btnModoPreco" style="background:#555;">💲 Modo Normal</button><button onclick="abrirEstoque()" class="btn-top" style="background:#2196F3;">📦 Estoque</button><button onclick="mostrarQR()" class="btn-top">📱 QR</button><button onclick="copiarLink()" class="btn-top">🔗 Link</button></div>
     </div>
 
     <div class="grid-layout">
@@ -132,7 +109,6 @@
                     gerarListaEstoque(DADOS_EVENTO.cardapio);
                 }
             });
-
             db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["pendente", "aguardando_pagamento"]).onSnapshot((snapshot) => {
                 const lista = document.getElementById('listaFila');
                 document.getElementById('qtdFila').innerText = snapshot.size;
@@ -149,77 +125,57 @@
                     lista.innerHTML += `<div class="order-card ${classe}"><div class="time">${hora}</div><div class="client">${p.nome_convidado}</div><div class="order-info"><h3>${p.drink}</h3><small style="background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:3px;">${badge}</small></div><div class="actions"><button class="btn-cancel" onclick="mudarStatus('${doc.id}', 'cancelado')">✖</button>${btnHtml}</div></div>`;
                 });
             });
-
             db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["servido", "cancelado"]).limit(30).onSnapshot((s) => { 
                 const l = document.getElementById('listaHistorico'); l.innerHTML = ''; 
                 s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); 
             });
         }
 
+        function gerarBotoes(menu) { 
+            const div = document.getElementById('listaBotoesManual'); div.innerHTML = ''; 
+            menu.forEach(item => {
+                const btn = document.createElement('button');
+                const pausado = item.disponivel === false;
+                btn.className = item.is_premium ? 'btn-drink premium' : 'btn-drink';
+                if(pausado) btn.classList.add('pausado');
+                btn.innerText = (item.is_premium?'💲 ':'🆓 ') + item.nome + (pausado ? ' (PAUSADO)' : '');
+                // Se pausado, não deixa clicar ou apenas avisa
+                btn.onclick = () => { if(!pausado) lancarManual(item); else alert("Este drink está pausado. Reative no Estoque para lançar."); }; 
+                div.appendChild(btn); 
+            }); 
+        }
+
+        // Funções de Estoque e Sistema
         function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
         function gerarListaEstoque(menu) {
             const div = document.getElementById('listaEstoque'); div.innerHTML = '';
             menu.forEach((item, index) => {
                 const checked = item.disponivel !== false ? 'checked' : '';
-                const pausadoClass = item.disponivel === false ? 'pausado' : '';
-                const txtPausado = item.disponivel === false ? '(Pausado)' : '';
-                div.innerHTML += `
-                    <div class="stock-item ${pausadoClass}">
-                        <span>${item.nome} <small>${txtPausado}</small></span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})">
-                            <span class="slider"></span>
-                        </label>
-                    </div>`;
+                div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`;
             });
         }
         function toggleDisponibilidade(index) {
             let cardapio = DADOS_EVENTO.cardapio;
-            const atual = cardapio[index].disponivel !== false;
-            cardapio[index].disponivel = !atual;
+            cardapio[index].disponivel = !(cardapio[index].disponivel !== false);
             db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio });
         }
-
         function toggleModoPreco() {
-            const novoModo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda';
-            db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novoModo });
+            const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda';
+            db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo });
         }
-
-        function editarEvento() {
-            const url = window.location.href.replace('dashboard.html', 'admin.html');
-            window.location.href = url;
-        }
-
-        function mudarVolume(val) { document.getElementById('somAlerta').volume = val; }
+        function editarEvento() { window.location.href = window.location.href.replace('dashboard.html', 'admin.html'); }
         function verificarSenha() { if(document.getElementById('senhaInput').value === DADOS_EVENTO.senha_admin) { document.getElementById('loginOverlay').style.display = 'none'; sessionStorage.setItem(`logado_${EVENTO_ID}`, true); document.getElementById('somAlerta').play().catch(()=>{}); } else document.getElementById('erroSenha').style.display='block'; }
         function toggleFaturamento() { const el=document.getElementById('valorFaturamento'); if(FATURAMENTO_VISIVEL){el.style.filter='blur(5px)';FATURAMENTO_VISIVEL=false;}else{document.getElementById('eyeAuthOverlay').style.display='flex';document.getElementById('senhaEyeInput').focus();} }
         function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
         function mostrarQR() { const url=window.location.href.replace('dashboard.html','index.html'); document.getElementById('qrcodeDisplay').innerHTML=''; new QRCode(document.getElementById("qrcodeDisplay"),{text:url,width:250,height:250}); document.getElementById('qrOverlay').style.display='flex'; }
-        
-        function copiarLink() { 
-            const url = window.location.href.replace('dashboard.html', 'index.html');
-            navigator.clipboard.writeText(url); alert("Link do Cardápio copiado!"); 
-        }
-
+        function copiarLink() { navigator.clipboard.writeText(window.location.href.replace('dashboard.html','index.html')); alert("Copiado!"); }
         function atualizarInterface(dados) { 
-            document.getElementById('nomeEvento').innerText = dados.nome; 
-            document.getElementById('consumido').innerText = dados.total_consumido; 
+            document.getElementById('nomeEvento').innerText = dados.nome; document.getElementById('consumido').innerText = dados.total_consumido; 
             if(dados.tipo_servico === 'pacote') { document.getElementById('total').innerText = dados.total_contratado; document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; } 
-            document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
-            document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra;
-            
-            // Botão Modo Preço
+            document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; 
             const btnModo = document.getElementById('btnModoPreco');
-            if(dados.modo_preco === 'prevenda') {
-                btnModo.innerText = "🟣 Modo Pré-Venda";
-                btnModo.style.background = "#9C27B0";
-            } else {
-                btnModo.innerText = "💲 Modo Normal (Dia)";
-                btnModo.style.background = "#555";
-            }
+            if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; }
         }
-
-        function gerarBotoes(menu) { const div = document.getElementById('listaBotoesManual'); div.innerHTML = ''; menu.forEach(item => { if(item.disponivel === false) return; const btn = document.createElement('button'); btn.className = item.is_premium ? 'btn-drink premium' : 'btn-drink'; btn.innerText = (item.is_premium?'💲 ':'🆓 ') + item.nome; btn.onclick = () => lancarManual(item); div.appendChild(btn); }); }
         function lancarManual(item) { if(!confirm(`Lançar ${item.nome}?`)) return; let tipo = 'pacote'; if(item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico==='pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado)) tipo='extra'; db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: item.nome, tipo: tipo, preco: item.preco||0, nome_convidado: "Balcão", status: 'pendente', data: new Date() }); }
         function mudarStatus(id, novoStatus, tipo, preco) { db.collection("pedidos").doc(id).update({ status: novoStatus }); if(novoStatus === 'servido') { if(tipo === 'pacote') db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: firebase.firestore.FieldValue.increment(1) }); if(tipo === 'extra') db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); } }
     </script>
