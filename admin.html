@@ -46,7 +46,7 @@
             </div>
         </div>
 
-        <label>Chave PIX (Para pré-venda e extras)</label>
+        <label>Chave PIX (Para vendas)</label>
         <input type="text" id="chavePix" placeholder="E-mail ou CPF">
 
         <label style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Cardápio Oficial</label>
@@ -81,7 +81,7 @@
     const params = new URLSearchParams(window.location.search);
     const EVENTO_ID = params.get('evento');
 
-    // --- MENU OFICIAL GIL EVENTOS ---
+    // --- MENU OFICIAL CADASTRADO ---
     let cardapioAtual = [
         { nome: "Elixir do Sol", desc: "Abacaxi, hortelã, cítrico e especiarias. Leve e dourado.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 10 },
         { nome: "Desejo Proibido", desc: "Frutas vermelhas, cítrico, hortelã e vodka. Doce e envolvente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 10 },
@@ -91,10 +91,10 @@
         { nome: "Fúria Rubi", desc: "Morango, tangerina, maracujá e manjericão. Explosão de sabor.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 12 },
         { nome: "Caipirinha Premium", desc: "Limão taiti e aguardente. Refrescante e autêntica.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 10 },
         { nome: "Segredo da Casa", desc: "Criação autoral e envolvente com frutas tropicais.", categoria: "classico", tipo_cobranca: "pacote", preco: 17, preco_prevenda: 17 },
-        
         { nome: "Aperol Sunset", desc: "Aperol, espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 25 },
         { nome: "Gin Tropical", desc: "Gin, abacaxi grelhado, limão siciliano e hortelã.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 25 },
-        { nome: "Mojito da Ilha", desc: "Rum, hortelã, limão e água com gás.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 25 }
+        { nome: "Mojito da Ilha", desc: "Rum, hortelã, limão e água com gás.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 25 },
+        { nome: "Coquetel Kids", desc: "Mix cremoso de frutas vermelhas (sem álcool).", categoria: "classico", tipo_cobranca: "pacote", preco: 15, preco_prevenda: 15 }
     ];
 
     if(EVENTO_ID) {
