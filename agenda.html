@@ -77,6 +77,7 @@
             <input type="password" id="senhaInput" placeholder="Senha do Admin" style="text-align:center; width:200px;">
             <br>
             <button class="btn-login" onclick="logarAdmin()">ENTRAR</button>
+            <p id="msgErro" style="color:red; display:none; margin-top:10px;">Senha Incorreta</p>
             <br>
             <button class="btn-login btn-public" onclick="entrarModoPublico()">Apenas Visualizar (Cliente)</button>
         </div>
@@ -99,7 +100,8 @@
             <div class="form-grid">
                 <input type="text" id="novoCliente" placeholder="Nome do Cliente">
                 <input type="date" id="novoData">
-                <input type="time" id="novoHorario"> <input type="text" id="novoTipo" placeholder="Tipo (Ex: Casamento)">
+                <input type="time" id="novoHorario">
+                <input type="text" id="novoTipo" placeholder="Tipo (Ex: Casamento)">
                 <select id="novoStatus">
                     <option value="confirmado">Confirmado (Verde)</option>
                     <option value="pendente">Pendente (Amarelo)</option>
@@ -107,7 +109,8 @@
                 </select>
                 <input type="number" id="novoValor" placeholder="Valor (R$)">
                 <input type="text" id="novoLink" placeholder="ID do Evento no Bar (Opcional)">
-                <textarea id="novoObs" class="full-width" placeholder="Observações e detalhes importantes..."></textarea> </div>
+                <textarea id="novoObs" class="full-width" placeholder="Observações e detalhes importantes..."></textarea>
+            </div>
             <div class="btn-group">
                 <button class="btn-add" id="btnSalvarAgenda" onclick="salvarAgendamento()">SALVAR NA AGENDA</button>
                 <button class="btn-cancel-edit" id="btnCancelarEdicao" onclick="cancelarEdicao()">CANCELAR EDIÇÃO</button>
@@ -132,19 +135,26 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const SENHA_MESTRA = "1234";
+        // 🔒 SENHA CONFIGURADA AQUI
+        const SENHA_MESTRA = "9859"; 
+        
         let IS_ADMIN = false;
         let HIDE_VALUES = false;
-        let EDITING_ID = null; // Variável para controlar se está editando
+        let EDITING_ID = null;
 
         function logarAdmin() {
             const senha = document.getElementById('senhaInput').value;
-            if(senha) { 
+            // CORREÇÃO: AGORA ELE VERIFICA A SENHA CORRETAMENTE
+            if(senha === SENHA_MESTRA) { 
                 IS_ADMIN = true;
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('adminControls').style.display = 'block';
                 carregarAgenda();
-            } else { alert("Digite uma senha."); }
+            } else { 
+                document.getElementById('msgErro').style.display = 'block';
+                // Apaga a senha para tentar de novo
+                document.getElementById('senhaInput').value = '';
+            }
         }
 
         function entrarModoPublico() {
@@ -164,7 +174,6 @@
                 snapshot.forEach(doc => {
                     const e = doc.data();
                     
-                    // Formata Data e Hora
                     const dataObj = new Date(e.data_evento + "T00:00:00");
                     const dia = dataObj.getDate().toString().padStart(2, '0');
                     const mes = dataObj.toLocaleString('pt-BR', { month: 'short' }).replace('.', '');
@@ -178,7 +187,6 @@
                     if(IS_ADMIN) {
                         let btnLink = e.link_id ? `<a href="dashboard.html?evento=${e.link_id}" target="_blank" class="btn-icon" style="background:#2196F3; border:none;">🔗 Bar</a>` : '';
                         
-                        // Passando dados para função de editar (escape de aspas simples para evitar erro JS)
                         const dadosJson = JSON.stringify(e).replace(/'/g, "&#39;");
                         
                         botoesAdmin = `
@@ -241,13 +249,11 @@
             btn.innerText = "Salvando...";
 
             if(EDITING_ID) {
-                // ATUALIZAR
                 db.collection("agendamentos").doc(EDITING_ID).update(dadosEvento).then(() => {
                     alert("Atualizado com sucesso!");
                     limparFormulario();
                 });
             } else {
-                // CRIAR NOVO
                 db.collection("agendamentos").add(dadosEvento).then(() => {
                     alert("Agendado!");
                     limparFormulario();
@@ -255,12 +261,8 @@
             }
         }
 
-        // --- FUNÇÃO DE EDIÇÃO ---
         function prepararEdicao(id, dados) {
-            // Abre o painel se estiver fechado
             document.getElementById('adminPanel').style.display = 'block';
-            
-            // Preenche os campos
             document.getElementById('novoCliente').value = dados.cliente;
             document.getElementById('novoData').value = dados.data_evento;
             document.getElementById('novoHorario').value = dados.hora_evento || '';
@@ -270,20 +272,15 @@
             document.getElementById('novoLink').value = dados.link_id || '';
             document.getElementById('novoObs').value = dados.observacao || '';
 
-            // Muda o estado para Edição
             EDITING_ID = id;
             document.getElementById('tituloForm').innerText = "Editando Evento ✏️";
             document.getElementById('btnSalvarAgenda').innerText = "ATUALIZAR AGENDAMENTO";
-            document.getElementById('btnSalvarAgenda').style.background = "#2196F3"; // Azul para indicar edição
+            document.getElementById('btnSalvarAgenda').style.background = "#2196F3"; 
             document.getElementById('btnCancelarEdicao').style.display = "block";
-            
-            // Rola a tela para o formulário
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function cancelarEdicao() {
-            limparFormulario();
-        }
+        function cancelarEdicao() { limparFormulario(); }
 
         function limparFormulario() {
             EDITING_ID = null;
@@ -295,7 +292,6 @@
             document.getElementById('novoLink').value = '';
             document.getElementById('novoObs').value = '';
             
-            // Reseta visual dos botões
             document.getElementById('tituloForm').innerText = "Novo Agendamento";
             document.getElementById('btnSalvarAgenda').innerText = "SALVAR NA AGENDA";
             document.getElementById('btnSalvarAgenda').style.background = "linear-gradient(90deg, #FF6700, #FF9500)";
