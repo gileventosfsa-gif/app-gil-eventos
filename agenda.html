@@ -18,9 +18,16 @@
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .full-width { grid-column: 1 / -1; }
         
-        input, select, textarea { width: 100%; padding: 12px; background: #2A2A2A; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        textarea { resize: vertical; min-height: 80px; }
+        input, select { width: 100%; padding: 12px; background: #2A2A2A; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
+        /* MULTI-NOTAS ESTILO */
+        .notes-container { margin-top: 10px; background: #252525; padding: 10px; border-radius: 8px; }
+        .note-input-row { display: flex; gap: 10px; margin-bottom: 8px; }
+        .note-input-row input { flex: 1; }
+        .btn-remove-note { background: #D32F2F; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; }
+        .btn-add-note { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: 0.2s; }
+        .btn-add-note:hover { border-color: #FF9500; color: #FF9500; }
+
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
         .btn-add { background: linear-gradient(90deg, #FF6700, #FF9500); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 2; }
         .btn-cancel-edit { background: #444; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; display: none; }
@@ -41,7 +48,10 @@
         .info-box { flex-grow: 1; }
         .client-name { font-size: 1.2em; font-weight: bold; color: #fff; display: block; }
         .event-type { color: #aaa; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; display: block; }
-        .event-obs { font-size: 0.85em; color: #888; font-style: italic; background: #111; padding: 8px; border-radius: 5px; display: inline-block; margin-top: 5px; max-width: 100%; }
+        
+        /* ANOTAÇÕES DO ADMIN (NA LISTA) */
+        .admin-notes-list { margin-top: 10px; border-top: 1px dashed #444; padding-top: 5px; }
+        .admin-note-tag { display: block; font-size: 0.85em; color: #FFD580; background: rgba(255, 213, 128, 0.1); padding: 4px 8px; border-radius: 4px; margin-top: 4px; }
         
         /* DADOS SENSÍVEIS */
         .sensitive-data { font-family: monospace; color: #4CAF50; background: rgba(76, 175, 80, 0.1); padding: 5px 10px; border-radius: 5px; font-size: 1.1em; display: inline-block; margin-top: 5px; }
@@ -109,8 +119,15 @@
                 </select>
                 <input type="number" id="novoValor" placeholder="Valor (R$)">
                 <input type="text" id="novoLink" placeholder="ID do Evento no Bar (Opcional)">
-                <textarea id="novoObs" class="full-width" placeholder="Observações e detalhes importantes..."></textarea>
+                
+                <div class="full-width">
+                    <label style="color:#888; font-size:0.9em;">Anotações Internas (Cliente NÃO VÊ)</label>
+                    <div class="notes-container" id="containerNotas">
+                        </div>
+                    <button class="btn-add-note" onclick="adicionarInputNota()">+ Nova Nota</button>
+                </div>
             </div>
+            
             <div class="btn-group">
                 <button class="btn-add" id="btnSalvarAgenda" onclick="salvarAgendamento()">SALVAR NA AGENDA</button>
                 <button class="btn-cancel-edit" id="btnCancelarEdicao" onclick="cancelarEdicao()">CANCELAR EDIÇÃO</button>
@@ -135,16 +152,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 🔒 SENHA CONFIGURADA AQUI
         const SENHA_MESTRA = "9859"; 
-        
         let IS_ADMIN = false;
         let HIDE_VALUES = false;
         let EDITING_ID = null;
 
         function logarAdmin() {
             const senha = document.getElementById('senhaInput').value;
-            // CORREÇÃO: AGORA ELE VERIFICA A SENHA CORRETAMENTE
             if(senha === SENHA_MESTRA) { 
                 IS_ADMIN = true;
                 document.getElementById('loginOverlay').style.display = 'none';
@@ -152,7 +166,6 @@
                 carregarAgenda();
             } else { 
                 document.getElementById('msgErro').style.display = 'block';
-                // Apaga a senha para tentar de novo
                 document.getElementById('senhaInput').value = '';
             }
         }
@@ -161,6 +174,18 @@
             IS_ADMIN = false;
             document.getElementById('loginOverlay').style.display = 'none';
             carregarAgenda();
+        }
+
+        // --- SISTEMA DE NOTAS DINÂMICAS ---
+        function adicionarInputNota(valor = "") {
+            const container = document.getElementById('containerNotas');
+            const div = document.createElement('div');
+            div.className = 'note-input-row';
+            div.innerHTML = `
+                <input type="text" class="input-nota-item" placeholder="Ex: Levar gelo extra..." value="${valor}">
+                <button class="btn-remove-note" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
         }
 
         function carregarAgenda() {
@@ -181,7 +206,23 @@
 
                     const valorDisplay = e.valor ? `R$ ${parseFloat(e.valor).toFixed(2)}` : 'R$ 0,00';
                     const classeBlur = HIDE_VALUES ? 'blurred' : '';
-                    const obsDisplay = e.observacao ? `<span class="event-obs">📝 ${e.observacao}</span>` : '';
+                    
+                    // --- SEGURANÇA DAS NOTAS ---
+                    let notasHtml = '';
+                    if(IS_ADMIN) {
+                        // Verifica se tem notas novas (array) ou velha (string)
+                        let arrayNotas = e.anotacoes || [];
+                        if(e.observacao) arrayNotas.push(e.observacao); // Suporte legado
+
+                        if(arrayNotas.length > 0) {
+                            notasHtml = '<div class="admin-notes-list">';
+                            arrayNotas.forEach(nota => {
+                                notasHtml += `<span class="admin-note-tag">🔒 ${nota}</span>`;
+                            });
+                            notasHtml += '</div>';
+                        }
+                    }
+                    // ---------------------------
 
                     let botoesAdmin = '';
                     if(IS_ADMIN) {
@@ -211,7 +252,7 @@
                             <div class="info-box">
                                 <span class="client-name">${e.cliente}</span>
                                 <span class="event-type">${e.tipo}</span>
-                                ${obsDisplay}
+                                ${notasHtml}
                             </div>
                             ${botoesAdmin}
                         </div>
@@ -229,7 +270,12 @@
             const status = document.getElementById('novoStatus').value;
             const valor = document.getElementById('novoValor').value;
             const link = document.getElementById('novoLink').value;
-            const obs = document.getElementById('novoObs').value;
+            
+            // Coletar todas as notas
+            let notasArr = [];
+            document.querySelectorAll('.input-nota-item').forEach(inp => {
+                if(inp.value.trim()) notasArr.push(inp.value.trim());
+            });
 
             if(!cliente || !data) return alert("Preencha Nome e Data!");
 
@@ -241,7 +287,7 @@
                 status: status,
                 valor: valor,
                 link_id: link,
-                observacao: obs
+                anotacoes: notasArr // Salva como Array
             };
 
             const btn = document.getElementById('btnSalvarAgenda');
@@ -270,17 +316,25 @@
             document.getElementById('novoStatus').value = dados.status;
             document.getElementById('novoValor').value = dados.valor;
             document.getElementById('novoLink').value = dados.link_id || '';
-            document.getElementById('novoObs').value = dados.observacao || '';
+            
+            // Preenche as notas dinamicamente
+            document.getElementById('containerNotas').innerHTML = '';
+            let notasParaEditar = dados.anotacoes || [];
+            if(dados.observacao) notasParaEditar.push(dados.observacao); // Legado
+            
+            if(notasParaEditar.length > 0) {
+                notasParaEditar.forEach(n => adicionarInputNota(n));
+            } else {
+                adicionarInputNota(); // Adiciona um vazio se não tiver nada
+            }
 
             EDITING_ID = id;
             document.getElementById('tituloForm').innerText = "Editando Evento ✏️";
-            document.getElementById('btnSalvarAgenda').innerText = "ATUALIZAR AGENDAMENTO";
+            document.getElementById('btnSalvarAgenda').innerText = "ATUALIZAR";
             document.getElementById('btnSalvarAgenda').style.background = "#2196F3"; 
             document.getElementById('btnCancelarEdicao').style.display = "block";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        function cancelarEdicao() { limparFormulario(); }
 
         function limparFormulario() {
             EDITING_ID = null;
@@ -290,7 +344,7 @@
             document.getElementById('novoTipo').value = '';
             document.getElementById('novoValor').value = '';
             document.getElementById('novoLink').value = '';
-            document.getElementById('novoObs').value = '';
+            document.getElementById('containerNotas').innerHTML = ''; // Limpa notas
             
             document.getElementById('tituloForm').innerText = "Novo Agendamento";
             document.getElementById('btnSalvarAgenda').innerText = "SALVAR NA AGENDA";
@@ -299,21 +353,10 @@
             document.getElementById('btnCancelarEdicao').style.display = "none";
         }
 
-        function excluirEvento(id) {
-            if(confirm("Tem certeza que deseja apagar este agendamento?")) {
-                db.collection("agendamentos").doc(id).delete();
-            }
-        }
-
-        function toggleForm() {
-            const painel = document.getElementById('adminPanel');
-            painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function toggleBlur() {
-            HIDE_VALUES = !HIDE_VALUES;
-            carregarAgenda(); 
-        }
+        function cancelarEdicao() { limparFormulario(); }
+        function excluirEvento(id) { if(confirm("Apagar agendamento?")) db.collection("agendamentos").doc(id).delete(); }
+        function toggleForm() { const p = document.getElementById('adminPanel'); p.style.display = p.style.display === 'none' ? 'block' : 'none'; if(p.style.display==='block' && document.getElementById('containerNotas').innerHTML==='') adicionarInputNota(); }
+        function toggleBlur() { HIDE_VALUES = !HIDE_VALUES; carregarAgenda(); }
     </script>
 </body>
 </html>
