@@ -14,7 +14,6 @@
         .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 30px 0 15px 0; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
         .drink-card { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); position: relative; }
         .drink-card.premium-style { border-color: rgba(255, 213, 128, 0.3); background: linear-gradient(160deg, rgba(30,30,30,0.8), rgba(20,20,10,0.8)); }
-        .drink-card.esgotado { opacity: 0.5; filter: grayscale(1); }
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
         .drink-icon { font-size: 2.2em; background: #111; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         .drink-details { flex: 1; margin-left: 15px; }
@@ -131,20 +130,26 @@
             if(items.length === 0) return '';
             let html = `<div class="section-title">${titulo}</div>`;
             items.forEach(item => {
+                // VERIFICA DISPONIBILIDADE
+                let disponivel = item.disponivel !== false;
+                
+                // DEFINE PREÇO (NORMAL OU PRE-VENDA)
+                let precoFinal = item.preco || 0;
+                if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
+                    precoFinal = item.preco_prevenda;
+                }
+
                 let isPaid = item.tipo_cobranca === 'pago' || esgotado;
                 if(DADOS_EVENTO.tipo_servico === 'tradicional' && item.tipo_cobranca === 'pacote') isPaid = false;
-                
-                // VERIFICA SE ESTÁ PAUSADO
-                let disponivel = item.disponivel !== false; // Se nao existe é true
-                
+
                 let btnHtml = '';
                 let classeExtra = item.categoria === 'premium' ? 'premium-style' : '';
                 
                 if(!disponivel) {
                     btnHtml = `<button class="btn-action btn-blocked" disabled>🚫 ESGOTADO</button>`;
-                    classeExtra += ' esgotado';
+                    classeExtra += ' esgotado'; // Se quiser usar efeito visual
                 } else if(isPaid) {
-                    btnHtml = `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${item.preco})">💲 Pedir (R$ ${item.preco})</button>`;
+                    btnHtml = `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal})">💲 Pedir (R$ ${precoFinal})</button>`;
                 } else {
                     btnHtml = `<button class="btn-action btn-free btn-pacote" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 Pedir</button>`;
                 }
