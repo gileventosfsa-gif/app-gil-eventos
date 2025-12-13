@@ -7,73 +7,107 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
+        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
         .container { max-width: 600px; margin: auto; }
-        .header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
-        .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 30px 0 15px 0; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
         
-        .drink-card { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); position: relative; }
-        .drink-card.premium-style { border-color: rgba(255, 213, 128, 0.3); background: linear-gradient(160deg, rgba(30,30,30,0.8), rgba(20,20,10,0.8)); }
-        .drink-card.esgotado { opacity: 0.5; filter: grayscale(1); }
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .drink-icon { font-size: 2.2em; background: #111; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        .drink-details { flex: 1; margin-left: 15px; }
-        .drink-title { font-size: 1.1em; font-weight: 700; color: #fff; margin: 0; }
-        .drink-desc { font-size: 0.85em; color: #aaa; margin: 5px 0 10px 0; }
+        .header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 5px; font-weight: 300; }
+        .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 213, 128, 0.2); }
+        .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 8px; margin: 30px 0 20px 0; text-transform: uppercase; font-size: 0.95em; letter-spacing: 1px; font-weight: 600; }
         
-        /* PREÇOS COMPARATIVOS (ALTERADO AQUI) */
-        .price-display { margin: 10px 0; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; text-align: center; border: 1px dashed #555; }
-        .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.9em; display: block; margin-bottom: 2px; font-weight: bold; opacity: 0.8; } /* FICOU VERMELHO */
-        .price-now { color: #4CAF50; font-weight: bold; font-size: 1.1em; display: block; }
-        .tag-promo { background: #FF4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold; position: absolute; top: -10px; right: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        /* CARD NOVO COM FOTO */
+        .drink-card { 
+            background: #1E1E1E; 
+            border-radius: 16px; 
+            margin-bottom: 25px; 
+            overflow: hidden; /* Para a imagem não sair da borda */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid #333;
+            transition: transform 0.2s;
+        }
+        .drink-card:active { transform: scale(0.98); }
+        
+        .card-image-box {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            background: #000;
+        }
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+        /* Gradiente para o texto ficar legível se fosse em cima, mas vamos usar em baixo */
+        .card-image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to top, #1E1E1E, transparent);
+        }
 
-        .btn-action { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; font-size: 0.9em; text-transform: uppercase; }
-        .btn-free { background: linear-gradient(135deg, #4CAF50, #2E7D32); color: white; }
-        .btn-paid { background: transparent; border: 1px solid #FFD580; color: #FFD580; }
+        .drink-content { padding: 15px 20px; }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .drink-title { font-size: 1.3em; font-weight: 700; color: #fff; margin: 0; }
+        .drink-desc { font-size: 0.9em; color: #bbb; margin: 5px 0 15px 0; line-height: 1.4; font-weight: 300; }
+        
+        /* PREÇOS */
+        .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.75em; display: block; font-weight: bold; }
+        .price-now { color: #4CAF50; font-weight: 800; font-size: 1.1em; }
+        
+        .btn-action { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-free { background: linear-gradient(45deg, #2E7D32, #4CAF50); color: white; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); }
+        .btn-paid { background: linear-gradient(45deg, #FF8F00, #FFD580); color: #000; box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3); }
         .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
 
-        .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 20px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; }
+        /* FLOATING BUTTON */
+        .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; animation: floatUp 0.3s; }
         .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
 
+        /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-box { background: #1E1E1E; padding: 20px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; }
+        .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         
-        .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; }
+        .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; font-size: 1em; }
         .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
         
         .modal-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
-        .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 10px; font-weight: bold; cursor: pointer; border-bottom: 2px solid transparent; position: relative; }
+        .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 12px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
-        .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 5px; right: 10px; display: none; }
+        .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 8px; right: 15px; display: none; }
         
         .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
         .tab-content.active { display: block; }
 
+        /* CHAT */
         .chat-container { display: flex; flex-direction: column; height: 300px; }
         .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-input-area { display: flex; gap: 5px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
-        .chat-input { flex: 1; background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 20px; }
-        .chat-send { background: #FFD580; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; }
+        .chat-input-area { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
+        .chat-input { flex: 1; background: #111; border: 1px solid #444; color: white; padding: 12px; border-radius: 25px; outline: none; }
+        .chat-send { background: #FFD580; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: black; }
         
-        .msg { padding: 8px 12px; border-radius: 10px; max-width: 80%; font-size: 0.9em; line-height: 1.4; }
-        .msg-mine { background: #4CAF50; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
-        .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 0; }
-        .msg-time { font-size: 0.7em; opacity: 0.7; display: block; text-align: right; margin-top: 3px; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; line-height: 1.4; position: relative; }
+        .msg-mine { background: #2E7D32; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
+        .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
 
         .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; }
-        .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 8px; font-size: 0.8em; border-radius: 4px; margin-top: 8px; display: block; border: 1px dashed #FF4444; text-align: center; }
-        .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
-        .btn-i-paid { background: #4CAF50; color: white; }
-        .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
-
-        .ready-alert { animation: pulse 1s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 100% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); } }
-        #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 12px 20px; border-radius: 30px; display:none; border:1px solid #FFD580; z-index:950; white-space:nowrap; }
+        .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: 500; }
         
-        .pix-area { background: #2a2a2a; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; }
-        .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; }
+        #avisoPacote { background: rgba(255, 68, 68, 0.15); border: 1px solid #FF4444; color: #FF4444; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; display: none; }
+        #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 25px; border-radius: 50px; display:none; border: 1px solid #FFD580; z-index:950; white-space:nowrap; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 0.9em; }
+        
+        .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
+        .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; background: #111; padding: 10px; border-radius: 5px; text-align: center; }
+        
+        @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
     </style>
 </head>
 <body>
@@ -84,31 +118,29 @@
         <div class="event-name" id="nomeEvento">Carregando...</div>
         <div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div>
     </div>
-    <div id="avisoPacote" style="display:none; text-align:center; color:#FF4444; margin-bottom:20px;">⚠️ PACOTE ESGOTADO</div>
+    <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
     <div id="listaCardapio"></div>
 </div>
 
-<div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">🍹 Meus Pedidos <div class="float-badge" id="badgeMeusPedidos">0</div></div>
+<div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">🍹 Pedidos / Chat <div class="float-badge" id="badgeMeusPedidos">0</div></div>
 
-<div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Seu nome:</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
+<div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Como devemos te chamar?</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
 
-<div class="modal-overlay" id="modalConfirm"><div class="modal-box"><h2 style="color:#FFD580; margin:0;">Confirmar</h2><div id="conteudoConfirmacao"></div><textarea id="inputObservacao" class="input-obs" placeholder="Observação? (Opcional)"></textarea><button class="btn-confirm" id="btnFinalizar">ENVIAR</button><button onclick="document.getElementById('modalConfirm').style.display='none'" style="background:none; border:none; color:#888; margin-top:10px;">Cancelar</button></div></div>
+<div class="modal-overlay" id="modalConfirm"><div class="modal-box"><h2 style="color:#FFD580; margin:0;">Confirmar Pedido</h2><div id="conteudoConfirmacao"></div><textarea id="inputObservacao" class="input-obs" placeholder="Alguma preferência? (Ex: Pouco gelo)"></textarea><button class="btn-confirm" id="btnFinalizar">ENVIAR PEDIDO</button><button onclick="document.getElementById('modalConfirm').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline; cursor:pointer;">Cancelar</button></div></div>
 
 <div class="modal-overlay" id="modalListaPedidos">
-    <div class="modal-box" style="height: 500px;">
+    <div class="modal-box" style="height: 550px;">
         <div class="modal-tabs">
-            <button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Pedidos</button>
-            <button class="tab-btn" onclick="mudarAba('chat')">
-                💬 Fale com o Bar <span id="alertChatTab" class="tab-alert"></span>
-            </button>
+            <button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Meus Pedidos</button>
+            <button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button>
         </div>
 
         <div id="tab-pedidos" class="tab-content active">
-            <div style="background:#222; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #FFD580; text-align:left;">
-                <small style="color:#FFD580; font-weight:bold;">🔔 Fique por dentro!</small>
-                <div style="display:flex; gap:5px; margin-top:5px;">
-                    <input type="tel" id="mktZap" style="background:#111; border:1px solid #444; color:white; padding:5px; border-radius:5px; flex:1;" placeholder="WhatsApp">
-                    <button onclick="salvarZap()" style="background:#4CAF50; border:none; color:white; padding:5px 10px; border-radius:5px;">Salvar</button>
+            <div style="background:#252525; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #FFD580; text-align:left;">
+                <small style="color:#FFD580; font-weight:bold; display:block; margin-bottom:5px;">🔔 Receba novidades!</small>
+                <div style="display:flex; gap:8px;">
+                    <input type="tel" id="mktZap" style="background:#111; border:1px solid #444; color:white; padding:8px; border-radius:8px; flex:1; width:100%;" placeholder="Seu WhatsApp">
+                    <button onclick="salvarZap()" style="background:#4CAF50; border:none; color:white; padding:8px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">Salvar</button>
                 </div>
             </div>
             <div id="listaMeusPedidosHTML"></div>
@@ -116,16 +148,16 @@
 
         <div id="tab-chat" class="tab-content">
             <div class="chat-container">
-                <div class="chat-messages" id="chatMessages"><p style="text-align:center; color:#555; font-size:0.8em;">Envie uma mensagem para o barman.</p></div>
+                <div class="chat-messages" id="chatMessages"><p style="text-align:center; color:#555; font-size:0.8em; margin-top:20px;">Fale diretamente com o barman aqui.</p></div>
                 <div class="chat-input-area"><input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem..."><button class="chat-send" onclick="enviarMensagem()">➤</button></div>
             </div>
         </div>
 
-        <button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:10px; padding:10px;">FECHAR</button>
+        <button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:15px; background:#333; color:#fff;">FECHAR</button>
     </div>
 </div>
 
-<div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">🎉</div><h2 style="color:#4CAF50;">PRONTO!</h2><p style="color:#fff;">Pode buscar seu drink.</p><button class="btn-confirm" style="background:#4CAF50;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
+<div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">🎉</div><h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2><p style="color:#fff;">Pode buscar no balcão.</p><button class="btn-confirm" style="background:#4CAF50;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
 <div id="notification"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -166,6 +198,23 @@
         if(NOME_CONVIDADO) carregarChat(); 
     }
 
+    // --- FUNÇÃO INTELIGENTE DE IMAGENS ---
+    function getDrinkImage(nome) {
+        const n = nome.toLowerCase();
+        // Imagens de alta qualidade do Unsplash (Links diretos)
+        if(n.includes('gin') || n.includes('tônica')) return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        if(n.includes('moscow') || n.includes('mule')) return 'https://images.unsplash.com/photo-1530991037531-51dc55647a8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        if(n.includes('caipir') || n.includes('limão')) return 'https://images.unsplash.com/photo-1542849187-5ec6ea5e6a27?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        if(n.includes('tropical') || n.includes('fruta') || n.includes('verão')) return 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        if(n.includes('morango') || n.includes('vermelh')) return 'https://images.unsplash.com/photo-1560512823-8db03e1b0949?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        if(n.includes('whisky') || n.includes('old')) return 'https://images.unsplash.com/photo-1527281400683-1abc8b4336a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        if(n.includes('aperol')) return 'https://images.unsplash.com/photo-1560963689-0989366e6c0f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        if(n.includes('mojito') || n.includes('hortelã')) return 'https://images.unsplash.com/photo-1551538827-9c037cb4f32d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        if(n.includes('lagoa') || n.includes('blue')) return 'https://images.unsplash.com/photo-1629247072863-4971c2299732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        // Genérico bonito
+        return 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+    }
+
     function renderizarCardapio() {
         document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome;
         const lista = document.getElementById('listaCardapio');
@@ -181,23 +230,21 @@
             let html = `<div class="section-title">${titulo}</div>`;
             items.forEach(item => {
                 let disponivel = item.disponivel !== false;
-                
-                // LÓGICA DE PREÇO (PRÉ-VENDA vs NORMAL)
                 let precoFinal = item.preco || 0;
                 let htmlPreco = '';
+                let imagemUrl = getDrinkImage(item.nome);
                 
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
                     precoFinal = item.preco_prevenda;
                     htmlPreco = `
-                        <div class="price-display">
+                        <div class="price-tag-container">
                             <span class="price-old">No dia: R$ ${item.preco}</span>
-                            <span class="price-now">HOJE: R$ ${item.preco_prevenda}</span>
+                            <span class="price-now">R$ ${item.preco_prevenda}</span>
                         </div>
-                        <div class="tag-promo">🔥 OFERTA</div>
                     `;
                 } else {
                     if(item.tipo_cobranca === 'pago') {
-                        htmlPreco = `<div style="text-align:center; margin:10px 0; color:#FFD580; font-weight:bold;">R$ ${item.preco}</div>`;
+                        htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`;
                     }
                 }
 
@@ -212,23 +259,24 @@
                     classeExtra += ' esgotado'; 
                 }
                 else if(isPaid) { 
-                    btnHtml = `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal})">💲 COMPRAR AGORA</button>`; 
+                    btnHtml = `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal})">🛒 COMPRAR</button>`; 
                 }
                 else { 
-                    btnHtml = `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 Pedir do Pacote</button>`; 
+                    btnHtml = `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 PEGAR DO PACOTE</button>`; 
                 }
 
                 html += `
                 <div class="drink-card ${classeExtra}">
-                    <div class="card-top">
-                        <div class="drink-icon">${getIcone(item.nome)}</div>
-                        <div class="drink-details">
-                            <h3 class="drink-title">${item.nome}</h3>
-                            <p class="drink-desc">${item.desc || ''}</p>
-                        </div>
+                    <div class="card-image-box">
+                        <img src="${imagemUrl}" class="card-image">
+                        <div class="card-image-overlay"></div>
+                        ${htmlPreco}
                     </div>
-                    ${htmlPreco}
-                    ${btnHtml}
+                    <div class="drink-content">
+                        <h3 class="drink-title">${item.nome}</h3>
+                        <p class="drink-desc">${item.desc || 'Um drink delicioso e refrescante.'}</p>
+                        ${btnHtml}
+                    </div>
                 </div>`;
             });
             return html;
@@ -237,7 +285,7 @@
         lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums);
     }
 
-    // --- FUNÇÕES DE INTERFACE DO CHAT ---
+    // --- MANUTENÇÃO DAS FUNÇÕES ANTERIORES (CHAT, PEDIDOS) ---
     function mudarAba(aba) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -263,22 +311,17 @@
         db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => {
             const div = document.getElementById('chatMessages');
             div.innerHTML = '';
-            
             let msgs = [];
             snapshot.forEach(doc => msgs.push(doc.data()));
             msgs.sort((a,b) => a.data - b.data);
-
             msgs.forEach(m => {
                 const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                 const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin';
                 div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`;
             });
             rolarChat();
-
-            if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin') {
-                if(!document.getElementById('tab-chat').classList.contains('active')) {
-                    document.getElementById('alertChatTab').style.display = 'block';
-                }
+            if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) {
+                document.getElementById('alertChatTab').style.display = 'block';
             }
         });
     }
@@ -298,7 +341,6 @@
             let pedidos = [];
             snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()}));
             pedidos.sort((a,b) => b.data - a.data);
-
             pedidos.forEach(p => {
                 let statusText = "Fila", cor = "#888", extraHTML = "";
                 let podeCancelar = true;
@@ -311,9 +353,7 @@
                 else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; }
                 else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; }
                 else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; }
-
                 if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
-
                 listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong><span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`;
             });
             const btn = document.getElementById('btnMeusPedidos');
@@ -326,19 +366,32 @@
     let pedidosNotificados = []; 
     function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
     
-    function getIcone(n) { n = n.toLowerCase(); if(n.includes('gin'))return '🍸'; if(n.includes('caipir'))return '🍋'; if(n.includes('morango')||n.includes('rubi'))return '🍓'; if(n.includes('tropical')||n.includes('sol'))return '🍍'; if(n.includes('uva'))return '🍇'; if(n.includes('mojito')||n.includes('brisa'))return '🌿'; return '🍹'; }
-
     function abrirConfirmacao(nome, tipo, preco) {
         if(tipo === 'pacote') { const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`); }
         ITEM_ATUAL = { nome, tipo, preco };
         document.getElementById('inputObservacao').value = '';
         const div = document.getElementById('conteudoConfirmacao');
         if(tipo === 'extra') {
-            div.innerHTML = `<p style="color:#ddd">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor:</span><strong style="font-size:1.5em; color:#fff;">R$ ${preco},00</strong><hr style="border-color:#444;"><span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span><button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="copiarPix()">Copiar Chave</button></div><p style="font-size:0.8em; color:#FFD580;">⚠️ Realize o pagamento para iniciar o preparo.</p>`;
-            document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI";
+            div.innerHTML = `
+                <p style="color:#ddd; margin-bottom:15px;">Você pediu: <strong>${nome}</strong></p>
+                <div class="pix-area">
+                    <span style="display:block; color:#aaa; font-size:0.8em;">Valor a pagar:</span>
+                    <strong style="font-size:1.8em; color:#4CAF50;">R$ ${preco},00</strong>
+                    <hr style="border-color:#444; margin:10px 0;">
+                    <span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX:</span>
+                    <span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "Solicite no balcão"}</span>
+                    <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button>
+                </div>
+                <p style="font-size:0.8em; color:#FF4444; margin-top:10px;">⚠️ Realize o pagamento para iniciar o preparo.</p>
+            `;
+            document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI / ENVIAR";
         } else {
-            div.innerHTML = `<p style="color:#ddd">Pedir <strong>${nome}</strong>?</p>`;
-            document.getElementById('btnFinalizar').innerText = "CONFIRMAR";
+            div.innerHTML = `
+                <div style="font-size:3em; margin-bottom:10px;">🍹</div>
+                <p style="color:#fff; font-size:1.1em;">Pedir <strong>${nome}</strong>?</p>
+                <p style="color:#aaa; font-size:0.9em;">(Do seu pacote - Grátis)</p>
+            `;
+            document.getElementById('btnFinalizar').innerText = "CONFIRMAR PEDIDO";
         }
         document.getElementById('modalConfirm').style.display = 'flex';
     }
@@ -361,6 +414,7 @@
     function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
     function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
     function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
+    function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
 </script>
 </body>
 </html>
