@@ -7,14 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
+        body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
         .container { max-width: 600px; margin: auto; }
-        .header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
-        .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 5px; margin: 30px 0 15px 0; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
+        .header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 5px; font-weight: 300; }
+        .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 213, 128, 0.2); }
+        .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 8px; margin: 30px 0 20px 0; text-transform: uppercase; font-size: 0.95em; letter-spacing: 1px; font-weight: 600; }
         
-        /* CARD COM FOTO CORRIGIDA */
+        /* CARD COM FOTO PADRÃO LUXO */
         .drink-card { 
             background: #1E1E1E; 
             border-radius: 16px; 
@@ -28,7 +28,7 @@
         
         .card-image-box {
             width: 100%;
-            height: 180px;
+            height: 220px; /* Aumentei um pouco para valorizar a foto */
             position: relative;
             background: #000;
         }
@@ -37,73 +37,66 @@
             height: 100%;
             object-fit: cover;
             opacity: 0.9;
+            transition: transform 0.5s;
         }
+        /* Efeito suave de zoom ao passar o mouse (desktop) */
+        .drink-card:hover .card-image { transform: scale(1.03); }
+
         .card-image-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 60px;
+            height: 80px; /* Gradiente maior para o texto */
             background: linear-gradient(to top, #1E1E1E, transparent);
         }
 
         .drink-content { padding: 15px 20px; position: relative; }
-        .drink-title { font-size: 1.3em; font-weight: 700; color: #fff; margin: 0; }
-        .drink-desc { font-size: 0.9em; color: #bbb; margin: 5px 0 15px 0; line-height: 1.4; font-weight: 300; }
+        .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); position: relative; bottom: 10px; } /* Título sobe um pouco para a foto */
+        .drink-desc { font-size: 0.9em; color: #bbb; margin: 0 0 15px 0; line-height: 1.4; font-weight: 300; }
         
         /* PREÇOS */
-        .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2; }
+        .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2; }
         .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.75em; display: block; font-weight: bold; }
         .price-now { color: #4CAF50; font-weight: 800; font-size: 1.1em; }
         
-        .btn-action { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-action { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-free { background: linear-gradient(45deg, #2E7D32, #4CAF50); color: white; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); }
         .btn-paid { background: linear-gradient(45deg, #FF8F00, #FFD580); color: #000; box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3); }
         .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
 
-        /* FLOATING BUTTON */
-        .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; }
+        /* FLOATING BUTTON & MODAIS (Mantidos iguais) */
+        .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; animation: floatUp 0.3s; }
         .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
-
-        /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; }
-        
+        .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; font-size: 1em; }
         .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
-        
         .modal-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
         .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 12px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
         .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 8px; right: 15px; display: none; }
-        
         .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
         .tab-content.active { display: block; }
-
-        /* CHAT */
         .chat-container { display: flex; flex-direction: column; height: 300px; }
         .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .chat-input-area { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
         .chat-input { flex: 1; background: #111; border: 1px solid #444; color: white; padding: 12px; border-radius: 25px; outline: none; }
         .chat-send { background: #FFD580; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: black; }
-        
         .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; line-height: 1.4; position: relative; }
         .msg-mine { background: #2E7D32; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
         .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
-
         .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; }
         .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: 500; }
         .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .btn-i-paid { background: #4CAF50; color: white; }
         .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
-
         #avisoPacote { background: rgba(255, 68, 68, 0.15); border: 1px solid #FF4444; color: #FF4444; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; display: none; }
         #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 25px; border-radius: 50px; display:none; border: 1px solid #FFD580; z-index:950; white-space:nowrap; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 0.9em; }
-        
         .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
         .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; background: #111; padding: 10px; border-radius: 5px; text-align: center; }
-        
+        @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
     </style>
@@ -196,43 +189,41 @@
         if(NOME_CONVIDADO) carregarChat(); 
     }
 
-    // --- SISTEMA DE IMAGENS ROBUSTO (SEM ERRO) ---
-    function getDrinkImage(nome) {
-        const n = nome.toLowerCase();
-        
-        // 1. GIN
-        if(n.includes('gin') || n.includes('tônica')) return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80';
-        
-        // 2. TROPICAL / AMARELO
-        if(n.includes('tropical') || n.includes('fruta') || n.includes('maracuj') || n.includes('manga') || n.includes('sol')) 
-            return 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=600&q=80';
-        
-        // 3. VERMELHO / MORANGO / FRUTAS VERMELHAS
-        if(n.includes('morango') || n.includes('vermelh') || n.includes('rubi')) 
-            return 'https://images.unsplash.com/photo-1560512823-8db03e1b0949?auto=format&fit=crop&w=600&q=80';
-        
-        // 4. LIMÃO / CAIPIRINHA / VERDE
-        if(n.includes('limão') || n.includes('caipir') || n.includes('mojito') || n.includes('hortelã')) 
-            return 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80';
-        
-        // 5. MULE (CANECA)
-        if(n.includes('mule') || n.includes('moscow')) 
-            return 'https://images.unsplash.com/photo-1530991037531-51dc55647a8f?auto=format&fit=crop&w=600&q=80';
-        
-        // 6. AZUL
-        if(n.includes('blue') || n.includes('lagoa') || n.includes('céu')) 
-            return 'https://images.unsplash.com/photo-1536935338788-843bb63194f5?auto=format&fit=crop&w=600&q=80';
-        
-        // 7. WHISKY / ESCURO
-        if(n.includes('whisky') || n.includes('old') || n.includes('negave')) 
-            return 'https://images.unsplash.com/photo-1527281400683-1abc8b4336a5?auto=format&fit=crop&w=600&q=80';
-        
-        // 8. APEROL / LARANJA
-        if(n.includes('aperol') || n.includes('spritz') || n.includes('pôr do sol')) 
-            return 'https://images.unsplash.com/photo-1560963689-0989366e6c0f?auto=format&fit=crop&w=600&q=80';
+    // --- MAPA DE IMAGENS EXATAS (SELEÇÃO MANUAL LUXO) ---
+    function getDrinkImage(nomeOriginal) {
+        // Normaliza o nome (minúsculo, sem acentos, sem espaços extras) para comparar
+        const n = nomeOriginal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").trim();
 
-        // 9. DEFAULT (GENÉRICO BONITO)
-        return 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=600&q=80';
+        // Tabela de correspondência exata dos seus drinks para fotos de alta qualidade
+        const mapaImagens = {
+            // CLÁSSICOS
+            'elixir do sol': 'https://images.unsplash.com/photo-1546171753-97d7676e4602?auto=format&fit=crop&w=800&q=80', // Abacaxi sofisticado, amarelo vibrante
+            'desejo proibido': 'https://images.unsplash.com/photo-1560512823-8db03e1b0949?auto=format&fit=crop&w=800&q=80', // Vermelho intenso, taça elegante
+            'encanto noturno': 'https://images.unsplash.com/photo-1615758630612-254432261990?auto=format&fit=crop&w=800&q=80', // Roxo profundo, misterioso, luxo
+            'tropical mix': 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=800&q=80', // Colorido, vibrante, verão
+            'brisa verde': 'https://images.unsplash.com/photo-1609951651556-5334e2706168?auto=format&fit=crop&w=800&q=80', // Verde limão sofisticado, copo baixo
+            'caipirinha premium': 'https://images.unsplash.com/photo-1566925827857-8179fb7504fb?auto=format&fit=crop&w=800&q=80', // Caipirinha gourmet, bem apresentada
+            'furia rubi': 'https://images.unsplash.com/photo-1542849187-5ec6ea5e6a27?auto=format&fit=crop&w=800&q=80', // Vermelho menos intenso, refrescante
+            'segredo da casa': 'https://images.unsplash.com/photo-1516486392848-8b67ef89f113?auto=format&fit=crop&w=800&q=80', // Sombrio, misterioso, contraluz
+            'coquetel kids': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?auto=format&fit=crop&w=800&q=80', // Vermelho divertido, copo alto, sem álcool visualmente
+            'coquetel personalizado': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80', // Drink complexo, muito top e bonito
+
+            // PREMIUMS (Busca por palavra-chave se não achar o nome exato acima)
+            'aperol': 'https://images.unsplash.com/photo-1560963689-0989366e6c0f?auto=format&fit=crop&w=800&q=80', // Aperol Spritz clássico top
+            'gin': 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', // Gin Tônica botânico lindo
+            'mojito': 'https://images.unsplash.com/photo-1551538827-9c037cb4f32d?auto=format&fit=crop&w=800&q=80' // Mojito bem feito, hortelã fresca (Melhorado)
+        };
+
+        // 1. Tenta achar o nome exato no mapa
+        if (mapaImagens[n]) return mapaImagens[n];
+
+        // 2. Se não achou exato, tenta achar por palavra-chave (para os premiums variarem o nome)
+        if (n.includes('aperol')) return mapaImagens['aperol'];
+        if (n.includes('gin')) return mapaImagens['gin'];
+        if (n.includes('mojito')) return mapaImagens['mojito'];
+
+        // 3. Imagem padrão de luxo se não achar nada (Fallback seguro)
+        return 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=800&q=80';
     }
 
     function renderizarCardapio() {
@@ -252,6 +243,7 @@
                 let disponivel = item.disponivel !== false;
                 let precoFinal = item.preco || 0;
                 let htmlPreco = '';
+                // CHAMA A NOVA FUNÇÃO DE MAPA DE IMAGENS
                 let imagemUrl = getDrinkImage(item.nome);
                 
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
@@ -285,16 +277,17 @@
                     btnHtml = `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 PEGAR DO PACOTE</button>`; 
                 }
 
+                // ESTRUTURA DO CARD AJUSTADA PARA O TÍTULO FICAR DENTRO DA FOTO
                 html += `
                 <div class="drink-card ${classeExtra}">
                     <div class="card-image-box">
-                        <img src="${imagemUrl}" class="card-image" loading="lazy">
+                        <img src="${imagemUrl}" class="card-image" loading="lazy" alt="${item.nome}">
                         <div class="card-image-overlay"></div>
                         ${htmlPreco}
                     </div>
                     <div class="drink-content">
                         <h3 class="drink-title">${item.nome}</h3>
-                        <p class="drink-desc">${item.desc || 'Um drink delicioso e refrescante.'}</p>
+                        <p class="drink-desc">${item.desc || 'Uma experiência de sabor única.'}</p>
                         ${btnHtml}
                     </div>
                 </div>`;
@@ -305,7 +298,7 @@
         lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums);
     }
 
-    // --- FUNÇÕES DE INTERFACE (MANTER IGUAL) ---
+    // --- MANUTENÇÃO DAS FUNÇÕES ANTERIORES (CHAT, PEDIDOS) ---
     function mudarAba(aba) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -392,11 +385,11 @@
         document.getElementById('inputObservacao').value = '';
         const div = document.getElementById('conteudoConfirmacao');
         if(tipo === 'extra') {
-            div.innerHTML = `<p style="color:#ddd">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor:</span><strong style="font-size:1.5em; color:#4CAF50;">R$ ${preco},00</strong><hr style="border-color:#444;"><span style="display:block; color:#aaa; font-size:0.8em; margin-top:10px;">Chave PIX:</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "No balcão"}</span><button style="background:#444; color:#fff; border:none; padding:5px; width:100%; border-radius:5px;" onclick="copiarPix()">Copiar Chave</button></div><p style="font-size:0.8em; color:#FF4444;">⚠️ Realize o pagamento para iniciar o preparo.</p>`;
+            div.innerHTML = `<p style="color:#ddd; margin-bottom:15px;">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor a pagar:</span><strong style="font-size:1.8em; color:#4CAF50;">R$ ${preco},00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX:</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "Solicite no balcão"}</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button></div><p style="font-size:0.8em; color:#FF4444; margin-top:10px;">⚠️ Realize o pagamento para iniciar o preparo.</p>`;
             document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI / ENVIAR";
         } else {
-            div.innerHTML = `<p style="color:#ddd">Pedir <strong>${nome}</strong>?</p>`;
-            document.getElementById('btnFinalizar').innerText = "CONFIRMAR";
+            div.innerHTML = `<div style="font-size:3em; margin-bottom:10px;">🍹</div><p style="color:#fff; font-size:1.1em;">Pedir <strong>${nome}</strong>?</p><p style="color:#aaa; font-size:0.9em;">(Do seu pacote - Grátis)</p>`;
+            document.getElementById('btnFinalizar').innerText = "CONFIRMAR PEDIDO";
         }
         document.getElementById('modalConfirm').style.display = 'flex';
     }
