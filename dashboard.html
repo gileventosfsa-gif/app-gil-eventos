@@ -31,6 +31,7 @@
         .client { color: #aaa; font-size: 0.9em; }
         .time { position: absolute; top: 10px; right: 10px; font-size: 0.8em; color: #666; font-family: monospace; }
         .actions { display: flex; gap: 5px; margin-top: 10px; }
+        
         .btn-ok { flex: 2; background: #2E7D32; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
         .btn-pay { flex: 2; background: #FFD580; border: none; padding: 10px; border-radius: 5px; color: #000; cursor: pointer; font-weight: bold; }
         .btn-deny { flex: 1; background: #D32F2F; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.8em; }
@@ -189,6 +190,7 @@
                     if(p.status === 'aguardando_pagamento' || p.status === 'pagamento_rejeitado') {
                         classe = 'pagamento';
                         badge = `🔴 AGUARDANDO PGTO (R$ ${p.preco}) ${p.sinalizou_pagamento ? '👉 CLIENTE PAGOU' : ''}`;
+                        // BOTÕES PARA PAGAMENTO - COM CONFIRM
                         btnHtml = `
                             <button class="btn-deny" onclick="recusarPagamento('${p.id}')">🚫 NÃO CONSTA</button>
                             <button class="btn-pay" onclick="confirmarPagamento('${p.id}', ${p.preco})">💰 CONFIRMAR</button>
@@ -196,12 +198,14 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
+                        // BOTÃO PRONTO - COM CONFIRM
                         btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}')">✅ PRONTO</button>`;
                     }
 
                     lista.innerHTML += `
                     <div class="order-card ${classe} ${visualAviso}">
                         <div class="time">${hora}</div>
+                        <button class="btn-prio" onclick="priorizarPedido('${p.id}')">⬆️</button>
                         <div class="client">${p.nome_convidado}</div>
                         <div class="order-info"><h3>${p.drink}</h3><small style="background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:3px;">${badge}</small>${obsHtml}</div>
                         <div class="actions">
@@ -331,7 +335,38 @@
         function mudarStatus(id, novoStatus, tipo) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }); if(novoStatus === 'servido' && tipo === 'pacote') db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: firebase.firestore.FieldValue.increment(1) }); }
         function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }); }
         
-        function lancarManual(item) { const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); if(nome === null) return; let tipo = 'pacote'; if(item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico==='pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado)) tipo='extra'; db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: item.nome, tipo: tipo, preco: item.preco||0, nome_convidado: nome || "Balcão", status: 'pendente', data: new Date() }); }
+        function lancarManual(item) { 
+            const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão");
+            if(nome === null) return;
+            
+            let tipo = 'pacote';
+            // Verifica se deve ser cobrado (Extra)
+            if(item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico==='pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado)) {
+                tipo = 'extra';
+            }
+
+            const preco = item.preco || 0;
+
+            // Adiciona pedido
+            db.collection("pedidos").add({ 
+                evento_id: EVENTO_ID, 
+                drink: item.nome, 
+                tipo: tipo, 
+                preco: preco, 
+                nome_convidado: nome || "Balcão", 
+                status: 'pendente', // Já vai direto pra cozinha
+                data: new Date() 
+            }); 
+
+            // CORREÇÃO: SE FOR PAGO, JÁ SOMA NO CAIXA AUTOMATICAMENTE
+            if(tipo === 'extra') {
+                db.collection("eventos").doc(EVENTO_ID).update({ 
+                    total_vendas_extra: firebase.firestore.FieldValue.increment(1),
+                    total_faturamento: firebase.firestore.FieldValue.increment(preco)
+                });
+            }
+        }
+
         function gerarBotoes(menu) { const div = document.getElementById('listaBotoesManual'); div.innerHTML = ''; menu.forEach(item => { const btn = document.createElement('button'); const pausado = item.disponivel === false; btn.className = item.is_premium ? 'btn-drink premium' : 'btn-drink'; if(pausado) btn.classList.add('pausado'); btn.innerText = (item.is_premium?'💲 ':'🆓 ') + item.nome + (pausado ? ' (PAUSADO)' : ''); btn.onclick = () => { if(!pausado) lancarManual(item); else alert("Drink pausado."); }; div.appendChild(btn); }); }
         function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
@@ -344,7 +379,9 @@
         function mostrarQR() { const url=window.location.href.replace('dashboard.html','index.html'); document.getElementById('qrcodeDisplay').innerHTML=''; new QRCode(document.getElementById("qrcodeDisplay"),{text:url,width:250,height:250}); document.getElementById('qrOverlay').style.display='flex'; }
         function copiarLink() { navigator.clipboard.writeText(window.location.href.replace('dashboard.html','index.html')); alert("Copiado!"); }
         function atualizarInterface(dados) { document.getElementById('nomeEvento').innerText = dados.nome; document.getElementById('consumido').innerText = dados.total_consumido; if(dados.tipo_servico === 'pacote') { document.getElementById('total').innerText = dados.total_contratado; document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; } document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; const btnModo = document.getElementById('btnModoPreco'); if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; } }
-        function mudarStatus(id, novoStatus, tipo) { db.collection("pedidos").doc(id).update({ status: novoStatus }); if(novoStatus === 'servido') { if(tipo === 'pacote') db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: firebase.firestore.FieldValue.increment(1) }); } }
+        // FUNÇÕES ABAIXO MANTIDAS
+        function priorizarPedido(id) { db.collection("pedidos").doc(id).update({ prioridade: 1 }); }
+        function mudarStatus(id, novoStatus, tipo) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }); if(novoStatus === 'servido' && tipo === 'pacote') db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: firebase.firestore.FieldValue.increment(1) }); }
     </script>
 </body>
 </html>
