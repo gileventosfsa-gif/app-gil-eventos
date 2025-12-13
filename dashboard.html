@@ -18,10 +18,13 @@
         .eye-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.2em; color: #888; background: none; border: none; }
         .big-stat { font-size: 2em; font-weight: 800; color: #4CAF50; }
         .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; }
-        .btn-drink { width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: #fff; margin-bottom: 8px; border-radius: 6px; cursor: pointer; text-align: left; transition: 0.2s; }
+        
+        /* BOTÕES DE DRINK MANUAL */
+        .btn-drink { width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: #fff; margin-bottom: 8px; border-radius: 6px; cursor: pointer; text-align: left; transition: 0.2s; display: flex; justify-content: space-between; }
         .btn-drink:hover { background: #FFD580; color: #000; border-color: #FFD580; }
         .btn-drink.pausado { opacity: 0.5; text-decoration: line-through; border-color: red; }
-        
+        .btn-price-tag { font-weight: bold; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+
         .order-card { background: #222; border-left: 5px solid #888; border-radius: 8px; padding: 15px; margin-bottom: 15px; animation: slideIn 0.3s; position: relative; }
         .order-card.extra { border-left-color: #FFD580; background: #2A2210; } 
         .order-card.pacote { border-left-color: #4CAF50; } 
@@ -53,14 +56,13 @@
         .chat-area { width: 70%; display: flex; flex-direction: column; }
         .user-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; position: relative; }
         .user-item:hover, .user-item.active { background: #222; color: #FFD580; }
-        .user-unread { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; display: inline-block; margin-left: 5px; } /* Bolinha vermelha */
+        .user-unread { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; display: inline-block; margin-left: 5px; } 
         .chat-msgs { flex-grow: 1; background: #222; padding: 10px; overflow-y: auto; margin-bottom: 10px; border-radius: 5px; }
         .msg { padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; max-width: 80%; font-size: 0.9em; }
         .msg-client { background: #444; align-self: flex-start; }
         .msg-admin { background: #007bff; align-self: flex-end; text-align: right; }
         .chat-controls { display: flex; gap: 5px; }
         
-        /* BOTÃO CHAT COM BADGE */
         .btn-chat-wrapper { position: relative; }
         .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
 
@@ -166,7 +168,6 @@
                     gerarListaEstoque(DADOS_EVENTO.cardapio);
                 }
             });
-            // SEM ORDERBY para evitar erro de índice
             db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["pendente", "aguardando_pagamento", "pagamento_rejeitado"]).onSnapshot((snapshot) => {
                 const lista = document.getElementById('listaFila');
                 document.getElementById('qtdFila').innerText = snapshot.size;
@@ -175,9 +176,7 @@
                 
                 let pedidos = [];
                 snapshot.forEach(doc => pedidos.push({id: doc.id, ...doc.data()}));
-                pedidos.sort((a, b) => {
-                    return a.data - b.data; // Apenas ordem de chegada
-                });
+                pedidos.sort((a, b) => { return a.data - b.data; });
 
                 pedidos.forEach(p => {
                     const hora = p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -188,26 +187,19 @@
                     if(p.status === 'aguardando_pagamento' || p.status === 'pagamento_rejeitado') {
                         classe = 'pagamento';
                         badge = `🔴 AGUARDANDO PGTO (R$ ${p.preco}) ${p.sinalizou_pagamento ? '👉 CLIENTE PAGOU' : ''}`;
-                        btnHtml = `
-                            <button class="btn-deny" onclick="recusarPagamento('${p.id}')">🚫 NÃO CONSTA</button>
-                            <button class="btn-pay" onclick="confirmarPagamento('${p.id}', ${p.preco})">💰 CONFIRMAR</button>
-                        `;
+                        btnHtml = `<button class="btn-deny" onclick="recusarPagamento('${p.id}')">🚫 NÃO CONSTA</button><button class="btn-pay" onclick="confirmarPagamento('${p.id}', ${p.preco})">💰 CONFIRMAR</button>`;
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
                         btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}')">✅ PRONTO</button>`;
                     }
 
-                    // REMOVIDO BOTÃO SETA AZUL AQUI
                     lista.innerHTML += `
                     <div class="order-card ${classe} ${visualAviso}">
                         <div class="time">${hora}</div>
                         <div class="client">${p.nome_convidado}</div>
                         <div class="order-info"><h3>${p.drink}</h3><small style="background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:3px;">${badge}</small>${obsHtml}</div>
-                        <div class="actions">
-                            <button class="btn-cancel" onclick="cancelarPedido('${p.id}')">✖</button>
-                            ${btnHtml}
-                        </div>
+                        <div class="actions"><button class="btn-cancel" onclick="cancelarPedido('${p.id}')">✖</button>${btnHtml}</div>
                     </div>`;
                 });
             });
@@ -215,133 +207,89 @@
                 const l = document.getElementById('listaHistorico'); l.innerHTML = ''; 
                 s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); 
             });
-
             monitorarChat();
         }
 
-        // --- FUNÇÕES DE CHAT E LÓGICA DO SISTEMA ---
-        function monitorarChat() {
-            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
-                let novasMensagens = 0;
-                snapshot.docChanges().forEach(change => {
-                    const m = change.doc.data();
-                    if (change.type === 'added' && m.remetente === 'cliente') {
-                        novasMensagens++;
-                        if(document.getElementById('chatOverlay').style.display === 'none') { document.getElementById('somAlerta').play().catch(()=>{}); }
-                    }
-                });
-                if(novasMensagens > 0) {
-                    CHAT_UNREAD_COUNT += novasMensagens;
-                    const badge = document.getElementById('chatBadgeGlobal');
-                    badge.innerText = CHAT_UNREAD_COUNT;
-                    badge.style.display = 'flex';
-                }
-            });
-        }
-
-        function abrirChatAdmin() {
-            document.getElementById('chatOverlay').style.display = 'flex';
-            CHAT_UNREAD_COUNT = 0;
-            document.getElementById('chatBadgeGlobal').style.display = 'none';
-            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => {
-                const usuarios = new Set();
-                s.forEach(d => usuarios.add(d.data().nome));
-                const lista = document.getElementById('chatUsersList');
-                lista.innerHTML = '';
-                usuarios.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; });
-            });
-        }
-
-        function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
-
-        function carregarConversa(nome) {
-            SELECTED_CHAT_USER = nome;
-            const area = document.getElementById('chatAdminMsgs');
-            area.innerHTML = 'Carregando...';
-            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => {
-                area.innerHTML = '';
-                let msgs = [];
-                s.forEach(doc => msgs.push(doc.data()));
-                msgs.sort((a,b) => a.data - b.data);
-                msgs.forEach(m => {
-                    const classe = m.remetente === 'admin' ? 'msg-admin' : 'msg-client';
-                    area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`;
-                });
-                area.scrollTop = area.scrollHeight;
-            });
-        }
-
-        function enviarMsgAdmin() {
-            const txt = document.getElementById('adminChatInput').value;
-            if(!txt || !SELECTED_CHAT_USER) return;
-            db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() });
-            document.getElementById('adminChatInput').value = '';
-        }
-
-        function abrirContatos() {
-            document.getElementById('contactsOverlay').style.display = 'flex';
-            const lista = document.getElementById('listaContatos');
-            lista.innerHTML = "Carregando...";
-            db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => {
-                if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; }
-                lista.innerHTML = "";
-                q.forEach((doc) => {
-                    const d = doc.data();
-                    let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : "";
-                    lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`;
-                });
-            }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; });
-        }
-        function copiarListaContatos() {
-            let texto = "NOME; WHATSAPP\n";
-            document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; });
-            navigator.clipboard.writeText(texto).then(() => alert("Copiado!"));
-        }
-
-        function confirmarPagamento(id, preco) { 
-            if(!confirm("Confirmar pagamento?")) return; 
-            db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); 
-            db.collection("eventos").doc(EVENTO_ID).update({ 
-                total_vendas_extra: firebase.firestore.FieldValue.increment(1), 
-                total_faturamento: firebase.firestore.FieldValue.increment(preco) 
-            }); 
-        }
-        
-        function recusarPagamento(id) { 
-            if(!confirm("Tem certeza que NÃO consta?")) return; 
-            db.collection("pedidos").doc(id).update({ status: 'pagamento_rejeitado', sinalizou_pagamento: false }); 
-        }
-        
-        function mudarStatus(id, novoStatus, tipo) { 
-            if(!confirm("Entregar pedido?")) return; 
-            db.collection("pedidos").doc(id).update({ status: novoStatus }); 
-            if(novoStatus === 'servido' && tipo === 'pacote') db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: firebase.firestore.FieldValue.increment(1) }); 
-        }
-        
-        function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }); }
-        
+        // --- LANÇAMENTO MANUAL INTELIGENTE ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
-            let tipo = 'pacote'; 
-            if(item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico==='pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado)) { tipo='extra'; }
             
-            // CORREÇÃO: Manda para 'aguardando_pagamento' se for pago, para que o caixa tenha que confirmar e o sistema contabilize o valor
+            let tipo = 'pacote';
+            let precoFinal = item.preco || 0;
+
+            // LÓGICA DE PREÇO PRÉ-VENDA
+            if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
+                precoFinal = item.preco_prevenda;
+            }
+
+            if(item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico==='pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado)) { 
+                tipo='extra'; 
+            }
+            
             let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
             
             db.collection("pedidos").add({ 
                 evento_id: EVENTO_ID, 
                 drink: item.nome, 
                 tipo: tipo, 
-                preco: item.preco||0, 
+                preco: precoFinal, // Valor correto (Pré ou Normal)
                 nome_convidado: nome || "Balcão", 
-                status: statusInicial, // STATUS CORRIGIDO
+                status: statusInicial, 
                 sinalizou_pagamento: false, 
                 data: new Date() 
             }); 
+
+            // Se for pago, já soma imediatamente se quiser (Opcional, mas aqui mantive a confirmação via botão)
+            // Se quiser forçar a soma aqui, descomente:
+            /* if(tipo === 'extra') {
+                db.collection("eventos").doc(EVENTO_ID).update({ 
+                    total_vendas_extra: firebase.firestore.FieldValue.increment(1),
+                    total_faturamento: firebase.firestore.FieldValue.increment(precoFinal)
+                });
+            } */
         }
 
-        function gerarBotoes(menu) { const div = document.getElementById('listaBotoesManual'); div.innerHTML = ''; menu.forEach(item => { const btn = document.createElement('button'); const pausado = item.disponivel === false; btn.className = item.is_premium ? 'btn-drink premium' : 'btn-drink'; if(pausado) btn.classList.add('pausado'); btn.innerText = (item.is_premium?'💲 ':'🆓 ') + item.nome + (pausado ? ' (PAUSADO)' : ''); btn.onclick = () => { if(!pausado) lancarManual(item); else alert("Drink pausado."); }; div.appendChild(btn); }); }
+        // --- GERAR BOTÕES COM PREÇO DINÂMICO ---
+        function gerarBotoes(menu) { 
+            const div = document.getElementById('listaBotoesManual'); 
+            div.innerHTML = ''; 
+            menu.forEach(item => { 
+                const btn = document.createElement('button'); 
+                const pausado = item.disponivel === false; 
+                btn.className = item.is_premium ? 'btn-drink premium' : 'btn-drink'; 
+                if(pausado) btn.classList.add('pausado'); 
+                
+                // Exibe o preço atual
+                let precoDisplay = item.preco || 0;
+                if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
+                    precoDisplay = item.preco_prevenda;
+                }
+
+                btn.innerHTML = `<span>${(item.is_premium?'💲 ':'🆓 ')}${item.nome} ${(pausado ? '(PAUSADO)' : '')}</span> <span class="btn-price-tag">R$ ${precoDisplay}</span>`; 
+                btn.onclick = () => { if(!pausado) lancarManual(item); else alert("Drink pausado."); }; 
+                div.appendChild(btn); 
+            }); 
+        }
+
+        // --- FUNÇÕES DE CHAT, ESTOQUE E UTILITÁRIOS ---
+        function monitorarChat() {
+            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
+                let novasMensagens = 0;
+                snapshot.docChanges().forEach(change => { if (change.type === 'added' && change.doc.data().remetente === 'cliente') { novasMensagens++; if(document.getElementById('chatOverlay').style.display === 'none') { document.getElementById('somAlerta').play().catch(()=>{}); } } });
+                if(novasMensagens > 0) { CHAT_UNREAD_COUNT += novasMensagens; const badge = document.getElementById('chatBadgeGlobal'); badge.innerText = CHAT_UNREAD_COUNT; badge.style.display = 'flex'; }
+            });
+        }
+        function abrirChatAdmin() { document.getElementById('chatOverlay').style.display = 'flex'; CHAT_UNREAD_COUNT = 0; document.getElementById('chatBadgeGlobal').style.display = 'none'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { const usuarios = new Set(); s.forEach(d => usuarios.add(d.data().nome)); const lista = document.getElementById('chatUsersList'); lista.innerHTML = ''; usuarios.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; }); }); }
+        function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
+        function carregarConversa(nome) { SELECTED_CHAT_USER = nome; const area = document.getElementById('chatAdminMsgs'); area.innerHTML = 'Carregando...'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { area.innerHTML = ''; let msgs = []; s.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const classe = m.remetente === 'admin' ? 'msg-admin' : 'msg-client'; area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; }); area.scrollTop = area.scrollHeight; }); }
+        function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
+        function abrirContatos() { document.getElementById('contactsOverlay').style.display = 'flex'; const lista = document.getElementById('listaContatos'); lista.innerHTML = "Carregando..."; db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => { if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; } lista.innerHTML = ""; q.forEach((doc) => { const d = doc.data(); let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : ""; lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`; }); }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; }); }
+        function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
+        function confirmarPagamento(id, preco) { if(!confirm("Confirmar pagamento?")) return; db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); }
+        function recusarPagamento(id) { if(!confirm("Tem certeza que NÃO consta?")) return; db.collection("pedidos").doc(id).update({ status: 'pagamento_rejeitado', sinalizou_pagamento: false }); }
+        function mudarStatus(id, novoStatus, tipo) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }); if(novoStatus === 'servido' && tipo === 'pacote') db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: firebase.firestore.FieldValue.increment(1) }); }
+        function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }); }
         function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
