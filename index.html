@@ -15,12 +15,12 @@
         .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 213, 128, 0.2); }
         .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 8px; margin: 30px 0 20px 0; text-transform: uppercase; font-size: 0.95em; letter-spacing: 1px; font-weight: 600; }
         
-        /* CARD NOVO COM FOTO */
+        /* CARD COM FOTO DINÂMICA */
         .drink-card { 
             background: #1E1E1E; 
             border-radius: 16px; 
             margin-bottom: 25px; 
-            overflow: hidden; /* Para a imagem não sair da borda */
+            overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             border: 1px solid #333;
             transition: transform 0.2s;
@@ -29,34 +29,36 @@
         
         .card-image-box {
             width: 100%;
-            height: 180px;
+            height: 200px; /* Aumentei um pouco a altura */
             position: relative;
             background: #000;
+            overflow: hidden;
         }
         .card-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.9;
+            opacity: 0.85;
+            transition: transform 0.5s;
         }
-        /* Gradiente para o texto ficar legível se fosse em cima, mas vamos usar em baixo */
+        .drink-card:hover .card-image { transform: scale(1.05); } /* Efeito de zoom suave */
+
         .card-image-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 50px;
+            height: 80px;
             background: linear-gradient(to top, #1E1E1E, transparent);
         }
 
-        .drink-content { padding: 15px 20px; }
+        .drink-content { padding: 15px 20px; position: relative; }
         
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
         .drink-title { font-size: 1.3em; font-weight: 700; color: #fff; margin: 0; }
         .drink-desc { font-size: 0.9em; color: #bbb; margin: 5px 0 15px 0; line-height: 1.4; font-weight: 300; }
         
         /* PREÇOS */
-        .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 2; }
         .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.75em; display: block; font-weight: bold; }
         .price-now { color: #4CAF50; font-weight: 800; font-size: 1.1em; }
         
@@ -198,21 +200,16 @@
         if(NOME_CONVIDADO) carregarChat(); 
     }
 
-    // --- FUNÇÃO INTELIGENTE DE IMAGENS ---
+    // --- NOVA FUNÇÃO DE IMAGEM DINÂMICA (BUSCA INTELIGENTE) ---
     function getDrinkImage(nome) {
-        const n = nome.toLowerCase();
-        // Imagens de alta qualidade do Unsplash (Links diretos)
-        if(n.includes('gin') || n.includes('tônica')) return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        if(n.includes('moscow') || n.includes('mule')) return 'https://images.unsplash.com/photo-1530991037531-51dc55647a8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        if(n.includes('caipir') || n.includes('limão')) return 'https://images.unsplash.com/photo-1542849187-5ec6ea5e6a27?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        if(n.includes('tropical') || n.includes('fruta') || n.includes('verão')) return 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        if(n.includes('morango') || n.includes('vermelh')) return 'https://images.unsplash.com/photo-1560512823-8db03e1b0949?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        if(n.includes('whisky') || n.includes('old')) return 'https://images.unsplash.com/photo-1527281400683-1abc8b4336a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        if(n.includes('aperol')) return 'https://images.unsplash.com/photo-1560963689-0989366e6c0f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        if(n.includes('mojito') || n.includes('hortelã')) return 'https://images.unsplash.com/photo-1551538827-9c037cb4f32d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        if(n.includes('lagoa') || n.includes('blue')) return 'https://images.unsplash.com/photo-1629247072863-4971c2299732?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
-        // Genérico bonito
-        return 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+        // 1. Remove acentos e caracteres especiais para a busca ficar limpa
+        const cleanName = nome.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, "") // Remove acentos
+            .replace(/\s+/g, '-'); // Troca espaços por hifens
+
+        // 2. Adiciona 'cocktail' na busca para garantir que venha bebida, e depois o nome específico
+        // O Unsplash vai tentar achar a melhor combinação.
+        return `https://source.unsplash.com/800x600/?cocktail,${cleanName}`;
     }
 
     function renderizarCardapio() {
@@ -232,6 +229,7 @@
                 let disponivel = item.disponivel !== false;
                 let precoFinal = item.preco || 0;
                 let htmlPreco = '';
+                // Chama a nova função de busca dinâmica
                 let imagemUrl = getDrinkImage(item.nome);
                 
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
@@ -268,8 +266,7 @@
                 html += `
                 <div class="drink-card ${classeExtra}">
                     <div class="card-image-box">
-                        <img src="${imagemUrl}" class="card-image">
-                        <div class="card-image-overlay"></div>
+                        <img src="${imagemUrl}" class="card-image" loading="lazy"> <div class="card-image-overlay"></div>
                         ${htmlPreco}
                     </div>
                     <div class="drink-content">
