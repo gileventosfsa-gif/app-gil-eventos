@@ -23,9 +23,9 @@
         .drink-title { font-size: 1.1em; font-weight: 700; color: #fff; margin: 0; }
         .drink-desc { font-size: 0.85em; color: #aaa; margin: 5px 0 10px 0; }
         
-        /* PREÇOS COMPARATIVOS */
+        /* PREÇOS COMPARATIVOS (ALTERADO AQUI) */
         .price-display { margin: 10px 0; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; text-align: center; border: 1px dashed #555; }
-        .price-old { text-decoration: line-through; color: #888; font-size: 0.85em; display: block; margin-bottom: 2px; }
+        .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.9em; display: block; margin-bottom: 2px; font-weight: bold; opacity: 0.8; } /* FICOU VERMELHO */
         .price-now { color: #4CAF50; font-weight: bold; font-size: 1.1em; display: block; }
         .tag-promo { background: #FF4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; font-weight: bold; position: absolute; top: -10px; right: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 
@@ -187,7 +187,6 @@
                 let htmlPreco = '';
                 
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
-                    // MODO PRÉ-VENDA ATIVO: MOSTRA COMPARAÇÃO
                     precoFinal = item.preco_prevenda;
                     htmlPreco = `
                         <div class="price-display">
@@ -197,7 +196,6 @@
                         <div class="tag-promo">🔥 OFERTA</div>
                     `;
                 } else {
-                    // MODO NORMAL (OU PACOTE)
                     if(item.tipo_cobranca === 'pago') {
                         htmlPreco = `<div style="text-align:center; margin:10px 0; color:#FFD580; font-weight:bold;">R$ ${item.preco}</div>`;
                     }
