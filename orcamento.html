@@ -16,7 +16,7 @@
             --gold: #FFD580;
             --orange: #FF9500;
             --dark: #121212;
-            --card-bg: rgba(30, 30, 30, 0.6);
+            --card-bg: #1E1E1E;
         }
 
         /* ANIMAÇÕES */
@@ -41,23 +41,57 @@
         }
         .btn-gradient:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
 
-        /* SEÇÃO 2 - GRID */
+        /* SEÇÃO 2 - GRID E CARDS (DESIGN NOVO COM FOTOS) */
         .gil-category { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 60px 0 30px; }
         .gil-category h2 { color: #FFB84D; font-size: 1.8em; text-transform: uppercase; letter-spacing: 1.5px; margin: 0; text-align: center; }
         .gil-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, transparent, #FFB84D, transparent); max-width: 100px; }
-        .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
         .gil-card {
             background: var(--card-bg); border: 1px solid rgba(255, 213, 128, 0.1); border-radius: 16px;
-            padding: 30px 25px; transition: all 0.4s ease; position: relative; overflow: hidden;
-            display: flex; flex-direction: column; align-items: flex-start; backdrop-filter: blur(10px);
+            overflow: hidden; transition: all 0.4s ease; position: relative;
+            display: flex; flex-direction: column;
         }
-        .gil-card:hover { transform: translateY(-7px); border-color: rgba(255, 149, 0, 0.5); background: rgba(40, 40, 40, 0.8); }
-        .card-icon { font-size: 2.5em; margin-bottom: 15px; background: #2A2A2A; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        .gil-card h3 { font-size: 1.25em; color: var(--gold); margin: 0 0 10px 0; font-weight: 600; }
-        .gil-card p { font-size: 0.95em; line-height: 1.6; color: #ccc; margin: 0; flex-grow: 1; }
-        .badge { display: inline-block; font-size: 0.75em; padding: 4px 10px; border-radius: 20px; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; }
-        .badge-pop { background: rgba(255, 149, 0, 0.2); color: #FF9500; border: 1px solid rgba(255,149,0,0.3); }
-        .badge-premium { background: linear-gradient(45deg, #FFD700, #FFAA00); color: #111; border: none; }
+        .gil-card:hover { transform: translateY(-7px); border-color: rgba(255, 149, 0, 0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* ÁREA DA FOTO */
+        .drink-img-box {
+            width: 100%;
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+        }
+        .drink-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+        .gil-card:hover .drink-img { transform: scale(1.1); }
+        
+        /* SOMBRA NA FOTO */
+        .img-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
+            background: linear-gradient(to top, #1E1E1E, transparent);
+        }
+
+        /* CONTEÚDO DO CARD */
+        .card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .gil-card h3 { font-size: 1.3em; color: var(--gold); margin: 0 0 8px 0; font-weight: 700; }
+        .gil-card p { font-size: 0.9em; line-height: 1.5; color: #ccc; margin: 0; flex-grow: 1; }
+
+        /* BADGES (ETIQUETAS) */
+        .badge { 
+            position: absolute; top: 15px; right: 15px; z-index: 2;
+            font-size: 0.7em; padding: 5px 12px; border-radius: 20px; 
+            font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .badge-pop { background: #FF9500; color: #000; }
+        .badge-fresh { background: #00E676; color: #000; }
+        .badge-sweet { background: #FF4081; color: #fff; }
+        .badge-premium { background: linear-gradient(45deg, #FFD700, #FFAA00); color: #000; }
 
         /* SEÇÃO 4 - CALCULADORA */
         .calc-container { max-width: 950px; margin: auto; padding: 50px 20px; text-align: center; }
@@ -115,35 +149,148 @@
 
         <div class="gil-category"><span class="gil-line"></span><h2>Clássicos da Casa</h2><span class="gil-line"></span></div>
         <div class="gil-grid">
+            
             <div class="gil-card">
-                <div style="display:flex; justify-content:space-between; width:100%; align-items:start;"><div class="card-icon">⚡</div><span class="badge badge-pop">Mais Pedido</span></div>
-                <h3>Elixir do Sol</h3><p><strong>Roska Energia:</strong> Abacaxi, hortelã, toque cítrico e especiarias.</p>
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg" class="drink-img" alt="Elixir do Sol">
+                    <span class="badge badge-pop">Mais Pedido</span>
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Elixir do Sol</h3><p><strong>Roska Energia:</strong> Abacaxi, hortelã, toque cítrico e especiarias.</p>
+                </div>
             </div>
+
             <div class="gil-card">
-                <div class="card-icon">❤️</div>
-                <h3>Desejo Proibido</h3><p><strong>Roska das Paixões:</strong> Frutas vermelhas intensas, cítrico e hortelã.</p>
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg" class="drink-img" alt="Desejo Proibido">
+                    <span class="badge badge-sweet">Doce</span>
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Desejo Proibido</h3><p><strong>Roska das Paixões:</strong> Frutas vermelhas intensas, cítrico e hortelã.</p>
+                </div>
             </div>
-            <div class="gil-card"><div class="card-icon">💜</div><h3>Encanto Noturno</h3><p><strong>Roska do Encanto:</strong> Uva roxa, cítrico e manjericão fresco.</p></div>
-            <div class="gil-card"><div class="card-icon">🌴</div><h3>Tropical Mix</h3><p><strong>Roska do Paraíso:</strong> Tangerina, kiwi, abacaxi e ervas frescas.</p></div>
-            <div class="gil-card"><div class="card-icon">🌿</div><h3>Brisa Verde</h3><p><strong>Roska Fresh:</strong> Limão, gengibre, manjericão e açúcar de cana.</p></div>
-            <div class="gil-card"><div class="card-icon">💥</div><h3>Fúria Rubi</h3><p><strong>Roska Explosão:</strong> Morango, tangerina e maracujá.</p></div>
-            <div class="gil-card"><div class="card-icon">🍋</div><h3>Caipirinha Premium</h3><p>Limão tahiti, açúcar na medida e aguardente de qualidade.</p></div>
-            <div class="gil-card"><div class="card-icon">🍹</div><h3>Segredo da Casa</h3><p>Criação autoral com toque secreto do barman.</p></div>
+
+            <div class="gil-card">
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg" class="drink-img" alt="Encanto Noturno">
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Encanto Noturno</h3><p><strong>Roska do Encanto:</strong> Uva roxa, cítrico e manjericão fresco.</p>
+                </div>
+            </div>
+
+            <div class="gil-card">
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg" class="drink-img" alt="Tropical Mix">
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Tropical Mix</h3><p><strong>Roska do Paraíso:</strong> Tangerina, kiwi, abacaxi e ervas frescas.</p>
+                </div>
+            </div>
+
+            <div class="gil-card">
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg" class="drink-img" alt="Brisa Verde">
+                    <span class="badge badge-fresh">Refrescante</span>
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Brisa Verde</h3><p><strong>Roska Fresh:</strong> Limão, gengibre, manjericão e açúcar de cana.</p>
+                </div>
+            </div>
+
+            <div class="gil-card">
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg" class="drink-img" alt="Fúria Rubi">
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Fúria Rubi</h3><p><strong>Roska Explosão:</strong> Morango, tangerina e maracujá.</p>
+                </div>
+            </div>
+
+            <div class="gil-card">
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg" class="drink-img" alt="Caipirinha Premium">
+                    <span class="badge badge-pop">Clássico</span>
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Caipirinha Premium</h3><p>Limão tahiti, açúcar na medida e aguardente de qualidade.</p>
+                </div>
+            </div>
+
+            <div class="gil-card">
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg" class="drink-img" alt="Segredo da Casa">
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Segredo da Casa</h3><p>Criação autoral com toque secreto do barman.</p>
+                </div>
+            </div>
         </div>
 
         <div class="gil-category"><span class="gil-line"></span><h2>Drinks Premium</h2><span class="gil-line"></span></div>
         <div class="gil-grid">
             <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
-                <div style="display:flex; justify-content:space-between; width:100%; align-items:start;"><div class="card-icon">🧡</div><span class="badge badge-premium">Premium</span></div>
-                <h3>Aperol Sunset</h3><p>Aperol com espumante e laranja caramelizada.</p>
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg" class="drink-img" alt="Aperol">
+                    <span class="badge badge-premium">Premium</span>
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Aperol Sunset</h3><p>Aperol com espumante e laranja caramelizada.</p>
+                </div>
             </div>
+
             <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
-                <div style="display:flex; justify-content:space-between; width:100%; align-items:start;"><div class="card-icon">🍸</div><span class="badge badge-premium">Premium</span></div>
-                <h3>Gin Tropical</h3><p>Gin, abacaxi grelhado, especiarias e limão siciliano.</p>
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg" class="drink-img" alt="Gin">
+                    <span class="badge badge-premium">Premium</span>
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Gin Tropical</h3><p>Gin, abacaxi grelhado, especiarias e limão siciliano.</p>
+                </div>
             </div>
+
             <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
-                <div style="display:flex; justify-content:space-between; width:100%; align-items:start;"><div class="card-icon">🍃</div><span class="badge badge-premium">Premium</span></div>
-                <h3>Mojito da Ilha</h3><p>Rum branco, hortelã fresca e limão tahiti.</p>
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg" class="drink-img" alt="Mojito">
+                    <span class="badge badge-premium">Premium</span>
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Mojito da Ilha</h3><p>Rum branco, hortelã fresca e limão tahiti.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="gil-category"><span class="gil-line"></span><h2>Coquetéis</h2><span class="gil-line"></span></div>
+        <div class="gil-grid">
+            <div class="gil-card">
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg" class="drink-img" alt="Coquetel Kids">
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Coquetel Kids</h3><p>Mix cremoso de frutas vermelhas. Delicioso, colorido e perfeito para festas infantis.</p>
+                </div>
+            </div>
+
+            <div class="gil-card">
+                <div class="drink-img-box">
+                    <img src="https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg" class="drink-img" alt="Coquetel Personalizado">
+                    <div class="img-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Personalizado</h3><p>O cliente escolhe as frutas e combinações na hora.</p>
+                </div>
             </div>
         </div>
     </div>
