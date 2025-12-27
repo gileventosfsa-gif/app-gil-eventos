@@ -93,22 +93,30 @@
             box-shadow: 0 0 10px #FF9500;
             display: none; 
         }
-        /* Eventos passados ficam mais discretos (cinza) */
         .event-dot.past { background: #555; box-shadow: none; }
         
         .day-card.has-event .event-dot { display: block; }
         .day-card.today { border: 1px solid #FF9500; background: rgba(255, 149, 0, 0.1); }
         .day-card.empty { background: transparent; border: none; cursor: default; }
 
-        /* --- RESULTADO E WHATSAPP --- */
-        #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; }
-        .status-available { background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; }
-        .status-busy { background: rgba(244, 67, 54, 0.2); border: 1px solid #F44336; color: #F44336; }
+        /* --- RESULTADOS --- */
+        #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
+        
+        /* STATUS VERDE */
+        .status-available { background: rgba(76, 175, 80, 0.1); border-color: #4CAF50; color: #4CAF50; }
+        
+        /* STATUS VERMELHO */
+        .status-busy { background: rgba(244, 67, 54, 0.1); border-color: #F44336; color: #F44336; }
+        
+        /* STATUS LARANJA (NEGOCIAÇÃO) */
+        .status-negotiate { background: rgba(255, 149, 0, 0.1); border-color: #FF9500; color: #FF9500; }
+
         .btn-whatsapp { 
-            background: #25D366; color: white; padding: 12px 25px; border-radius: 50px; 
-            text-decoration: none; font-weight: bold; display: inline-block; margin-top: 15px; 
-            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+            padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 15px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.3s; color: white;
         }
+        .btn-whatsapp.green { background: #25D366; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4); }
+        .btn-whatsapp.orange { background: #FF9500; color: black; box-shadow: 0 5px 15px rgba(255, 149, 0, 0.4); }
 
         /* --- MODAL LOGIN & ADMIN --- */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
@@ -147,7 +155,7 @@
             <div class="input-group">
                 <input type="date" id="checkDate" class="input-3d">
                 <input type="time" id="checkTime" class="input-3d">
-                <input type="number" id="checkDuration" class="input-3d" placeholder="Duração (Horas)" value="5">
+                <input type="number" id="checkDuration" class="input-3d" placeholder="Duração (Horas)" value="4" min="1">
             </div>
             <br>
             <button class="btn-3d-check" onclick="verificarDisponibilidade()">🔍 VERIFICAR AGORA</button>
@@ -172,15 +180,15 @@
                     <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento/Cliente">
                     <input type="date" id="admData" class="input-3d">
                     <input type="time" id="admHora" class="input-3d">
+                    <input type="number" id="admDuracao" class="input-3d" placeholder="Duração" value="5">
                     <button class="btn-3d-check" style="font-size:0.9em; padding:10px;" onclick="salvarEventoManual()">SALVAR</button>
                 </div>
             </div>
 
             <div class="admin-section">
-                <h4 style="color:#aaa;">🚀 Marketing & Volume (Encher Linguiça)</h4>
-                <p style="font-size:0.8em; color:#666;">Use para criar autoridade e preencher o calendário.</p>
+                <h4 style="color:#aaa;">🚀 Marketing (Encher Linguiça)</h4>
                 <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar 5 Eventos Passados</button>
-                <button class="btn-admin" onclick="gerarFeriados()">📅 Adicionar Feriados do Ano</button>
+                <button class="btn-admin" onclick="gerarFeriados()">📅 Adicionar Feriados</button>
             </div>
 
             <div class="admin-section">
@@ -253,7 +261,6 @@
                 const isPast = dateStr < todayStr;
                 const isToday = dateStr === todayStr;
 
-                // Define a cor da bolinha (Passado = Cinza, Futuro = Laranja)
                 let dotClass = "event-dot";
                 if(isPast) dotClass += " past";
 
@@ -269,42 +276,92 @@
         function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
         function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // --- VERIFICAÇÃO INTELIGENTE ---
+        // --- VERIFICAÇÃO INTELIGENTE (NEGOCIAÇÃO) ---
         function verificarDisponibilidade() {
             const data = document.getElementById('checkDate').value;
             const hora = document.getElementById('checkTime').value;
-            const duracao = parseInt(document.getElementById('checkDuration').value) || 5;
+            const duracao = parseInt(document.getElementById('checkDuration').value) || 4;
             const resultDiv = document.getElementById('resultArea');
 
             if (!data || !hora) return alert("Selecione data e hora!");
 
+            // Converter input para números (ex: 14:30 = 14.5)
             const [h, m] = hora.split(':').map(Number);
             const reqInicio = h + (m/60);
-            const reqFim = reqInicio + duracao + 1; // +1h margem
+            const reqFim = reqInicio + duracao + 1; // +1h margem segurança (deslocamento)
 
             const eventosDoDia = eventsCache.filter(e => e.data_evento === data);
-            let conflito = false;
+            
+            let status = "LIVRE"; // Padrão
+            let conflitoDetalhe = "";
 
-            eventosDoDia.forEach(e => {
-                if(e.hora_inicio) {
-                    const [eh, em] = e.hora_inicio.split(':').map(Number);
-                    const eDur = parseInt(e.duracao) || 5;
-                    const eInicio = eh + (em/60);
-                    const eFim = eInicio + eDur + 1;
-                    if (reqInicio < eFim && reqFim > eInicio) conflito = true;
-                } else {
-                    conflito = true; // Evento de dia inteiro (Feriado ou Bloqueio Total)
-                }
-            });
+            if (eventosDoDia.length > 0) {
+                // Já existe evento no dia. Vamos ver se bate o horário.
+                status = "NEGOCIAR"; // Por padrão, se tem evento no dia, vamos pra negociação (não bloquear direto)
 
-            if (conflito) {
-                resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
-                resultDiv.innerHTML = `<h3 style="margin:0;">❌ INDISPONÍVEL</h3><p>Data/Horário já reservados.</p>`;
-            } else {
-                resultDiv.style.display = 'block'; resultDiv.className = 'status-available';
-                const dataFormatada = data.split('-').reverse().join('/');
+                eventosDoDia.forEach(e => {
+                    if(e.hora_inicio) {
+                        const [eh, em] = e.hora_inicio.split(':').map(Number);
+                        const eDur = parseInt(e.duracao) || 5;
+                        const eInicio = eh + (em/60);
+                        const eFim = eInicio + eDur + 1; // +1h margem do evento existente
+
+                        // Choque Real: Se o novo começa antes do velho terminar E o novo termina depois do velho começar
+                        if (reqInicio < eFim && reqFim > eInicio) {
+                            status = "OCUPADO"; // Colisão física de horário
+                            conflitoDetalhe = `Já existe evento das ${e.hora_inicio} às ${(eh+eDur)}h`;
+                        }
+                    } else {
+                        // Evento sem hora (Dia todo/Feriado)
+                        status = "OCUPADO";
+                        conflitoDetalhe = "Data bloqueada (Dia Todo)";
+                    }
+                });
+            }
+
+            const dataFormatada = data.split('-').reverse().join('/');
+            
+            // --- RESULTADOS DO DIAGNÓSTICO ---
+            if (status === "OCUPADO") {
+                // Mesmo ocupado, mandamos para o Zap como tentativa
+                const textoZap = `Olá Gil! Vi que dia *${dataFormatada}* às *${hora}* está ocupado (${conflitoDetalhe}), mas queria saber se conseguimos encaixar algo...`;
+                const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
+
+                resultDiv.style.display = 'block'; 
+                resultDiv.className = 'status-busy'; // Fundo vermelho leve
+                resultDiv.innerHTML = `
+                    <h3 style="margin:0;">❌ DATA CONCORRIDA</h3>
+                    <p>${conflitoDetalhe}</p>
+                    <p style="font-size:0.9em; color:#fff;">Mas não desista! Fale comigo, talvez eu consiga um encaixe.</p>
+                    <a href="${linkZap}" target="_blank" class="btn-whatsapp orange">TENTAR ENCAIXE NO ZAP ➔</a>
+                `;
+            } 
+            else if (status === "NEGOCIAR") {
+                // Tem evento no dia, mas o horário tá livre (ex: Evento 15h, cliente quer 09h)
+                const textoZap = `Olá Gil! Vi que dia *${dataFormatada}* tem eventos, mas o horário das *${hora}* parece livre. Quero fechar!`;
+                const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
+
+                resultDiv.style.display = 'block'; 
+                resultDiv.className = 'status-negotiate'; // Fundo laranja
+                resultDiv.innerHTML = `
+                    <h3 style="margin:0;">⚠️ SOB CONSULTA</h3>
+                    <p>Tenho evento neste dia, mas seu horário está livre!</p>
+                    <p style="font-size:0.9em;">Preciso apenas confirmar a logística. Me chame pra fechar!</p>
+                    <a href="${linkZap}" target="_blank" class="btn-whatsapp orange">VERIFICAR DISPONIBILIDADE ➔</a>
+                `;
+            }
+            else {
+                // Livre total
                 const textoZap = `Olá Gil! Vi no site que dia *${dataFormatada}* às *${hora}* está livre. Gostaria de reservar!`;
-                resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><a href="https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}" target="_blank" class="btn-whatsapp">RESERVAR NO WHATSAPP ➔</a>`;
+                const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
+
+                resultDiv.style.display = 'block'; 
+                resultDiv.className = 'status-available'; // Fundo verde
+                resultDiv.innerHTML = `
+                    <h3 style="margin:0;">✅ TOTALMENTE LIVRE!</h3>
+                    <p>O horário das ${hora} está disponível.</p>
+                    <a href="${linkZap}" target="_blank" class="btn-whatsapp green">RESERVAR AGORA ➔</a>
+                `;
             }
         }
 
@@ -322,63 +379,39 @@
             const cliente = document.getElementById('admCliente').value;
             const data = document.getElementById('admData').value;
             const hora = document.getElementById('admHora').value;
+            const duracao = document.getElementById('admDuracao').value;
             if(!cliente || !data) return alert("Preencha o nome e a data!");
             
-            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: 5 }).then(() => { alert("Adicionado!"); document.getElementById('admCliente').value=''; });
+            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao }).then(() => { alert("Adicionado!"); document.getElementById('admCliente').value=''; renderAdminList(); });
         }
 
-        // --- ESTRATÉGIA "ENCHER LINGUIÇA" ---
         function gerarHistoricoFicticio() {
-            if(!confirm("Gerar 5 eventos aleatórios nos últimos meses para dar volume?")) return;
-            
+            if(!confirm("Gerar 5 eventos aleatórios passados?")) return;
             const nomes = ["Aniversário Privado", "Casamento Civil", "Evento Corporativo", "Despedida de Solteiro", "Confraternização"];
             const hoje = new Date();
-            
             for(let i=0; i<5; i++) {
-                // Gera data aleatória nos últimos 90 dias
                 let d = new Date();
                 d.setDate(hoje.getDate() - Math.floor(Math.random() * 90) - 1);
                 const dataStr = d.toISOString().split('T')[0];
-                const nomeRand = nomes[Math.floor(Math.random() * nomes.length)];
-                
-                db.collection("agendamentos").add({
-                    cliente: nomeRand,
-                    data_evento: dataStr,
-                    hora_inicio: "19:00",
-                    duracao: 4,
-                    tipo: "ficticio"
-                });
+                db.collection("agendamentos").add({ cliente: nomes[Math.floor(Math.random() * nomes.length)], data_evento: dataStr, hora_inicio: "19:00", duracao: 4 });
             }
-            alert("Histórico gerado! O calendário agora parece movimentado. 🚀");
+            alert("Feito!");
         }
 
         function gerarFeriados() {
-            if(!confirm("Adicionar principais datas comemorativas como ocupadas?")) return;
+            if(!confirm("Adicionar feriados?")) return;
             const ano = new Date().getFullYear();
-            // Datas fixas simplificadas
-            const feriados = [
-                {d: `${ano}-12-25`, n: "Natal"}, {d: `${ano}-12-31`, n: "Réveillon"},
-                {d: `${ano}-05-01`, n: "Dia do Trabalho"}, {d: `${ano}-06-12`, n: "Dia dos Namorados"},
-                {d: `${ano}-09-07`, n: "Independência"}
-            ];
-            feriados.forEach(f => {
-                db.collection("agendamentos").add({ cliente: f.n + " (Agenda Fechada)", data_evento: f.d, hora_inicio: "", duracao: 24 });
-            });
+            const feriados = [{d: `${ano}-12-25`, n: "Natal"}, {d: `${ano}-12-31`, n: "Réveillon"}, {d: `${ano}-05-01`, n: "Dia do Trabalho"}];
+            feriados.forEach(f => db.collection("agendamentos").add({ cliente: f.n + " (Bloqueado)", data_evento: f.d, hora_inicio: "", duracao: 24 }));
             alert("Feriados adicionados!");
         }
 
         function renderAdminList() {
             const list = document.getElementById('listaAdminEventos');
             list.innerHTML = '';
-            // Ordena por data (mais recente primeiro)
-            eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento));
-            
+            eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento)); // Mais recente primeiro
             eventsCache.forEach(e => {
-                list.innerHTML += `
-                    <div class="event-list-item">
-                        <div><strong style="color:#FF9500">${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente}</div>
-                        <button onclick="deletarEvento('${e.id}')" style="background:red;border:none;color:white;cursor:pointer;border-radius:3px;">X</button>
-                    </div>`;
+                list.innerHTML += `<div class="event-list-item"><div><strong style="color:#FF9500">${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente} (${e.hora_inicio || 'Dia todo'})</div><button onclick="deletarEvento('${e.id}')" style="background:red;border:none;color:white;cursor:pointer;">X</button></div>`;
             });
         }
 
