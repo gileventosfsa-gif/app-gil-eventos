@@ -26,7 +26,6 @@
         .check-title { color: #FF9500; font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.1em; text-transform: uppercase; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         
-        /* ESTILO DOS INPUTS (USADO NO ADMIN TAMBÉM) */
         .input-3d, .textarea-3d {
             padding: 12px;
             border-radius: 10px;
@@ -69,17 +68,37 @@
         /* --- BLOCOS DE EVENTOS --- */
         .events-grid-title { font-size: 1.2em; color: #fff; margin-bottom: 15px; border-left: 4px solid #FF9500; padding-left: 10px; }
         .events-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; position: relative; border: 1px solid #333; transition: transform 0.2s; overflow: hidden; }
+        
+        .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; padding-top: 40px; /* Espaço pro badge */ position: relative; border: 1px solid #333; transition: transform 0.2s; overflow: hidden; }
         .event-block:hover { transform: translateY(-3px); border-color: #555; }
+        
+        /* Estilos de Status */
         .event-block.future { border-bottom: 4px solid #FF9500; }
-        .event-block.future .status-pill { background: rgba(255, 149, 0, 0.2); color: #FF9500; border: 1px solid #FF9500; }
+        .event-block.future .status-pill { background: rgba(255, 149, 0, 0.15); color: #FF9500; border: 1px solid #FF9500; }
+        
+        .event-block.holiday { border-bottom: 4px solid #9C27B0; } /* Roxo para datas especiais */
+        .event-block.holiday .status-pill { background: rgba(156, 39, 176, 0.15); color: #E040FB; border: 1px solid #E040FB; }
+
         .event-block.past { border-bottom: 4px solid #555; opacity: 0.7; }
         .event-block.past .status-pill { background: #333; color: #aaa; border: 1px solid #555; }
+        
         .event-date { font-size: 1.8em; font-weight: 800; color: #fff; line-height: 1; }
         .event-month { font-size: 0.9em; text-transform: uppercase; color: #888; margin-bottom: 10px; display: block; }
         .event-client { font-size: 1.1em; color: #ddd; display: block; margin-bottom: 5px; }
         .event-time { font-size: 0.9em; color: #888; display: flex; align-items: center; gap: 5px; }
-        .status-pill { position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px; font-size: 0.7em; font-weight: bold; text-transform: uppercase; }
+        
+        .status-pill { 
+            position: absolute; top: 10px; right: 10px; left: 10px; /* Ocupa a largura */
+            text-align: center;
+            padding: 4px 5px; 
+            border-radius: 20px; 
+            font-size: 0.65em; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
         /* --- RESULTADOS --- */
         #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
@@ -90,7 +109,7 @@
         .btn-whatsapp.green { background: #25D366; }
         .btn-whatsapp.orange { background: #FF9500; color: black; }
 
-        /* --- MODAL LOGIN & ADMIN --- */
+        /* --- ADMIN --- */
         #loginOverlay, #editModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
         #adminArea { display: none; background: #1a1a1a; padding: 20px; border-radius: 20px; margin-top: 40px; border: 1px solid #444; }
         .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
@@ -99,8 +118,6 @@
         .event-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; font-size: 0.9em; border-left: 4px solid #FF9500; }
         .event-actions { display: flex; gap: 10px; }
         .btn-icon { background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 5px; }
-
-        /* MODAL DE EDIÇÃO */
         .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
         .modal-label { display: block; text-align: left; color: #aaa; margin: 10px 0 5px 0; font-size: 0.9em; }
 
@@ -121,34 +138,20 @@
         <div class="modal-box">
             <h3 style="color:#FF9500; margin-top:0;">📝 Detalhes do Evento</h3>
             <input type="hidden" id="editId">
-            
             <span class="modal-label">Nome do Evento / Cliente:</span>
             <input type="text" id="editCliente" class="input-3d">
-            
             <div class="input-group" style="margin-top:10px;">
-                <div style="flex:1">
-                    <span class="modal-label">Data:</span>
-                    <input type="date" id="editData" class="input-3d">
-                </div>
-                <div style="flex:1">
-                    <span class="modal-label">Hora Início:</span>
-                    <input type="time" id="editHora" class="input-3d">
-                </div>
+                <div style="flex:1"><span class="modal-label">Data:</span><input type="date" id="editData" class="input-3d"></div>
+                <div style="flex:1"><span class="modal-label">Hora Início:</span><input type="time" id="editHora" class="input-3d"></div>
             </div>
-
             <div class="input-group" style="margin-top:10px;">
-                <div style="flex:1">
-                    <span class="modal-label">Duração (h):</span>
-                    <input type="number" id="editDuracao" class="input-3d">
-                </div>
+                <div style="flex:1"><span class="modal-label">Duração (h):</span><input type="number" id="editDuracao" class="input-3d"></div>
             </div>
-
-            <span class="modal-label">📄 Lista de Materiais / Obs / Endereço:</span>
-            <textarea id="editDetalhes" class="textarea-3d" placeholder="Cole aqui a lista de materiais, cardápio, endereço completo..."></textarea>
-
+            <span class="modal-label">📄 Lista de Materiais / Obs:</span>
+            <textarea id="editDetalhes" class="textarea-3d" placeholder="Cole aqui a lista de materiais..."></textarea>
             <br><br>
-            <button class="btn-3d-check" style="width:100%;" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
-            <button onclick="document.getElementById('editModalOverlay').style.display='none'" style="width:100%; padding:10px; background:none; border:none; color:#888; margin-top:10px;">Fechar sem salvar</button>
+            <button class="btn-3d-check" style="width:100%;" onclick="salvarEdicao()">💾 SALVAR</button>
+            <button onclick="document.getElementById('editModalOverlay').style.display='none'" style="width:100%; padding:10px; background:none; border:none; color:#888; margin-top:10px;">Cancelar</button>
         </div>
     </div>
 
@@ -186,7 +189,6 @@
 
         <div id="adminArea">
             <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Gestão</h2>
-            
             <div class="admin-section">
                 <h4 style="color:#aaa;">Novo Agendamento</h4>
                 <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento" style="margin-bottom:10px;">
@@ -195,22 +197,19 @@
                     <input type="time" id="admHora" class="input-3d">
                     <input type="number" id="admDuracao" class="input-3d" placeholder="Duração" value="5">
                 </div>
-                <textarea id="admDetalhes" class="textarea-3d" style="margin-top:10px;" placeholder="Obs / Lista de Materiais..."></textarea>
+                <textarea id="admDetalhes" class="textarea-3d" style="margin-top:10px;" placeholder="Obs..."></textarea>
                 <button class="btn-3d-check" style="font-size:0.9em; padding:10px; margin-top:10px; width:100%;" onclick="salvarEventoManual()">CADASTRAR</button>
             </div>
-
             <div class="admin-section">
                 <h4 style="color:#aaa;">Ferramentas</h4>
                 <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar Passados</button>
                 <button class="btn-admin" onclick="gerarFeriados()">📅 Importar Feriados</button>
             </div>
-
             <div class="admin-section">
-                <h4 style="color:#aaa;">Todos os Eventos (Clique no 📄 para ver detalhes)</h4>
+                <h4 style="color:#aaa;">Todos os Eventos</h4>
                 <div id="listaAdminEventos" style="max-height: 400px; overflow-y: auto;"></div>
             </div>
-            
-            <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR PAINEL</button>
+            <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR</button>
         </div>
     </div>
 
@@ -247,44 +246,35 @@
             });
         }
 
-        // --- CALENDÁRIO ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
             grid.innerHTML = '';
-
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
             const weekDays = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
             weekDays.forEach(d => grid.innerHTML += `<div class="weekday">${d}</div>`);
-
             monthDisplay.innerText = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-
             const firstDayIndex = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const todayStr = new Date().toISOString().split('T')[0];
 
             for (let i = 0; i < firstDayIndex; i++) grid.innerHTML += `<div></div>`;
-
             for (let i = 1; i <= daysInMonth; i++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const eventsOnDay = eventsCache.filter(e => e.data_evento === dateStr);
                 const count = eventsOnDay.length;
                 const isToday = dateStr === todayStr;
                 const isPast = dateStr < todayStr;
-
                 let cellClass = "day-cell";
                 if (isToday) cellClass += " today";
                 if (isPast && count > 0) cellClass += " has-past-event";
-
-                let badgeHTML = "";
-                if (count > 0) badgeHTML = `<div class="event-badge">${count}</div>`;
-
+                let badgeHTML = count > 0 ? `<div class="event-badge">${count}</div>` : "";
                 grid.innerHTML += `<div class="${cellClass}" onclick="cliqueDia('${dateStr}')">${i} ${badgeHTML}</div>`;
             }
         }
 
-        // --- BLOCOS DE VITRINE ---
+        // --- LÓGICA DE TEXTO DO STATUS ---
         function renderEventBlocks() {
             const container = document.getElementById('eventsContainer');
             container.innerHTML = '';
@@ -292,7 +282,6 @@
             const month = currentDate.getMonth() + 1;
             const monthStr = String(month).padStart(2, '0');
             const todayStr = new Date().toISOString().split('T')[0];
-
             const monthEvents = eventsCache.filter(e => e.data_evento.startsWith(`${year}-${monthStr}`));
             monthEvents.sort((a,b) => new Date(a.data_evento) - new Date(b.data_evento));
 
@@ -306,9 +295,27 @@
                 const dataObj = new Date(e.data_evento + 'T00:00:00');
                 const dia = dataObj.getDate();
                 const mesExtenso = dataObj.toLocaleDateString('pt-BR', { month: 'short' });
-                const statusLabel = isPast ? "✅ CONCLUÍDO" : "📅 AGENDADO";
-                const blockClass = isPast ? "past" : "future";
                 const timeInfo = e.hora_inicio ? `🕒 Início: ${e.hora_inicio}` : '🕒 Dia Todo';
+
+                let statusLabel = "";
+                let blockClass = "";
+
+                if (isPast) {
+                    statusLabel = "✅ CONCLUÍDO";
+                    blockClass = "past";
+                } else {
+                    // VERIFICA SE É FERIADO/COMEMORATIVO
+                    const lowerName = e.cliente.toLowerCase();
+                    const feriadoKeywords = ['natal', 'ano novo', 'réveillon', 'feriado', 'carnaval', 'páscoa', 'tiradentes', 'independência', 'finados', 'trabalho', 'dia dos'];
+                    
+                    if (feriadoKeywords.some(key => lowerName.includes(key))) {
+                        statusLabel = "✨ DATA COMEMORATIVA - CONSULTE";
+                        blockClass = "holiday";
+                    } else {
+                        statusLabel = "📅 AGENDADO - CONSULTE DISPONIBILIDADE";
+                        blockClass = "future";
+                    }
+                }
 
                 container.innerHTML += `
                     <div class="event-block ${blockClass}">
@@ -329,13 +336,10 @@
             const hora = document.getElementById('checkTime').value;
             const duracao = parseInt(document.getElementById('checkDuration').value) || 4;
             const resultDiv = document.getElementById('resultArea');
-
             if (!data || !hora) return alert("Selecione data e hora!");
-
             const [h, m] = hora.split(':').map(Number);
             const reqInicio = h + (m/60);
             const reqFim = reqInicio + duracao + 1; 
-
             const eventsOnDay = eventsCache.filter(e => e.data_evento === data);
             let status = "LIVRE";
             let conflictMsg = "";
@@ -348,33 +352,27 @@
                         const eDur = parseInt(e.duracao) || 5;
                         const eInicio = eh + (em/60);
                         const eFim = eInicio + eDur + 1; 
-                        if (reqInicio < eFim && reqFim > eInicio) {
-                            status = "OCUPADO"; 
-                            conflictMsg = `Conflito com evento das ${e.hora_inicio}`;
-                        }
+                        if (reqInicio < eFim && reqFim > eInicio) { status = "OCUPADO"; conflictMsg = `Conflito às ${e.hora_inicio}`; }
                     } else { status = "OCUPADO"; conflictMsg = "Data fechada"; }
                 });
             }
 
             const dataFormatada = data.split('-').reverse().join('/');
             if (status === "OCUPADO") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! O dia ${dataFormatada} as ${hora} ta ocupado, tem jeito?`;
+                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} as ${hora} ta ocupado, tem jeito?`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
                 resultDiv.innerHTML = `<h3 style="margin:0;">❌ OCUPADO</h3><p>${conflictMsg}</p><a href="${linkZap}" class="btn-whatsapp orange">TENTAR ENCAIXE ➔</a>`;
-            } 
-            else if (status === "NEGOCIAR") {
+            } else if (status === "NEGOCIAR") {
                 const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} parece livre.`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-negotiate';
                 resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário está livre!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
-            }
-            else {
+            } else {
                 const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Quero reservar dia ${dataFormatada} as ${hora}.`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-available';
                 resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><p>Horário livre.</p><a href="${linkZap}" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
             }
         }
 
-        // --- ADMIN GESTÃO ---
         function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
         function logarAdmin() { if(document.getElementById('senhaInput').value === SENHA_MESTRA) { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminArea').style.display = 'block'; } else alert("Senha errada"); }
         
@@ -385,12 +383,7 @@
             const duracao = document.getElementById('admDuracao').value;
             const detalhes = document.getElementById('admDetalhes').value;
             if(!cliente || !data) return alert("Preencha dados!");
-            
-            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao, detalhes: detalhes }).then(() => { 
-                alert("Salvo!"); 
-                document.getElementById('admCliente').value=''; 
-                document.getElementById('admDetalhes').value=''; 
-            });
+            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao, detalhes: detalhes }).then(() => { alert("Salvo!"); document.getElementById('admCliente').value=''; document.getElementById('admDetalhes').value=''; });
         }
 
         function renderAdminList() {
@@ -398,73 +391,31 @@
             list.innerHTML = '';
             eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento));
             eventsCache.forEach(e => {
-                const horaDisplay = e.hora_inicio || 'S/H';
-                const dataDisplay = e.data_evento.split('-').reverse().join('/');
-                list.innerHTML += `
-                    <div class="event-list-item">
-                        <div>
-                            <strong style="color:#FF9500">${dataDisplay}</strong> (${horaDisplay})<br>
-                            ${e.cliente}
-                        </div>
-                        <div class="event-actions">
-                            <button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button>
-                            <button onclick="deletarEvento('${e.id}')" class="btn-icon" style="color:#F44336;">✖</button>
-                        </div>
-                    </div>`;
+                list.innerHTML += `<div class="event-list-item"><div><strong>${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente}</div><div class="event-actions"><button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button><button onclick="deletarEvento('${e.id}')" class="btn-icon" style="color:#F44336;">✖</button></div></div>`;
             });
         }
 
-        // --- FUNÇÕES DE EDIÇÃO/DETALHES ---
         function abrirEdicao(id) {
             const ev = eventsCache.find(e => e.id === id);
             if(!ev) return;
-
             document.getElementById('editId').value = ev.id;
             document.getElementById('editCliente').value = ev.cliente;
             document.getElementById('editData').value = ev.data_evento;
             document.getElementById('editHora').value = ev.hora_inicio || '';
             document.getElementById('editDuracao').value = ev.duracao || 5;
             document.getElementById('editDetalhes').value = ev.detalhes || '';
-
             document.getElementById('editModalOverlay').style.display = 'flex';
         }
 
         function salvarEdicao() {
             const id = document.getElementById('editId').value;
-            const dados = {
-                cliente: document.getElementById('editCliente').value,
-                data_evento: document.getElementById('editData').value,
-                hora_inicio: document.getElementById('editHora').value,
-                duracao: document.getElementById('editDuracao').value,
-                detalhes: document.getElementById('editDetalhes').value
-            };
-            
-            db.collection("agendamentos").doc(id).update(dados).then(() => {
-                alert("Evento atualizado!");
-                document.getElementById('editModalOverlay').style.display = 'none';
-            });
+            const dados = { cliente: document.getElementById('editCliente').value, data_evento: document.getElementById('editData').value, hora_inicio: document.getElementById('editHora').value, duracao: document.getElementById('editDuracao').value, detalhes: document.getElementById('editDetalhes').value };
+            db.collection("agendamentos").doc(id).update(dados).then(() => { alert("Atualizado!"); document.getElementById('editModalOverlay').style.display = 'none'; });
         }
 
-        function deletarEvento(id) { if(confirm("Apagar evento permanentemente?")) db.collection("agendamentos").doc(id).delete(); }
-        
-        function gerarHistoricoFicticio() {
-            if(!confirm("Gerar eventos passados?")) return;
-            const nomes = ["Aniversário 15 Anos", "Casamento Civil", "Confraternização", "Despedida Solteiro"];
-            const hoje = new Date();
-            for(let i=0; i<5; i++) {
-                let d = new Date(); d.setDate(hoje.getDate() - Math.floor(Math.random() * 60) - 1);
-                db.collection("agendamentos").add({ cliente: nomes[Math.floor(Math.random()*nomes.length)], data_evento: d.toISOString().split('T')[0], hora_inicio: "19:00", duracao: 4, detalhes: "Evento importado (Histórico)" });
-            }
-            alert("Gerado!");
-        }
-
-        function gerarFeriados() {
-            if(!confirm("Adicionar Feriados?")) return;
-            const ano = new Date().getFullYear();
-            const feriados = [{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"}];
-            feriados.forEach(f => db.collection("agendamentos").add({cliente: f.n + " (Fechado)", data_evento: f.d, hora_inicio: "", duracao: 24}));
-            alert("Feito!");
-        }
+        function deletarEvento(id) { if(confirm("Apagar?")) db.collection("agendamentos").doc(id).delete(); }
+        function gerarHistoricoFicticio() { if(!confirm("Gerar eventos passados?")) return; const nomes=["Aniversário 15 Anos","Casamento Civil","Confraternização"]; const hoje=new Date(); for(let i=0;i<5;i++){ let d=new Date(); d.setDate(hoje.getDate()-Math.floor(Math.random()*60)-1); db.collection("agendamentos").add({cliente:nomes[Math.floor(Math.random()*nomes.length)], data_evento:d.toISOString().split('T')[0], hora_inicio:"19:00", duracao:4, detalhes:"Histórico"}); } alert("Gerado!"); }
+        function gerarFeriados() { if(!confirm("Importar feriados?")) return; const ano=new Date().getFullYear(); const feriados=[{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"},{d:`${ano}-05-01`,n:"Dia do Trabalho"}]; feriados.forEach(f=>db.collection("agendamentos").add({cliente:f.n, data_evento:f.d, hora_inicio:"", duracao:24})); alert("Feito!"); }
     </script>
 </body>
 </html>
