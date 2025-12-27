@@ -102,15 +102,38 @@
         .btn-whatsapp.green { background: #25D366; }
         .btn-whatsapp.orange { background: #FF9500; color: black; }
 
-        /* --- ADMIN --- */
+        /* --- ADMIN GERAL --- */
         #loginOverlay, #editModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
         #adminArea { display: none; background: #1a1a1a; padding: 20px; border-radius: 20px; margin-top: 40px; border: 1px solid #444; }
         .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
         .admin-section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
         .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
-        .event-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; font-size: 0.9em; border-left: 4px solid #FF9500; }
-        .event-actions { display: flex; gap: 10px; }
-        .btn-icon { background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 5px; }
+        
+        /* ABAS DO ADMIN */
+        .admin-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #333; }
+        .tab-adm-btn { flex: 1; padding: 10px; background: #222; border: none; color: #777; cursor: pointer; font-weight: bold; font-size: 0.8em; }
+        .tab-adm-btn.active { background: #FF9500; color: #000; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        
+        .tab-content-admin { display: none; max-height: 400px; overflow-y: auto; }
+        .tab-content-admin.active { display: block; }
+
+        /* ITEMS DA LISTA ADMIN */
+        .event-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; font-size: 0.9em; border-left: 4px solid #777; }
+        
+        /* ESTILO CONFIRMADO (VERDE BRILHANTE) */
+        .event-list-item.confirmed { 
+            border-left: 5px solid #00E676; 
+            background: rgba(0, 230, 118, 0.1); 
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.2);
+        }
+        .event-list-item.pending { border-left-color: #FF9500; } /* Laranja */
+        .event-list-item.past { border-left-color: #555; opacity: 0.6; } /* Cinza */
+
+        .event-actions { display: flex; gap: 5px; }
+        .btn-icon { background: #333; border: 1px solid #444; color: #ddd; font-size: 1em; cursor: pointer; padding: 6px 10px; border-radius: 5px; }
+        .btn-icon.confirm-btn { background: #00E676; color: #000; border: none; font-weight: bold; }
+        .btn-icon.delete-btn { color: #F44336; }
+
         .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
         .modal-label { display: block; text-align: left; color: #aaa; margin: 10px 0 5px 0; font-size: 0.9em; }
 
@@ -181,7 +204,8 @@
         </div>
 
         <div id="adminArea">
-            <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Gestão</h2>
+            <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Gestão (CRM)</h2>
+            
             <div class="admin-section">
                 <h4 style="color:#aaa;">Novo Agendamento</h4>
                 <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento" style="margin-bottom:10px;">
@@ -193,15 +217,27 @@
                 <textarea id="admDetalhes" class="textarea-3d" style="margin-top:10px;" placeholder="Obs / Lista de Materiais..."></textarea>
                 <button class="btn-3d-check" style="font-size:0.9em; padding:10px; margin-top:10px; width:100%;" onclick="salvarEventoManual()">CADASTRAR</button>
             </div>
+
+            <div class="admin-section">
+                <h4 style="color:#aaa;">Minha Agenda</h4>
+                
+                <div class="admin-tabs">
+                    <button class="tab-adm-btn active" onclick="mudarAbaAdmin('confirmados')">✅ CONFIRMADOS</button>
+                    <button class="tab-adm-btn" onclick="mudarAbaAdmin('outros')">📝 OUTROS / PENDENTES</button>
+                    <button class="tab-adm-btn" onclick="mudarAbaAdmin('concluidos')">🏁 CONCLUÍDOS</button>
+                </div>
+
+                <div id="listConfirmed" class="tab-content-admin active"></div>
+                <div id="listOthers" class="tab-content-admin"></div>
+                <div id="listConcluded" class="tab-content-admin"></div>
+            </div>
+
             <div class="admin-section">
                 <h4 style="color:#aaa;">Ferramentas</h4>
                 <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar Passados</button>
                 <button class="btn-admin" onclick="gerarFeriados()">📅 Importar Feriados</button>
             </div>
-            <div class="admin-section">
-                <h4 style="color:#aaa;">Todos os Eventos</h4>
-                <div id="listaAdminEventos" style="max-height: 400px; overflow-y: auto;"></div>
-            </div>
+            
             <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR PAINEL</button>
         </div>
     </div>
@@ -235,10 +271,11 @@
                 snapshot.forEach(doc => { eventsCache.push({ id: doc.id, ...doc.data() }); });
                 renderCalendar();
                 renderEventBlocks();
-                renderAdminList();
+                renderAdminList(); // Atualiza as abas
             });
         }
 
+        // --- CALENDÁRIO ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
@@ -267,6 +304,7 @@
             }
         }
 
+        // --- BLOCOS DE VITRINE ---
         function renderEventBlocks() {
             const container = document.getElementById('eventsContainer');
             container.innerHTML = '';
@@ -321,7 +359,6 @@
         function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); renderEventBlocks(); }
         function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // --- VERIFICAÇÃO INTELIGENTE (4H FIXAS DE INTERVALO) ---
         function verificarDisponibilidade() {
             const data = document.getElementById('checkDate').value;
             const hora = document.getElementById('checkTime').value;
@@ -331,51 +368,43 @@
             if (!data || !hora) return alert("Selecione data e hora!");
 
             const [h, m] = hora.split(':').map(Number);
-            const reqInicio = h + (m/60); // Horário decimal (Ex: 16:01 -> 16.016)
+            const reqInicio = h + (m/60);
+            const reqFim = reqInicio + duracao; 
 
             const eventsOnDay = eventsCache.filter(e => e.data_evento === data);
-            
-            // Status Padrão: LIVRE
             let status = "LIVRE";
             let conflictMsg = "";
 
             if (eventsOnDay.length > 0) {
-                // Se tem evento no dia, vamos assumir que é para NEGOCIAR, a menos que colida feio
                 status = "NEGOCIAR"; 
-
                 eventsOnDay.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
+                        const eDur = parseInt(e.duracao) || 5;
                         const eInicio = eh + (em/60);
+                        const eFim = eInicio + eDur; 
                         
-                        // CÁLCULO DE DIFERENÇA ABSOLUTA ENTRE OS INÍCIOS
-                        const diffHoras = Math.abs(reqInicio - eInicio);
+                        const isBeforeSafe = (reqFim + 4) <= eInicio; // 4h antes
+                        const isAfterSafe = reqInicio >= (eFim + 4); // 4h depois
 
-                        // REGRA: Se a diferença for MENOR que 4 horas -> OCUPADO
-                        if (diffHoras < 4) {
-                            status = "OCUPADO";
-                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Intervalo mínimo de 4h)`;
+                        if (!isBeforeSafe && !isAfterSafe) {
+                            status = "OCUPADO"; 
+                            conflictMsg = `Conflito com evento das ${e.hora_inicio} (Precisa 4h de intervalo)`;
                         }
-                    } else { 
-                        // Evento de Dia Todo
-                        status = "OCUPADO"; 
-                        conflictMsg = "Data fechada (Feriado/Bloqueio)"; 
-                    }
+                    } else { status = "OCUPADO"; conflictMsg = "Data fechada"; }
                 });
             }
 
             const dataFormatada = data.split('-').reverse().join('/');
-            
-            // --- RESULTADOS VISUAIS ---
             if (status === "OCUPADO") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Vi que dia ${dataFormatada} as ${hora} ta ocupado, tem jeito de encaixar?`;
+                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Vi que dia ${dataFormatada} as ${hora} ta ocupado, tem jeito?`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
                 resultDiv.innerHTML = `<h3 style="margin:0;">❌ OCUPADO</h3><p>${conflictMsg}</p><a href="${linkZap}" class="btn-whatsapp orange">TENTAR ENCAIXE ➔</a>`;
             } 
             else if (status === "NEGOCIAR") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} tem intervalo bom. Podemos fechar?`;
+                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} parece livre.`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-negotiate';
-                resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário permite encaixe!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
+                resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário está livre!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
             } 
             else {
                 const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Quero reservar dia ${dataFormatada} as ${hora}.`;
@@ -384,6 +413,7 @@
             }
         }
 
+        // --- GESTÃO ADMIN (ABAS E STATUS) ---
         function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
         function logarAdmin() { if(document.getElementById('senhaInput').value === SENHA_MESTRA) { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminArea').style.display = 'block'; } else alert("Senha errada"); }
         
@@ -394,17 +424,83 @@
             const duracao = document.getElementById('admDuracao').value;
             const detalhes = document.getElementById('admDetalhes').value;
             if(!cliente || !data) return alert("Preencha dados!");
-            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao, detalhes: detalhes }).then(() => { alert("Salvo!"); document.getElementById('admCliente').value=''; document.getElementById('admDetalhes').value=''; });
+            
+            // Status padrão: pendente
+            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao, detalhes: detalhes, status: 'pendente' }).then(() => { 
+                alert("Salvo!"); document.getElementById('admCliente').value=''; document.getElementById('admDetalhes').value=''; 
+            });
+        }
+
+        function mudarAbaAdmin(aba) {
+            document.querySelectorAll('.tab-adm-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content-admin').forEach(c => c.classList.remove('active'));
+            
+            // Ativa botão
+            const btnIndex = aba === 'confirmados' ? 0 : aba === 'outros' ? 1 : 2;
+            document.querySelectorAll('.tab-adm-btn')[btnIndex].classList.add('active');
+
+            // Ativa conteúdo
+            if(aba === 'confirmados') document.getElementById('listConfirmed').classList.add('active');
+            if(aba === 'outros') document.getElementById('listOthers').classList.add('active');
+            if(aba === 'concluidos') document.getElementById('listConcluded').classList.add('active');
         }
 
         function renderAdminList() {
-            const list = document.getElementById('listaAdminEventos');
-            list.innerHTML = '';
-            eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento));
+            const listConf = document.getElementById('listConfirmed');
+            const listOther = document.getElementById('listOthers');
+            const listConc = document.getElementById('listConcluded');
+            
+            listConf.innerHTML = '';
+            listOther.innerHTML = '';
+            listConc.innerHTML = '';
+
+            // Ordena cronologicamente
+            eventsCache.sort((a,b) => new Date(a.data_evento) - new Date(b.data_evento));
+            const todayStr = new Date().toISOString().split('T')[0];
+
             eventsCache.forEach(e => {
-                list.innerHTML += `<div class="event-list-item"><div><strong>${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente}</div><div class="event-actions"><button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button><button onclick="deletarEvento('${e.id}')" class="btn-icon" style="color:#F44336;">✖</button></div></div>`;
+                const dataDisplay = e.data_evento.split('-').reverse().join('/');
+                const horaDisplay = e.hora_inicio || 'S/H';
+                const isPast = e.data_evento < todayStr;
+                
+                // CRIA O HTML DO CARD
+                let cardHTML = `
+                    <div class="event-list-item ${isPast ? 'past' : (e.status === 'confirmado' ? 'confirmed' : 'pending')}">
+                        <div style="flex-grow:1;">
+                            <strong style="color:${isPast ? '#777' : (e.status==='confirmado' ? '#00E676' : '#FF9500')}">${dataDisplay}</strong> (${horaDisplay})<br>
+                            ${e.cliente}
+                        </div>
+                        <div class="event-actions">`;
+
+                if(!isPast) {
+                    if(e.status !== 'confirmado') {
+                        // Botão Confirmar (Só em Pendentes)
+                        cardHTML += `<button onclick="confirmarEvento('${e.id}')" class="btn-icon confirm-btn" title="Confirmar">✅</button>`;
+                    } else {
+                        // Botão Desconfirmar (Opcional, só para corrigir erro)
+                        cardHTML += `<button onclick="desconfirmarEvento('${e.id}')" class="btn-icon" title="Voltar para pendente">↩️</button>`;
+                    }
+                }
+
+                cardHTML += `
+                            <button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button>
+                            <button onclick="deletarEvento('${e.id}')" class="btn-icon delete-btn">✖</button>
+                        </div>
+                    </div>`;
+
+                // DISTRIBUI NAS ABAS
+                if (isPast) {
+                    listConc.innerHTML += cardHTML;
+                } else if (e.status === 'confirmado') {
+                    listConf.innerHTML += cardHTML;
+                } else {
+                    listOther.innerHTML += cardHTML;
+                }
             });
         }
+
+        function confirmarEvento(id) { db.collection("agendamentos").doc(id).update({ status: 'confirmado' }); }
+        function desconfirmarEvento(id) { db.collection("agendamentos").doc(id).update({ status: 'pendente' }); }
 
         function abrirEdicao(id) {
             const ev = eventsCache.find(e => e.id === id);
@@ -424,9 +520,26 @@
             db.collection("agendamentos").doc(id).update(dados).then(() => { alert("Atualizado!"); document.getElementById('editModalOverlay').style.display = 'none'; });
         }
 
-        function deletarEvento(id) { if(confirm("Apagar?")) db.collection("agendamentos").doc(id).delete(); }
-        function gerarHistoricoFicticio() { if(!confirm("Gerar passados?")) return; const nomes=["Aniversário 15 Anos","Casamento Civil","Confraternização"]; const hoje=new Date(); for(let i=0;i<5;i++){ let d=new Date(); d.setDate(hoje.getDate()-Math.floor(Math.random()*60)-1); db.collection("agendamentos").add({cliente:nomes[Math.floor(Math.random()*nomes.length)], data_evento:d.toISOString().split('T')[0], hora_inicio:"19:00", duracao:4, detalhes:"Histórico"}); } alert("Gerado!"); }
-        function gerarFeriados() { if(!confirm("Importar feriados?")) return; const ano=new Date().getFullYear(); const feriados=[{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"},{d:`${ano}-05-01`,n:"Dia do Trabalho"}]; feriados.forEach(f=>db.collection("agendamentos").add({cliente:f.n, data_evento:f.d, hora_inicio:"", duracao:24})); alert("Feito!"); }
+        function deletarEvento(id) { if(confirm("Apagar evento permanentemente?")) db.collection("agendamentos").doc(id).delete(); }
+        
+        function gerarHistoricoFicticio() {
+            if(!confirm("Gerar passados?")) return;
+            const nomes = ["Aniversário 15 Anos", "Casamento Civil", "Confraternização", "Despedida Solteiro"];
+            const hoje = new Date();
+            for(let i=0; i<5; i++) {
+                let d = new Date(); d.setDate(hoje.getDate() - Math.floor(Math.random() * 60) - 1);
+                db.collection("agendamentos").add({ cliente: nomes[Math.floor(Math.random()*nomes.length)], data_evento: d.toISOString().split('T')[0], hora_inicio: "19:00", duracao: 4, detalhes: "Evento importado (Histórico)", status: 'confirmado' });
+            }
+            alert("Gerado!");
+        }
+
+        function gerarFeriados() {
+            if(!confirm("Importar feriados?")) return;
+            const ano = new Date().getFullYear();
+            const feriados = [{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"},{d:`${ano}-05-01`,n:"Dia do Trabalho"}];
+            feriados.forEach(f => db.collection("agendamentos").add({cliente: f.n + " (Fechado)", data_evento: f.d, hora_inicio: "", duracao: 24, status: 'pendente'}));
+            alert("Feito!");
+        }
     </script>
 </body>
 </html>
