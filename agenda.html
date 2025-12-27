@@ -7,141 +7,154 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; padding-bottom: 80px; }
-        .container { max-width: 900px; margin: auto; }
+        .container { max-width: 1000px; margin: auto; }
         
         .header { text-align: center; margin-bottom: 30px; }
         .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; font-size: 1.2em; }
         .page-title { font-size: 2em; margin: 5px 0; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        /* --- BOTÃO DE VERIFICAÇÃO --- */
+        /* --- ÁREA DE VERIFICAÇÃO --- */
         .check-availability-box {
             background: linear-gradient(145deg, #1e1e1e, #252525);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 20px 20px 60px #0c0c0c, -20px -20px 60px #262626;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             border: 1px solid #333;
         }
-        .check-title { color: #FF9500; font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.2em; }
+        .check-title { color: #FF9500; font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.1em; text-transform: uppercase; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         .input-3d {
-            padding: 15px;
-            border-radius: 12px;
-            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #333;
             background: #121212;
             color: #fff;
-            box-shadow: inset 5px 5px 10px #0a0a0a, inset -5px -5px 10px #252525;
             font-family: 'Poppins', sans-serif;
             font-size: 1em;
             flex: 1;
-            min-width: 150px;
+            min-width: 140px;
         }
         .btn-3d-check {
-            background: linear-gradient(145deg, #FF9500, #e68600);
+            background: linear-gradient(145deg, #FF9500, #F57C00);
             color: #000;
             font-weight: 800;
-            padding: 15px 30px;
+            padding: 12px 25px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 15px rgba(255, 149, 0, 0.2);
             transition: 0.2s;
             text-transform: uppercase;
         }
-        .btn-3d-check:active { transform: scale(0.95); box-shadow: none; }
+        .btn-3d-check:active { transform: scale(0.95); }
 
-        /* --- CALENDÁRIO 3D --- */
-        .calendar-wrapper {
+        /* --- CALENDÁRIO COMPACTO (NAVEGAÇÃO) --- */
+        .calendar-nav {
             background: #1a1a1a;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid #333;
         }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .month-year { font-size: 1.5em; font-weight: bold; color: #fff; }
-        .btn-nav-cal { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .month-year { font-size: 1.2em; font-weight: bold; color: #fff; text-transform: uppercase; }
+        .btn-nav-cal { background: #333; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; }
 
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
+            gap: 5px;
         }
-        .weekday { text-align: center; color: #888; font-size: 0.8em; padding-bottom: 10px; font-weight: bold; }
+        .weekday { text-align: center; color: #666; font-size: 0.7em; font-weight: bold; margin-bottom: 5px; }
         
-        .day-card {
-            background: #252525;
-            height: 70px;
-            border-radius: 12px;
-            position: relative;
-            cursor: pointer;
-            transition: 0.3s;
+        .day-cell {
+            height: 45px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #aaa;
+            position: relative;
+            background: #222;
+            cursor: pointer;
+        }
+        .day-cell.today { border: 1px solid #FF9500; color: #FF9500; }
+        
+        /* BOLINHAS DE CONTAGEM */
+        .event-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #FF9500;
+            color: #000;
+            font-size: 0.6em;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .day-cell.has-past-event .event-badge { background: #555; color: #fff; } /* Cinza para passado */
+
+        /* --- BLOCOS DE EVENTOS (VITRINE) --- */
+        .events-grid-title { font-size: 1.2em; color: #fff; margin-bottom: 15px; border-left: 4px solid #FF9500; padding-left: 10px; }
+        .events-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsivo: Blocos lado a lado */
+            gap: 15px;
+        }
+
+        .event-block {
+            background: #1E1E1E;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
             border: 1px solid #333;
+            transition: transform 0.2s;
             overflow: hidden;
         }
-        .day-card:hover { background: #333; transform: translateY(-3px); }
-        .day-number { font-size: 1.1em; font-weight: 600; color: #ddd; z-index: 2; }
-        .day-card.empty { background: transparent; border: none; cursor: default; }
-
-        /* --- EFEITOS DE OCUPAÇÃO (Visual Ouro/Cheio) --- */
+        .event-block:hover { transform: translateY(-3px); border-color: #555; }
         
-        /* Evento Futuro: DOURADO BRILHANTE */
-        .day-card.has-event {
-            background: linear-gradient(135deg, #FF9500, #F57C00); /* Laranja Ouro */
-            border: 1px solid #FFCC80;
-            box-shadow: 0 0 15px rgba(255, 149, 0, 0.4); /* Glow */
-        }
-        .day-card.has-event .day-number {
-            color: #000; /* Texto preto para contraste */
-            font-weight: 800;
-        }
+        /* Estilo Futuro (Ouro) */
+        .event-block.future { border-bottom: 4px solid #FF9500; }
+        .event-block.future .status-pill { background: rgba(255, 149, 0, 0.2); color: #FF9500; border: 1px solid #FF9500; }
         
-        /* Evento Passado: CINZA SÓLIDO (Prova Social Discreta) */
-        .day-card.has-event.past {
-            background: linear-gradient(135deg, #444, #333);
-            border: 1px solid #555;
-            box-shadow: none;
-            opacity: 0.8;
-        }
-        .day-card.has-event.past .day-number { color: #aaa; }
+        /* Estilo Passado (Cinza) */
+        .event-block.past { border-bottom: 4px solid #555; opacity: 0.7; }
+        .event-block.past .status-pill { background: #333; color: #aaa; border: 1px solid #555; }
 
-        /* Dia Atual (Hoje) */
-        .day-card.today { 
-            border: 2px solid #25D366; /* Verde Zap */
-            background: rgba(37, 211, 102, 0.1);
-        }
-
-        /* Marcador de "Lotação" (Ícone pequeno dentro do card) */
-        .busy-label {
-            font-size: 0.6em;
-            text-transform: uppercase;
+        .event-date { font-size: 1.8em; font-weight: 800; color: #fff; line-height: 1; }
+        .event-month { font-size: 0.9em; text-transform: uppercase; color: #888; margin-bottom: 10px; display: block; }
+        .event-client { font-size: 1.1em; color: #ddd; display: block; margin-bottom: 5px; }
+        .event-time { font-size: 0.9em; color: #888; display: flex; align-items: center; gap: 5px; }
+        
+        .status-pill {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7em;
             font-weight: bold;
-            color: #000;
-            margin-top: 2px;
-            display: none;
+            text-transform: uppercase;
         }
-        .day-card.has-event .busy-label { display: block; }
-        .day-card.has-event.past .busy-label { display: none; } /* Não mostra texto em passados */
-
 
         /* --- RESULTADOS --- */
         #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
         .status-available { background: rgba(76, 175, 80, 0.1); border-color: #4CAF50; color: #4CAF50; }
         .status-busy { background: rgba(244, 67, 54, 0.1); border-color: #F44336; color: #F44336; }
         .status-negotiate { background: rgba(255, 149, 0, 0.1); border-color: #FF9500; color: #FF9500; }
+        .btn-whatsapp { padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 15px; color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn-whatsapp.green { background: #25D366; }
+        .btn-whatsapp.orange { background: #FF9500; color: black; }
 
-        .btn-whatsapp { 
-            padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 15px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.3s; color: white;
-        }
-        .btn-whatsapp.green { background: #25D366; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4); }
-        .btn-whatsapp.orange { background: #FF9500; color: black; box-shadow: 0 5px 15px rgba(255, 149, 0, 0.4); }
-
-        /* --- MODAL LOGIN & ADMIN --- */
+        /* --- ADMIN --- */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
         #adminArea { display: none; background: #1a1a1a; padding: 20px; border-radius: 20px; margin-top: 40px; border: 1px solid #444; }
         .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
@@ -149,10 +162,7 @@
         .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
         .event-list-item { display: flex; justify-content: space-between; padding: 10px; background: #222; margin-bottom: 5px; border-radius: 5px; font-size: 0.85em; }
 
-        @media (max-width: 600px) {
-            .day-card { height: 60px; }
-            .input-group { flex-direction: column; }
-        }
+        @media (max-width: 600px) { .input-group { flex-direction: column; } }
     </style>
 </head>
 <body>
@@ -161,7 +171,7 @@
         <h2 style="color:#FF9500;">ACESSO RESTRITO</h2>
         <input type="password" id="senhaInput" placeholder="Senha" class="input-3d" style="max-width:200px; text-align:center;">
         <br>
-        <button class="btn-3d-check" onclick="logarAdmin()">ACESSAR SISTEMA</button>
+        <button class="btn-3d-check" onclick="logarAdmin()">ACESSAR</button>
         <button style="background:none; border:none; color:#666; margin-top:20px;" onclick="document.getElementById('loginOverlay').style.display='none'">Voltar</button>
     </div>
 
@@ -172,18 +182,18 @@
         </div>
 
         <div class="check-availability-box">
-            <span class="check-title">📅 Consultar Data e Horário</span>
+            <span class="check-title">🔍 Pesquisar Data</span>
             <div class="input-group">
                 <input type="date" id="checkDate" class="input-3d">
                 <input type="time" id="checkTime" class="input-3d">
-                <input type="number" id="checkDuration" class="input-3d" placeholder="Duração (Horas)" value="4" min="1">
+                <input type="number" id="checkDuration" class="input-3d" placeholder="Duração (h)" value="4" min="1">
             </div>
             <br>
-            <button class="btn-3d-check" onclick="verificarDisponibilidade()">🔍 VERIFICAR AGORA</button>
+            <button class="btn-3d-check" onclick="verificarDisponibilidade()">VERIFICAR AGORA</button>
             <div id="resultArea"></div>
         </div>
 
-        <div class="calendar-wrapper">
+        <div class="calendar-nav">
             <div class="calendar-header">
                 <button class="btn-nav-cal" onclick="mudarMes(-1)">❮</button>
                 <div class="month-year" id="monthDisplay">...</div>
@@ -192,8 +202,13 @@
             <div class="calendar-grid" id="calendarGrid"></div>
         </div>
 
+        <div class="events-grid-title">Agendamentos deste Mês</div>
+        <div class="events-container" id="eventsContainer">
+            <p style="color:#666; text-align:center; width:100%;">Nenhum evento público neste mês.</p>
+        </div>
+
         <div id="adminArea">
-            <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Controle</h2>
+            <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel Admin</h2>
             <div class="admin-section">
                 <h4 style="color:#aaa;">Novo Evento</h4>
                 <div class="input-group">
@@ -205,15 +220,15 @@
                 </div>
             </div>
             <div class="admin-section">
-                <h4 style="color:#aaa;">🚀 Marketing</h4>
-                <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar 5 Eventos Passados</button>
-                <button class="btn-admin" onclick="gerarFeriados()">📅 Adicionar Feriados</button>
+                <h4 style="color:#aaa;">Ferramentas</h4>
+                <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar Passados</button>
+                <button class="btn-admin" onclick="gerarFeriados()">📅 Importar Feriados</button>
             </div>
             <div class="admin-section">
-                <h4 style="color:#aaa;">Lista de Eventos</h4>
+                <h4 style="color:#aaa;">Lista Completa</h4>
                 <div id="listaAdminEventos" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
-            <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR PAINEL</button>
+            <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR</button>
         </div>
     </div>
 
@@ -243,14 +258,14 @@
         function carregarEventos() {
             db.collection("agendamentos").onSnapshot(snapshot => {
                 eventsCache = [];
-                snapshot.forEach(doc => {
-                    eventsCache.push({ id: doc.id, ...doc.data() });
-                });
+                snapshot.forEach(doc => { eventsCache.push({ id: doc.id, ...doc.data() }); });
                 renderCalendar();
+                renderEventBlocks(); // Renderiza os blocos abaixo
                 renderAdminList();
             });
         }
 
+        // --- RENDERIZAÇÃO DO CALENDÁRIO (NAVEGAÇÃO) ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
@@ -258,41 +273,85 @@
 
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            const weekDays = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
             weekDays.forEach(d => grid.innerHTML += `<div class="weekday">${d}</div>`);
 
-            monthDisplay.innerText = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase();
+            monthDisplay.innerText = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
             const firstDayIndex = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const todayStr = new Date().toISOString().split('T')[0];
 
-            for (let i = 0; i < firstDayIndex; i++) grid.innerHTML += `<div class="day-card empty"></div>`;
+            for (let i = 0; i < firstDayIndex; i++) grid.innerHTML += `<div></div>`;
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                const hasEvent = eventsCache.some(e => e.data_evento === dateStr);
-                const isPast = dateStr < todayStr;
+                const eventsOnDay = eventsCache.filter(e => e.data_evento === dateStr);
+                const count = eventsOnDay.length;
                 const isToday = dateStr === todayStr;
+                const isPast = dateStr < todayStr;
 
-                let classes = "day-card";
-                if (isToday) classes += " today";
-                if (hasEvent) {
-                    classes += " has-event";
-                    if (isPast) classes += " past";
+                let cellClass = "day-cell";
+                if (isToday) cellClass += " today";
+                if (isPast && count > 0) cellClass += " has-past-event";
+
+                let badgeHTML = "";
+                if (count > 0) {
+                    badgeHTML = `<div class="event-badge">${count}</div>`;
                 }
 
-                // Layout do card com "BUSY" se tiver evento futuro
                 grid.innerHTML += `
-                    <div class="${classes}" onclick="cliqueDia('${dateStr}')">
-                        <span class="day-number">${i}</span>
-                        <div class="busy-label">BUSY</div>
+                    <div class="${cellClass}" onclick="cliqueDia('${dateStr}')">
+                        ${i} ${badgeHTML}
                     </div>
                 `;
             }
         }
 
-        function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
+        // --- RENDERIZAÇÃO DOS BLOCOS DE EVENTOS (VITRINE) ---
+        function renderEventBlocks() {
+            const container = document.getElementById('eventsContainer');
+            container.innerHTML = '';
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1; // 1-12
+            const monthStr = String(month).padStart(2, '0');
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            // Filtra eventos do mês selecionado
+            const monthEvents = eventsCache.filter(e => e.data_evento.startsWith(`${year}-${monthStr}`));
+            
+            // Ordena: Primeiro os futuros (crescente), depois os passados (decrescente) visualmente
+            monthEvents.sort((a,b) => new Date(a.data_evento) - new Date(b.data_evento));
+
+            if (monthEvents.length === 0) {
+                container.innerHTML = '<p style="color:#666; text-align:center; width:100%; grid-column: 1 / -1;">Nenhum evento visível neste mês.</p>';
+                return;
+            }
+
+            monthEvents.forEach(e => {
+                const isPast = e.data_evento < todayStr;
+                const dataObj = new Date(e.data_evento + 'T00:00:00'); // Fix timezone issue
+                const dia = dataObj.getDate();
+                const mesExtenso = dataObj.toLocaleDateString('pt-BR', { month: 'short' });
+                
+                const statusLabel = isPast ? "✅ CONCLUÍDO" : "📅 AGENDADO";
+                const blockClass = isPast ? "past" : "future";
+                const timeInfo = e.hora_inicio ? `🕒 Início: ${e.hora_inicio}` : '🕒 Dia Todo';
+
+                container.innerHTML += `
+                    <div class="event-block ${blockClass}">
+                        <div class="status-pill">${statusLabel}</div>
+                        <span class="event-date">${dia}</span>
+                        <span class="event-month">${mesExtenso}</span>
+                        <strong class="event-client">${e.cliente}</strong>
+                        <div class="event-time">${timeInfo}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); renderEventBlocks(); }
         function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
         function verificarDisponibilidade() {
@@ -307,14 +366,13 @@
             const reqInicio = h + (m/60);
             const reqFim = reqInicio + duracao + 1; 
 
-            const eventosDoDia = eventsCache.filter(e => e.data_evento === data);
-            
+            const eventsOnDay = eventsCache.filter(e => e.data_evento === data);
             let status = "LIVRE";
-            let conflitoDetalhe = "";
+            let conflictMsg = "";
 
-            if (eventosDoDia.length > 0) {
+            if (eventsOnDay.length > 0) {
                 status = "NEGOCIAR"; 
-                eventosDoDia.forEach(e => {
+                eventsOnDay.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
                         const eDur = parseInt(e.duracao) || 5;
@@ -322,77 +380,64 @@
                         const eFim = eInicio + eDur + 1; 
                         if (reqInicio < eFim && reqFim > eInicio) {
                             status = "OCUPADO"; 
-                            conflitoDetalhe = `Já existe evento das ${e.hora_inicio} às ${(eh+eDur)}h`;
+                            conflictMsg = `Já existe evento às ${e.hora_inicio}`;
                         }
-                    } else {
-                        status = "OCUPADO";
-                        conflitoDetalhe = "Data bloqueada (Dia Todo)";
-                    }
+                    } else { status = "OCUPADO"; conflictMsg = "Data fechada"; }
                 });
             }
 
             const dataFormatada = data.split('-').reverse().join('/');
             
             if (status === "OCUPADO") {
-                const textoZap = `Olá Gil! Vi que dia *${dataFormatada}* às *${hora}* está ocupado (${conflitoDetalhe}), mas queria saber se conseguimos encaixar algo...`;
+                const textoZap = `Olá Gil! Vi que dia *${dataFormatada}* às *${hora}* está ocupado (${conflictMsg}), mas queria saber se conseguimos encaixar...`;
                 const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
-                resultDiv.style.display = 'block'; 
-                resultDiv.className = 'status-busy';
-                resultDiv.innerHTML = `<h3 style="margin:0;">❌ DATA CONCORRIDA</h3><p>${conflitoDetalhe}</p><p style="font-size:0.9em; color:#fff;">Mas não desista! Fale comigo, talvez eu consiga um encaixe.</p><a href="${linkZap}" target="_blank" class="btn-whatsapp orange">TENTAR ENCAIXE NO ZAP ➔</a>`;
+                resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
+                resultDiv.innerHTML = `<h3 style="margin:0;">❌ OCUPADO</h3><p>${conflictMsg}</p><a href="${linkZap}" class="btn-whatsapp orange">TENTAR ENCAIXE ➔</a>`;
             } 
             else if (status === "NEGOCIAR") {
-                const textoZap = `Olá Gil! Vi que dia *${dataFormatada}* tem eventos, mas o horário das *${hora}* parece livre. Quero fechar!`;
+                const textoZap = `Olá Gil! Dia *${dataFormatada}* tem eventos, mas o horário das *${hora}* parece livre. Podemos fechar?`;
                 const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
-                resultDiv.style.display = 'block'; 
-                resultDiv.className = 'status-negotiate';
-                resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento neste dia, mas seu horário está livre!</p><p style="font-size:0.9em;">Preciso apenas confirmar a logística. Me chame pra fechar!</p><a href="${linkZap}" target="_blank" class="btn-whatsapp orange">VERIFICAR DISPONIBILIDADE ➔</a>`;
+                resultDiv.style.display = 'block'; resultDiv.className = 'status-negotiate';
+                resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário está livre!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
             }
             else {
-                const textoZap = `Olá Gil! Vi no site que dia *${dataFormatada}* às *${hora}* está livre. Gostaria de reservar!`;
+                const textoZap = `Olá Gil! Dia *${dataFormatada}* às *${hora}* está livre. Quero reservar!`;
                 const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
-                resultDiv.style.display = 'block'; 
-                resultDiv.className = 'status-available';
-                resultDiv.innerHTML = `<h3 style="margin:0;">✅ TOTALMENTE LIVRE!</h3><p>O horário das ${hora} está disponível.</p><a href="${linkZap}" target="_blank" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
+                resultDiv.style.display = 'block'; resultDiv.className = 'status-available';
+                resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><a href="${linkZap}" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
             }
         }
 
+        // --- ADMIN ---
         function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
-        function logarAdmin() {
-            if(document.getElementById('senhaInput').value === SENHA_MESTRA) {
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('adminArea').style.display = 'block';
-                document.getElementById('adminArea').scrollIntoView({behavior: "smooth"});
-            } else alert("Senha incorreta");
-        }
-
+        function logarAdmin() { if(document.getElementById('senhaInput').value === SENHA_MESTRA) { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminArea').style.display = 'block'; } else alert("Senha errada"); }
+        
         function salvarEventoManual() {
             const cliente = document.getElementById('admCliente').value;
             const data = document.getElementById('admData').value;
             const hora = document.getElementById('admHora').value;
             const duracao = document.getElementById('admDuracao').value;
-            if(!cliente || !data) return alert("Preencha o nome e a data!");
-            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao }).then(() => { alert("Adicionado!"); document.getElementById('admCliente').value=''; renderAdminList(); });
+            if(!cliente || !data) return alert("Preencha dados!");
+            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao }).then(() => { alert("Salvo!"); document.getElementById('admCliente').value=''; });
         }
 
         function gerarHistoricoFicticio() {
-            if(!confirm("Gerar 5 eventos aleatórios passados?")) return;
-            const nomes = ["Aniversário Privado", "Casamento Civil", "Evento Corporativo", "Despedida de Solteiro", "Confraternização"];
+            if(!confirm("Gerar eventos passados?")) return;
+            const nomes = ["Aniversário 15 Anos", "Casamento Civil", "Confraternização", "Despedida Solteiro"];
             const hoje = new Date();
             for(let i=0; i<5; i++) {
-                let d = new Date();
-                d.setDate(hoje.getDate() - Math.floor(Math.random() * 90) - 1);
-                const dataStr = d.toISOString().split('T')[0];
-                db.collection("agendamentos").add({ cliente: nomes[Math.floor(Math.random() * nomes.length)], data_evento: dataStr, hora_inicio: "19:00", duracao: 4 });
+                let d = new Date(); d.setDate(hoje.getDate() - Math.floor(Math.random() * 60) - 1);
+                db.collection("agendamentos").add({ cliente: nomes[Math.floor(Math.random()*nomes.length)], data_evento: d.toISOString().split('T')[0], hora_inicio: "19:00", duracao: 4 });
             }
-            alert("Feito!");
+            alert("Gerado!");
         }
 
         function gerarFeriados() {
-            if(!confirm("Adicionar feriados?")) return;
+            if(!confirm("Adicionar Feriados?")) return;
             const ano = new Date().getFullYear();
-            const feriados = [{d: `${ano}-12-25`, n: "Natal"}, {d: `${ano}-12-31`, n: "Réveillon"}, {d: `${ano}-05-01`, n: "Dia do Trabalho"}];
-            feriados.forEach(f => db.collection("agendamentos").add({ cliente: f.n + " (Bloqueado)", data_evento: f.d, hora_inicio: "", duracao: 24 }));
-            alert("Feriados adicionados!");
+            const feriados = [{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"}];
+            feriados.forEach(f => db.collection("agendamentos").add({cliente: f.n + " (Fechado)", data_evento: f.d, hora_inicio: "", duracao: 24}));
+            alert("Feito!");
         }
 
         function renderAdminList() {
@@ -400,11 +445,9 @@
             list.innerHTML = '';
             eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento));
             eventsCache.forEach(e => {
-                list.innerHTML += `<div class="event-list-item"><div><strong style="color:#FF9500">${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente} (${e.hora_inicio || 'Dia todo'})</div><button onclick="deletarEvento('${e.id}')" style="background:red;border:none;color:white;cursor:pointer;">X</button></div>`;
+                list.innerHTML += `<div class="event-list-item"><div><strong>${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente}</div><button onclick="if(confirm('Apagar?')) db.collection('agendamentos').doc('${e.id}').delete()" style="color:red;background:none;border:none;">X</button></div>`;
             });
         }
-
-        function deletarEvento(id) { if(confirm("Apagar?")) db.collection("agendamentos").doc(id).delete(); }
     </script>
 </body>
 </html>
