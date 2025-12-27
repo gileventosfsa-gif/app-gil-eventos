@@ -17,8 +17,21 @@
         .drink-card { background: #1E1E1E; border-radius: 16px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #333; transition: transform 0.2s; }
         .drink-card:active { transform: scale(0.98); }
         
-        .card-image-box { width: 100%; height: 220px; position: relative; background: #000; }
-        .card-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: transform 0.5s; }
+        /* AJUSTE DE ALTURA DA IMAGEM PARA MOSTRAR MAIS DO DRINK */
+        .card-image-box { 
+            width: 100%; 
+            height: 300px; /* Aumentado para 300px */
+            position: relative; 
+            background: #000; 
+        }
+        .card-image { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: center; /* Centraliza o foco */
+            opacity: 0.9; 
+            transition: transform 0.5s; 
+        }
         .drink-card:hover .card-image { transform: scale(1.03); }
         .card-image-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 90px; background: linear-gradient(to top, #1E1E1E, transparent); }
 
@@ -162,19 +175,18 @@
         if(NOME_CONVIDADO) carregarChat(); 
     }
 
-    // --- CORREÇÃO: LÓGICA 'CONTÉM' PARA IMAGENS ---
+    // --- MAPA DE IMAGENS CORRIGIDO (LÓGICA 'CONTÉM') ---
     function getDrinkImage(nomeOriginal) {
-        // Normaliza para comparar (minúsculo, sem acentos)
         const n = nomeOriginal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 
-        // Seus links exatos do Pinterest
+        // LINKS DO PINTEREST (Caipirinha atualizada)
         const mapa = {
             'elixir do sol': 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg',
             'desejo proibido': 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg',
             'encanto noturno': 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg',
             'tropical mix': 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg',
             'brisa verde': 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg',
-            'caipirinha premium': 'https://i.pinimg.com/736x/0d/16/f6/0d16f633276602055605650772275039.jpg', // Link reserva pois o seu era da página
+            'caipirinha premium': 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', // LINK CORRIGIDO
             'furia rubi': 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg',
             'segredo da casa': 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg',
             'coquetel kids': 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg',
@@ -184,16 +196,13 @@
             'mojito da ilha': 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg'
         };
 
-        // NOVA LÓGICA: Verifica se o nome do drink CONTÉM a chave, em vez de ser igual
         for (const [key, url] of Object.entries(mapa)) {
             if (n.includes(key)) return url;
         }
 
-        // Tenta achar por parciais comuns se não achou no mapa acima
         if (n.includes('mojito')) return mapa['mojito da ilha'];
         if (n.includes('gin')) return mapa['gin'];
 
-        // Fallback genérico bonito
         return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80';
     }
 
@@ -214,7 +223,6 @@
                 let disponivel = item.disponivel !== false;
                 let precoFinal = item.preco || 0;
                 let htmlPreco = '';
-                // IMAGEM CORRIGIDA AQUI
                 let imagemUrl = getDrinkImage(item.nome);
                 
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
