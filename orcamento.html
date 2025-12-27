@@ -41,12 +41,12 @@
         }
         .btn-gradient:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
 
-        /* SEÇÃO 2 - GRID E CARDS (DESIGN NOVO COM FOTOS) */
+        /* SEÇÃO 2 - GRID E CARDS (DESIGN "SEM CORTES") */
         .gil-category { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 60px 0 30px; }
         .gil-category h2 { color: #FFB84D; font-size: 1.8em; text-transform: uppercase; letter-spacing: 1.5px; margin: 0; text-align: center; }
         .gil-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, transparent, #FFB84D, transparent); max-width: 100px; }
         
-        .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         
         .gil-card {
             background: var(--card-bg); border: 1px solid rgba(255, 213, 128, 0.1); border-radius: 16px;
@@ -55,35 +55,53 @@
         }
         .gil-card:hover { transform: translateY(-7px); border-color: rgba(255, 149, 0, 0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-        /* ÁREA DA FOTO */
+        /* ÁREA DA FOTO (Técnica Netflix) */
         .drink-img-box {
             width: 100%;
-            height: 220px;
+            height: 320px; /* Altura aumentada para caber a foto vertical */
             position: relative;
             overflow: hidden;
+            background: #000;
         }
+        
+        /* Fundo Borrado */
+        .blur-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(15px) brightness(0.5); /* Desfoque */
+            transform: scale(1.1);
+            z-index: 1;
+        }
+
+        /* Foto Principal Inteira */
         .drink-img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* MOSTRA TUDO SEM CORTAR */
+            position: relative;
+            z-index: 2;
             transition: transform 0.6s ease;
+            drop-shadow: 0 5px 15px rgba(0,0,0,0.6); /* Sombra para destacar do fundo */
         }
-        .gil-card:hover .drink-img { transform: scale(1.1); }
+        .gil-card:hover .drink-img { transform: scale(1.05); }
         
-        /* SOMBRA NA FOTO */
+        /* SOMBRA NA BASE */
         .img-overlay {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
             background: linear-gradient(to top, #1E1E1E, transparent);
+            z-index: 3;
         }
 
         /* CONTEÚDO DO CARD */
-        .card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; position: relative; z-index: 4; }
         .gil-card h3 { font-size: 1.3em; color: var(--gold); margin: 0 0 8px 0; font-weight: 700; }
         .gil-card p { font-size: 0.9em; line-height: 1.5; color: #ccc; margin: 0; flex-grow: 1; }
 
         /* BADGES (ETIQUETAS) */
         .badge { 
-            position: absolute; top: 15px; right: 15px; z-index: 2;
+            position: absolute; top: 15px; right: 15px; z-index: 5;
             font-size: 0.7em; padding: 5px 12px; border-radius: 20px; 
             font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.5);
@@ -152,6 +170,7 @@
             
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg" class="drink-img" alt="Elixir do Sol">
                     <span class="badge badge-pop">Mais Pedido</span>
                     <div class="img-overlay"></div>
@@ -163,6 +182,7 @@
 
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg" class="drink-img" alt="Desejo Proibido">
                     <span class="badge badge-sweet">Doce</span>
                     <div class="img-overlay"></div>
@@ -174,6 +194,7 @@
 
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg" class="drink-img" alt="Encanto Noturno">
                     <div class="img-overlay"></div>
                 </div>
@@ -184,6 +205,7 @@
 
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg');"></div>
                     <img src="https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg" class="drink-img" alt="Tropical Mix">
                     <div class="img-overlay"></div>
                 </div>
@@ -194,6 +216,7 @@
 
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg" class="drink-img" alt="Brisa Verde">
                     <span class="badge badge-fresh">Refrescante</span>
                     <div class="img-overlay"></div>
@@ -205,6 +228,7 @@
 
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg');"></div>
                     <img src="https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg" class="drink-img" alt="Fúria Rubi">
                     <div class="img-overlay"></div>
                 </div>
@@ -215,6 +239,7 @@
 
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg" class="drink-img" alt="Caipirinha Premium">
                     <span class="badge badge-pop">Clássico</span>
                     <div class="img-overlay"></div>
@@ -226,6 +251,7 @@
 
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg" class="drink-img" alt="Segredo da Casa">
                     <div class="img-overlay"></div>
                 </div>
@@ -239,6 +265,7 @@
         <div class="gil-grid">
             <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg" class="drink-img" alt="Aperol">
                     <span class="badge badge-premium">Premium</span>
                     <div class="img-overlay"></div>
@@ -250,6 +277,7 @@
 
             <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg" class="drink-img" alt="Gin">
                     <span class="badge badge-premium">Premium</span>
                     <div class="img-overlay"></div>
@@ -261,6 +289,7 @@
 
             <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg');"></div>
                     <img src="https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg" class="drink-img" alt="Mojito">
                     <span class="badge badge-premium">Premium</span>
                     <div class="img-overlay"></div>
@@ -275,6 +304,7 @@
         <div class="gil-grid">
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg');"></div>
                     <img src="https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg" class="drink-img" alt="Coquetel Kids">
                     <div class="img-overlay"></div>
                 </div>
@@ -285,6 +315,7 @@
 
             <div class="gil-card">
                 <div class="drink-img-box">
+                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg');"></div>
                     <img src="https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg" class="drink-img" alt="Coquetel Personalizado">
                     <div class="img-overlay"></div>
                 </div>
