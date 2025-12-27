@@ -13,7 +13,7 @@
         .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; font-size: 1.2em; }
         .page-title { font-size: 2em; margin: 5px 0; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        /* --- ÁREA DE VERIFICAÇÃO --- */
+        /* --- VERIFICAÇÃO --- */
         .check-availability-box {
             background: linear-gradient(145deg, #1e1e1e, #252525);
             padding: 25px;
@@ -25,7 +25,9 @@
         }
         .check-title { color: #FF9500; font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.1em; text-transform: uppercase; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        .input-3d {
+        
+        /* ESTILO DOS INPUTS (USADO NO ADMIN TAMBÉM) */
+        .input-3d, .textarea-3d {
             padding: 12px;
             border-radius: 10px;
             border: 1px solid #333;
@@ -33,9 +35,11 @@
             color: #fff;
             font-family: 'Poppins', sans-serif;
             font-size: 1em;
-            flex: 1;
-            min-width: 140px;
+            width: 100%;
         }
+        .input-3d { flex: 1; min-width: 140px; }
+        .textarea-3d { resize: vertical; min-height: 80px; }
+
         .btn-3d-check {
             background: linear-gradient(145deg, #FF9500, #F57C00);
             color: #000;
@@ -50,100 +54,32 @@
         }
         .btn-3d-check:active { transform: scale(0.95); }
 
-        /* --- CALENDÁRIO COMPACTO (NAVEGAÇÃO) --- */
-        .calendar-nav {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            border: 1px solid #333;
-        }
+        /* --- CALENDÁRIO --- */
+        .calendar-nav { background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 30px; border: 1px solid #333; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .month-year { font-size: 1.2em; font-weight: bold; color: #fff; text-transform: uppercase; }
         .btn-nav-cal { background: #333; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
         .weekday { text-align: center; color: #666; font-size: 0.7em; font-weight: bold; margin-bottom: 5px; }
-        
-        .day-cell {
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            font-size: 0.9em;
-            color: #aaa;
-            position: relative;
-            background: #222;
-            cursor: pointer;
-        }
+        .day-cell { height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.9em; color: #aaa; position: relative; background: #222; cursor: pointer; }
         .day-cell.today { border: 1px solid #FF9500; color: #FF9500; }
-        
-        /* BOLINHAS DE CONTAGEM */
-        .event-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #FF9500;
-            color: #000;
-            font-size: 0.6em;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
-        .day-cell.has-past-event .event-badge { background: #555; color: #fff; } /* Cinza para passado */
+        .event-badge { position: absolute; top: -5px; right: -5px; background: #FF9500; color: #000; font-size: 0.6em; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .day-cell.has-past-event .event-badge { background: #555; color: #fff; }
 
-        /* --- BLOCOS DE EVENTOS (VITRINE) --- */
+        /* --- BLOCOS DE EVENTOS --- */
         .events-grid-title { font-size: 1.2em; color: #fff; margin-bottom: 15px; border-left: 4px solid #FF9500; padding-left: 10px; }
-        .events-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsivo: Blocos lado a lado */
-            gap: 15px;
-        }
-
-        .event-block {
-            background: #1E1E1E;
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-            border: 1px solid #333;
-            transition: transform 0.2s;
-            overflow: hidden;
-        }
+        .events-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; position: relative; border: 1px solid #333; transition: transform 0.2s; overflow: hidden; }
         .event-block:hover { transform: translateY(-3px); border-color: #555; }
-        
-        /* Estilo Futuro (Ouro) */
         .event-block.future { border-bottom: 4px solid #FF9500; }
         .event-block.future .status-pill { background: rgba(255, 149, 0, 0.2); color: #FF9500; border: 1px solid #FF9500; }
-        
-        /* Estilo Passado (Cinza) */
         .event-block.past { border-bottom: 4px solid #555; opacity: 0.7; }
         .event-block.past .status-pill { background: #333; color: #aaa; border: 1px solid #555; }
-
         .event-date { font-size: 1.8em; font-weight: 800; color: #fff; line-height: 1; }
         .event-month { font-size: 0.9em; text-transform: uppercase; color: #888; margin-bottom: 10px; display: block; }
         .event-client { font-size: 1.1em; color: #ddd; display: block; margin-bottom: 5px; }
         .event-time { font-size: 0.9em; color: #888; display: flex; align-items: center; gap: 5px; }
-        
-        .status-pill {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7em;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+        .status-pill { position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px; font-size: 0.7em; font-weight: bold; text-transform: uppercase; }
 
         /* --- RESULTADOS --- */
         #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
@@ -154,13 +90,19 @@
         .btn-whatsapp.green { background: #25D366; }
         .btn-whatsapp.orange { background: #FF9500; color: black; }
 
-        /* --- ADMIN --- */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
+        /* --- MODAL LOGIN & ADMIN --- */
+        #loginOverlay, #editModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
         #adminArea { display: none; background: #1a1a1a; padding: 20px; border-radius: 20px; margin-top: 40px; border: 1px solid #444; }
         .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
         .admin-section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
         .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
-        .event-list-item { display: flex; justify-content: space-between; padding: 10px; background: #222; margin-bottom: 5px; border-radius: 5px; font-size: 0.85em; }
+        .event-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; font-size: 0.9em; border-left: 4px solid #FF9500; }
+        .event-actions { display: flex; gap: 10px; }
+        .btn-icon { background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 5px; }
+
+        /* MODAL DE EDIÇÃO */
+        .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
+        .modal-label { display: block; text-align: left; color: #aaa; margin: 10px 0 5px 0; font-size: 0.9em; }
 
         @media (max-width: 600px) { .input-group { flex-direction: column; } }
     </style>
@@ -173,6 +115,41 @@
         <br>
         <button class="btn-3d-check" onclick="logarAdmin()">ACESSAR</button>
         <button style="background:none; border:none; color:#666; margin-top:20px;" onclick="document.getElementById('loginOverlay').style.display='none'">Voltar</button>
+    </div>
+
+    <div id="editModalOverlay">
+        <div class="modal-box">
+            <h3 style="color:#FF9500; margin-top:0;">📝 Detalhes do Evento</h3>
+            <input type="hidden" id="editId">
+            
+            <span class="modal-label">Nome do Evento / Cliente:</span>
+            <input type="text" id="editCliente" class="input-3d">
+            
+            <div class="input-group" style="margin-top:10px;">
+                <div style="flex:1">
+                    <span class="modal-label">Data:</span>
+                    <input type="date" id="editData" class="input-3d">
+                </div>
+                <div style="flex:1">
+                    <span class="modal-label">Hora Início:</span>
+                    <input type="time" id="editHora" class="input-3d">
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-top:10px;">
+                <div style="flex:1">
+                    <span class="modal-label">Duração (h):</span>
+                    <input type="number" id="editDuracao" class="input-3d">
+                </div>
+            </div>
+
+            <span class="modal-label">📄 Lista de Materiais / Obs / Endereço:</span>
+            <textarea id="editDetalhes" class="textarea-3d" placeholder="Cole aqui a lista de materiais, cardápio, endereço completo..."></textarea>
+
+            <br><br>
+            <button class="btn-3d-check" style="width:100%;" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
+            <button onclick="document.getElementById('editModalOverlay').style.display='none'" style="width:100%; padding:10px; background:none; border:none; color:#888; margin-top:10px;">Fechar sem salvar</button>
+        </div>
     </div>
 
     <div class="container">
@@ -208,27 +185,32 @@
         </div>
 
         <div id="adminArea">
-            <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel Admin</h2>
+            <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Gestão</h2>
+            
             <div class="admin-section">
-                <h4 style="color:#aaa;">Novo Evento</h4>
+                <h4 style="color:#aaa;">Novo Agendamento</h4>
+                <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento" style="margin-bottom:10px;">
                 <div class="input-group">
-                    <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento">
                     <input type="date" id="admData" class="input-3d">
                     <input type="time" id="admHora" class="input-3d">
                     <input type="number" id="admDuracao" class="input-3d" placeholder="Duração" value="5">
-                    <button class="btn-3d-check" style="font-size:0.9em; padding:10px;" onclick="salvarEventoManual()">SALVAR</button>
                 </div>
+                <textarea id="admDetalhes" class="textarea-3d" style="margin-top:10px;" placeholder="Obs / Lista de Materiais..."></textarea>
+                <button class="btn-3d-check" style="font-size:0.9em; padding:10px; margin-top:10px; width:100%;" onclick="salvarEventoManual()">CADASTRAR</button>
             </div>
+
             <div class="admin-section">
                 <h4 style="color:#aaa;">Ferramentas</h4>
                 <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar Passados</button>
                 <button class="btn-admin" onclick="gerarFeriados()">📅 Importar Feriados</button>
             </div>
+
             <div class="admin-section">
-                <h4 style="color:#aaa;">Lista Completa</h4>
-                <div id="listaAdminEventos" style="max-height: 300px; overflow-y: auto;"></div>
+                <h4 style="color:#aaa;">Todos os Eventos (Clique no 📄 para ver detalhes)</h4>
+                <div id="listaAdminEventos" style="max-height: 400px; overflow-y: auto;"></div>
             </div>
-            <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR</button>
+            
+            <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR PAINEL</button>
         </div>
     </div>
 
@@ -260,12 +242,12 @@
                 eventsCache = [];
                 snapshot.forEach(doc => { eventsCache.push({ id: doc.id, ...doc.data() }); });
                 renderCalendar();
-                renderEventBlocks(); // Renderiza os blocos abaixo
+                renderEventBlocks();
                 renderAdminList();
             });
         }
 
-        // --- RENDERIZAÇÃO DO CALENDÁRIO (NAVEGAÇÃO) ---
+        // --- CALENDÁRIO ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
@@ -296,32 +278,22 @@
                 if (isPast && count > 0) cellClass += " has-past-event";
 
                 let badgeHTML = "";
-                if (count > 0) {
-                    badgeHTML = `<div class="event-badge">${count}</div>`;
-                }
+                if (count > 0) badgeHTML = `<div class="event-badge">${count}</div>`;
 
-                grid.innerHTML += `
-                    <div class="${cellClass}" onclick="cliqueDia('${dateStr}')">
-                        ${i} ${badgeHTML}
-                    </div>
-                `;
+                grid.innerHTML += `<div class="${cellClass}" onclick="cliqueDia('${dateStr}')">${i} ${badgeHTML}</div>`;
             }
         }
 
-        // --- RENDERIZAÇÃO DOS BLOCOS DE EVENTOS (VITRINE) ---
+        // --- BLOCOS DE VITRINE ---
         function renderEventBlocks() {
             const container = document.getElementById('eventsContainer');
             container.innerHTML = '';
-
             const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1; // 1-12
+            const month = currentDate.getMonth() + 1;
             const monthStr = String(month).padStart(2, '0');
             const todayStr = new Date().toISOString().split('T')[0];
 
-            // Filtra eventos do mês selecionado
             const monthEvents = eventsCache.filter(e => e.data_evento.startsWith(`${year}-${monthStr}`));
-            
-            // Ordena: Primeiro os futuros (crescente), depois os passados (decrescente) visualmente
             monthEvents.sort((a,b) => new Date(a.data_evento) - new Date(b.data_evento));
 
             if (monthEvents.length === 0) {
@@ -331,10 +303,9 @@
 
             monthEvents.forEach(e => {
                 const isPast = e.data_evento < todayStr;
-                const dataObj = new Date(e.data_evento + 'T00:00:00'); // Fix timezone issue
+                const dataObj = new Date(e.data_evento + 'T00:00:00');
                 const dia = dataObj.getDate();
                 const mesExtenso = dataObj.toLocaleDateString('pt-BR', { month: 'short' });
-                
                 const statusLabel = isPast ? "✅ CONCLUÍDO" : "📅 AGENDADO";
                 const blockClass = isPast ? "past" : "future";
                 const timeInfo = e.hora_inicio ? `🕒 Início: ${e.hora_inicio}` : '🕒 Dia Todo';
@@ -346,8 +317,7 @@
                         <span class="event-month">${mesExtenso}</span>
                         <strong class="event-client">${e.cliente}</strong>
                         <div class="event-time">${timeInfo}</div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
@@ -380,35 +350,31 @@
                         const eFim = eInicio + eDur + 1; 
                         if (reqInicio < eFim && reqFim > eInicio) {
                             status = "OCUPADO"; 
-                            conflictMsg = `Já existe evento às ${e.hora_inicio}`;
+                            conflictMsg = `Conflito com evento das ${e.hora_inicio}`;
                         }
                     } else { status = "OCUPADO"; conflictMsg = "Data fechada"; }
                 });
             }
 
             const dataFormatada = data.split('-').reverse().join('/');
-            
             if (status === "OCUPADO") {
-                const textoZap = `Olá Gil! Vi que dia *${dataFormatada}* às *${hora}* está ocupado (${conflictMsg}), mas queria saber se conseguimos encaixar...`;
-                const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
+                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! O dia ${dataFormatada} as ${hora} ta ocupado, tem jeito?`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
                 resultDiv.innerHTML = `<h3 style="margin:0;">❌ OCUPADO</h3><p>${conflictMsg}</p><a href="${linkZap}" class="btn-whatsapp orange">TENTAR ENCAIXE ➔</a>`;
             } 
             else if (status === "NEGOCIAR") {
-                const textoZap = `Olá Gil! Dia *${dataFormatada}* tem eventos, mas o horário das *${hora}* parece livre. Podemos fechar?`;
-                const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
+                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} parece livre.`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-negotiate';
                 resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário está livre!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
             }
             else {
-                const textoZap = `Olá Gil! Dia *${dataFormatada}* às *${hora}* está livre. Quero reservar!`;
-                const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
+                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Quero reservar dia ${dataFormatada} as ${hora}.`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-available';
-                resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><a href="${linkZap}" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
+                resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><p>Horário livre.</p><a href="${linkZap}" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
             }
         }
 
-        // --- ADMIN ---
+        // --- ADMIN GESTÃO ---
         function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
         function logarAdmin() { if(document.getElementById('senhaInput').value === SENHA_MESTRA) { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminArea').style.display = 'block'; } else alert("Senha errada"); }
         
@@ -417,17 +383,77 @@
             const data = document.getElementById('admData').value;
             const hora = document.getElementById('admHora').value;
             const duracao = document.getElementById('admDuracao').value;
+            const detalhes = document.getElementById('admDetalhes').value;
             if(!cliente || !data) return alert("Preencha dados!");
-            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao }).then(() => { alert("Salvo!"); document.getElementById('admCliente').value=''; });
+            
+            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao, detalhes: detalhes }).then(() => { 
+                alert("Salvo!"); 
+                document.getElementById('admCliente').value=''; 
+                document.getElementById('admDetalhes').value=''; 
+            });
         }
 
+        function renderAdminList() {
+            const list = document.getElementById('listaAdminEventos');
+            list.innerHTML = '';
+            eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento));
+            eventsCache.forEach(e => {
+                const horaDisplay = e.hora_inicio || 'S/H';
+                const dataDisplay = e.data_evento.split('-').reverse().join('/');
+                list.innerHTML += `
+                    <div class="event-list-item">
+                        <div>
+                            <strong style="color:#FF9500">${dataDisplay}</strong> (${horaDisplay})<br>
+                            ${e.cliente}
+                        </div>
+                        <div class="event-actions">
+                            <button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button>
+                            <button onclick="deletarEvento('${e.id}')" class="btn-icon" style="color:#F44336;">✖</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // --- FUNÇÕES DE EDIÇÃO/DETALHES ---
+        function abrirEdicao(id) {
+            const ev = eventsCache.find(e => e.id === id);
+            if(!ev) return;
+
+            document.getElementById('editId').value = ev.id;
+            document.getElementById('editCliente').value = ev.cliente;
+            document.getElementById('editData').value = ev.data_evento;
+            document.getElementById('editHora').value = ev.hora_inicio || '';
+            document.getElementById('editDuracao').value = ev.duracao || 5;
+            document.getElementById('editDetalhes').value = ev.detalhes || '';
+
+            document.getElementById('editModalOverlay').style.display = 'flex';
+        }
+
+        function salvarEdicao() {
+            const id = document.getElementById('editId').value;
+            const dados = {
+                cliente: document.getElementById('editCliente').value,
+                data_evento: document.getElementById('editData').value,
+                hora_inicio: document.getElementById('editHora').value,
+                duracao: document.getElementById('editDuracao').value,
+                detalhes: document.getElementById('editDetalhes').value
+            };
+            
+            db.collection("agendamentos").doc(id).update(dados).then(() => {
+                alert("Evento atualizado!");
+                document.getElementById('editModalOverlay').style.display = 'none';
+            });
+        }
+
+        function deletarEvento(id) { if(confirm("Apagar evento permanentemente?")) db.collection("agendamentos").doc(id).delete(); }
+        
         function gerarHistoricoFicticio() {
             if(!confirm("Gerar eventos passados?")) return;
             const nomes = ["Aniversário 15 Anos", "Casamento Civil", "Confraternização", "Despedida Solteiro"];
             const hoje = new Date();
             for(let i=0; i<5; i++) {
                 let d = new Date(); d.setDate(hoje.getDate() - Math.floor(Math.random() * 60) - 1);
-                db.collection("agendamentos").add({ cliente: nomes[Math.floor(Math.random()*nomes.length)], data_evento: d.toISOString().split('T')[0], hora_inicio: "19:00", duracao: 4 });
+                db.collection("agendamentos").add({ cliente: nomes[Math.floor(Math.random()*nomes.length)], data_evento: d.toISOString().split('T')[0], hora_inicio: "19:00", duracao: 4, detalhes: "Evento importado (Histórico)" });
             }
             alert("Gerado!");
         }
@@ -438,15 +464,6 @@
             const feriados = [{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"}];
             feriados.forEach(f => db.collection("agendamentos").add({cliente: f.n + " (Fechado)", data_evento: f.d, hora_inicio: "", duracao: 24}));
             alert("Feito!");
-        }
-
-        function renderAdminList() {
-            const list = document.getElementById('listaAdminEventos');
-            list.innerHTML = '';
-            eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento));
-            eventsCache.forEach(e => {
-                list.innerHTML += `<div class="event-list-item"><div><strong>${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente}</div><button onclick="if(confirm('Apagar?')) db.collection('agendamentos').doc('${e.id}').delete()" style="color:red;background:none;border:none;">X</button></div>`;
-            });
         }
     </script>
 </body>
