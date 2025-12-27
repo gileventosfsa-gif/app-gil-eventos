@@ -17,29 +17,48 @@
         .drink-card { background: #1E1E1E; border-radius: 16px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #333; transition: transform 0.2s; }
         .drink-card:active { transform: scale(0.98); }
         
-        /* AJUSTE DE ALTURA DA IMAGEM PARA MOSTRAR MAIS DO DRINK */
+        /* SOLUÇÃO VISUAL: FUNDO BORRADO + FOTO INTEIRA */
         .card-image-box { 
             width: 100%; 
-            height: 300px; /* Aumentado para 300px */
+            height: 350px; /* Altura generosa para fotos verticais */
             position: relative; 
-            background: #000; 
+            background: #000;
+            overflow: hidden;
         }
-        .card-image { 
+        
+        /* O Fundo Borrado */
+        .blur-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(15px) brightness(0.5); /* Desfoque e escurecimento */
+            transform: scale(1.1); /* Remove bordas brancas do blur */
+            z-index: 1;
+        }
+
+        /* A Foto Principal */
+        .front-image { 
+            position: relative;
             width: 100%; 
             height: 100%; 
-            object-fit: cover; 
-            object-position: center; /* Centraliza o foco */
-            opacity: 0.9; 
-            transition: transform 0.5s; 
+            object-fit: contain; /* MOSTRA A FOTO INTEIRA */
+            z-index: 2;
+            drop-shadow: 0 5px 15px rgba(0,0,0,0.5); /* Sombra para destacar do fundo */
         }
-        .drink-card:hover .card-image { transform: scale(1.03); }
-        .card-image-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 90px; background: linear-gradient(to top, #1E1E1E, transparent); }
 
-        .drink-content { padding: 15px 20px; position: relative; }
-        .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); position: relative; bottom: 15px; z-index: 2; }
-        .drink-desc { font-size: 0.9em; color: #bbb; margin: -5px 0 15px 0; line-height: 1.4; font-weight: 300; }
+        .card-image-overlay { 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; 
+            background: linear-gradient(to top, #1E1E1E, transparent); 
+            z-index: 3;
+        }
+
+        .drink-content { padding: 15px 20px; position: relative; z-index: 4; }
+        .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); position: relative; bottom: 20px; }
+        .drink-desc { font-size: 0.95em; color: #ccc; margin: -10px 0 15px 0; line-height: 1.4; font-weight: 300; }
         
-        .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 3; }
+        /* PREÇOS */
+        .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 5; }
         .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.75em; display: block; font-weight: bold; }
         .price-now { color: #4CAF50; font-weight: 800; font-size: 1.1em; }
         
@@ -50,19 +69,16 @@
 
         .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; animation: floatUp 0.3s; }
         .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
-        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; font-size: 1em; }
         .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
-        
         .modal-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
         .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 12px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
         .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 8px; right: 15px; display: none; }
         .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
         .tab-content.active { display: block; }
-        
         .chat-container { display: flex; flex-direction: column; height: 300px; }
         .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .chat-input-area { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
@@ -77,7 +93,6 @@
         .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .btn-i-paid { background: #4CAF50; color: white; }
         .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
-        
         #avisoPacote { background: rgba(255, 68, 68, 0.15); border: 1px solid #FF4444; color: #FF4444; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; display: none; }
         #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 25px; border-radius: 50px; display:none; border: 1px solid #FFD580; z-index:950; white-space:nowrap; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 0.9em; }
         .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
@@ -175,18 +190,15 @@
         if(NOME_CONVIDADO) carregarChat(); 
     }
 
-    // --- MAPA DE IMAGENS CORRIGIDO (LÓGICA 'CONTÉM') ---
     function getDrinkImage(nomeOriginal) {
         const n = nomeOriginal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-
-        // LINKS DO PINTEREST (Caipirinha atualizada)
         const mapa = {
             'elixir do sol': 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg',
             'desejo proibido': 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg',
             'encanto noturno': 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg',
             'tropical mix': 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg',
             'brisa verde': 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg',
-            'caipirinha premium': 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', // LINK CORRIGIDO
+            'caipirinha premium': 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', 
             'furia rubi': 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg',
             'segredo da casa': 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg',
             'coquetel kids': 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg',
@@ -195,14 +207,9 @@
             'gin': 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg',
             'mojito da ilha': 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg'
         };
-
-        for (const [key, url] of Object.entries(mapa)) {
-            if (n.includes(key)) return url;
-        }
-
+        for (const [key, url] of Object.entries(mapa)) { if (n.includes(key)) return url; }
         if (n.includes('mojito')) return mapa['mojito da ilha'];
         if (n.includes('gin')) return mapa['gin'];
-
         return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80';
     }
 
@@ -225,50 +232,33 @@
                 let htmlPreco = '';
                 let imagemUrl = getDrinkImage(item.nome);
                 
+                // NOVO LAYOUT DO CARD COM IMAGEM SEM CORTES
+                let cardHTML = `
+                <div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}">
+                    <div class="card-image-box">
+                        <div class="blur-bg" style="background-image: url('${imagemUrl}')"></div>
+                        <img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}">
+                        <div class="card-image-overlay"></div>
+                    `;
+
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
                     precoFinal = item.preco_prevenda;
-                    htmlPreco = `
-                        <div class="price-tag-container">
-                            <span class="price-old">No dia: R$ ${item.preco}</span>
-                            <span class="price-now">R$ ${item.preco_prevenda}</span>
-                        </div>
-                    `;
-                } else {
-                    if(item.tipo_cobranca === 'pago') {
-                        htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`;
-                    }
+                    htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`;
+                } else if(item.tipo_cobranca === 'pago') {
+                    htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`;
                 }
+                
+                cardHTML += htmlPreco + `</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${item.desc || 'Uma experiência de sabor única.'}</p>`;
 
                 let isPaid = item.tipo_cobranca === 'pago' || esgotado;
                 if(DADOS_EVENTO.tipo_servico === 'tradicional' && item.tipo_cobranca === 'pacote') isPaid = false;
 
-                let btnHtml = '';
-                let classeExtra = item.categoria === 'premium' ? 'premium-style' : '';
-                
-                if(!disponivel) { 
-                    btnHtml = `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; 
-                    classeExtra += ' esgotado'; 
-                }
-                else if(isPaid) { 
-                    btnHtml = `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal})">🛒 COMPRAR</button>`; 
-                }
-                else { 
-                    btnHtml = `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 PEGAR DO PACOTE</button>`; 
-                }
+                if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; }
+                else if(isPaid) { cardHTML += `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal})">🛒 COMPRAR</button>`; }
+                else { cardHTML += `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 PEGAR DO PACOTE</button>`; }
 
-                html += `
-                <div class="drink-card ${classeExtra}">
-                    <div class="card-image-box">
-                        <img src="${imagemUrl}" class="card-image" loading="lazy" alt="${item.nome}">
-                        <div class="card-image-overlay"></div>
-                        ${htmlPreco}
-                    </div>
-                    <div class="drink-content">
-                        <h3 class="drink-title">${item.nome}</h3>
-                        <p class="drink-desc">${item.desc || 'Uma experiência de sabor única.'}</p>
-                        ${btnHtml}
-                    </div>
-                </div>`;
+                cardHTML += `</div></div>`;
+                html += cardHTML;
             });
             return html;
         };
