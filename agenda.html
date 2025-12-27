@@ -264,43 +264,42 @@
             });
         }
 
-        // --- LÓGICA DE VERIFICAÇÃO SIMPLIFICADA (4H DE INTERVALO) ---
+        // --- VERIFICAÇÃO COM CÁLCULO PRECISO EM MINUTOS ---
         function verificarDisponibilidade() {
             const data = document.getElementById('checkDate').value;
             const hora = document.getElementById('checkTime').value;
-            const duracao = parseInt(document.getElementById('checkDuration').value) || 4;
             const resultDiv = document.getElementById('resultArea');
 
             if (!data || !hora) return alert("Selecione data e hora!");
 
-            // Converte hora para número (ex: 14:30 = 14.5)
+            // Converter Hora Solicitada para Minutos Absolutos do dia (0 - 1439)
             const [h, m] = hora.split(':').map(Number);
-            const reqInicio = h + (m/60);
+            const reqMinutos = h * 60 + m;
 
             const eventsOnDay = eventsCache.filter(e => e.data_evento === data);
             
-            // Assume LIVRE até provar o contrário
             let status = "LIVRE";
             let conflictMsg = "";
 
             if (eventsOnDay.length > 0) {
-                // Se tem evento no dia, o padrão vira NEGOCIAR (Sob Consulta)
+                // Se tem evento, assume NEGOCIAR, a menos que colida feio
                 status = "NEGOCIAR"; 
 
                 eventsOnDay.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
-                        const eInicio = eh + (em/60);
+                        const existMinutos = eh * 60 + em;
                         
-                        // REGRA DE OURO: Diferença entre inícios < 4 horas = OCUPADO
-                        const diffHoras = Math.abs(reqInicio - eInicio);
+                        // DIFERENÇA ABSOLUTA EM MINUTOS
+                        // 4 horas = 240 minutos
+                        const diff = Math.abs(reqMinutos - existMinutos);
 
-                        if (diffHoras < 4) {
-                            status = "OCUPADO";
-                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Intervalo mínimo de 4h)`;
+                        if (diff < 240) {
+                            status = "OCUPADO"; // Colisão (menos de 4h)
+                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Mínimo 4h de intervalo)`;
                         }
                     } else { 
-                        // Evento sem hora definida (Dia Todo) = OCUPADO
+                        // Evento sem hora (Dia Todo) -> Bloqueio Total
                         status = "OCUPADO"; 
                         conflictMsg = "Data fechada (Feriado/Bloqueio)"; 
                     }
