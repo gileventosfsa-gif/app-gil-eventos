@@ -321,7 +321,7 @@
         function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); renderEventBlocks(); }
         function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // --- VERIFICAÇÃO INTELIGENTE (4H MARGIN) ---
+        // --- VERIFICAÇÃO INTELIGENTE (4H FIXAS DE INTERVALO) ---
         function verificarDisponibilidade() {
             const data = document.getElementById('checkDate').value;
             const hora = document.getElementById('checkTime').value;
@@ -331,47 +331,53 @@
             if (!data || !hora) return alert("Selecione data e hora!");
 
             const [h, m] = hora.split(':').map(Number);
-            const reqInicio = h + (m/60);
-            const reqFim = reqInicio + duracao; 
+            const reqInicio = h + (m/60); // Horário decimal (Ex: 16:01 -> 16.016)
 
             const eventsOnDay = eventsCache.filter(e => e.data_evento === data);
+            
+            // Status Padrão: LIVRE
             let status = "LIVRE";
             let conflictMsg = "";
 
             if (eventsOnDay.length > 0) {
-                status = "NEGOCIAR"; // Default if events exist but no hard conflict
+                // Se tem evento no dia, vamos assumir que é para NEGOCIAR, a menos que colida feio
+                status = "NEGOCIAR"; 
+
                 eventsOnDay.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
-                        const eDur = parseInt(e.duracao) || 5;
                         const eInicio = eh + (em/60);
-                        const eFim = eInicio + eDur; 
                         
-                        // LÓGICA DE 4H DE INTERVALO
-                        // Verifica se o novo evento termina pelo menos 4h antes do existente começar
-                        const isBeforeSafe = (reqFim + 4) <= eInicio;
-                        // Verifica se o novo evento começa pelo menos 4h depois do existente terminar
-                        const isAfterSafe = reqInicio >= (eFim + 4);
+                        // CÁLCULO DE DIFERENÇA ABSOLUTA ENTRE OS INÍCIOS
+                        const diffHoras = Math.abs(reqInicio - eInicio);
 
-                        // Se NÃO estiver seguro antes E NÃO estiver seguro depois, é conflito
-                        if (!isBeforeSafe && !isAfterSafe) {
-                            status = "OCUPADO"; 
-                            conflictMsg = `Conflito de horário (Intervalo < 4h)`;
+                        // REGRA: Se a diferença for MENOR que 4 horas -> OCUPADO
+                        if (diffHoras < 4) {
+                            status = "OCUPADO";
+                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Intervalo mínimo de 4h)`;
                         }
-                    } else { status = "OCUPADO"; conflictMsg = "Data fechada"; }
+                    } else { 
+                        // Evento de Dia Todo
+                        status = "OCUPADO"; 
+                        conflictMsg = "Data fechada (Feriado/Bloqueio)"; 
+                    }
                 });
             }
 
             const dataFormatada = data.split('-').reverse().join('/');
+            
+            // --- RESULTADOS VISUAIS ---
             if (status === "OCUPADO") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} as ${hora} ta ocupado, tem jeito?`;
+                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Vi que dia ${dataFormatada} as ${hora} ta ocupado, tem jeito de encaixar?`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
                 resultDiv.innerHTML = `<h3 style="margin:0;">❌ OCUPADO</h3><p>${conflictMsg}</p><a href="${linkZap}" class="btn-whatsapp orange">TENTAR ENCAIXE ➔</a>`;
-            } else if (status === "NEGOCIAR") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} parece livre.`;
+            } 
+            else if (status === "NEGOCIAR") {
+                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} tem intervalo bom. Podemos fechar?`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-negotiate';
-                resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário está livre!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
-            } else {
+                resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário permite encaixe!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
+            } 
+            else {
                 const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Quero reservar dia ${dataFormatada} as ${hora}.`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-available';
                 resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><p>Horário livre.</p><a href="${linkZap}" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
