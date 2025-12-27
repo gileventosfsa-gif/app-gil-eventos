@@ -97,19 +97,24 @@
         .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
         .admin-section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
         .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
+        
+        /* ABAS ADMIN */
         .admin-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #333; }
         .tab-adm-btn { flex: 1; padding: 10px; background: #222; border: none; color: #777; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .tab-adm-btn.active { background: #FF9500; color: #000; border-top-left-radius: 8px; border-top-right-radius: 8px; }
         .tab-content-admin { display: none; max-height: 400px; overflow-y: auto; }
         .tab-content-admin.active { display: block; }
+
         .event-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; font-size: 0.9em; border-left: 4px solid #777; }
         .event-list-item.confirmed { border-left: 5px solid #00E676; background: rgba(0, 230, 118, 0.1); }
         .event-list-item.pending { border-left-color: #FF9500; }
         .event-list-item.past { border-left-color: #555; opacity: 0.6; }
+        
         .event-actions { display: flex; gap: 5px; }
         .btn-icon { background: #333; border: 1px solid #444; color: #ddd; font-size: 1em; cursor: pointer; padding: 6px 10px; border-radius: 5px; }
         .btn-icon.confirm-btn { background: #00E676; color: #000; border: none; font-weight: bold; }
         .btn-icon.delete-btn { color: #F44336; }
+        
         .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
         .modal-label { display: block; text-align: left; color: #aaa; margin: 10px 0 5px 0; font-size: 0.9em; }
 
@@ -181,6 +186,7 @@
 
         <div id="adminArea">
             <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Gestão (CRM)</h2>
+            
             <div class="admin-section">
                 <h4 style="color:#aaa;">Novo Agendamento</h4>
                 <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento" style="margin-bottom:10px;">
@@ -192,17 +198,21 @@
                 <textarea id="admDetalhes" class="textarea-3d" style="margin-top:10px;" placeholder="Obs / Lista de Materiais..."></textarea>
                 <button class="btn-3d-check" style="font-size:0.9em; padding:10px; margin-top:10px; width:100%;" onclick="salvarEventoManual()">CADASTRAR</button>
             </div>
+
             <div class="admin-section">
                 <h4 style="color:#aaa;">Minha Agenda</h4>
+                
                 <div class="admin-tabs">
                     <button class="tab-adm-btn active" onclick="mudarAbaAdmin('confirmados')">✅ CONFIRMADOS</button>
-                    <button class="tab-adm-btn" onclick="mudarAbaAdmin('outros')">📝 OUTROS</button>
+                    <button class="tab-adm-btn" onclick="mudarAbaAdmin('outros')">📝 OUTROS / PENDENTES</button>
                     <button class="tab-adm-btn" onclick="mudarAbaAdmin('concluidos')">🏁 CONCLUÍDOS</button>
                 </div>
+
                 <div id="listConfirmed" class="tab-content-admin active"></div>
                 <div id="listOthers" class="tab-content-admin"></div>
                 <div id="listConcluded" class="tab-content-admin"></div>
             </div>
+
             <div class="admin-section">
                 <h4 style="color:#aaa;">Ferramentas</h4>
                 <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar Passados</button>
@@ -253,7 +263,7 @@
 
             if (!data || !hora) return alert("Selecione data e hora!");
 
-            // Converte a hora solicitada para minutos totais do dia
+            // Converte hora solicitada para minutos (0-1439)
             const [h, m] = hora.split(':').map(Number);
             const reqTotalMinutes = (h * 60) + m;
 
@@ -263,7 +273,6 @@
             let conflictMsg = "";
 
             if (eventsOnDay.length > 0) {
-                // Padrão: Negociar, a menos que colida
                 status = "NEGOCIAR";
 
                 eventsOnDay.forEach(e => {
@@ -280,7 +289,6 @@
                             conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Intervalo mínimo de 4h)`;
                         }
                     } else {
-                        // Evento sem hora (Dia Todo) -> Bloqueio Total
                         status = "OCUPADO";
                         conflictMsg = "Data fechada (Feriado/Bloqueio)";
                     }
@@ -306,7 +314,7 @@
             }
         }
 
-        // --- RENDERIZAÇÕES (CALENDÁRIO E ADMIN) ---
+        // --- CALENDÁRIO ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
@@ -335,6 +343,7 @@
             }
         }
 
+        // --- BLOCOS DE VITRINE ---
         function renderEventBlocks() {
             const container = document.getElementById('eventsContainer');
             container.innerHTML = '';
@@ -388,6 +397,7 @@
         function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); renderEventBlocks(); }
         function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
+        // --- GESTÃO ADMIN ---
         function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
         function logarAdmin() { if(document.getElementById('senhaInput').value === SENHA_MESTRA) { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminArea').style.display = 'block'; } else alert("Senha errada"); }
         
@@ -426,6 +436,7 @@
                 const dataDisplay = e.data_evento.split('-').reverse().join('/');
                 const horaDisplay = e.hora_inicio || 'S/H';
                 const isPast = e.data_evento < todayStr;
+                
                 let cardHTML = `
                     <div class="event-list-item ${isPast ? 'past' : (e.status === 'confirmado' ? 'confirmed' : 'pending')}">
                         <div style="flex-grow:1;">
@@ -433,13 +444,16 @@
                             ${e.cliente}
                         </div>
                         <div class="event-actions">`;
+
                 if(!isPast) {
                     if(e.status !== 'confirmado') cardHTML += `<button onclick="confirmarEvento('${e.id}')" class="btn-icon confirm-btn" title="Confirmar">✅</button>`;
                     else cardHTML += `<button onclick="desconfirmarEvento('${e.id}')" class="btn-icon" title="Voltar para pendente">↩️</button>`;
                 }
+
                 cardHTML += `<button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button>
                             <button onclick="deletarEvento('${e.id}')" class="btn-icon delete-btn">✖</button>
                         </div></div>`;
+
                 if (isPast) listConc.innerHTML += cardHTML;
                 else if (e.status === 'confirmado') listConf.innerHTML += cardHTML;
                 else listOther.innerHTML += cardHTML;
