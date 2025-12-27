@@ -6,7 +6,7 @@
     <title>Agenda Oficial - Gil Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; }
+        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; padding-bottom: 80px; }
         .container { max-width: 900px; margin: auto; }
         
         .header { text-align: center; margin-bottom: 30px; }
@@ -83,15 +83,19 @@
             border: 1px solid #333;
         }
         .day-card:hover { background: #333; transform: translateY(-3px); border-color: #FF9500; }
-        .day-number { font-size: 1.2em; font-weight: 600; color: #ddd; }
+        .day-number { font-size: 1.2em; font-weight: 600; color: #ddd; z-index: 2; }
+        
         .event-dot { 
             width: 8px; height: 8px; 
             background: #FF9500; 
             border-radius: 50%; 
             margin-top: 5px; 
             box-shadow: 0 0 10px #FF9500;
-            display: none; /* Só aparece se tiver evento */
+            display: none; 
         }
+        /* Eventos passados ficam mais discretos (cinza) */
+        .event-dot.past { background: #555; box-shadow: none; }
+        
         .day-card.has-event .event-dot { display: block; }
         .day-card.today { border: 1px solid #FF9500; background: rgba(255, 149, 0, 0.1); }
         .day-card.empty { background: transparent; border: none; cursor: default; }
@@ -106,14 +110,16 @@
             box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
         }
 
-        /* --- ADMIN PANEL (ESCONDIDO) --- */
-        #adminPanel { background: #151515; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-top: 40px; display: none; }
-        .admin-trigger { position: fixed; bottom: 10px; right: 10px; opacity: 0.1; font-size: 20px; cursor: pointer; }
-        .admin-list-item { background: #222; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 0.9em; }
-
-        /* MODAL LOGIN */
+        /* --- MODAL LOGIN & ADMIN --- */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
+        #adminArea { display: none; background: #1a1a1a; padding: 20px; border-radius: 20px; margin-top: 40px; border: 1px solid #444; }
+        .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
         
+        .admin-section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
+        .btn-admin:hover { background: #FF9500; color: black; border-color: #FF9500; }
+        .event-list-item { display: flex; justify-content: space-between; padding: 10px; background: #222; margin-bottom: 5px; border-radius: 5px; font-size: 0.85em; }
+
         @media (max-width: 600px) {
             .day-card { height: 60px; }
             .input-group { flex-direction: column; }
@@ -123,29 +129,28 @@
 <body>
 
     <div id="loginOverlay">
-        <h2 style="color:#FF9500;">ADMINISTRAÇÃO</h2>
+        <h2 style="color:#FF9500;">ACESSO RESTRITO</h2>
         <input type="password" id="senhaInput" placeholder="Senha" class="input-3d" style="max-width:200px; text-align:center;">
         <br>
-        <button class="btn-3d-check" onclick="logarAdmin()">ENTRAR</button>
-        <button style="background:none; border:none; color:#666; margin-top:20px;" onclick="document.getElementById('loginOverlay').style.display='none'">Cancelar</button>
+        <button class="btn-3d-check" onclick="logarAdmin()">ACESSAR SISTEMA</button>
+        <button style="background:none; border:none; color:#666; margin-top:20px;" onclick="document.getElementById('loginOverlay').style.display='none'">Voltar</button>
     </div>
 
     <div class="container">
         <div class="header">
             <span class="brand">GIL EVENTOS</span>
-            <h1 class="page-title">Agendamento & Disponibilidade</h1>
+            <h1 class="page-title">Agenda & Disponibilidade</h1>
         </div>
 
         <div class="check-availability-box">
             <span class="check-title">📅 Consultar Data e Horário</span>
             <div class="input-group">
                 <input type="date" id="checkDate" class="input-3d">
-                <input type="time" id="checkTime" class="input-3d" title="Horário de Início">
+                <input type="time" id="checkTime" class="input-3d">
                 <input type="number" id="checkDuration" class="input-3d" placeholder="Duração (Horas)" value="5">
             </div>
             <br>
             <button class="btn-3d-check" onclick="verificarDisponibilidade()">🔍 VERIFICAR AGORA</button>
-
             <div id="resultArea"></div>
         </div>
 
@@ -155,24 +160,40 @@
                 <div class="month-year" id="monthDisplay">...</div>
                 <button class="btn-nav-cal" onclick="mudarMes(1)">❯</button>
             </div>
-            <div class="calendar-grid" id="calendarGrid">
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+        <div id="adminArea">
+            <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Controle</h2>
+            
+            <div class="admin-section">
+                <h4 style="color:#aaa;">Novo Evento / Bloqueio</h4>
+                <div class="input-group">
+                    <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento/Cliente">
+                    <input type="date" id="admData" class="input-3d">
+                    <input type="time" id="admHora" class="input-3d">
+                    <button class="btn-3d-check" style="font-size:0.9em; padding:10px;" onclick="salvarEventoManual()">SALVAR</button>
                 </div>
-        </div>
-
-        <div id="adminPanel">
-            <h3 style="color:#FF9500;">Painel de Controle</h3>
-            <div class="input-group">
-                <input type="text" id="admCliente" class="input-3d" placeholder="Cliente">
-                <input type="date" id="admData" class="input-3d">
-                <input type="time" id="admHora" class="input-3d">
-                <input type="number" id="admDuracao" class="input-3d" placeholder="Duração (h)" value="5">
-                <button class="btn-3d-check" onclick="salvarEvento()">➕ BLOQUEAR DATA</button>
             </div>
-            <div id="listaAdmin" style="margin-top:20px;"></div>
+
+            <div class="admin-section">
+                <h4 style="color:#aaa;">🚀 Marketing & Volume (Encher Linguiça)</h4>
+                <p style="font-size:0.8em; color:#666;">Use para criar autoridade e preencher o calendário.</p>
+                <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar 5 Eventos Passados</button>
+                <button class="btn-admin" onclick="gerarFeriados()">📅 Adicionar Feriados do Ano</button>
+            </div>
+
+            <div class="admin-section">
+                <h4 style="color:#aaa;">Lista de Eventos</h4>
+                <div id="listaAdminEventos" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+            
+            <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR PAINEL</button>
         </div>
 
-        <div class="admin-trigger" onclick="abrirLogin()">⚙️</div>
     </div>
+
+    <div class="admin-trigger" onclick="abrirLogin()">⚙️</div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
@@ -207,7 +228,7 @@
             });
         }
 
-        // --- LÓGICA DO CALENDÁRIO ---
+        // --- CALENDÁRIO ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
@@ -215,8 +236,6 @@
 
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            
-            // Nomes dos dias
             const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             weekDays.forEach(d => grid.innerHTML += `<div class="weekday">${d}</div>`);
 
@@ -224,41 +243,33 @@
 
             const firstDayIndex = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const todayStr = new Date().toISOString().split('T')[0];
 
-            // Dias vazios antes do dia 1
-            for (let i = 0; i < firstDayIndex; i++) {
-                grid.innerHTML += `<div class="day-card empty"></div>`;
-            }
+            for (let i = 0; i < firstDayIndex; i++) grid.innerHTML += `<div class="day-card empty"></div>`;
 
-            // Dias do mês
             for (let i = 1; i <= daysInMonth; i++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                
-                // Verifica se tem evento nesse dia
                 const hasEvent = eventsCache.some(e => e.data_evento === dateStr);
-                const isToday = new Date().toISOString().split('T')[0] === dateStr;
+                const isPast = dateStr < todayStr;
+                const isToday = dateStr === todayStr;
+
+                // Define a cor da bolinha (Passado = Cinza, Futuro = Laranja)
+                let dotClass = "event-dot";
+                if(isPast) dotClass += " past";
 
                 grid.innerHTML += `
                     <div class="day-card ${hasEvent ? 'has-event' : ''} ${isToday ? 'today' : ''}" onclick="cliqueDia('${dateStr}')">
                         <span class="day-number">${i}</span>
-                        <div class="event-dot"></div>
+                        <div class="${dotClass}"></div>
                     </div>
                 `;
             }
         }
 
-        function mudarMes(delta) {
-            currentDate.setMonth(currentDate.getMonth() + delta);
-            renderCalendar();
-        }
+        function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
+        function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        function cliqueDia(data) {
-            document.getElementById('checkDate').value = data;
-            // Scroll suave para o topo
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // --- VERIFICAR DISPONIBILIDADE (LÓGICA PODEROSA) ---
+        // --- VERIFICAÇÃO INTELIGENTE ---
         function verificarDisponibilidade() {
             const data = document.getElementById('checkDate').value;
             const hora = document.getElementById('checkTime').value;
@@ -267,14 +278,11 @@
 
             if (!data || !hora) return alert("Selecione data e hora!");
 
-            // Converte hora input (14:00) para float (14.0)
             const [h, m] = hora.split(':').map(Number);
             const reqInicio = h + (m/60);
-            const reqFim = reqInicio + duracao + 1; // +1 Hora de Margem de Segurança
+            const reqFim = reqInicio + duracao + 1; // +1h margem
 
-            // Filtra eventos DO DIA
             const eventosDoDia = eventsCache.filter(e => e.data_evento === data);
-            
             let conflito = false;
 
             eventosDoDia.forEach(e => {
@@ -282,87 +290,99 @@
                     const [eh, em] = e.hora_inicio.split(':').map(Number);
                     const eDur = parseInt(e.duracao) || 5;
                     const eInicio = eh + (em/60);
-                    const eFim = eInicio + eDur + 1; // +1 Hora de Margem de Segurança do evento existente
-
-                    // Lógica de colisão de horários
-                    // Se o novo começa antes do antigo terminar E o novo termina depois do antigo começar
-                    if (reqInicio < eFim && reqFim > eInicio) {
-                        conflito = true;
-                    }
+                    const eFim = eInicio + eDur + 1;
+                    if (reqInicio < eFim && reqFim > eInicio) conflito = true;
                 } else {
-                    // Se o evento antigo não tem hora cadastrada, assume dia todo ocupado
-                    conflito = true;
+                    conflito = true; // Evento de dia inteiro (Feriado ou Bloqueio Total)
                 }
             });
 
             if (conflito) {
-                resultDiv.style.display = 'block';
-                resultDiv.className = 'status-busy';
-                resultDiv.innerHTML = `
-                    <h3 style="margin:0;">❌ INDISPONÍVEL</h3>
-                    <p>Já existe um evento neste horário ou próximo a ele.</p>
-                    <p style="font-size:0.8em;">Precisamos de 1h de intervalo entre eventos para deslocamento/montagem.</p>
-                `;
+                resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
+                resultDiv.innerHTML = `<h3 style="margin:0;">❌ INDISPONÍVEL</h3><p>Data/Horário já reservados.</p>`;
             } else {
-                resultDiv.style.display = 'block';
-                resultDiv.className = 'status-available';
-                // Formata mensagem WhatsApp
+                resultDiv.style.display = 'block'; resultDiv.className = 'status-available';
                 const dataFormatada = data.split('-').reverse().join('/');
                 const textoZap = `Olá Gil! Vi no site que dia *${dataFormatada}* às *${hora}* está livre. Gostaria de reservar!`;
-                const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
-
-                resultDiv.innerHTML = `
-                    <h3 style="margin:0;">✅ ESTÁ LIVRE!</h3>
-                    <p>O horário das ${hora} está disponível nesta data.</p>
-                    <a href="${linkZap}" target="_blank" class="btn-whatsapp">RESERVAR NO WHATSAPP ➔</a>
-                `;
+                resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><a href="https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}" target="_blank" class="btn-whatsapp">RESERVAR NO WHATSAPP ➔</a>`;
             }
         }
 
         // --- ÁREA ADMIN ---
         function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
-        
         function logarAdmin() {
             if(document.getElementById('senhaInput').value === SENHA_MESTRA) {
                 document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'block';
-            } else { alert("Senha incorreta"); }
+                document.getElementById('adminArea').style.display = 'block';
+                document.getElementById('adminArea').scrollIntoView({behavior: "smooth"});
+            } else alert("Senha incorreta");
         }
 
-        function salvarEvento() {
+        function salvarEventoManual() {
             const cliente = document.getElementById('admCliente').value;
             const data = document.getElementById('admData').value;
             const hora = document.getElementById('admHora').value;
-            const duracao = document.getElementById('admDuracao').value;
+            if(!cliente || !data) return alert("Preencha o nome e a data!");
+            
+            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: 5 }).then(() => { alert("Adicionado!"); document.getElementById('admCliente').value=''; });
+        }
 
-            if(!cliente || !data) return alert("Preencha dados!");
+        // --- ESTRATÉGIA "ENCHER LINGUIÇA" ---
+        function gerarHistoricoFicticio() {
+            if(!confirm("Gerar 5 eventos aleatórios nos últimos meses para dar volume?")) return;
+            
+            const nomes = ["Aniversário Privado", "Casamento Civil", "Evento Corporativo", "Despedida de Solteiro", "Confraternização"];
+            const hoje = new Date();
+            
+            for(let i=0; i<5; i++) {
+                // Gera data aleatória nos últimos 90 dias
+                let d = new Date();
+                d.setDate(hoje.getDate() - Math.floor(Math.random() * 90) - 1);
+                const dataStr = d.toISOString().split('T')[0];
+                const nomeRand = nomes[Math.floor(Math.random() * nomes.length)];
+                
+                db.collection("agendamentos").add({
+                    cliente: nomeRand,
+                    data_evento: dataStr,
+                    hora_inicio: "19:00",
+                    duracao: 4,
+                    tipo: "ficticio"
+                });
+            }
+            alert("Histórico gerado! O calendário agora parece movimentado. 🚀");
+        }
 
-            db.collection("agendamentos").add({
-                cliente: cliente,
-                data_evento: data,
-                hora_inicio: hora,
-                duracao: duracao
-            }).then(() => {
-                alert("Salvo!");
-                document.getElementById('admCliente').value = '';
+        function gerarFeriados() {
+            if(!confirm("Adicionar principais datas comemorativas como ocupadas?")) return;
+            const ano = new Date().getFullYear();
+            // Datas fixas simplificadas
+            const feriados = [
+                {d: `${ano}-12-25`, n: "Natal"}, {d: `${ano}-12-31`, n: "Réveillon"},
+                {d: `${ano}-05-01`, n: "Dia do Trabalho"}, {d: `${ano}-06-12`, n: "Dia dos Namorados"},
+                {d: `${ano}-09-07`, n: "Independência"}
+            ];
+            feriados.forEach(f => {
+                db.collection("agendamentos").add({ cliente: f.n + " (Agenda Fechada)", data_evento: f.d, hora_inicio: "", duracao: 24 });
             });
+            alert("Feriados adicionados!");
         }
 
         function renderAdminList() {
-            const list = document.getElementById('listaAdmin');
+            const list = document.getElementById('listaAdminEventos');
             list.innerHTML = '';
+            // Ordena por data (mais recente primeiro)
+            eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento));
+            
             eventsCache.forEach(e => {
                 list.innerHTML += `
-                    <div class="admin-list-item">
-                        <span>${e.data_evento} - ${e.cliente} (${e.hora_inicio || 'Dia todo'})</span>
-                        <button onclick="excluirEvento('${e.id}')" style="background:red;border:none;color:white;cursor:pointer;">X</button>
+                    <div class="event-list-item">
+                        <div><strong style="color:#FF9500">${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente}</div>
+                        <button onclick="deletarEvento('${e.id}')" style="background:red;border:none;color:white;cursor:pointer;border-radius:3px;">X</button>
                     </div>`;
             });
         }
 
-        function excluirEvento(id) {
-            if(confirm("Deletar?")) db.collection("agendamentos").doc(id).delete();
-        }
+        function deletarEvento(id) { if(confirm("Apagar?")) db.collection("agendamentos").doc(id).delete(); }
     </script>
 </body>
 </html>
