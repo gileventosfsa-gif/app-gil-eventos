@@ -17,47 +17,16 @@
         .drink-card { background: #1E1E1E; border-radius: 16px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #333; transition: transform 0.2s; }
         .drink-card:active { transform: scale(0.98); }
         
-        /* SOLUÇÃO VISUAL: FUNDO BORRADO + FOTO INTEIRA */
-        .card-image-box { 
-            width: 100%; 
-            height: 350px; /* Altura generosa para fotos verticais */
-            position: relative; 
-            background: #000;
-            overflow: hidden;
-        }
-        
-        /* O Fundo Borrado */
-        .blur-bg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover;
-            background-position: center;
-            filter: blur(15px) brightness(0.5); /* Desfoque e escurecimento */
-            transform: scale(1.1); /* Remove bordas brancas do blur */
-            z-index: 1;
-        }
-
-        /* A Foto Principal */
-        .front-image { 
-            position: relative;
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; /* MOSTRA A FOTO INTEIRA */
-            z-index: 2;
-            drop-shadow: 0 5px 15px rgba(0,0,0,0.5); /* Sombra para destacar do fundo */
-        }
-
-        .card-image-overlay { 
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; 
-            background: linear-gradient(to top, #1E1E1E, transparent); 
-            z-index: 3;
-        }
+        /* CARD SEM CORTES (Estilo Netflix) */
+        .card-image-box { width: 100%; height: 350px; position: relative; background: #000; overflow: hidden; }
+        .blur-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.5); transform: scale(1.1); z-index: 1; }
+        .front-image { position: relative; width: 100%; height: 100%; object-fit: contain; z-index: 2; drop-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .card-image-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; background: linear-gradient(to top, #1E1E1E, transparent); z-index: 3; }
 
         .drink-content { padding: 15px 20px; position: relative; z-index: 4; }
         .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); position: relative; bottom: 20px; }
         .drink-desc { font-size: 0.95em; color: #ccc; margin: -10px 0 15px 0; line-height: 1.4; font-weight: 300; }
         
-        /* PREÇOS */
         .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 5; }
         .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.75em; display: block; font-weight: bold; }
         .price-now { color: #4CAF50; font-weight: 800; font-size: 1.1em; }
@@ -69,16 +38,19 @@
 
         .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; animation: floatUp 0.3s; }
         .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
+        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; font-size: 1em; }
         .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
+        
         .modal-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
         .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 12px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
         .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 8px; right: 15px; display: none; }
         .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
         .tab-content.active { display: block; }
+        
         .chat-container { display: flex; flex-direction: column; height: 300px; }
         .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .chat-input-area { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
@@ -93,10 +65,15 @@
         .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .btn-i-paid { background: #4CAF50; color: white; }
         .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
+        
         #avisoPacote { background: rgba(255, 68, 68, 0.15); border: 1px solid #FF4444; color: #FF4444; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; display: none; }
         #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 25px; border-radius: 50px; display:none; border: 1px solid #FFD580; z-index:950; white-space:nowrap; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 0.9em; }
         .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
         .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; background: #111; padding: 10px; border-radius: 5px; text-align: center; }
+        
+        /* AVISO LEGAL NO RODAPÉ */
+        .disclaimer { text-align: center; color: #666; font-size: 0.7em; text-transform: uppercase; margin-top: 30px; letter-spacing: 1px; opacity: 0.7; }
+
         @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
@@ -112,6 +89,7 @@
     </div>
     <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
     <div id="listaCardapio"></div>
+    <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
 </div>
 
 <div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">🍹 Pedidos / Chat <div class="float-badge" id="badgeMeusPedidos">0</div></div>
@@ -232,14 +210,11 @@
                 let htmlPreco = '';
                 let imagemUrl = getDrinkImage(item.nome);
                 
-                // NOVO LAYOUT DO CARD COM IMAGEM SEM CORTES
-                let cardHTML = `
-                <div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}">
-                    <div class="card-image-box">
-                        <div class="blur-bg" style="background-image: url('${imagemUrl}')"></div>
-                        <img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}">
-                        <div class="card-image-overlay"></div>
-                    `;
+                // AJUSTE DE DESCRIÇÃO DO MOJITO
+                let descricao = item.desc || 'Uma experiência de sabor única.';
+                if(item.nome.toLowerCase().includes('mojito')) {
+                    descricao = descricao + " (c/ Xarope de Groselha)";
+                }
 
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
                     precoFinal = item.preco_prevenda;
@@ -248,7 +223,13 @@
                     htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`;
                 }
                 
-                cardHTML += htmlPreco + `</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${item.desc || 'Uma experiência de sabor única.'}</p>`;
+                let cardHTML = `
+                <div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}">
+                    <div class="card-image-box">
+                        <div class="blur-bg" style="background-image: url('${imagemUrl}')"></div>
+                        <img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}">
+                        <div class="card-image-overlay"></div>
+                    ${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${descricao}</p>`;
 
                 let isPaid = item.tipo_cobranca === 'pago' || esgotado;
                 if(DADOS_EVENTO.tipo_servico === 'tradicional' && item.tipo_cobranca === 'pacote') isPaid = false;
