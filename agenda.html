@@ -13,7 +13,7 @@
         .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; font-size: 1.2em; }
         .page-title { font-size: 2em; margin: 5px 0; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        /* --- BOTÃO DE VERIFICAÇÃO (CHAMATIVO) --- */
+        /* --- BOTÃO DE VERIFICAÇÃO --- */
         .check-availability-box {
             background: linear-gradient(145deg, #1e1e1e, #252525);
             padding: 30px;
@@ -71,7 +71,7 @@
         
         .day-card {
             background: #252525;
-            height: 80px;
+            height: 70px;
             border-radius: 12px;
             position: relative;
             cursor: pointer;
@@ -81,34 +81,57 @@
             align-items: center;
             justify-content: center;
             border: 1px solid #333;
+            overflow: hidden;
         }
-        .day-card:hover { background: #333; transform: translateY(-3px); border-color: #FF9500; }
-        .day-number { font-size: 1.2em; font-weight: 600; color: #ddd; z-index: 2; }
-        
-        .event-dot { 
-            width: 8px; height: 8px; 
-            background: #FF9500; 
-            border-radius: 50%; 
-            margin-top: 5px; 
-            box-shadow: 0 0 10px #FF9500;
-            display: none; 
-        }
-        .event-dot.past { background: #555; box-shadow: none; }
-        
-        .day-card.has-event .event-dot { display: block; }
-        .day-card.today { border: 1px solid #FF9500; background: rgba(255, 149, 0, 0.1); }
+        .day-card:hover { background: #333; transform: translateY(-3px); }
+        .day-number { font-size: 1.1em; font-weight: 600; color: #ddd; z-index: 2; }
         .day-card.empty { background: transparent; border: none; cursor: default; }
+
+        /* --- EFEITOS DE OCUPAÇÃO (Visual Ouro/Cheio) --- */
+        
+        /* Evento Futuro: DOURADO BRILHANTE */
+        .day-card.has-event {
+            background: linear-gradient(135deg, #FF9500, #F57C00); /* Laranja Ouro */
+            border: 1px solid #FFCC80;
+            box-shadow: 0 0 15px rgba(255, 149, 0, 0.4); /* Glow */
+        }
+        .day-card.has-event .day-number {
+            color: #000; /* Texto preto para contraste */
+            font-weight: 800;
+        }
+        
+        /* Evento Passado: CINZA SÓLIDO (Prova Social Discreta) */
+        .day-card.has-event.past {
+            background: linear-gradient(135deg, #444, #333);
+            border: 1px solid #555;
+            box-shadow: none;
+            opacity: 0.8;
+        }
+        .day-card.has-event.past .day-number { color: #aaa; }
+
+        /* Dia Atual (Hoje) */
+        .day-card.today { 
+            border: 2px solid #25D366; /* Verde Zap */
+            background: rgba(37, 211, 102, 0.1);
+        }
+
+        /* Marcador de "Lotação" (Ícone pequeno dentro do card) */
+        .busy-label {
+            font-size: 0.6em;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #000;
+            margin-top: 2px;
+            display: none;
+        }
+        .day-card.has-event .busy-label { display: block; }
+        .day-card.has-event.past .busy-label { display: none; } /* Não mostra texto em passados */
+
 
         /* --- RESULTADOS --- */
         #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
-        
-        /* STATUS VERDE */
         .status-available { background: rgba(76, 175, 80, 0.1); border-color: #4CAF50; color: #4CAF50; }
-        
-        /* STATUS VERMELHO */
         .status-busy { background: rgba(244, 67, 54, 0.1); border-color: #F44336; color: #F44336; }
-        
-        /* STATUS LARANJA (NEGOCIAÇÃO) */
         .status-negotiate { background: rgba(255, 149, 0, 0.1); border-color: #FF9500; color: #FF9500; }
 
         .btn-whatsapp { 
@@ -122,10 +145,8 @@
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
         #adminArea { display: none; background: #1a1a1a; padding: 20px; border-radius: 20px; margin-top: 40px; border: 1px solid #444; }
         .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
-        
         .admin-section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
         .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
-        .btn-admin:hover { background: #FF9500; color: black; border-color: #FF9500; }
         .event-list-item { display: flex; justify-content: space-between; padding: 10px; background: #222; margin-bottom: 5px; border-radius: 5px; font-size: 0.85em; }
 
         @media (max-width: 600px) {
@@ -173,32 +194,27 @@
 
         <div id="adminArea">
             <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Controle</h2>
-            
             <div class="admin-section">
-                <h4 style="color:#aaa;">Novo Evento / Bloqueio</h4>
+                <h4 style="color:#aaa;">Novo Evento</h4>
                 <div class="input-group">
-                    <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento/Cliente">
+                    <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento">
                     <input type="date" id="admData" class="input-3d">
                     <input type="time" id="admHora" class="input-3d">
                     <input type="number" id="admDuracao" class="input-3d" placeholder="Duração" value="5">
                     <button class="btn-3d-check" style="font-size:0.9em; padding:10px;" onclick="salvarEventoManual()">SALVAR</button>
                 </div>
             </div>
-
             <div class="admin-section">
-                <h4 style="color:#aaa;">🚀 Marketing (Encher Linguiça)</h4>
+                <h4 style="color:#aaa;">🚀 Marketing</h4>
                 <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar 5 Eventos Passados</button>
                 <button class="btn-admin" onclick="gerarFeriados()">📅 Adicionar Feriados</button>
             </div>
-
             <div class="admin-section">
                 <h4 style="color:#aaa;">Lista de Eventos</h4>
                 <div id="listaAdminEventos" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
-            
             <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR PAINEL</button>
         </div>
-
     </div>
 
     <div class="admin-trigger" onclick="abrirLogin()">⚙️</div>
@@ -222,7 +238,6 @@
         let eventsCache = [];
         const SENHA_MESTRA = "9859";
 
-        // INICIALIZAÇÃO
         carregarEventos();
 
         function carregarEventos() {
@@ -236,7 +251,6 @@
             });
         }
 
-        // --- CALENDÁRIO ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
@@ -261,13 +275,18 @@
                 const isPast = dateStr < todayStr;
                 const isToday = dateStr === todayStr;
 
-                let dotClass = "event-dot";
-                if(isPast) dotClass += " past";
+                let classes = "day-card";
+                if (isToday) classes += " today";
+                if (hasEvent) {
+                    classes += " has-event";
+                    if (isPast) classes += " past";
+                }
 
+                // Layout do card com "BUSY" se tiver evento futuro
                 grid.innerHTML += `
-                    <div class="day-card ${hasEvent ? 'has-event' : ''} ${isToday ? 'today' : ''}" onclick="cliqueDia('${dateStr}')">
+                    <div class="${classes}" onclick="cliqueDia('${dateStr}')">
                         <span class="day-number">${i}</span>
-                        <div class="${dotClass}"></div>
+                        <div class="busy-label">BUSY</div>
                     </div>
                 `;
             }
@@ -276,7 +295,6 @@
         function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); }
         function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // --- VERIFICAÇÃO INTELIGENTE (NEGOCIAÇÃO) ---
         function verificarDisponibilidade() {
             const data = document.getElementById('checkDate').value;
             const hora = document.getElementById('checkTime').value;
@@ -285,34 +303,28 @@
 
             if (!data || !hora) return alert("Selecione data e hora!");
 
-            // Converter input para números (ex: 14:30 = 14.5)
             const [h, m] = hora.split(':').map(Number);
             const reqInicio = h + (m/60);
-            const reqFim = reqInicio + duracao + 1; // +1h margem segurança (deslocamento)
+            const reqFim = reqInicio + duracao + 1; 
 
             const eventosDoDia = eventsCache.filter(e => e.data_evento === data);
             
-            let status = "LIVRE"; // Padrão
+            let status = "LIVRE";
             let conflitoDetalhe = "";
 
             if (eventosDoDia.length > 0) {
-                // Já existe evento no dia. Vamos ver se bate o horário.
-                status = "NEGOCIAR"; // Por padrão, se tem evento no dia, vamos pra negociação (não bloquear direto)
-
+                status = "NEGOCIAR"; 
                 eventosDoDia.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
                         const eDur = parseInt(e.duracao) || 5;
                         const eInicio = eh + (em/60);
-                        const eFim = eInicio + eDur + 1; // +1h margem do evento existente
-
-                        // Choque Real: Se o novo começa antes do velho terminar E o novo termina depois do velho começar
+                        const eFim = eInicio + eDur + 1; 
                         if (reqInicio < eFim && reqFim > eInicio) {
-                            status = "OCUPADO"; // Colisão física de horário
+                            status = "OCUPADO"; 
                             conflitoDetalhe = `Já existe evento das ${e.hora_inicio} às ${(eh+eDur)}h`;
                         }
                     } else {
-                        // Evento sem hora (Dia todo/Feriado)
                         status = "OCUPADO";
                         conflitoDetalhe = "Data bloqueada (Dia Todo)";
                     }
@@ -321,51 +333,29 @@
 
             const dataFormatada = data.split('-').reverse().join('/');
             
-            // --- RESULTADOS DO DIAGNÓSTICO ---
             if (status === "OCUPADO") {
-                // Mesmo ocupado, mandamos para o Zap como tentativa
                 const textoZap = `Olá Gil! Vi que dia *${dataFormatada}* às *${hora}* está ocupado (${conflitoDetalhe}), mas queria saber se conseguimos encaixar algo...`;
                 const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
-
                 resultDiv.style.display = 'block'; 
-                resultDiv.className = 'status-busy'; // Fundo vermelho leve
-                resultDiv.innerHTML = `
-                    <h3 style="margin:0;">❌ DATA CONCORRIDA</h3>
-                    <p>${conflitoDetalhe}</p>
-                    <p style="font-size:0.9em; color:#fff;">Mas não desista! Fale comigo, talvez eu consiga um encaixe.</p>
-                    <a href="${linkZap}" target="_blank" class="btn-whatsapp orange">TENTAR ENCAIXE NO ZAP ➔</a>
-                `;
+                resultDiv.className = 'status-busy';
+                resultDiv.innerHTML = `<h3 style="margin:0;">❌ DATA CONCORRIDA</h3><p>${conflitoDetalhe}</p><p style="font-size:0.9em; color:#fff;">Mas não desista! Fale comigo, talvez eu consiga um encaixe.</p><a href="${linkZap}" target="_blank" class="btn-whatsapp orange">TENTAR ENCAIXE NO ZAP ➔</a>`;
             } 
             else if (status === "NEGOCIAR") {
-                // Tem evento no dia, mas o horário tá livre (ex: Evento 15h, cliente quer 09h)
                 const textoZap = `Olá Gil! Vi que dia *${dataFormatada}* tem eventos, mas o horário das *${hora}* parece livre. Quero fechar!`;
                 const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
-
                 resultDiv.style.display = 'block'; 
-                resultDiv.className = 'status-negotiate'; // Fundo laranja
-                resultDiv.innerHTML = `
-                    <h3 style="margin:0;">⚠️ SOB CONSULTA</h3>
-                    <p>Tenho evento neste dia, mas seu horário está livre!</p>
-                    <p style="font-size:0.9em;">Preciso apenas confirmar a logística. Me chame pra fechar!</p>
-                    <a href="${linkZap}" target="_blank" class="btn-whatsapp orange">VERIFICAR DISPONIBILIDADE ➔</a>
-                `;
+                resultDiv.className = 'status-negotiate';
+                resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento neste dia, mas seu horário está livre!</p><p style="font-size:0.9em;">Preciso apenas confirmar a logística. Me chame pra fechar!</p><a href="${linkZap}" target="_blank" class="btn-whatsapp orange">VERIFICAR DISPONIBILIDADE ➔</a>`;
             }
             else {
-                // Livre total
                 const textoZap = `Olá Gil! Vi no site que dia *${dataFormatada}* às *${hora}* está livre. Gostaria de reservar!`;
                 const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
-
                 resultDiv.style.display = 'block'; 
-                resultDiv.className = 'status-available'; // Fundo verde
-                resultDiv.innerHTML = `
-                    <h3 style="margin:0;">✅ TOTALMENTE LIVRE!</h3>
-                    <p>O horário das ${hora} está disponível.</p>
-                    <a href="${linkZap}" target="_blank" class="btn-whatsapp green">RESERVAR AGORA ➔</a>
-                `;
+                resultDiv.className = 'status-available';
+                resultDiv.innerHTML = `<h3 style="margin:0;">✅ TOTALMENTE LIVRE!</h3><p>O horário das ${hora} está disponível.</p><a href="${linkZap}" target="_blank" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
             }
         }
 
-        // --- ÁREA ADMIN ---
         function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
         function logarAdmin() {
             if(document.getElementById('senhaInput').value === SENHA_MESTRA) {
@@ -381,7 +371,6 @@
             const hora = document.getElementById('admHora').value;
             const duracao = document.getElementById('admDuracao').value;
             if(!cliente || !data) return alert("Preencha o nome e a data!");
-            
             db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao }).then(() => { alert("Adicionado!"); document.getElementById('admCliente').value=''; renderAdminList(); });
         }
 
@@ -409,7 +398,7 @@
         function renderAdminList() {
             const list = document.getElementById('listaAdminEventos');
             list.innerHTML = '';
-            eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento)); // Mais recente primeiro
+            eventsCache.sort((a,b) => new Date(b.data_evento) - new Date(a.data_evento));
             eventsCache.forEach(e => {
                 list.innerHTML += `<div class="event-list-item"><div><strong style="color:#FF9500">${e.data_evento.split('-').reverse().join('/')}</strong> - ${e.cliente} (${e.hora_inicio || 'Dia todo'})</div><button onclick="deletarEvento('${e.id}')" style="background:red;border:none;color:white;cursor:pointer;">X</button></div>`;
             });
