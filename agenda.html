@@ -68,30 +68,19 @@
         /* --- BLOCOS DE EVENTOS --- */
         .events-grid-title { font-size: 1.2em; color: #fff; margin-bottom: 15px; border-left: 4px solid #FF9500; padding-left: 10px; }
         .events-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        
         .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; padding-top: 40px; position: relative; border: 1px solid #333; transition: transform 0.2s; overflow: hidden; }
         .event-block:hover { transform: translateY(-3px); border-color: #555; }
-        
         .event-block.future { border-bottom: 4px solid #FF9500; }
         .event-block.future .status-pill { background: rgba(255, 149, 0, 0.15); color: #FF9500; border: 1px solid #FF9500; }
-        
         .event-block.holiday { border-bottom: 4px solid #9C27B0; }
         .event-block.holiday .status-pill { background: rgba(156, 39, 176, 0.15); color: #E040FB; border: 1px solid #E040FB; }
-
         .event-block.past { border-bottom: 4px solid #555; opacity: 0.7; }
         .event-block.past .status-pill { background: #333; color: #aaa; border: 1px solid #555; }
-        
         .event-date { font-size: 1.8em; font-weight: 800; color: #fff; line-height: 1; }
         .event-month { font-size: 0.9em; text-transform: uppercase; color: #888; margin-bottom: 10px; display: block; }
         .event-client { font-size: 1.1em; color: #ddd; display: block; margin-bottom: 5px; }
         .event-time { font-size: 0.9em; color: #888; display: flex; align-items: center; gap: 5px; }
-        
-        .status-pill { 
-            position: absolute; top: 10px; right: 10px; left: 10px;
-            text-align: center; padding: 4px 5px; border-radius: 20px; 
-            font-size: 0.65em; font-weight: bold; text-transform: uppercase; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        .status-pill { position: absolute; top: 10px; right: 10px; left: 10px; text-align: center; padding: 4px 5px; border-radius: 20px; font-size: 0.65em; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* --- RESULTADOS --- */
         #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
@@ -108,24 +97,19 @@
         .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
         .admin-section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
         .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
-        
         .admin-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #333; }
         .tab-adm-btn { flex: 1; padding: 10px; background: #222; border: none; color: #777; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .tab-adm-btn.active { background: #FF9500; color: #000; border-top-left-radius: 8px; border-top-right-radius: 8px; }
-        
         .tab-content-admin { display: none; max-height: 400px; overflow-y: auto; }
         .tab-content-admin.active { display: block; }
-
         .event-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; font-size: 0.9em; border-left: 4px solid #777; }
         .event-list-item.confirmed { border-left: 5px solid #00E676; background: rgba(0, 230, 118, 0.1); }
         .event-list-item.pending { border-left-color: #FF9500; }
         .event-list-item.past { border-left-color: #555; opacity: 0.6; }
-
         .event-actions { display: flex; gap: 5px; }
         .btn-icon { background: #333; border: 1px solid #444; color: #ddd; font-size: 1em; cursor: pointer; padding: 6px 10px; border-radius: 5px; }
         .btn-icon.confirm-btn { background: #00E676; color: #000; border: none; font-weight: bold; }
         .btn-icon.delete-btn { color: #F44336; }
-
         .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
         .modal-label { display: block; text-align: left; color: #aaa; margin: 10px 0 5px 0; font-size: 0.9em; }
 
@@ -197,7 +181,6 @@
 
         <div id="adminArea">
             <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Gestão (CRM)</h2>
-            
             <div class="admin-section">
                 <h4 style="color:#aaa;">Novo Agendamento</h4>
                 <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento" style="margin-bottom:10px;">
@@ -209,7 +192,6 @@
                 <textarea id="admDetalhes" class="textarea-3d" style="margin-top:10px;" placeholder="Obs / Lista de Materiais..."></textarea>
                 <button class="btn-3d-check" style="font-size:0.9em; padding:10px; margin-top:10px; width:100%;" onclick="salvarEventoManual()">CADASTRAR</button>
             </div>
-
             <div class="admin-section">
                 <h4 style="color:#aaa;">Minha Agenda</h4>
                 <div class="admin-tabs">
@@ -221,7 +203,6 @@
                 <div id="listOthers" class="tab-content-admin"></div>
                 <div id="listConcluded" class="tab-content-admin"></div>
             </div>
-
             <div class="admin-section">
                 <h4 style="color:#aaa;">Ferramentas</h4>
                 <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar Passados</button>
@@ -264,7 +245,7 @@
             });
         }
 
-        // --- VERIFICAÇÃO COM CÁLCULO PRECISO EM MINUTOS ---
+        // --- VERIFICAÇÃO PRECISA (MINUTOS) ---
         function verificarDisponibilidade() {
             const data = document.getElementById('checkDate').value;
             const hora = document.getElementById('checkTime').value;
@@ -272,9 +253,9 @@
 
             if (!data || !hora) return alert("Selecione data e hora!");
 
-            // Converter Hora Solicitada para Minutos Absolutos do dia (0 - 1439)
+            // Converte a hora solicitada para minutos totais do dia
             const [h, m] = hora.split(':').map(Number);
-            const reqMinutos = h * 60 + m;
+            const reqTotalMinutes = (h * 60) + m;
 
             const eventsOnDay = eventsCache.filter(e => e.data_evento === data);
             
@@ -282,26 +263,26 @@
             let conflictMsg = "";
 
             if (eventsOnDay.length > 0) {
-                // Se tem evento, assume NEGOCIAR, a menos que colida feio
-                status = "NEGOCIAR"; 
+                // Padrão: Negociar, a menos que colida
+                status = "NEGOCIAR";
 
                 eventsOnDay.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
-                        const existMinutos = eh * 60 + em;
+                        const eventTotalMinutes = (eh * 60) + em;
                         
-                        // DIFERENÇA ABSOLUTA EM MINUTOS
-                        // 4 horas = 240 minutos
-                        const diff = Math.abs(reqMinutos - existMinutos);
+                        // Diferença absoluta em minutos
+                        const diffMinutes = Math.abs(reqTotalMinutes - eventTotalMinutes);
 
-                        if (diff < 240) {
-                            status = "OCUPADO"; // Colisão (menos de 4h)
-                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Mínimo 4h de intervalo)`;
+                        // Regra de 4 horas = 240 minutos
+                        if (diffMinutes < 240) {
+                            status = "OCUPADO";
+                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Intervalo mínimo de 4h)`;
                         }
-                    } else { 
+                    } else {
                         // Evento sem hora (Dia Todo) -> Bloqueio Total
-                        status = "OCUPADO"; 
-                        conflictMsg = "Data fechada (Feriado/Bloqueio)"; 
+                        status = "OCUPADO";
+                        conflictMsg = "Data fechada (Feriado/Bloqueio)";
                     }
                 });
             }
@@ -325,7 +306,7 @@
             }
         }
 
-        // --- CALENDÁRIO ---
+        // --- RENDERIZAÇÕES (CALENDÁRIO E ADMIN) ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
@@ -354,7 +335,6 @@
             }
         }
 
-        // --- BLOCOS DE VITRINE ---
         function renderEventBlocks() {
             const container = document.getElementById('eventsContainer');
             container.innerHTML = '';
@@ -376,7 +356,6 @@
                 const dia = dataObj.getDate();
                 const mesExtenso = dataObj.toLocaleDateString('pt-BR', { month: 'short' });
                 const timeInfo = e.hora_inicio ? `🕒 Início: ${e.hora_inicio}` : '🕒 Dia Todo';
-
                 let statusLabel = "";
                 let blockClass = "";
 
@@ -409,7 +388,6 @@
         function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); renderEventBlocks(); }
         function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // --- GESTÃO ADMIN ---
         function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
         function logarAdmin() { if(document.getElementById('senhaInput').value === SENHA_MESTRA) { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminArea').style.display = 'block'; } else alert("Senha errada"); }
         
@@ -448,7 +426,6 @@
                 const dataDisplay = e.data_evento.split('-').reverse().join('/');
                 const horaDisplay = e.hora_inicio || 'S/H';
                 const isPast = e.data_evento < todayStr;
-                
                 let cardHTML = `
                     <div class="event-list-item ${isPast ? 'past' : (e.status === 'confirmado' ? 'confirmed' : 'pending')}">
                         <div style="flex-grow:1;">
@@ -456,16 +433,13 @@
                             ${e.cliente}
                         </div>
                         <div class="event-actions">`;
-
                 if(!isPast) {
                     if(e.status !== 'confirmado') cardHTML += `<button onclick="confirmarEvento('${e.id}')" class="btn-icon confirm-btn" title="Confirmar">✅</button>`;
                     else cardHTML += `<button onclick="desconfirmarEvento('${e.id}')" class="btn-icon" title="Voltar para pendente">↩️</button>`;
                 }
-
                 cardHTML += `<button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button>
                             <button onclick="deletarEvento('${e.id}')" class="btn-icon delete-btn">✖</button>
                         </div></div>`;
-
                 if (isPast) listConc.innerHTML += cardHTML;
                 else if (e.status === 'confirmado') listConf.innerHTML += cardHTML;
                 else listOther.innerHTML += cardHTML;
