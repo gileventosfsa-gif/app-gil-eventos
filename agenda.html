@@ -9,130 +9,169 @@
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: auto; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 20px; }
-        .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; }
-        .page-title { font-size: 1.5em; margin: 5px 0 0 0; color: #fff; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; font-size: 1.2em; }
+        .page-title { font-size: 2em; margin: 5px 0; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        /* PAINEL ADMIN */
-        #adminPanel { background: #1E1E1E; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 30px; display: none; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .full-width { grid-column: 1 / -1; }
-        input, select, textarea { width: 100%; padding: 12px; background: #2A2A2A; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        /* --- BOTÃO DE VERIFICAÇÃO (CHAMATIVO) --- */
+        .check-availability-box {
+            background: linear-gradient(145deg, #1e1e1e, #252525);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 20px 20px 60px #0c0c0c, -20px -20px 60px #262626;
+            text-align: center;
+            margin-bottom: 40px;
+            border: 1px solid #333;
+        }
+        .check-title { color: #FF9500; font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.2em; }
+        .input-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .input-3d {
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            background: #121212;
+            color: #fff;
+            box-shadow: inset 5px 5px 10px #0a0a0a, inset -5px -5px 10px #252525;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1em;
+            flex: 1;
+            min-width: 150px;
+        }
+        .btn-3d-check {
+            background: linear-gradient(145deg, #FF9500, #e68600);
+            color: #000;
+            font-weight: 800;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+            transition: 0.2s;
+            text-transform: uppercase;
+        }
+        .btn-3d-check:active { transform: scale(0.95); box-shadow: none; }
+
+        /* --- CALENDÁRIO 3D --- */
+        .calendar-wrapper {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .month-year { font-size: 1.5em; font-weight: bold; color: #fff; }
+        .btn-nav-cal { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        .weekday { text-align: center; color: #888; font-size: 0.8em; padding-bottom: 10px; font-weight: bold; }
         
-        /* NOTAS DINÂMICAS */
-        .notes-container { margin-top: 10px; background: #252525; padding: 10px; border-radius: 8px; }
-        .note-input-row { display: flex; gap: 10px; margin-bottom: 8px; }
-        .note-input-row input { flex: 1; }
-        .btn-remove-note { background: #D32F2F; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; }
-        .btn-add-note { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: 0.2s; }
+        .day-card {
+            background: #252525;
+            height: 80px;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #333;
+        }
+        .day-card:hover { background: #333; transform: translateY(-3px); border-color: #FF9500; }
+        .day-number { font-size: 1.2em; font-weight: 600; color: #ddd; }
+        .event-dot { 
+            width: 8px; height: 8px; 
+            background: #FF9500; 
+            border-radius: 50%; 
+            margin-top: 5px; 
+            box-shadow: 0 0 10px #FF9500;
+            display: none; /* Só aparece se tiver evento */
+        }
+        .day-card.has-event .event-dot { display: block; }
+        .day-card.today { border: 1px solid #FF9500; background: rgba(255, 149, 0, 0.1); }
+        .day-card.empty { background: transparent; border: none; cursor: default; }
+
+        /* --- RESULTADO E WHATSAPP --- */
+        #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; }
+        .status-available { background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; }
+        .status-busy { background: rgba(244, 67, 54, 0.2); border: 1px solid #F44336; color: #F44336; }
+        .btn-whatsapp { 
+            background: #25D366; color: white; padding: 12px 25px; border-radius: 50px; 
+            text-decoration: none; font-weight: bold; display: inline-block; margin-top: 15px; 
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+        }
+
+        /* --- ADMIN PANEL (ESCONDIDO) --- */
+        #adminPanel { background: #151515; padding: 20px; border-radius: 12px; border: 1px solid #333; margin-top: 40px; display: none; }
+        .admin-trigger { position: fixed; bottom: 10px; right: 10px; opacity: 0.1; font-size: 20px; cursor: pointer; }
+        .admin-list-item { background: #222; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 0.9em; }
+
+        /* MODAL LOGIN */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
         
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-add { background: linear-gradient(90deg, #FF6700, #FF9500); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 2; }
-        .btn-cancel-edit { background: #444; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1; display: none; }
-
-        /* CARD DE EVENTO */
-        .event-card { background: #1a1a1a; border-left: 5px solid #555; padding: 20px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; transition: 0.3s; position: relative; }
-        .event-card:hover { transform: translateX(5px); background: #222; }
-        
-        .status-confirmado { border-left-color: #4CAF50; }
-        .status-pendente { border-left-color: #FFD580; }
-        .status-concluido { border-left-color: #888; opacity: 0.7; }
-        .status-bloqueado { border-left-color: #FF4444; background: #251010; } /* Status Novo para Bloqueios */
-
-        .date-box { text-align: center; background: #252525; padding: 10px; border-radius: 8px; min-width: 70px; }
-        .day { font-size: 1.5em; font-weight: bold; display: block; line-height: 1; color: #fff; }
-        .month { font-size: 0.8em; text-transform: uppercase; color: #FF9500; display: block; margin-bottom: 5px; }
-        .time { font-size: 0.85em; color: #ccc; background: #333; padding: 2px 5px; border-radius: 4px; display: block; }
-        
-        .info-box { flex-grow: 1; }
-        .client-name { font-size: 1.2em; font-weight: bold; color: #fff; display: block; }
-        .event-type { color: #aaa; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; display: block; }
-        
-        /* SISTEMA DE NOTAS RETRÁTIL (NOVO) */
-        .notes-wrapper { margin-top: 10px; }
-        .btn-toggle-notes { background: none; border: none; color: #FFD580; font-size: 0.85em; cursor: pointer; text-decoration: underline; padding: 0; }
-        .notes-list-hidden { display: none; margin-top: 5px; border-left: 2px solid #444; padding-left: 10px; }
-        .note-item-display { display: block; font-size: 0.85em; color: #ccc; margin-bottom: 4px; }
-
-        .sensitive-data { font-family: monospace; color: #4CAF50; background: rgba(76, 175, 80, 0.1); padding: 5px 10px; border-radius: 5px; font-size: 1.1em; display: inline-block; margin-top: 5px; }
-        .blurred { filter: blur(6px); user-select: none; cursor: default; }
-
-        .actions { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
-        .btn-icon { background: #333; border: 1px solid #555; color: #fff; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-block; font-size: 0.9em; }
-        .btn-icon:hover { background: #FF9500; color: #000; border-color: #FF9500; }
-        .btn-danger { color: #FF4444; border-color: #FF4444; }
-        .btn-edit { color: #2196F3; border-color: #2196F3; }
-
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-box { text-align: center; }
-        .btn-login { padding: 10px 30px; background: #FF9500; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-public { background: transparent; border: 1px solid #555; color: #aaa; margin-top: 20px; font-size: 0.8em; }
-
         @media (max-width: 600px) {
-            .event-card { flex-direction: column; align-items: flex-start; }
-            .date-box { display: flex; gap: 10px; align-items: center; width: 100%; justify-content: flex-start; background: transparent; padding: 0; margin-bottom: 0; }
-            .time { display: inline-block; margin-left: 10px; }
-            .actions { width: 100%; flex-wrap: wrap; }
+            .day-card { height: 60px; }
+            .input-group { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
     <div id="loginOverlay">
-        <div class="login-box">
-            <h1 style="color:#FF9500;">AGENDA GIL EVENTOS</h1>
-            <p style="color:#ccc;">Área Administrativa</p>
-            <input type="password" id="senhaInput" placeholder="Senha do Admin" style="text-align:center; width:200px;">
-            <br>
-            <button class="btn-login" onclick="logarAdmin()">ENTRAR</button>
-            <p id="msgErro" style="color:red; display:none; margin-top:10px;">Senha Incorreta</p>
-            <br>
-            <button class="btn-login btn-public" onclick="entrarModoPublico()">Apenas Visualizar (Cliente)</button>
-        </div>
+        <h2 style="color:#FF9500;">ADMINISTRAÇÃO</h2>
+        <input type="password" id="senhaInput" placeholder="Senha" class="input-3d" style="max-width:200px; text-align:center;">
+        <br>
+        <button class="btn-3d-check" onclick="logarAdmin()">ENTRAR</button>
+        <button style="background:none; border:none; color:#666; margin-top:20px;" onclick="document.getElementById('loginOverlay').style.display='none'">Cancelar</button>
     </div>
 
     <div class="container">
         <div class="header">
-            <div>
-                <span class="brand">GIL EVENTOS</span>
-                <h2 class="page-title">Cronograma Oficial</h2>
+            <span class="brand">GIL EVENTOS</span>
+            <h1 class="page-title">Agendamento & Disponibilidade</h1>
+        </div>
+
+        <div class="check-availability-box">
+            <span class="check-title">📅 Consultar Data e Horário</span>
+            <div class="input-group">
+                <input type="date" id="checkDate" class="input-3d">
+                <input type="time" id="checkTime" class="input-3d" title="Horário de Início">
+                <input type="number" id="checkDuration" class="input-3d" placeholder="Duração (Horas)" value="5">
             </div>
-            <div id="adminControls" style="display:none;">
-                <button class="btn-icon" onclick="toggleBlur()" title="Ocultar Valores">👁️ Ocultar Valores</button>
-                <button class="btn-icon" onclick="toggleForm()">➕ Gerenciar</button>
+            <br>
+            <button class="btn-3d-check" onclick="verificarDisponibilidade()">🔍 VERIFICAR AGORA</button>
+
+            <div id="resultArea"></div>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="calendar-header">
+                <button class="btn-nav-cal" onclick="mudarMes(-1)">❮</button>
+                <div class="month-year" id="monthDisplay">...</div>
+                <button class="btn-nav-cal" onclick="mudarMes(1)">❯</button>
             </div>
+            <div class="calendar-grid" id="calendarGrid">
+                </div>
         </div>
 
         <div id="adminPanel">
-            <h3 style="color:#FF9500; margin-top:0;" id="tituloForm">Novo Agendamento</h3>
-            <div class="form-grid">
-                <input type="text" id="novoCliente" placeholder="Nome do Cliente ou Motivo">
-                <input type="date" id="novoData">
-                <input type="time" id="novoHorario">
-                <input type="text" id="novoTipo" placeholder="Tipo (Ex: Casamento, Manutenção)">
-                <select id="novoStatus">
-                    <option value="confirmado">✅ Confirmado (Verde)</option>
-                    <option value="pendente">⚠️ Pendente/Em Negociação (Amarelo)</option>
-                    <option value="bloqueado">🚫 Data Bloqueada/Interno (Vermelho)</option>
-                    <option value="concluido">🏁 Concluído (Cinza)</option>
-                </select>
-                <input type="number" id="novoValor" placeholder="Valor (R$)">
-                <input type="text" id="novoLink" placeholder="ID do Evento no Bar (Opcional)">
-                
-                <div class="full-width">
-                    <label style="color:#888; font-size:0.9em;">Anotações Internas (Cliente NÃO VÊ)</label>
-                    <div class="notes-container" id="containerNotas"></div>
-                    <button class="btn-add-note" onclick="adicionarInputNota()">+ Nova Nota</button>
-                </div>
+            <h3 style="color:#FF9500;">Painel de Controle</h3>
+            <div class="input-group">
+                <input type="text" id="admCliente" class="input-3d" placeholder="Cliente">
+                <input type="date" id="admData" class="input-3d">
+                <input type="time" id="admHora" class="input-3d">
+                <input type="number" id="admDuracao" class="input-3d" placeholder="Duração (h)" value="5">
+                <button class="btn-3d-check" onclick="salvarEvento()">➕ BLOQUEAR DATA</button>
             </div>
-            
-            <div class="btn-group">
-                <button class="btn-add" id="btnSalvarAgenda" onclick="salvarAgendamento()">SALVAR NA AGENDA</button>
-                <button class="btn-cancel-edit" id="btnCancelarEdicao" onclick="cancelarEdicao()">CANCELAR EDIÇÃO</button>
-            </div>
+            <div id="listaAdmin" style="margin-top:20px;"></div>
         </div>
 
-        <div id="listaEventos"></div>
+        <div class="admin-trigger" onclick="abrirLogin()">⚙️</div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -150,161 +189,180 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const SENHA_MESTRA = "9859"; 
-        let IS_ADMIN = false;
-        let HIDE_VALUES = false;
-        let EDITING_ID = null;
+        let currentDate = new Date();
+        let eventsCache = [];
+        const SENHA_MESTRA = "9859";
 
-        function logarAdmin() {
-            const senha = document.getElementById('senhaInput').value;
-            if(senha === SENHA_MESTRA) { 
-                IS_ADMIN = true;
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('adminControls').style.display = 'block';
-                carregarAgenda();
-            } else { document.getElementById('msgErro').style.display = 'block'; document.getElementById('senhaInput').value = ''; }
-        }
+        // INICIALIZAÇÃO
+        carregarEventos();
 
-        function entrarModoPublico() {
-            IS_ADMIN = false;
-            document.getElementById('loginOverlay').style.display = 'none';
-            carregarAgenda();
-        }
-
-        function adicionarInputNota(valor = "") {
-            const container = document.getElementById('containerNotas');
-            const div = document.createElement('div');
-            div.className = 'note-input-row';
-            div.innerHTML = `<input type="text" class="input-nota-item" placeholder="Nota..." value="${valor}"><button class="btn-remove-note" onclick="this.parentElement.remove()">X</button>`;
-            container.appendChild(div);
-        }
-
-        function carregarAgenda() {
-            const lista = document.getElementById('listaEventos');
-            lista.innerHTML = '<p style="text-align:center; color:#555;">Carregando...</p>';
-
-            db.collection("agendamentos").orderBy("data_evento", "asc").onSnapshot((snapshot) => {
-                lista.innerHTML = '';
-                if(snapshot.empty) { lista.innerHTML = '<p style="text-align:center; color:#777;">Nenhum evento agendado.</p>'; return; }
-
+        function carregarEventos() {
+            db.collection("agendamentos").onSnapshot(snapshot => {
+                eventsCache = [];
                 snapshot.forEach(doc => {
-                    const e = doc.data();
-                    const dataObj = new Date(e.data_evento + "T00:00:00");
-                    const dia = dataObj.getDate().toString().padStart(2, '0');
-                    const mes = dataObj.toLocaleString('pt-BR', { month: 'short' }).replace('.', '');
-                    const horaDisplay = e.hora_evento ? `🕗 ${e.hora_evento}` : '';
-                    const valorDisplay = e.valor ? `R$ ${parseFloat(e.valor).toFixed(2)}` : 'R$ 0,00';
-                    const classeBlur = HIDE_VALUES ? 'blurred' : '';
-                    
-                    // --- ÁREA DE NOTAS (RETRÁTIL) ---
-                    let notasHtml = '';
-                    if(IS_ADMIN) {
-                        let arrayNotas = e.anotacoes || [];
-                        if(e.observacao) arrayNotas.push(e.observacao); 
-
-                        if(arrayNotas.length > 0) {
-                            notasHtml = `
-                                <div class="notes-wrapper">
-                                    <button class="btn-toggle-notes" onclick="toggleNotes(this)">📝 Ver ${arrayNotas.length} Anotações</button>
-                                    <div class="notes-list-hidden">
-                                        ${arrayNotas.map(n => `<span class="note-item-display">🔒 ${n}</span>`).join('')}
-                                    </div>
-                                </div>`;
-                        }
-                    }
-
-                    let botoesAdmin = '';
-                    if(IS_ADMIN) {
-                        let btnLink = e.link_id ? `<a href="dashboard.html?evento=${e.link_id}" target="_blank" class="btn-icon" style="background:#2196F3; border:none;">🔗 Bar</a>` : '';
-                        const dadosJson = JSON.stringify(e).replace(/'/g, "&#39;");
-                        botoesAdmin = `
-                            <div class="actions">
-                                <span class="sensitive-data ${classeBlur}">${valorDisplay}</span>
-                                ${btnLink}
-                                <button class="btn-icon btn-edit" onclick='prepararEdicao("${doc.id}", ${dadosJson})'>✏️</button>
-                                <button class="btn-icon btn-danger" onclick="excluirEvento('${doc.id}')">🗑️</button>
-                            </div>`;
-                    } else {
-                        botoesAdmin = `<span style="font-size:0.8em; color:#555; text-transform:uppercase; letter-spacing:1px;">${e.status}</span>`;
-                    }
-
-                    const html = `
-                        <div class="event-card status-${e.status}">
-                            <div class="date-box"><span class="day">${dia}</span><span class="month">${mes}</span><span class="time">${horaDisplay}</span></div>
-                            <div class="info-box"><span class="client-name">${e.cliente}</span><span class="event-type">${e.tipo}</span>${notasHtml}</div>
-                            ${botoesAdmin}
-                        </div>`;
-                    lista.innerHTML += html;
+                    eventsCache.push({ id: doc.id, ...doc.data() });
                 });
+                renderCalendar();
+                renderAdminList();
             });
         }
 
-        // Função para abrir/fechar notas
-        window.toggleNotes = function(btn) {
-            const div = btn.nextElementSibling;
-            if (div.style.display === "block") { div.style.display = "none"; btn.innerText = btn.innerText.replace("Ocultar", "Ver"); } 
-            else { div.style.display = "block"; btn.innerText = btn.innerText.replace("Ver", "Ocultar"); }
+        // --- LÓGICA DO CALENDÁRIO ---
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthDisplay = document.getElementById('monthDisplay');
+            grid.innerHTML = '';
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Nomes dos dias
+            const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            weekDays.forEach(d => grid.innerHTML += `<div class="weekday">${d}</div>`);
+
+            monthDisplay.innerText = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase();
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Dias vazios antes do dia 1
+            for (let i = 0; i < firstDayIndex; i++) {
+                grid.innerHTML += `<div class="day-card empty"></div>`;
+            }
+
+            // Dias do mês
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                
+                // Verifica se tem evento nesse dia
+                const hasEvent = eventsCache.some(e => e.data_evento === dateStr);
+                const isToday = new Date().toISOString().split('T')[0] === dateStr;
+
+                grid.innerHTML += `
+                    <div class="day-card ${hasEvent ? 'has-event' : ''} ${isToday ? 'today' : ''}" onclick="cliqueDia('${dateStr}')">
+                        <span class="day-number">${i}</span>
+                        <div class="event-dot"></div>
+                    </div>
+                `;
+            }
         }
 
-        function salvarAgendamento() {
-            const cliente = document.getElementById('novoCliente').value;
-            const data = document.getElementById('novoData').value;
-            const hora = document.getElementById('novoHorario').value;
-            const tipo = document.getElementById('novoTipo').value;
-            const status = document.getElementById('novoStatus').value;
-            const valor = document.getElementById('novoValor').value;
-            const link = document.getElementById('novoLink').value;
-            
-            let notasArr = [];
-            document.querySelectorAll('.input-nota-item').forEach(inp => { if(inp.value.trim()) notasArr.push(inp.value.trim()); });
-
-            if(!cliente || !data) return alert("Preencha Nome e Data!");
-
-            const dadosEvento = { cliente, data_evento: data, hora_evento: hora, tipo, status, valor, link_id: link, anotacoes: notasArr };
-            const btn = document.getElementById('btnSalvarAgenda'); btn.disabled = true; btn.innerText = "Salvando...";
-
-            if(EDITING_ID) { db.collection("agendamentos").doc(EDITING_ID).update(dadosEvento).then(() => { alert("Atualizado!"); limparFormulario(); }); } 
-            else { db.collection("agendamentos").add(dadosEvento).then(() => { alert("Agendado!"); limparFormulario(); }); }
+        function mudarMes(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            renderCalendar();
         }
 
-        function prepararEdicao(id, dados) {
-            document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('novoCliente').value = dados.cliente;
-            document.getElementById('novoData').value = dados.data_evento;
-            document.getElementById('novoHorario').value = dados.hora_evento || '';
-            document.getElementById('novoTipo').value = dados.tipo;
-            document.getElementById('novoStatus').value = dados.status;
-            document.getElementById('novoValor').value = dados.valor;
-            document.getElementById('novoLink').value = dados.link_id || '';
-            
-            document.getElementById('containerNotas').innerHTML = '';
-            let notasParaEditar = dados.anotacoes || [];
-            if(dados.observacao) notasParaEditar.push(dados.observacao);
-            if(notasParaEditar.length > 0) notasParaEditar.forEach(n => adicionarInputNota(n)); else adicionarInputNota();
-
-            EDITING_ID = id;
-            document.getElementById('tituloForm').innerText = "Editando Evento ✏️";
-            document.getElementById('btnSalvarAgenda').innerText = "ATUALIZAR";
-            document.getElementById('btnSalvarAgenda').style.background = "#2196F3"; 
-            document.getElementById('btnCancelarEdicao').style.display = "block";
+        function cliqueDia(data) {
+            document.getElementById('checkDate').value = data;
+            // Scroll suave para o topo
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function limparFormulario() {
-            EDITING_ID = null;
-            document.getElementById('novoCliente').value = ''; document.getElementById('novoData').value = ''; document.getElementById('novoHorario').value = ''; document.getElementById('novoTipo').value = ''; document.getElementById('novoValor').value = ''; document.getElementById('novoLink').value = '';
-            document.getElementById('containerNotas').innerHTML = '';
-            document.getElementById('tituloForm').innerText = "Novo Agendamento";
-            document.getElementById('btnSalvarAgenda').innerText = "SALVAR NA AGENDA";
-            document.getElementById('btnSalvarAgenda').style.background = "linear-gradient(90deg, #FF6700, #FF9500)";
-            document.getElementById('btnSalvarAgenda').disabled = false;
-            document.getElementById('btnCancelarEdicao').style.display = "none";
+        // --- VERIFICAR DISPONIBILIDADE (LÓGICA PODEROSA) ---
+        function verificarDisponibilidade() {
+            const data = document.getElementById('checkDate').value;
+            const hora = document.getElementById('checkTime').value;
+            const duracao = parseInt(document.getElementById('checkDuration').value) || 5;
+            const resultDiv = document.getElementById('resultArea');
+
+            if (!data || !hora) return alert("Selecione data e hora!");
+
+            // Converte hora input (14:00) para float (14.0)
+            const [h, m] = hora.split(':').map(Number);
+            const reqInicio = h + (m/60);
+            const reqFim = reqInicio + duracao + 1; // +1 Hora de Margem de Segurança
+
+            // Filtra eventos DO DIA
+            const eventosDoDia = eventsCache.filter(e => e.data_evento === data);
+            
+            let conflito = false;
+
+            eventosDoDia.forEach(e => {
+                if(e.hora_inicio) {
+                    const [eh, em] = e.hora_inicio.split(':').map(Number);
+                    const eDur = parseInt(e.duracao) || 5;
+                    const eInicio = eh + (em/60);
+                    const eFim = eInicio + eDur + 1; // +1 Hora de Margem de Segurança do evento existente
+
+                    // Lógica de colisão de horários
+                    // Se o novo começa antes do antigo terminar E o novo termina depois do antigo começar
+                    if (reqInicio < eFim && reqFim > eInicio) {
+                        conflito = true;
+                    }
+                } else {
+                    // Se o evento antigo não tem hora cadastrada, assume dia todo ocupado
+                    conflito = true;
+                }
+            });
+
+            if (conflito) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'status-busy';
+                resultDiv.innerHTML = `
+                    <h3 style="margin:0;">❌ INDISPONÍVEL</h3>
+                    <p>Já existe um evento neste horário ou próximo a ele.</p>
+                    <p style="font-size:0.8em;">Precisamos de 1h de intervalo entre eventos para deslocamento/montagem.</p>
+                `;
+            } else {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'status-available';
+                // Formata mensagem WhatsApp
+                const dataFormatada = data.split('-').reverse().join('/');
+                const textoZap = `Olá Gil! Vi no site que dia *${dataFormatada}* às *${hora}* está livre. Gostaria de reservar!`;
+                const linkZap = `https://wa.me/5575992011008?text=${encodeURIComponent(textoZap)}`;
+
+                resultDiv.innerHTML = `
+                    <h3 style="margin:0;">✅ ESTÁ LIVRE!</h3>
+                    <p>O horário das ${hora} está disponível nesta data.</p>
+                    <a href="${linkZap}" target="_blank" class="btn-whatsapp">RESERVAR NO WHATSAPP ➔</a>
+                `;
+            }
         }
 
-        function cancelarEdicao() { limparFormulario(); }
-        function excluirEvento(id) { if(confirm("Apagar agendamento?")) db.collection("agendamentos").doc(id).delete(); }
-        function toggleForm() { const p = document.getElementById('adminPanel'); p.style.display = p.style.display === 'none' ? 'block' : 'none'; if(p.style.display==='block' && document.getElementById('containerNotas').innerHTML==='') adicionarInputNota(); }
-        function toggleBlur() { HIDE_VALUES = !HIDE_VALUES; carregarAgenda(); }
+        // --- ÁREA ADMIN ---
+        function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
+        
+        function logarAdmin() {
+            if(document.getElementById('senhaInput').value === SENHA_MESTRA) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+            } else { alert("Senha incorreta"); }
+        }
+
+        function salvarEvento() {
+            const cliente = document.getElementById('admCliente').value;
+            const data = document.getElementById('admData').value;
+            const hora = document.getElementById('admHora').value;
+            const duracao = document.getElementById('admDuracao').value;
+
+            if(!cliente || !data) return alert("Preencha dados!");
+
+            db.collection("agendamentos").add({
+                cliente: cliente,
+                data_evento: data,
+                hora_inicio: hora,
+                duracao: duracao
+            }).then(() => {
+                alert("Salvo!");
+                document.getElementById('admCliente').value = '';
+            });
+        }
+
+        function renderAdminList() {
+            const list = document.getElementById('listaAdmin');
+            list.innerHTML = '';
+            eventsCache.forEach(e => {
+                list.innerHTML += `
+                    <div class="admin-list-item">
+                        <span>${e.data_evento} - ${e.cliente} (${e.hora_inicio || 'Dia todo'})</span>
+                        <button onclick="excluirEvento('${e.id}')" style="background:red;border:none;color:white;cursor:pointer;">X</button>
+                    </div>`;
+            });
+        }
+
+        function excluirEvento(id) {
+            if(confirm("Deletar?")) db.collection("agendamentos").doc(id).delete();
+        }
     </script>
 </body>
 </html>
