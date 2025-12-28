@@ -263,7 +263,7 @@
         }
     }
 
-    function salvarEvento() {
+    async function salvarEvento() {
         const nome = document.getElementById('nomeEvento').value;
         const tipo = document.getElementById('tipoServico').value;
         const pix = document.getElementById('chavePix').value || "Não informada";
@@ -322,18 +322,40 @@
         };
 
         if(EVENTO_ID) {
-            // LÓGICA DE ZERAR CONTADORES AO MUDAR O TIPO
+            // LÓGICA DE ZERAR TUDO AO MUDAR O TIPO
             if (tipo !== TIPO_ORIGINAL) {
-                if(confirm("⚠️ ATENÇÃO: Você alterou o tipo do pacote!\n\nDeseja ZERAR a contagem de drinks e faturamento para começar do zero?")) {
+                if(confirm("⚠️ MUDANÇA CRÍTICA DE PACOTE DETECTADA!\n\nDeseja ZERAR TUDO?\n(Isso vai zerar contadores, faturamento e APAGAR TODO O HISTÓRICO de pedidos deste evento)")) {
+                    
+                    // 1. Zera os números
                     dados.total_consumido = 0;
                     dados.consumido_classico = 0;
                     dados.consumido_premium = 0;
                     dados.total_vendas_extra = 0;
                     dados.total_faturamento = 0;
+
+                    // 2. APAGA TODOS OS PEDIDOS ANTIGOS (Limpa Fila e Histórico)
+                    try {
+                        const batch = db.batch();
+                        const snapshot = await db.collection("pedidos").where("evento_id", "==", EVENTO_ID).get();
+                        
+                        if (!snapshot.empty) {
+                            snapshot.forEach(doc => {
+                                batch.delete(doc.ref);
+                            });
+                            await batch.commit();
+                            console.log("Pedidos antigos apagados.");
+                        }
+                    } catch (error) {
+                        console.error("Erro ao limpar pedidos:", error);
+                        alert("Erro ao limpar pedidos antigos. Verifique o console.");
+                    }
                 }
             }
 
-            db.collection("eventos").doc(EVENTO_ID).update(dados).then(() => { alert("Atualizado!"); window.location.href = `dashboard.html?evento=${EVENTO_ID}`; });
+            db.collection("eventos").doc(EVENTO_ID).update(dados).then(() => { 
+                alert("Evento Atualizado e Sincronizado!"); 
+                window.location.href = `dashboard.html?evento=${EVENTO_ID}`; 
+            });
         } else {
             dados.total_consumido = 0; 
             dados.consumido_classico = 0; 
