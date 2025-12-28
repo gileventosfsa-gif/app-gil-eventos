@@ -1,399 +1,404 @@
 <!DOCTYPE html>
-
 <html lang="pt-br">
-
 <head>
-
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Torre de Controle - Gil Eventos</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-
-  <style>
-
-    body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; overflow-x: hidden; }
-
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-
-    h1 { margin: 0; color: #FFD580; font-size: 1.5em; }
-
-    .badge-event { background: #333; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; margin-left: 10px; vertical-align: middle; }
-
-    .grid-layout { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; height: calc(100vh - 100px); }
-
-    .col-commands { display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
-
-    .col-queue { background: #181818; border-radius: 12px; padding: 15px; border: 1px solid #333; display: flex; flex-direction: column; }
-
-    .col-history { background: #151515; border-radius: 12px; padding: 15px; overflow-y: auto; border: 1px solid #222; }
-
-    .card-box { background: #1E1E1E; padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; }
-
-    .eye-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.2em; color: #888; background: none; border: none; }
-
-    .big-stat { font-size: 2em; font-weight: 800; color: #4CAF50; }
-
-    .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; }
-
-    .btn-drink { width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: #fff; margin-bottom: 8px; border-radius: 6px; cursor: pointer; text-align: left; transition: 0.2s; display: flex; justify-content: space-between; }
-
-    .btn-drink:hover { background: #FFD580; color: #000; border-color: #FFD580; }
-
-    .btn-drink.premium { border-left: 4px solid #9C27B0; }
-
-    .btn-drink.pausado { opacity: 0.5; text-decoration: line-through; border-color: red; }
-
-    .btn-price-tag { font-weight: bold; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-
-    .order-card { background: #222; border-left: 5px solid #888; border-radius: 8px; padding: 15px; margin-bottom: 15px; animation: slideIn 0.3s; position: relative; }
-
-    .order-card.extra { border-left-color: #FFD580; background: #2A2210; } 
-
-    .order-card.pacote { border-left-color: #4CAF50; } 
-
-    .order-card.pagamento { border-left-color: #FF4444; background: #2a1010; border: 1px dashed #FF4444; }
-
-    .order-card.cliente-avisou { border: 2px solid #FFD580; box-shadow: 0 0 10px rgba(255, 213, 128, 0.3); }
-
-    .order-info h3 { margin: 5px 0; font-size: 1.3em; }
-
-    .client { color: #aaa; font-size: 0.9em; }
-
-    .time { position: absolute; top: 10px; right: 10px; font-size: 0.8em; color: #666; font-family: monospace; }
-
-    .actions { display: flex; gap: 5px; margin-top: 10px; }
-
-    .btn-ok { flex: 2; background: #2E7D32; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
-
-    .btn-pay { flex: 2; background: #FFD580; border: none; padding: 10px; border-radius: 5px; color: #000; cursor: pointer; font-weight: bold; }
-
-    .btn-deny { flex: 1; background: #D32F2F; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.8em; }
-
-    .btn-cancel { flex: 1; background: transparent; border: 1px solid #777; padding: 10px; border-radius: 5px; color: #aaa; cursor: pointer; }
-
-    .bars-container { display: flex; gap: 5px; margin-top: 5px; }
-
-    .sub-bar { flex: 1; background: #333; height: 8px; border-radius: 4px; overflow: hidden; position: relative; }
-
-    .sub-bar-fill { height: 100%; }
-
-    .sub-label { font-size: 0.7em; color: #aaa; display: block; margin-top: 2px; }
-
-    .sound-control { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 15px; border-radius: 30px; border: 1px solid #444; }
-
-    .stock-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
-
-    .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
-
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 34px; }
-
-    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-
-    input:checked + .slider { background-color: #4CAF50; }
-
-    input:checked + .slider:before { transform: translateX(26px); }
-
-    .obs-tag { background: #FFD580; color: black; padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 0.8em; display: block; margin-top: 5px; }
-
-    .chat-layout { display: flex; height: 400px; gap: 10px; }
-
-    .chat-users { width: 30%; background: #111; border-right: 1px solid #333; overflow-y: auto; }
-
-    .chat-area { width: 70%; display: flex; flex-direction: column; }
-
-    .user-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; position: relative; }
-
-    .user-item:hover, .user-item.active { background: #222; color: #FFD580; }
-
-    .chat-msgs { flex-grow: 1; background: #222; padding: 10px; overflow-y: auto; margin-bottom: 10px; border-radius: 5px; }
-
-    .msg { padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; max-width: 80%; font-size: 0.9em; }
-
-    .msg-client { background: #444; align-self: flex-start; }
-
-    .msg-admin { background: #007bff; align-self: flex-end; text-align: right; }
-
-    .chat-controls { display: flex; gap: 5px; }
-
-    .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
-
-    #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-
-    #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { display: none; }
-
-    .login-box { text-align: center; background: #222; padding: 30px; border-radius: 15px; border: 1px solid #444; min-width: 300px; width: 90%; max-width: 600px; }
-
-    .btn-top { background: #444; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
-
-    .contacts-list { max-height: 300px; overflow-y: auto; text-align: left; margin-top: 15px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333; }
-
-    .contact-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; font-size: 0.9em; }
-
-    .contact-row span { color: #aaa; }
-
-    .contact-row strong { color: #FFD580; }
-
-    @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; height: auto; } .col-commands, .col-queue, .col-history { height: 500px; margin-bottom: 20px; } }
-
-    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  </style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torre de Controle - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 20px; overflow-x: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        h1 { margin: 0; color: #FFD580; font-size: 1.5em; }
+        .badge-event { background: #333; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; margin-left: 10px; vertical-align: middle; }
+        .grid-layout { display: grid; grid-template-columns: 300px 1fr 300px; gap: 20px; height: calc(100vh - 100px); }
+        .col-commands { display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .col-queue { background: #181818; border-radius: 12px; padding: 15px; border: 1px solid #333; display: flex; flex-direction: column; }
+        .col-history { background: #151515; border-radius: 12px; padding: 15px; overflow-y: auto; border: 1px solid #222; }
+        .card-box { background: #1E1E1E; padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; }
+        .eye-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.2em; color: #888; background: none; border: none; }
+        .big-stat { font-size: 2em; font-weight: 800; color: #4CAF50; }
+        .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; }
+        
+        /* ESTILO NOVO DOS BOTÕES MANUAIS */
+        .manual-row { display: flex; align-items: center; justify-content: space-between; background: #333; padding: 8px; margin-bottom: 5px; border-radius: 6px; border: 1px solid #444; }
+        .manual-name { font-size: 0.9em; font-weight: 600; color: #fff; flex: 1; }
+        .manual-actions { display: flex; gap: 5px; }
+        .btn-manual { border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8em; color: white; transition: 0.2s; }
+        .btn-manual.pct { background: #2E7D32; border: 1px solid #4CAF50; } /* Verde Pacote */
+        .btn-manual.vd { background: #FF8F00; border: 1px solid #FFD580; color: black; } /* Laranja Venda */
+        .btn-manual:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .manual-row.pausado { opacity: 0.5; }
+
+        .order-card { background: #222; border-left: 5px solid #888; border-radius: 8px; padding: 15px; margin-bottom: 15px; animation: slideIn 0.3s; position: relative; }
+        .order-card.extra { border-left-color: #FFD580; background: #2A2210; } 
+        .order-card.pacote { border-left-color: #4CAF50; } 
+        .order-card.pagamento { border-left-color: #FF4444; background: #2a1010; border: 1px dashed #FF4444; }
+        .order-card.cliente-avisou { border: 2px solid #FFD580; box-shadow: 0 0 10px rgba(255, 213, 128, 0.3); }
+        .order-info h3 { margin: 5px 0; font-size: 1.3em; }
+        .client { color: #aaa; font-size: 0.9em; }
+        .time { position: absolute; top: 10px; right: 10px; font-size: 0.8em; color: #666; font-family: monospace; }
+        .actions { display: flex; gap: 5px; margin-top: 10px; }
+        
+        .btn-ok { flex: 2; background: #2E7D32; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
+        .btn-pay { flex: 2; background: #FFD580; border: none; padding: 10px; border-radius: 5px; color: #000; cursor: pointer; font-weight: bold; }
+        .btn-deny { flex: 1; background: #D32F2F; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.8em; }
+        .btn-cancel { flex: 1; background: transparent; border: 1px solid #777; padding: 10px; border-radius: 5px; color: #aaa; cursor: pointer; }
+        
+        .bars-container { display: flex; gap: 5px; margin-top: 5px; }
+        .sub-bar { flex: 1; background: #333; height: 8px; border-radius: 4px; overflow: hidden; position: relative; }
+        .sub-bar-fill { height: 100%; }
+        .sub-label { font-size: 0.7em; color: #aaa; display: block; margin-top: 2px; }
+
+        .sound-control { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 15px; border-radius: 30px; border: 1px solid #444; }
+        .stock-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #4CAF50; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .obs-tag { background: #FFD580; color: black; padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 0.8em; display: block; margin-top: 5px; }
+        
+        .chat-layout { display: flex; height: 400px; gap: 10px; }
+        .chat-users { width: 30%; background: #111; border-right: 1px solid #333; overflow-y: auto; }
+        .chat-area { width: 70%; display: flex; flex-direction: column; }
+        .user-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; position: relative; }
+        .user-item:hover, .user-item.active { background: #222; color: #FFD580; }
+        .chat-msgs { flex-grow: 1; background: #222; padding: 10px; overflow-y: auto; margin-bottom: 10px; border-radius: 5px; }
+        .msg { padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; max-width: 80%; font-size: 0.9em; }
+        .msg-client { background: #444; align-self: flex-start; }
+        .msg-admin { background: #007bff; align-self: flex-end; text-align: right; }
+        .chat-controls { display: flex; gap: 5px; }
+        .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
+
+        #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { display: none; }
+        .login-box { text-align: center; background: #222; padding: 30px; border-radius: 15px; border: 1px solid #444; min-width: 300px; width: 90%; max-width: 600px; }
+        .btn-top { background: #444; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
+        .contacts-list { max-height: 300px; overflow-y: auto; text-align: left; margin-top: 15px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .contact-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; font-size: 0.9em; }
+        .contact-row span { color: #aaa; }
+        .contact-row strong { color: #FFD580; }
+
+        @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; height: auto; } .col-commands, .col-queue, .col-history { height: 500px; margin-bottom: 20px; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-
 <body>
+    <audio id="somAlerta" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <div id="loginOverlay"><div class="login-box"><h1 style="margin-bottom:20px;">🔒 Área Restrita</h1><input type="password" id="senhaInput" placeholder="Senha" style="padding:10px; border-radius:5px;"><br><br><button class="btn-top" style="background:#FFD580; color:black;" onclick="verificarSenha()">ACESSAR</button><p id="erroSenha" style="color:red; display:none; margin-top:10px;">Senha Incorreta!</p></div></div>
+    <div id="stockOverlay"><div class="login-box" style="width: 400px; max-height: 80vh; overflow-y: auto;"><h2 style="color:#FFD580;">Gerenciar Cardápio</h2><div id="listaEstoque"></div><button onclick="document.getElementById('stockOverlay').style.display='none'" class="btn-top" style="margin-top:20px; width:100%;">FECHAR</button></div></div>
+    <div id="contactsOverlay"><div class="login-box"><h2 style="color:#FFD580;">👥 Leads</h2><div class="contacts-list" id="listaContatos">Carregando...</div><div style="margin-top:20px; display:flex; gap:10px; justify-content:center;"><button onclick="copiarListaContatos()" class="btn-top" style="background:#4CAF50;">📋 Copiar</button><button onclick="document.getElementById('contactsOverlay').style.display='none'" class="btn-top">Fechar</button></div></div></div>
+    
+    <div id="chatOverlay"><div class="login-box">
+        <h2 style="color:#FFD580;">💬 Central de Mensagens</h2>
+        <div class="chat-layout">
+            <div class="chat-users" id="chatUsersList"></div>
+            <div class="chat-area">
+                <div class="chat-msgs" id="chatAdminMsgs">Selecione um cliente ao lado.</div>
+                <div class="chat-controls">
+                    <input type="text" id="adminChatInput" placeholder="Responder..." style="flex:1; padding:5px;">
+                    <button class="btn-top" style="background:#2196F3;" onclick="enviarMsgAdmin()">Enviar</button>
+                </div>
+            </div>
+        </div>
+        <button onclick="fecharChatAdmin()" class="btn-top" style="margin-top:10px;">Fechar</button>
+    </div></div>
 
-  <audio id="somAlerta" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <div id="eyeAuthOverlay"><div class="login-box"><h3>👁️ Senha</h3><input type="password" id="senhaEyeInput"><br><br><button class="btn-top" onclick="confirmarSenhaEye()">VER</button><button onclick="document.getElementById('eyeAuthOverlay').style.display='none'" class="btn-top">Cancelar</button></div></div>
+    <div id="qrOverlay"><div class="login-box"><h2 style="color:#FFD580;">📲 QR Code</h2><div id="qrcodeDisplay" style="background:white; padding:15px; border-radius:10px; display:inline-block; margin:20px 0;"></div><br><button onclick="document.getElementById('qrOverlay').style.display='none'" class="btn-top">Fechar</button></div></div>
 
-  <div id="loginOverlay"><div class="login-box"><h1 style="margin-bottom:20px;">🔒 Área Restrita</h1><input type="password" id="senhaInput" placeholder="Senha" style="padding:10px; border-radius:5px;"><br><br><button class="btn-top" style="background:#FFD580; color:black;" onclick="verificarSenha()">ACESSAR</button><p id="erroSenha" style="color:red; display:none; margin-top:10px;">Senha Incorreta!</p></div></div>
-
-  <div id="stockOverlay"><div class="login-box" style="width: 400px; max-height: 80vh; overflow-y: auto;"><h2 style="color:#FFD580;">Gerenciar Cardápio</h2><div id="listaEstoque"></div><button onclick="document.getElementById('stockOverlay').style.display='none'" class="btn-top" style="margin-top:20px; width:100%;">FECHAR</button></div></div>
-
-  <div id="contactsOverlay"><div class="login-box"><h2 style="color:#FFD580;">👥 Leads</h2><div class="contacts-list" id="listaContatos">Carregando...</div><div style="margin-top:20px; display:flex; gap:10px; justify-content:center;"><button onclick="copiarListaContatos()" class="btn-top" style="background:#4CAF50;">📋 Copiar</button><button onclick="document.getElementById('contactsOverlay').style.display='none'" class="btn-top">Fechar</button></div></div></div>
-
-  <div id="chatOverlay"><div class="login-box"><h2 style="color:#FFD580;">💬 Central de Mensagens</h2><div class="chat-layout"><div class="chat-users" id="chatUsersList"></div><div class="chat-area"><div class="chat-msgs" id="chatAdminMsgs">Selecione um cliente ao lado.</div><div class="chat-controls"><input type="text" id="adminChatInput" placeholder="Responder..." style="flex:1; padding:5px;"><button class="btn-top" style="background:#2196F3;" onclick="enviarMsgAdmin()">Enviar</button></div></div></div><button onclick="fecharChatAdmin()" class="btn-top" style="margin-top:10px;">Fechar</button></div></div>
-
-  <div id="eyeAuthOverlay"><div class="login-box"><h3>👁️ Senha</h3><input type="password" id="senhaEyeInput"><br><br><button class="btn-top" onclick="confirmarSenhaEye()">VER</button><button onclick="document.getElementById('eyeAuthOverlay').style.display='none'" class="btn-top">Cancelar</button></div></div>
-
-  <div id="qrOverlay"><div class="login-box"><h2 style="color:#FFD580;">📲 QR Code</h2><div id="qrcodeDisplay" style="background:white; padding:15px; border-radius:10px; display:inline-block; margin:20px 0;"></div><br><button onclick="document.getElementById('qrOverlay').style.display='none'" class="btn-top">Fechar</button></div></div>
-
-  <div class="header"><div><span id="nomeEvento">Carregando...</span><span class="badge-event" id="tipoEvento">...</span> <button onclick="editarEvento()" class="btn-top" style="background:#333; border:1px solid #555; color:#aaa; font-size:0.8em;">✏️ Editar</button></div><div class="sound-control"><span style="font-size:1.2em;">🔊</span><input type="range" min="0" max="1" step="0.1" value="1" onchange="document.getElementById('somAlerta').volume=this.value"></div><div><div style="display:inline-block; position:relative;"><button onclick="abrirChatAdmin()" class="btn-top" style="background:#009688;">💬 Chat</button><div class="chat-badge" id="chatBadgeGlobal">0</div></div><button onclick="abrirContatos()" class="btn-top" style="background:#9C27B0;">👥 Leads</button><button onclick="toggleModoPreco()" class="btn-top" id="btnModoPreco" style="background:#555;">💲 Modo Normal</button><button onclick="abrirEstoque()" class="btn-top" style="background:#2196F3;">📦 Estoque</button><button onclick="mostrarQR()" class="btn-top">📱 QR</button><button onclick="copiarLink()" class="btn-top">🔗 Link</button></div></div>
-
-  <div class="grid-layout">
-
-    <div class="col-commands">
-
-      <div class="card-box"><div class="label">Consumo Pacote</div><div id="boxConsumoSimples"><div class="big-stat"><span id="consumido">0</span> <span style="font-size:0.5em; color:#666;">/ <span id="total">∞</span></span></div><div style="height:5px; background:#333; margin-top:5px;"><div id="progressoBar" style="height:100%; width:0%; background:#4CAF50;"></div></div></div><div id="boxConsumoMisto" style="display:none;"><div class="bars-container"><div class="sub-bar" title="Clássico"><div id="barClassico" class="sub-bar-fill" style="background:#4CAF50; width:0%"></div></div><div class="sub-bar" title="Premium"><div id="barPremium" class="sub-bar-fill" style="background:#9C27B0; width:0%"></div></div></div><div style="display:flex; justify-content:space-between; margin-top:5px;"><span class="sub-label">🥃 Clássico: <span id="txtClassico" style="color:#fff; font-weight:bold;">0/0</span></span><span class="sub-label">💎 Premium: <span id="txtPremium" style="color:#fff; font-weight:bold;">0/0</span></span></div></div></div>
-
-      <div class="card-box"><button class="eye-btn" onclick="toggleFaturamento()">👁️</button><div class="label">Faturamento</div><div class="big-stat" style="color:#FFD580;"><span id="valorFaturamento" style="filter:blur(5px);">R$ 0,00</span></div><div style="font-size:0.8em; color:#666;">Vendas: <span id="qtdVendasExtras">0</span></div></div>
-
-      <div class="card-box"><div class="label">📝 Pedido Manual</div><div id="listaBotoesManual" style="margin-top:10px;"></div></div>
-
+    <div class="header">
+        <div><span id="nomeEvento">Carregando...</span><span class="badge-event" id="tipoEvento">...</span> <button onclick="editarEvento()" class="btn-top" style="background:#333; border:1px solid #555; color:#aaa; font-size:0.8em;">✏️ Editar</button></div>
+        <div class="sound-control"><span style="font-size:1.2em;">🔊</span><input type="range" min="0" max="1" step="0.1" value="1" onchange="document.getElementById('somAlerta').volume=this.value"></div>
+        <div>
+            <div style="display:inline-block; position:relative;">
+                <button onclick="abrirChatAdmin()" class="btn-top" style="background:#009688;">💬 Chat</button>
+                <div class="chat-badge" id="chatBadgeGlobal">0</div>
+            </div>
+            <button onclick="abrirContatos()" class="btn-top" style="background:#9C27B0;">👥 Leads</button>
+            <button onclick="toggleModoPreco()" class="btn-top" id="btnModoPreco" style="background:#555;">💲 Modo Normal</button>
+            <button onclick="abrirEstoque()" class="btn-top" style="background:#2196F3;">📦 Estoque</button>
+            <button onclick="mostrarQR()" class="btn-top">📱 QR</button>
+            <button onclick="copiarLink()" class="btn-top">🔗 Link</button>
+        </div>
     </div>
 
-    <div class="col-queue"><div class="queue-header"><span>🔥 Fila / Caixa</span><span style="font-size:0.8em; background:#FF4444; padding:2px 8px; border-radius:10px; color:white;" id="qtdFila">0</span></div><div class="queue-list" id="listaFila"></div></div>
-
-    <div class="col-history"><div class="queue-header">📜 Histórico</div><div id="listaHistorico"></div></div>
-
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
-  <script>
-
-    const firebaseConfig = { apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk", authDomain: "gil-eventos-app-911fe.firebaseapp.com", projectId: "gil-eventos-app-911fe", storageBucket: "gil-eventos-app-911fe.firebasestorage.app", messagingSenderId: "503025880352", appId: "1:503025880352:web:694b7f2889cff501c7db45", measurementId: "G-3DZ1P5C0M3" };
-
-    firebase.initializeApp(firebaseConfig);
-
-    const db = firebase.firestore();
-
-    const params = new URLSearchParams(window.location.search);
-
-    const EVENTO_ID = params.get('evento');
-
-    let DADOS_EVENTO = null;
-
-    let FATURAMENTO_VISIVEL = false;
-
-    let wakeLock = null;
-
-    let SELECTED_CHAT_USER = null;
-
-    let CHAT_UNREAD_COUNT = 0;
-
-    let PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
-
-
-
-    function limparString(str) { if(!str) return ""; return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); }
-
-    if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
-
-    if(EVENTO_ID) iniciarTorreControle();
-
-    async function requestWakeLock() { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
-
-    document.addEventListener('visibilitychange', async () => { if (wakeLock !== null && document.visibilityState === 'visible') requestWakeLock(); });
-
-
-
-    function iniciarTorreControle() {
-
-      requestWakeLock();
-
-      db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
-
-        if(doc.exists){ DADOS_EVENTO = doc.data(); atualizarInterface(DADOS_EVENTO); gerarBotoes(DADOS_EVENTO.cardapio); gerarListaEstoque(DADOS_EVENTO.cardapio); }
-
-      });
-
-      db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["pendente", "aguardando_pagamento", "pagamento_rejeitado"]).onSnapshot((snapshot) => {
-
-        const lista = document.getElementById('listaFila'); document.getElementById('qtdFila').innerText = snapshot.size;
-
-        snapshot.docChanges().forEach((change) => { if (change.type === "added") document.getElementById('somAlerta').play().catch(()=>{}); });
-
-        lista.innerHTML = snapshot.empty ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
-
-        let pedidos = []; PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
-
-        snapshot.forEach(doc => { const p = {id: doc.id, ...doc.data()}; pedidos.push(p); if (p.status === 'pendente' && p.tipo === 'pacote') { PENDING_COUNTS.total++; let cat = 'classico'; if(DADOS_EVENTO && DADOS_EVENTO.cardapio) { const itemReal = DADOS_EVENTO.cardapio.find(d => limparString(d.nome) === limparString(p.drink)); if(itemReal) cat = itemReal.categoria; } if (limparString(cat) === 'premium') { PENDING_COUNTS.premium++; } else { PENDING_COUNTS.classico++; } } });
-
-        pedidos.sort((a, b) => { return a.data - b.data; });
-
-        pedidos.forEach(p => {
-
-          const hora = p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-          let classe, badge, btnHtml; let visualAviso = p.sinalizou_pagamento ? 'cliente-avisou' : ''; let obsHtml = p.observacao ? `<span class="obs-tag">⚠️ OBS: ${p.observacao}</span>` : '';
-
-          if(p.status === 'aguardando_pagamento' || p.status === 'pagamento_rejeitado') { classe = 'pagamento'; badge = `🔴 AGUARDANDO PGTO (R$ ${p.preco}) ${p.sinalizou_pagamento ? '👉 CLIENTE PAGOU' : ''}`; btnHtml = `<button class="btn-deny" onclick="recusarPagamento('${p.id}')">🚫 NÃO CONSTA</button><button class="btn-pay" onclick="confirmarPagamento('${p.id}', ${p.preco})">💰 CONFIRMAR</button>`; } else { classe = p.tipo === 'extra' ? 'extra' : 'pacote'; badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE'; btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido')">✅ PRONTO</button>`; }
-
-          lista.innerHTML += `<div class="order-card ${classe} ${visualAviso}"><div class="time">${hora}</div><div class="client">${p.nome_convidado}</div><div class="order-info"><h3>${p.drink}</h3><small style="background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:3px;">${badge}</small>${obsHtml}</div><div class="actions"><button class="btn-cancel" onclick="cancelarPedido('${p.id}')">✖</button>${btnHtml}</div></div>`;
-
-        });
-
-      });
-
-      db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["servido", "cancelado"]).limit(30).onSnapshot((s) => { const l = document.getElementById('listaHistorico'); l.innerHTML = ''; s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); });
-
-      monitorarChat();
-
-    }
-
-    function lancarManual(item) { 
-
-      const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); if(nome === null) return; 
-
-      let tipo = 'pacote'; let precoFinal = item.preco || 0;
-
-      if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
-
-      const categoriaNorm = limparString(item.categoria); 
-
-      if(item.tipo_cobranca === 'pago') { tipo = 'extra'; } 
-
-      else if (DADOS_EVENTO.tipo_servico === 'misto') {
-
-        const consumidoC = Number(DADOS_EVENTO.consumido_classico || 0); const limiteC = Number(DADOS_EVENTO.limite_classico || 0);
-
-        const consumidoP = Number(DADOS_EVENTO.consumido_premium || 0); const limiteP = Number(DADOS_EVENTO.limite_premium || 0);
-
-        if (categoriaNorm === 'premium') { if (consumidoP >= limiteP) tipo = 'extra'; } else { if (consumidoC >= limiteC) tipo = 'extra'; }
-
-      } else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
-
-        const totalC = Number(DADOS_EVENTO.total_consumido || 0); const totalL = Number(DADOS_EVENTO.total_contratado || 0); if(totalC >= totalL) tipo = 'extra';
-
-      }
-
-      let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
-
-      db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria, tipo: tipo, preco: precoFinal, nome_convidado: nome || "Balcão", status: statusInicial, sinalizou_pagamento: false, data: new Date() }).then(() => {
-
-        if(tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { if (categoriaNorm === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); }
-
-      });
-
-    }
-
-    function gerarBotoes(menu) { const div = document.getElementById('listaBotoesManual'); div.innerHTML = ''; menu.forEach(item => { const btn = document.createElement('button'); const pausado = item.disponivel === false; const isPremium = limparString(item.categoria) === 'premium'; btn.className = isPremium ? 'btn-drink premium' : 'btn-drink'; if(pausado) btn.classList.add('pausado'); let precoDisplay = item.preco || 0; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoDisplay = item.preco_prevenda; btn.innerHTML = `<span>${(isPremium?'💎 ':'🥃 ')}${item.nome} ${(pausado ? '(PAUSADO)' : '')}</span> <span class="btn-price-tag">R$ ${precoDisplay}</span>`; btn.onclick = () => { if(!pausado) lancarManual(item); else alert("Drink pausado."); }; div.appendChild(btn); }); }
-
-    function mudarStatus(id, novoStatus) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }); }
-
-    function cancelarPedido(id) { if(!confirm("Cancelar? O drink voltará para o saldo do pacote.")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { const cat = limparString(p.categoria_drink || 'classico'); if (cat === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
-
-    function monitorarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => { let novasMensagens = 0; snapshot.docChanges().forEach(change => { if (change.type === 'added' && change.doc.data().remetente === 'cliente') { novasMensagens++; if(document.getElementById('chatOverlay').style.display === 'none') { document.getElementById('somAlerta').play().catch(()=>{}); } } }); if(novasMensagens > 0) { CHAT_UNREAD_COUNT += novasMensagens; const badge = document.getElementById('chatBadgeGlobal'); badge.innerText = CHAT_UNREAD_COUNT; badge.style.display = 'flex'; } }); }
-
-    function abrirChatAdmin() { document.getElementById('chatOverlay').style.display = 'flex'; CHAT_UNREAD_COUNT = 0; document.getElementById('chatBadgeGlobal').style.display = 'none'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { const usuarios = new Set(); s.forEach(d => usuarios.add(d.data().nome)); const lista = document.getElementById('chatUsersList'); lista.innerHTML = ''; usuarios.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; }); }); }
-
-    function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
-
-    function carregarConversa(nome) { SELECTED_CHAT_USER = nome; const area = document.getElementById('chatAdminMsgs'); area.innerHTML = 'Carregando...'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { area.innerHTML = ''; let msgs = []; s.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const classe = m.remetente === 'admin' ? 'msg-admin' : 'msg-client'; area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; }); area.scrollTop = area.scrollHeight; }); }
-
-    function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
-
-    function abrirContatos() { document.getElementById('contactsOverlay').style.display = 'flex'; const lista = document.getElementById('listaContatos'); lista.innerHTML = "Carregando..."; db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => { if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; } lista.innerHTML = ""; q.forEach((doc) => { const d = doc.data(); let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : ""; lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`; }); }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; }); }
-
-    function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
-
-    function confirmarPagamento(id, preco) { if(!confirm("Confirmar pagamento?")) return; db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); }
-
-    function recusarPagamento(id) { if(!confirm("Tem certeza que NÃO consta?")) return; db.collection("pedidos").doc(id).update({ status: 'pagamento_rejeitado', sinalizou_pagamento: false }); }
-
-    function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
-
-    function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
-
-    function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
-
-    function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
-
-    function editarEvento() { const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('evento'); window.location.href = `admin.html?evento=${id}`; }
-
-    function verificarSenha() { if(document.getElementById('senhaInput').value === DADOS_EVENTO.senha_admin) { document.getElementById('loginOverlay').style.display = 'none'; sessionStorage.setItem(`logado_${EVENTO_ID}`, true); document.getElementById('somAlerta').play().catch(()=>{}); } else document.getElementById('erroSenha').style.display='block'; }
-
-    function toggleFaturamento() { const el=document.getElementById('valorFaturamento'); if(FATURAMENTO_VISIVEL){el.style.filter='blur(5px)';FATURAMENTO_VISIVEL=false;}else{document.getElementById('eyeAuthOverlay').style.display='flex';document.getElementById('senhaEyeInput').focus();} }
-
-    function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
-
-    function mostrarQR() { const url=window.location.href.replace('dashboard.html','cardapio.html'); document.getElementById('qrcodeDisplay').innerHTML=''; new QRCode(document.getElementById("qrcodeDisplay"),{text:url,width:250,height:250}); document.getElementById('qrOverlay').style.display='flex'; }
-
-    function copiarLink() { navigator.clipboard.writeText(window.location.href.replace('dashboard.html','cardapio.html')); alert("Copiado!"); }
-
-     
-
-    function atualizarInterface(dados) { 
-
-      document.getElementById('nomeEvento').innerText = dados.nome; 
-
-      document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
-
-      if (dados.tipo_servico === 'misto') {
-
-        document.getElementById('boxConsumoSimples').style.display = 'none'; document.getElementById('boxConsumoMisto').style.display = 'block';
-
-        const cClassico = Number(dados.consumido_classico || 0); const lClassico = Number(dados.limite_classico || 0);
-
-        const cPremium = Number(dados.consumido_premium || 0); const lPremium = Number(dados.limite_premium || 0);
-
-        document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`; document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
-
-        const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0; const pctPremium = lPremium > 0 ? (cPremium/lPremium)*100 : 0;
-
-        document.getElementById('barClassico').style.width = pctClassico + '%'; document.getElementById('barPremium').style.width = pctPremium + '%';
-
-      } else {
-
-        document.getElementById('boxConsumoSimples').style.display = 'block'; document.getElementById('boxConsumoMisto').style.display = 'none';
-
-        document.getElementById('consumido').innerText = dados.total_consumido;
-
-        if(dados.tipo_servico === 'pacote' || dados.tipo_servico === 'premium') { document.getElementById('total').innerText = dados.total_contratado; document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; } else { document.getElementById('total').innerText = '∞'; }
-
-      }
-
-      document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
-
-      document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; 
-
-      const btnModo = document.getElementById('btnModoPreco'); 
-
-      if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; } 
-
-    }
-
-  </script>
-
+    <div class="grid-layout">
+        <div class="col-commands">
+            <div class="card-box">
+                <div class="label">Consumo Pacote</div>
+                
+                <div id="boxConsumoSimples">
+                    <div class="big-stat"><span id="consumido">0</span> <span style="font-size:0.5em; color:#666;">/ <span id="total">∞</span></span></div>
+                    <div style="height:5px; background:#333; margin-top:5px;"><div id="progressoBar" style="height:100%; width:0%; background:#4CAF50;"></div></div>
+                </div>
+
+                <div id="boxConsumoMisto" style="display:none;">
+                    <div class="bars-container">
+                        <div class="sub-bar" title="Clássico"><div id="barClassico" class="sub-bar-fill" style="background:#4CAF50; width:0%"></div></div>
+                        <div class="sub-bar" title="Premium"><div id="barPremium" class="sub-bar-fill" style="background:#9C27B0; width:0%"></div></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                        <span class="sub-label">🥃 Clássico: <span id="txtClassico" style="color:#fff; font-weight:bold;">0/0</span></span>
+                        <span class="sub-label">💎 Premium: <span id="txtPremium" style="color:#fff; font-weight:bold;">0/0</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-box"><button class="eye-btn" onclick="toggleFaturamento()">👁️</button><div class="label">Faturamento</div><div class="big-stat" style="color:#FFD580;"><span id="valorFaturamento" style="filter:blur(5px);">R$ 0,00</span></div><div style="font-size:0.8em; color:#666;">Vendas: <span id="qtdVendasExtras">0</span></div></div>
+            <div class="card-box"><div class="label">📝 Pedido Manual (Admin)</div><div id="listaBotoesManual" style="margin-top:10px;"></div></div>
+        </div>
+        <div class="col-queue"><div class="queue-header"><span>🔥 Fila / Caixa</span><span style="font-size:0.8em; background:#FF4444; padding:2px 8px; border-radius:10px; color:white;" id="qtdFila">0</span></div><div class="queue-list" id="listaFila"></div></div>
+        <div class="col-history"><div class="queue-header">📜 Histórico</div><div id="listaHistorico"></div></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk",
+            authDomain: "gil-eventos-app-911fe.firebaseapp.com",
+            projectId: "gil-eventos-app-911fe",
+            storageBucket: "gil-eventos-app-911fe.firebasestorage.app",
+            messagingSenderId: "503025880352",
+            appId: "1:503025880352:web:694b7f2889cff501c7db45",
+            measurementId: "G-3DZ1P5C0M3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const params = new URLSearchParams(window.location.search);
+        const EVENTO_ID = params.get('evento');
+        let DADOS_EVENTO = null;
+        let FATURAMENTO_VISIVEL = false;
+        let wakeLock = null;
+        let SELECTED_CHAT_USER = null;
+        let CHAT_UNREAD_COUNT = 0;
+        
+        function limparString(str) {
+            if(!str) return "";
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim();
+        }
+
+        if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
+        if(EVENTO_ID) iniciarTorreControle();
+
+        async function requestWakeLock() { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
+        document.addEventListener('visibilitychange', async () => { if (wakeLock !== null && document.visibilityState === 'visible') requestWakeLock(); });
+
+        function iniciarTorreControle() {
+            requestWakeLock();
+            db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
+                if(doc.exists){ 
+                    DADOS_EVENTO = doc.data(); 
+                    atualizarInterface(DADOS_EVENTO); 
+                    gerarBotoes(DADOS_EVENTO.cardapio);
+                    gerarListaEstoque(DADOS_EVENTO.cardapio);
+                }
+            });
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["pendente", "aguardando_pagamento", "pagamento_rejeitado"]).onSnapshot((snapshot) => {
+                const lista = document.getElementById('listaFila');
+                document.getElementById('qtdFila').innerText = snapshot.size;
+                snapshot.docChanges().forEach((change) => { if (change.type === "added") document.getElementById('somAlerta').play().catch(()=>{}); });
+                lista.innerHTML = snapshot.empty ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
+                
+                let pedidos = [];
+                snapshot.forEach(doc => { pedidos.push({id: doc.id, ...doc.data()}); });
+                pedidos.sort((a, b) => { return a.data - b.data; });
+
+                pedidos.forEach(p => {
+                    const hora = p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    let classe, badge, btnHtml;
+                    let visualAviso = p.sinalizou_pagamento ? 'cliente-avisou' : '';
+                    let obsHtml = p.observacao ? `<span class="obs-tag">⚠️ OBS: ${p.observacao}</span>` : '';
+
+                    if(p.status === 'aguardando_pagamento' || p.status === 'pagamento_rejeitado') {
+                        classe = 'pagamento';
+                        badge = `🔴 AGUARDANDO PGTO (R$ ${p.preco}) ${p.sinalizou_pagamento ? '👉 CLIENTE PAGOU' : ''}`;
+                        btnHtml = `<button class="btn-deny" onclick="recusarPagamento('${p.id}')">🚫 NÃO CONSTA</button><button class="btn-pay" onclick="confirmarPagamento('${p.id}', ${p.preco})">💰 CONFIRMAR</button>`;
+                    } else {
+                        classe = p.tipo === 'extra' ? 'extra' : 'pacote';
+                        badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
+                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido')">✅ PRONTO</button>`;
+                    }
+
+                    lista.innerHTML += `
+                    <div class="order-card ${classe} ${visualAviso}">
+                        <div class="time">${hora}</div>
+                        <div class="client">${p.nome_convidado}</div>
+                        <div class="order-info"><h3>${p.drink}</h3><small style="background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:3px;">${badge}</small>${obsHtml}</div>
+                        <div class="actions"><button class="btn-cancel" onclick="cancelarPedido('${p.id}')">✖</button>${btnHtml}</div>
+                    </div>`;
+                });
+            });
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["servido", "cancelado"]).limit(30).onSnapshot((s) => { 
+                const l = document.getElementById('listaHistorico'); l.innerHTML = ''; 
+                s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); 
+            });
+            monitorarChat();
+        }
+
+        // --- LANÇAR MANUAL (LÓGICA NOVA: ADMIN ESCOLHE) ---
+        function lancarManual(item, tipoForcado) { 
+            const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
+            if(nome === null) return; 
+            
+            let tipo = tipoForcado;
+            let precoFinal = item.preco || 0;
+            if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
+
+            const categoriaNorm = limparString(item.categoria); 
+            let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
+            
+            db.collection("pedidos").add({ 
+                evento_id: EVENTO_ID, 
+                drink: item.nome, 
+                categoria_drink: item.categoria, 
+                tipo: tipo, 
+                preco: precoFinal,
+                nome_convidado: nome || "Balcão", 
+                status: statusInicial, 
+                sinalizou_pagamento: false, 
+                data: new Date() 
+            }).then(() => {
+                // INCREMENTA O CONTADOR SE FOR PACOTE (ADMIN FORÇOU)
+                if(tipo === 'pacote') {
+                    const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
+                    if (DADOS_EVENTO.tipo_servico === 'misto') {
+                        if (categoriaNorm === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
+                        else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
+                    }
+                    db.collection("eventos").doc(EVENTO_ID).update(updateData);
+                }
+            });
+        }
+
+        // --- GERAR BOTÕES DUPLOS (ADMIN) ---
+        function gerarBotoes(menu) { 
+            const div = document.getElementById('listaBotoesManual'); 
+            div.innerHTML = ''; 
+            menu.forEach(item => { 
+                const pausado = item.disponivel === false; 
+                let precoDisplay = item.preco || 0;
+                if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoDisplay = item.preco_prevenda;
+
+                const divRow = document.createElement('div');
+                divRow.className = `manual-row ${pausado ? 'pausado' : ''}`;
+                
+                // Mapeia o item para passar no onclick
+                // Usamos JSON.stringify/parse no onclick para evitar problemas de referência
+                const itemStr = JSON.stringify(item).replace(/"/g, "&quot;");
+
+                divRow.innerHTML = `
+                    <span class="manual-name">${item.nome} <small>(R$ ${precoDisplay})</small></span>
+                    <div class="manual-actions">
+                        <button class="btn-manual pct" onclick='lancarManual(${itemStr}, "pacote")'>🟢 PCT</button>
+                        <button class="btn-manual vd" onclick='lancarManual(${itemStr}, "extra")'>💲 VD</button>
+                    </div>
+                `;
+                div.appendChild(divRow); 
+            }); 
+        }
+
+        // --- MUDAR STATUS (APENAS VISUAL) ---
+        function mudarStatus(id, novoStatus) { 
+            if(!confirm("Entregar pedido?")) return; 
+            db.collection("pedidos").doc(id).update({ status: novoStatus }); 
+        }
+
+        // --- CANCELAR: DECREMENTA (DEVOLVE PRO PACOTE) ---
+        function cancelarPedido(id) { 
+            if(!confirm("Cancelar? O drink voltará para o saldo do pacote.")) return; 
+            
+            db.collection("pedidos").doc(id).get().then(doc => {
+                if(doc.exists) {
+                    const p = doc.data();
+                    db.collection("pedidos").doc(id).update({ status: 'cancelado' });
+
+                    if(p.tipo === 'pacote') {
+                        const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) };
+                        if (DADOS_EVENTO.tipo_servico === 'misto') {
+                            const cat = limparString(p.categoria_drink || 'classico');
+                            if (cat === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1);
+                            else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1);
+                        }
+                        db.collection("eventos").doc(EVENTO_ID).update(updateData);
+                    }
+                }
+            });
+        }
+
+        function monitorarChat() {
+            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
+                let novasMensagens = 0;
+                snapshot.docChanges().forEach(change => { if (change.type === 'added' && change.doc.data().remetente === 'cliente') { novasMensagens++; if(document.getElementById('chatOverlay').style.display === 'none') { document.getElementById('somAlerta').play().catch(()=>{}); } } });
+                if(novasMensagens > 0) { CHAT_UNREAD_COUNT += novasMensagens; const badge = document.getElementById('chatBadgeGlobal'); badge.innerText = CHAT_UNREAD_COUNT; badge.style.display = 'flex'; }
+            });
+        }
+        function abrirChatAdmin() { document.getElementById('chatOverlay').style.display = 'flex'; CHAT_UNREAD_COUNT = 0; document.getElementById('chatBadgeGlobal').style.display = 'none'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { const usuarios = new Set(); s.forEach(d => usuarios.add(d.data().nome)); const lista = document.getElementById('chatUsersList'); lista.innerHTML = ''; usuarios.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; }); }); }
+        function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
+        function carregarConversa(nome) { SELECTED_CHAT_USER = nome; const area = document.getElementById('chatAdminMsgs'); area.innerHTML = 'Carregando...'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { area.innerHTML = ''; let msgs = []; s.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const classe = m.remetente === 'admin' ? 'msg-admin' : 'msg-client'; area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; }); area.scrollTop = area.scrollHeight; }); }
+        function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
+        function abrirContatos() { document.getElementById('contactsOverlay').style.display = 'flex'; const lista = document.getElementById('listaContatos'); lista.innerHTML = "Carregando..."; db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => { if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; } lista.innerHTML = ""; q.forEach((doc) => { const d = doc.data(); let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : ""; lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`; }); }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; }); }
+        function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
+        function confirmarPagamento(id, preco) { if(!confirm("Confirmar pagamento?")) return; db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); }
+        function recusarPagamento(id) { if(!confirm("Tem certeza que NÃO consta?")) return; db.collection("pedidos").doc(id).update({ status: 'pagamento_rejeitado', sinalizou_pagamento: false }); }
+        function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
+        function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
+        function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
+        function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
+        function editarEvento() { const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('evento'); window.location.href = `config.html?evento=${id}`; }
+        function verificarSenha() { if(document.getElementById('senhaInput').value === DADOS_EVENTO.senha_admin) { document.getElementById('loginOverlay').style.display = 'none'; sessionStorage.setItem(`logado_${EVENTO_ID}`, true); document.getElementById('somAlerta').play().catch(()=>{}); } else document.getElementById('erroSenha').style.display='block'; }
+        function toggleFaturamento() { const el=document.getElementById('valorFaturamento'); if(FATURAMENTO_VISIVEL){el.style.filter='blur(5px)';FATURAMENTO_VISIVEL=false;}else{document.getElementById('eyeAuthOverlay').style.display='flex';document.getElementById('senhaEyeInput').focus();} }
+        function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
+        function mostrarQR() { const url=window.location.href.replace('dashboard.html','cardapio.html'); document.getElementById('qrcodeDisplay').innerHTML=''; new QRCode(document.getElementById("qrcodeDisplay"),{text:url,width:250,height:250}); document.getElementById('qrOverlay').style.display='flex'; }
+        function copiarLink() { navigator.clipboard.writeText(window.location.href.replace('dashboard.html','cardapio.html')); alert("Copiado!"); }
+        
+        function atualizarInterface(dados) { 
+            document.getElementById('nomeEvento').innerText = dados.nome; 
+            document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
+            
+            if (dados.tipo_servico === 'misto') {
+                document.getElementById('boxConsumoSimples').style.display = 'none';
+                document.getElementById('boxConsumoMisto').style.display = 'block';
+                
+                const cClassico = Number(dados.consumido_classico || 0);
+                const lClassico = Number(dados.limite_classico || 0);
+                const cPremium = Number(dados.consumido_premium || 0);
+                const lPremium = Number(dados.limite_premium || 0);
+
+                document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`;
+                document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
+                
+                const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0;
+                const pctPremium = lPremium > 0 ? (cPremium/lPremium)*100 : 0;
+
+                document.getElementById('barClassico').style.width = pctClassico + '%';
+                document.getElementById('barPremium').style.width = pctPremium + '%';
+
+            } else {
+                document.getElementById('boxConsumoSimples').style.display = 'block';
+                document.getElementById('boxConsumoMisto').style.display = 'none';
+                document.getElementById('consumido').innerText = dados.total_consumido;
+                if(dados.tipo_servico === 'pacote' || dados.tipo_servico === 'premium') { 
+                    document.getElementById('total').innerText = dados.total_contratado; 
+                    document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; 
+                } else {
+                    document.getElementById('total').innerText = '∞';
+                }
+            }
+
+            document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
+            document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; 
+            
+            const btnModo = document.getElementById('btnModoPreco'); 
+            if(dados.modo_preco === 'prevenda') { 
+                btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; 
+            } else { 
+                btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; 
+            } 
+        }
+    </script>
 </body>
-
 </html>
