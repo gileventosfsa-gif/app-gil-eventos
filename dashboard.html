@@ -19,9 +19,9 @@
         .big-stat { font-size: 2em; font-weight: 800; color: #4CAF50; }
         .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; }
         
-        /* BOTÕES DE DRINK MANUAL */
         .btn-drink { width: 100%; padding: 12px; background: #333; border: 1px solid #555; color: #fff; margin-bottom: 8px; border-radius: 6px; cursor: pointer; text-align: left; transition: 0.2s; display: flex; justify-content: space-between; }
         .btn-drink:hover { background: #FFD580; color: #000; border-color: #FFD580; }
+        .btn-drink.premium { border-left: 4px solid #9C27B0; }
         .btn-drink.pausado { opacity: 0.5; text-decoration: line-through; border-color: red; }
         .btn-price-tag { font-weight: bold; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
 
@@ -56,14 +56,11 @@
         .chat-area { width: 70%; display: flex; flex-direction: column; }
         .user-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; position: relative; }
         .user-item:hover, .user-item.active { background: #222; color: #FFD580; }
-        .user-unread { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; display: inline-block; margin-left: 5px; } 
         .chat-msgs { flex-grow: 1; background: #222; padding: 10px; overflow-y: auto; margin-bottom: 10px; border-radius: 5px; }
         .msg { padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; max-width: 80%; font-size: 0.9em; }
         .msg-client { background: #444; align-self: flex-start; }
         .msg-admin { background: #007bff; align-self: flex-end; text-align: right; }
         .chat-controls { display: flex; gap: 5px; }
-        
-        .btn-chat-wrapper { position: relative; }
         .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
 
         #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -74,6 +71,12 @@
         .contact-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; font-size: 0.9em; }
         .contact-row span { color: #aaa; }
         .contact-row strong { color: #FFD580; }
+
+        /* Barra Dupla para Misto */
+        .bars-container { display: flex; gap: 5px; margin-top: 5px; }
+        .sub-bar { flex: 1; background: #333; height: 8px; border-radius: 4px; overflow: hidden; position: relative; }
+        .sub-bar-fill { height: 100%; }
+        .sub-label { font-size: 0.7em; color: #aaa; display: block; margin-top: 2px; }
 
         @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; height: auto; } .col-commands, .col-queue, .col-history { height: 500px; margin-bottom: 20px; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -121,7 +124,24 @@
 
     <div class="grid-layout">
         <div class="col-commands">
-            <div class="card-box"><div class="label">Consumo Pacote</div><div class="big-stat"><span id="consumido">0</span> <span style="font-size:0.5em; color:#666;">/ <span id="total">∞</span></span></div><div style="height:5px; background:#333; margin-top:5px;"><div id="progressoBar" style="height:100%; width:0%; background:#4CAF50;"></div></div></div>
+            <div class="card-box">
+                <div class="label">Consumo Pacote</div>
+                <div id="boxConsumoSimples">
+                    <div class="big-stat"><span id="consumido">0</span> <span style="font-size:0.5em; color:#666;">/ <span id="total">∞</span></span></div>
+                    <div style="height:5px; background:#333; margin-top:5px;"><div id="progressoBar" style="height:100%; width:0%; background:#4CAF50;"></div></div>
+                </div>
+                <div id="boxConsumoMisto" style="display:none;">
+                    <div class="bars-container">
+                        <div class="sub-bar"><div id="barClassico" class="sub-bar-fill" style="background:#4CAF50; width:0%"></div></div>
+                        <div class="sub-bar"><div id="barPremium" class="sub-bar-fill" style="background:#9C27B0; width:0%"></div></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                        <span class="sub-label">Clássico: <span id="txtClassico">0/0</span></span>
+                        <span class="sub-label">Premium: <span id="txtPremium">0/0</span></span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="card-box"><button class="eye-btn" onclick="toggleFaturamento()">👁️</button><div class="label">Faturamento</div><div class="big-stat" style="color:#FFD580;"><span id="valorFaturamento" style="filter:blur(5px);">R$ 0,00</span></div><div style="font-size:0.8em; color:#666;">Vendas: <span id="qtdVendasExtras">0</span></div></div>
             <div class="card-box"><div class="label">📝 Pedido Manual</div><div id="listaBotoesManual" style="margin-top:10px;"></div></div>
         </div>
@@ -191,7 +211,7 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
-                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}')">✅ PRONTO</button>`;
+                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${p.categoria_drink}')">✅ PRONTO</button>`;
                     }
 
                     lista.innerHTML += `
@@ -210,21 +230,28 @@
             monitorarChat();
         }
 
-        // --- LANÇAMENTO MANUAL INTELIGENTE ---
+        // --- LANÇAMENTO MANUAL INTELIGENTE PARA MISTO ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
             
             let tipo = 'pacote';
             let precoFinal = item.preco || 0;
+            if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
 
-            // LÓGICA DE PREÇO PRÉ-VENDA
-            if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
-                precoFinal = item.preco_prevenda;
-            }
-
-            if(item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico==='pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado)) { 
-                tipo='extra'; 
+            // VERIFICAÇÃO DE COBRANÇA
+            if(item.tipo_cobranca === 'pago') {
+                tipo = 'extra';
+            } else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
+                // Lógica Simples (Total Geral)
+                if(DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) tipo = 'extra';
+            } else if (DADOS_EVENTO.tipo_servico === 'misto') {
+                // LÓGICA MISTA (SEPARADA)
+                if (item.categoria === 'classico') {
+                    if ((DADOS_EVENTO.consumido_classico || 0) >= DADOS_EVENTO.limite_classico) tipo = 'extra';
+                } else if (item.categoria === 'premium') {
+                    if ((DADOS_EVENTO.consumido_premium || 0) >= DADOS_EVENTO.limite_premium) tipo = 'extra';
+                }
             }
             
             let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
@@ -232,47 +259,34 @@
             db.collection("pedidos").add({ 
                 evento_id: EVENTO_ID, 
                 drink: item.nome, 
+                categoria_drink: item.categoria, // Salva a categoria para incrementar certo depois
                 tipo: tipo, 
-                preco: precoFinal, // Valor correto (Pré ou Normal)
+                preco: precoFinal,
                 nome_convidado: nome || "Balcão", 
                 status: statusInicial, 
                 sinalizou_pagamento: false, 
                 data: new Date() 
             }); 
-
-            // Se for pago, já soma imediatamente se quiser (Opcional, mas aqui mantive a confirmação via botão)
-            // Se quiser forçar a soma aqui, descomente:
-            /* if(tipo === 'extra') {
-                db.collection("eventos").doc(EVENTO_ID).update({ 
-                    total_vendas_extra: firebase.firestore.FieldValue.increment(1),
-                    total_faturamento: firebase.firestore.FieldValue.increment(precoFinal)
-                });
-            } */
         }
 
-        // --- GERAR BOTÕES COM PREÇO DINÂMICO ---
         function gerarBotoes(menu) { 
             const div = document.getElementById('listaBotoesManual'); 
             div.innerHTML = ''; 
             menu.forEach(item => { 
                 const btn = document.createElement('button'); 
                 const pausado = item.disponivel === false; 
-                btn.className = item.is_premium ? 'btn-drink premium' : 'btn-drink'; 
+                btn.className = item.categoria === 'premium' ? 'btn-drink premium' : 'btn-drink'; 
                 if(pausado) btn.classList.add('pausado'); 
                 
-                // Exibe o preço atual
                 let precoDisplay = item.preco || 0;
-                if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
-                    precoDisplay = item.preco_prevenda;
-                }
+                if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoDisplay = item.preco_prevenda;
 
-                btn.innerHTML = `<span>${(item.is_premium?'💲 ':'🆓 ')}${item.nome} ${(pausado ? '(PAUSADO)' : '')}</span> <span class="btn-price-tag">R$ ${precoDisplay}</span>`; 
+                btn.innerHTML = `<span>${(item.categoria==='premium'?'💎 ':'🥃 ')}${item.nome} ${(pausado ? '(PAUSADO)' : '')}</span> <span class="btn-price-tag">R$ ${precoDisplay}</span>`; 
                 btn.onclick = () => { if(!pausado) lancarManual(item); else alert("Drink pausado."); }; 
                 div.appendChild(btn); 
             }); 
         }
 
-        // --- FUNÇÕES DE CHAT, ESTOQUE E UTILITÁRIOS ---
         function monitorarChat() {
             db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 let novasMensagens = 0;
@@ -286,9 +300,28 @@
         function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
         function abrirContatos() { document.getElementById('contactsOverlay').style.display = 'flex'; const lista = document.getElementById('listaContatos'); lista.innerHTML = "Carregando..."; db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => { if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; } lista.innerHTML = ""; q.forEach((doc) => { const d = doc.data(); let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : ""; lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`; }); }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; }); }
         function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
+        
         function confirmarPagamento(id, preco) { if(!confirm("Confirmar pagamento?")) return; db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); }
         function recusarPagamento(id) { if(!confirm("Tem certeza que NÃO consta?")) return; db.collection("pedidos").doc(id).update({ status: 'pagamento_rejeitado', sinalizou_pagamento: false }); }
-        function mudarStatus(id, novoStatus, tipo) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }); if(novoStatus === 'servido' && tipo === 'pacote') db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: firebase.firestore.FieldValue.increment(1) }); }
+        
+        // ATUALIZAÇÃO DO STATUS + CONTADORES SEPARADOS
+        function mudarStatus(id, novoStatus, tipo, categoria) { 
+            if(!confirm("Entregar pedido?")) return; 
+            db.collection("pedidos").doc(id).update({ status: novoStatus }); 
+            
+            if(novoStatus === 'servido' && tipo === 'pacote') {
+                const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
+                
+                // Se for Misto, incrementa específico também
+                if (DADOS_EVENTO.tipo_servico === 'misto') {
+                    if (categoria === 'classico') updateData.consumido_classico = firebase.firestore.FieldValue.increment(1);
+                    if (categoria === 'premium') updateData.consumido_premium = firebase.firestore.FieldValue.increment(1);
+                }
+                
+                db.collection("eventos").doc(EVENTO_ID).update(updateData); 
+            } 
+        }
+        
         function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }); }
         function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
@@ -300,8 +333,49 @@
         function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
         function mostrarQR() { const url=window.location.href.replace('dashboard.html','index.html'); document.getElementById('qrcodeDisplay').innerHTML=''; new QRCode(document.getElementById("qrcodeDisplay"),{text:url,width:250,height:250}); document.getElementById('qrOverlay').style.display='flex'; }
         function copiarLink() { navigator.clipboard.writeText(window.location.href.replace('dashboard.html','index.html')); alert("Copiado!"); }
-        function atualizarInterface(dados) { document.getElementById('nomeEvento').innerText = dados.nome; document.getElementById('consumido').innerText = dados.total_consumido; if(dados.tipo_servico === 'pacote') { document.getElementById('total').innerText = dados.total_contratado; document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; } document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; const btnModo = document.getElementById('btnModoPreco'); if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; } }
+        
+        function atualizarInterface(dados) { 
+            document.getElementById('nomeEvento').innerText = dados.nome; 
+            document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
+            
+            // Lógica de Exibição Misto vs Normal
+            if (dados.tipo_servico === 'misto') {
+                document.getElementById('boxConsumoSimples').style.display = 'none';
+                document.getElementById('boxConsumoMisto').style.display = 'block';
+                
+                const cClassico = dados.consumido_classico || 0;
+                const lClassico = dados.limite_classico || 0;
+                const cPremium = dados.consumido_premium || 0;
+                const lPremium = dados.limite_premium || 0;
+
+                document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`;
+                document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
+                
+                document.getElementById('barClassico').style.width = ((cClassico/lClassico)*100) + '%';
+                document.getElementById('barPremium').style.width = ((cPremium/lPremium)*100) + '%';
+
+            } else {
+                document.getElementById('boxConsumoSimples').style.display = 'block';
+                document.getElementById('boxConsumoMisto').style.display = 'none';
+                document.getElementById('consumido').innerText = dados.total_consumido;
+                if(dados.tipo_servico === 'pacote' || dados.tipo_servico === 'premium') { 
+                    document.getElementById('total').innerText = dados.total_contratado; 
+                    document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; 
+                } else {
+                    document.getElementById('total').innerText = '∞';
+                }
+            }
+
+            document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
+            document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; 
+            
+            const btnModo = document.getElementById('btnModoPreco'); 
+            if(dados.modo_preco === 'prevenda') { 
+                btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; 
+            } else { 
+                btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; 
+            } 
+        }
     </script>
 </body>
 </html>
-
