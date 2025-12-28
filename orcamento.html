@@ -16,8 +16,22 @@
         .btn-gold:hover { background: var(--gold); color: var(--dark); box-shadow: 0 0 20px rgba(255, 213, 128, 0.4); }
         .btn-gradient { background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: #fff; padding: 14px 28px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1em; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255,149,0,0.3); text-decoration: none; display: inline-block; width: 100%; text-align: center; }
         .btn-gradient:hover { transform: scale(1.02); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
+        
+        /* AJUSTE PARA VÍDEO DO YOUTUBE NO FUNDO */
         .hero-section { position:relative; height:100vh; height:100dvh; overflow:hidden; border-bottom:4px solid var(--gold); }
-        .hero-video { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; filter:brightness(50%); }
+        .hero-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
+        .hero-video { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            width: 100vw; 
+            height: 56.25vw; /* 16:9 Aspect Ratio */
+            min-height: 100vh; 
+            min-width: 177.77vh; /* 16:9 Aspect Ratio */
+            transform: translate(-50%, -50%); 
+            pointer-events: none;
+        }
+        
         .hero-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(18,18,18,0.9) 100%); z-index:1; }
         .hero-content { position:relative; z-index:2; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; padding: 0 20px; }
         .menu-section { background-color:#121212; background-image: radial-gradient(circle at top right, #1f1f1f, #121212); padding:60px 20px; }
@@ -56,7 +70,15 @@
 </head>
 <body>
     <div class="hero-section">
-        <video autoplay muted loop playsinline class="hero-video"><source src="https://solucoesdigital.site/wp-content/uploads/2025/10/A_cinematic_tropical_202510312102_lig90.mp4" type="video/mp4"></video>
+        <div class="hero-video-container">
+            <iframe class="hero-video" 
+                src="https://www.youtube.com/embed/SYIByr8BKoQ?autoplay=1&mute=1&controls=0&loop=1&playlist=SYIByr8BKoQ&playsinline=1&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1" 
+                frameborder="0" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1 style="font-size: clamp(3em, 8vw, 5em); font-weight:800; text-transform:uppercase; margin:0; line-height:1.1; background: linear-gradient(45deg, #FFD580, #FFAE00, #FFF5D0, #FFAE00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 20px rgba(255, 174, 0, 0.3)); opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 0.2s;">Gil Eventos</h1>
