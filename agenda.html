@@ -13,27 +13,33 @@
         .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; font-size: 1.2em; }
         .page-title { font-size: 2em; margin: 5px 0; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        .btn-orcamento { display: inline-block; margin-top: 15px; padding: 12px 30px; background: linear-gradient(145deg, #1e1e1e, #252525); border: 2px solid #FF9500; color: #FF9500; text-decoration: none; font-weight: 800; border-radius: 50px; text-transform: uppercase; font-size: 0.9em; }
+        .btn-orcamento { display: inline-block; margin-top: 15px; padding: 12px 30px; background: linear-gradient(145deg, #1e1e1e, #252525); border: 2px solid #FF9500; color: #FF9500; text-decoration: none; font-weight: 800; border-radius: 50px; text-transform: uppercase; font-size: 0.9em; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.3s; }
         .btn-orcamento:hover { background: #FF9500; color: #000; transform: scale(1.05); }
 
         .check-availability-box { background: linear-gradient(145deg, #1e1e1e, #252525); padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 30px; border: 1px solid #333; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         .input-3d { padding: 12px; border-radius: 10px; border: 1px solid #333; background: #121212; color: #fff; width: 100%; flex: 1; min-width: 140px; }
-        .btn-3d-check { background: linear-gradient(145deg, #FF9500, #F57C00); color: #000; font-weight: 800; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; text-transform: uppercase; }
+        .btn-3d-check { background: linear-gradient(145deg, #FF9500, #F57C00); color: #000; font-weight: 800; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
 
         .calendar-nav { background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 30px; border: 1px solid #333; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .day-cell { height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #aaa; background: #222; position: relative; }
+        .day-cell { height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #aaa; background: #222; position: relative; cursor: pointer; }
         .day-cell.today { border: 1px solid #FF9500; color: #FF9500; }
         .event-badge { position: absolute; top: -5px; right: -5px; background: #FF9500; color: #000; font-size: 0.6em; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; border: 1px solid #333; margin-bottom: 10px; border-bottom: 4px solid #FF9500; }
-        .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #666; text-decoration: none; border: 1px solid #444; }
+        .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; border: 1px solid #333; margin-bottom: 10px; border-bottom: 4px solid #FF9500; transition: transform 0.2s; }
+        .event-block:hover { transform: translateY(-3px); border-color: #555; }
+        
+        .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #666; text-decoration: none; border: 1px solid #444; font-size: 1.5em; z-index: 1000; }
         
         #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; }
         .status-busy { background: rgba(244, 67, 54, 0.1); border-color: #F44336; color: #F44336; }
         .status-negotiate { background: rgba(255, 149, 0, 0.1); border-color: #FF9500; color: #FF9500; }
         .status-available { background: rgba(76, 175, 80, 0.1); border-color: #4CAF50; color: #4CAF50; }
+        
+        .btn-whatsapp { display: inline-block; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; margin-top: 10px; color: #fff; }
+        .btn-whatsapp.green { background: #25D366; }
+        .btn-whatsapp.orange { background: #FF9500; color: #000; }
     </style>
 </head>
 <body>
@@ -51,16 +57,15 @@
                 <input type="date" id="checkDate" class="input-3d">
                 <input type="time" id="checkTime" class="input-3d">
             </div>
-            <br>
             <button class="btn-3d-check" onclick="verificarDisponibilidade()">VERIFICAR AGORA</button>
             <div id="resultArea"></div>
         </div>
 
         <div class="calendar-nav">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:#fff; font-weight:bold;">
-                <button onclick="mudarMes(-1)" style="background:none; border:none; color:#fff; font-size:1.2em;">❮</button>
-                <span id="monthDisplay">...</span>
-                <button onclick="mudarMes(1)" style="background:none; border:none; color:#fff; font-size:1.2em;">❯</button>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:#fff; font-weight:bold; align-items: center;">
+                <button onclick="mudarMes(-1)" style="background:none; border:none; color:#fff; font-size:1.5em; cursor:pointer;">❮</button>
+                <span id="monthDisplay" style="text-transform: uppercase;">...</span>
+                <button onclick="mudarMes(1)" style="background:none; border:none; color:#fff; font-size:1.5em; cursor:pointer;">❯</button>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
         </div>
@@ -99,21 +104,37 @@
             
             let status = "LIVRE";
             let msg = "Horário Disponível!";
+            let linkZap = `https://wa.me/5575992011008?text=Ola Gil! Quero reservar dia ${data.split('-').reverse().join('/')} as ${hora}.`;
+            let btnClass = "green";
+            let btnText = "RESERVAR AGORA ➔";
 
             if (eventsOnDay.length > 0) {
-                status = "NEGOCIAR"; msg = "Data com evento, mas talvez dê para encaixar.";
+                status = "NEGOCIAR"; 
+                msg = "Data com evento, mas talvez dê para encaixar.";
+                linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${data} tem evento mas meu horario ${hora} tem intervalo bom. Podemos fechar?`;
+                btnClass = "orange";
+                btnText = "COMBINAR HORÁRIO ➔";
+
                 eventsOnDay.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
                         const diff = Math.abs(reqMinutos - (eh * 60 + em));
-                        if (diff < 240) { status = "OCUPADO"; msg = "Conflito de horário (menos de 4h de intervalo)."; }
-                    } else { status = "OCUPADO"; msg = "Data Bloqueada."; }
+                        if (diff < 240) { 
+                            status = "OCUPADO"; 
+                            msg = "Conflito de horário (menos de 4h de intervalo).";
+                            linkZap = `https://wa.me/5575992011008?text=Ola Gil! Vi que dia ${data} as ${hora} ta ocupado, tem jeito de encaixar?`;
+                            btnClass = "orange";
+                            btnText = "TENTAR ENCAIXE ➔";
+                        }
+                    } else { 
+                        status = "OCUPADO"; msg = "Data Bloqueada."; 
+                    }
                 });
             }
 
             resultDiv.style.display = 'block';
             resultDiv.className = status === 'OCUPADO' ? 'status-busy' : (status === 'NEGOCIAR' ? 'status-negotiate' : 'status-available');
-            resultDiv.innerHTML = `<h3>${status}</h3><p>${msg}</p>`;
+            resultDiv.innerHTML = `<h3 style="margin:0;">${status}</h3><p>${msg}</p><a href="${linkZap}" class="btn-whatsapp ${btnClass}">${btnText}</a>`;
         }
 
         function renderCalendar() {
@@ -122,8 +143,12 @@
             grid.innerHTML = '';
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
+            const weekDays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+            
             monthDisplay.innerText = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
             
+            weekDays.forEach(d => grid.innerHTML += `<div style="text-align:center; color:#666; font-size:0.8em; margin-bottom:5px;">${d}</div>`);
+
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
@@ -131,7 +156,12 @@
             for(let i=1; i<=daysInMonth; i++) {
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
                 const count = eventsCache.filter(e => e.data_evento === dateStr).length;
-                grid.innerHTML += `<div class="day-cell ${dateStr === new Date().toISOString().split('T')[0] ? 'today' : ''}" onclick="document.getElementById('checkDate').value='${dateStr}'">${i} ${count > 0 ? `<div class="event-badge">${count}</div>` : ''}</div>`;
+                const isToday = dateStr === new Date().toISOString().split('T')[0];
+                
+                grid.innerHTML += `
+                    <div class="day-cell ${isToday ? 'today' : ''}" onclick="document.getElementById('checkDate').value='${dateStr}'; window.scrollTo({top:0, behavior:'smooth'});">
+                        ${i} ${count > 0 ? `<div class="event-badge">${count}</div>` : ''}
+                    </div>`;
             }
         }
 
@@ -145,7 +175,12 @@
             if(monthEvents.length === 0) container.innerHTML = '<p style="color:#666; text-align:center;">Sem eventos públicos.</p>';
 
             monthEvents.sort((a,b) => a.data_evento.localeCompare(b.data_evento)).forEach(e => {
-                container.innerHTML += `<div class="event-block"><strong style="color:#FF9500;">${e.data_evento.split('-')[2]}/${e.data_evento.split('-')[1]}</strong> - ${e.cliente}</div>`;
+                const dia = e.data_evento.split('-')[2];
+                container.innerHTML += `
+                    <div class="event-block">
+                        <strong style="color:#FF9500; font-size:1.2em;">${dia}</strong> - ${e.cliente}
+                        <br><span style="color:#777; font-size:0.9em;">${e.hora_inicio ? e.hora_inicio : 'Dia todo'}</span>
+                    </div>`;
             });
         }
 
