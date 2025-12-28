@@ -430,7 +430,7 @@
 
             // *** CORREÇÃO: Enviamos a Categoria e o Nome do Drink para o mudarStatus ***
 
-            btnHtml = `<button class="btn-ok" onclick="mudarStatusSafe('${p.id}', 'servido', '${p.tipo}', '${p.categoria_drink}', '${p.drink}')">✅ PRONTO</button>`;
+            btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${p.categoria_drink}', '${p.drink}')">✅ PRONTO</button>`;
 
           }
 
@@ -631,35 +631,6 @@
     }
 
      
-
-    function mudarStatusSafe(id, novoStatus, tipo, categoriaRecebida, nomeDrink) {
-      if(!confirm("Entregar pedido?")) return;
-      // atualiza status do pedido
-      db.collection("pedidos").doc(id).update({ status: novoStatus });
-
-      // somente contabiliza se for pacote e não tiver sido contabilizado antes
-      if(novoStatus === 'servido' && tipo === 'pacote') {
-        db.collection("pedidos").doc(id).get().then(pdoc => {
-          const pData = pdoc.exists ? pdoc.data() : {};
-          if(pData.contabilizado) return; // já contabilizado
-
-          const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
-          if (DADOS_EVENTO.tipo_servico === 'misto') {
-            let cat = categoriaRecebida;
-            if (!cat || cat === 'undefined') {
-              const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === nomeDrink);
-              if(itemMenu) cat = itemMenu.categoria;
-            }
-            if (cat === 'classico') updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
-            if (cat === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
-          }
-
-          db.collection("eventos").doc(EVENTO_ID).update(updateData).then(() => {
-            db.collection('pedidos').doc(id).update({ contabilizado: true }).catch(()=>{});
-          }).catch(()=>{});
-        }).catch(()=>{});
-      }
-    }
 
     function monitorarChat() {
 
