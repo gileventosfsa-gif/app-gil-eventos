@@ -13,194 +13,43 @@
         .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; font-size: 1.2em; }
         .page-title { font-size: 2em; margin: 5px 0; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        /* BOTÃO PARA IR AO ORÇAMENTO */
-        .btn-orcamento {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 12px 30px;
-            background: linear-gradient(145deg, #1e1e1e, #252525);
-            border: 2px solid #FF9500;
-            color: #FF9500;
-            text-decoration: none;
-            font-weight: 800;
-            border-radius: 50px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transition: 0.3s;
-            text-transform: uppercase;
-            font-size: 0.9em;
-        }
-        .btn-orcamento:hover {
-            background: #FF9500;
-            color: #000;
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 149, 0, 0.4);
-        }
+        .btn-orcamento { display: inline-block; margin-top: 15px; padding: 12px 30px; background: linear-gradient(145deg, #1e1e1e, #252525); border: 2px solid #FF9500; color: #FF9500; text-decoration: none; font-weight: 800; border-radius: 50px; text-transform: uppercase; font-size: 0.9em; }
+        .btn-orcamento:hover { background: #FF9500; color: #000; transform: scale(1.05); }
 
-        /* --- VERIFICAÇÃO --- */
-        .check-availability-box {
-            background: linear-gradient(145deg, #1e1e1e, #252525);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            text-align: center;
-            margin-bottom: 30px;
-            border: 1px solid #333;
-            margin-top: 30px; /* Espaço para o botão de orçamento */
-        }
-        .check-title { color: #FF9500; font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.1em; text-transform: uppercase; }
+        .check-availability-box { background: linear-gradient(145deg, #1e1e1e, #252525); padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 30px; border: 1px solid #333; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        
-        .input-3d, .textarea-3d {
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            background: #121212;
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1em;
-            width: 100%;
-        }
-        .input-3d { flex: 1; min-width: 140px; }
-        .textarea-3d { resize: vertical; min-height: 80px; }
+        .input-3d { padding: 12px; border-radius: 10px; border: 1px solid #333; background: #121212; color: #fff; width: 100%; flex: 1; min-width: 140px; }
+        .btn-3d-check { background: linear-gradient(145deg, #FF9500, #F57C00); color: #000; font-weight: 800; padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; text-transform: uppercase; }
 
-        .btn-3d-check {
-            background: linear-gradient(145deg, #FF9500, #F57C00);
-            color: #000;
-            font-weight: 800;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 149, 0, 0.2);
-            transition: 0.2s;
-            text-transform: uppercase;
-        }
-        .btn-3d-check:active { transform: scale(0.95); }
-
-        /* --- CALENDÁRIO --- */
         .calendar-nav { background: #1a1a1a; padding: 15px; border-radius: 15px; margin-bottom: 30px; border: 1px solid #333; }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .month-year { font-size: 1.2em; font-weight: bold; color: #fff; text-transform: uppercase; }
-        .btn-nav-cal { background: #333; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .weekday { text-align: center; color: #666; font-size: 0.7em; font-weight: bold; margin-bottom: 5px; }
-        .day-cell { height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.9em; color: #aaa; position: relative; background: #222; cursor: pointer; }
+        .day-cell { height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #aaa; background: #222; position: relative; }
         .day-cell.today { border: 1px solid #FF9500; color: #FF9500; }
-        .event-badge { position: absolute; top: -5px; right: -5px; background: #FF9500; color: #000; font-size: 0.6em; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .day-cell.has-past-event .event-badge { background: #555; color: #fff; }
+        .event-badge { position: absolute; top: -5px; right: -5px; background: #FF9500; color: #000; font-size: 0.6em; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        /* --- BLOCOS DE EVENTOS --- */
-        .events-grid-title { font-size: 1.2em; color: #fff; margin-bottom: 15px; border-left: 4px solid #FF9500; padding-left: 10px; }
-        .events-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; border: 1px solid #333; margin-bottom: 10px; border-bottom: 4px solid #FF9500; }
+        .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #666; text-decoration: none; border: 1px solid #444; }
         
-        .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; padding-top: 40px; position: relative; border: 1px solid #333; transition: transform 0.2s; overflow: hidden; }
-        .event-block:hover { transform: translateY(-3px); border-color: #555; }
-        
-        .event-block.future { border-bottom: 4px solid #FF9500; }
-        .event-block.future .status-pill { background: rgba(255, 149, 0, 0.15); color: #FF9500; border: 1px solid #FF9500; }
-        
-        .event-block.holiday { border-bottom: 4px solid #9C27B0; }
-        .event-block.holiday .status-pill { background: rgba(156, 39, 176, 0.15); color: #E040FB; border: 1px solid #E040FB; }
-
-        .event-block.past { border-bottom: 4px solid #555; opacity: 0.7; }
-        .event-block.past .status-pill { background: #333; color: #aaa; border: 1px solid #555; }
-        
-        .event-date { font-size: 1.8em; font-weight: 800; color: #fff; line-height: 1; }
-        .event-month { font-size: 0.9em; text-transform: uppercase; color: #888; margin-bottom: 10px; display: block; }
-        .event-client { font-size: 1.1em; color: #ddd; display: block; margin-bottom: 5px; }
-        .event-time { font-size: 0.9em; color: #888; display: flex; align-items: center; gap: 5px; }
-        
-        .status-pill { 
-            position: absolute; top: 10px; right: 10px; left: 10px;
-            text-align: center; padding: 4px 5px; border-radius: 20px; 
-            font-size: 0.65em; font-weight: bold; text-transform: uppercase; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
-        /* --- RESULTADOS --- */
-        #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
-        .status-available { background: rgba(76, 175, 80, 0.1); border-color: #4CAF50; color: #4CAF50; }
+        #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; }
         .status-busy { background: rgba(244, 67, 54, 0.1); border-color: #F44336; color: #F44336; }
         .status-negotiate { background: rgba(255, 149, 0, 0.1); border-color: #FF9500; color: #FF9500; }
-        .btn-whatsapp { padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 15px; color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .btn-whatsapp.green { background: #25D366; }
-        .btn-whatsapp.orange { background: #FF9500; color: black; }
-
-        /* --- ADMIN GERAL --- */
-        #loginOverlay, #editModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; display: none; }
-        #adminArea { display: none; background: #1a1a1a; padding: 20px; border-radius: 20px; margin-top: 40px; border: 1px solid #444; }
-        .admin-trigger { position: fixed; bottom: 20px; right: 20px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; opacity: 0.5; z-index: 800; }
-        .admin-section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
-        .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
-        
-        /* ABAS ADMIN */
-        .admin-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #333; }
-        .tab-adm-btn { flex: 1; padding: 10px; background: #222; border: none; color: #777; cursor: pointer; font-weight: bold; font-size: 0.8em; }
-        .tab-adm-btn.active { background: #FF9500; color: #000; border-top-left-radius: 8px; border-top-right-radius: 8px; }
-        .tab-content-admin { display: none; max-height: 400px; overflow-y: auto; }
-        .tab-content-admin.active { display: block; }
-
-        .event-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; font-size: 0.9em; border-left: 4px solid #777; }
-        .event-list-item.confirmed { border-left: 5px solid #00E676; background: rgba(0, 230, 118, 0.1); }
-        .event-list-item.pending { border-left-color: #FF9500; }
-        .event-list-item.past { border-left-color: #555; opacity: 0.6; }
-        
-        .event-actions { display: flex; gap: 5px; }
-        .btn-icon { background: #333; border: 1px solid #444; color: #ddd; font-size: 1em; cursor: pointer; padding: 6px 10px; border-radius: 5px; }
-        .btn-icon.confirm-btn { background: #00E676; color: #000; border: none; font-weight: bold; }
-        .btn-icon.delete-btn { color: #F44336; }
-        
-        .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
-        .modal-label { display: block; text-align: left; color: #aaa; margin: 10px 0 5px 0; font-size: 0.9em; }
-
-        @media (max-width: 600px) { .input-group { flex-direction: column; } }
+        .status-available { background: rgba(76, 175, 80, 0.1); border-color: #4CAF50; color: #4CAF50; }
     </style>
 </head>
 <body>
-
-    <div id="loginOverlay">
-        <h2 style="color:#FF9500;">ACESSO RESTRITO</h2>
-        <input type="password" id="senhaInput" placeholder="Senha" class="input-3d" style="max-width:200px; text-align:center;">
-        <br>
-        <button class="btn-3d-check" onclick="logarAdmin()">ACESSAR</button>
-        <button style="background:none; border:none; color:#666; margin-top:20px;" onclick="document.getElementById('loginOverlay').style.display='none'">Voltar</button>
-    </div>
-
-    <div id="editModalOverlay">
-        <div class="modal-box">
-            <h3 style="color:#FF9500; margin-top:0;">📝 Detalhes do Evento</h3>
-            <input type="hidden" id="editId">
-            <span class="modal-label">Nome do Evento / Cliente:</span>
-            <input type="text" id="editCliente" class="input-3d">
-            <div class="input-group" style="margin-top:10px;">
-                <div style="flex:1"><span class="modal-label">Data:</span><input type="date" id="editData" class="input-3d"></div>
-                <div style="flex:1"><span class="modal-label">Hora Início:</span><input type="time" id="editHora" class="input-3d"></div>
-            </div>
-            <div class="input-group" style="margin-top:10px;">
-                <div style="flex:1"><span class="modal-label">Duração (h):</span><input type="number" id="editDuracao" class="input-3d"></div>
-            </div>
-            <span class="modal-label">📄 Lista de Materiais / Obs:</span>
-            <textarea id="editDetalhes" class="textarea-3d" placeholder="Cole aqui a lista de materiais..."></textarea>
-            <br><br>
-            <button class="btn-3d-check" style="width:100%;" onclick="salvarEdicao()">💾 SALVAR</button>
-            <button onclick="document.getElementById('editModalOverlay').style.display='none'" style="width:100%; padding:10px; background:none; border:none; color:#888; margin-top:10px;">Cancelar</button>
-        </div>
-    </div>
 
     <div class="container">
         <div class="header">
             <span class="brand">GIL EVENTOS</span>
             <h1 class="page-title">Agenda & Disponibilidade</h1>
-            
             <a href="orcamento.html" class="btn-orcamento">💰 SIMULAR ORÇAMENTO</a>
         </div>
 
         <div class="check-availability-box">
-            <span class="check-title">🔍 Pesquisar Data</span>
+            <h3 style="color:#FF9500; margin-top:0;">🔍 Pesquisar Data</h3>
             <div class="input-group">
                 <input type="date" id="checkDate" class="input-3d">
                 <input type="time" id="checkTime" class="input-3d">
-                <input type="number" id="checkDuration" class="input-3d" placeholder="Duração (h)" value="4" min="1">
             </div>
             <br>
             <button class="btn-3d-check" onclick="verificarDisponibilidade()">VERIFICAR AGORA</button>
@@ -208,312 +57,99 @@
         </div>
 
         <div class="calendar-nav">
-            <div class="calendar-header">
-                <button class="btn-nav-cal" onclick="mudarMes(-1)">❮</button>
-                <div class="month-year" id="monthDisplay">...</div>
-                <button class="btn-nav-cal" onclick="mudarMes(1)">❯</button>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:#fff; font-weight:bold;">
+                <button onclick="mudarMes(-1)" style="background:none; border:none; color:#fff; font-size:1.2em;">❮</button>
+                <span id="monthDisplay">...</span>
+                <button onclick="mudarMes(1)" style="background:none; border:none; color:#fff; font-size:1.2em;">❯</button>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
         </div>
 
-        <div class="events-grid-title">Agendamentos deste Mês</div>
-        <div class="events-container" id="eventsContainer">
-            <p style="color:#666; text-align:center; width:100%;">Nenhum evento público neste mês.</p>
-        </div>
-
-        <div id="adminArea">
-            <h2 style="color:#FF9500; margin-top:0;">⚙️ Painel de Gestão (CRM)</h2>
-            
-            <div class="admin-section">
-                <h4 style="color:#aaa;">Novo Agendamento</h4>
-                <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Evento" style="margin-bottom:10px;">
-                <div class="input-group">
-                    <input type="date" id="admData" class="input-3d">
-                    <input type="time" id="admHora" class="input-3d">
-                    <input type="number" id="admDuracao" class="input-3d" placeholder="Duração" value="5">
-                </div>
-                <textarea id="admDetalhes" class="textarea-3d" style="margin-top:10px;" placeholder="Obs / Lista de Materiais..."></textarea>
-                <button class="btn-3d-check" style="font-size:0.9em; padding:10px; margin-top:10px; width:100%;" onclick="salvarEventoManual()">CADASTRAR</button>
-            </div>
-
-            <div class="admin-section">
-                <h4 style="color:#aaa;">Minha Agenda</h4>
-                <div class="admin-tabs">
-                    <button class="tab-adm-btn active" onclick="mudarAbaAdmin('confirmados')">✅ CONFIRMADOS</button>
-                    <button class="tab-adm-btn" onclick="mudarAbaAdmin('outros')">📝 OUTROS</button>
-                    <button class="tab-adm-btn" onclick="mudarAbaAdmin('concluidos')">🏁 CONCLUÍDOS</button>
-                </div>
-                <div id="listConfirmed" class="tab-content-admin active"></div>
-                <div id="listOthers" class="tab-content-admin"></div>
-                <div id="listConcluded" class="tab-content-admin"></div>
-            </div>
-
-            <div class="admin-section">
-                <h4 style="color:#aaa;">Ferramentas</h4>
-                <button class="btn-admin" onclick="gerarHistoricoFicticio()">🎲 Gerar Passados</button>
-                <button class="btn-admin" onclick="gerarFeriados()">📅 Importar Feriados</button>
-            </div>
-            <button onclick="document.getElementById('adminArea').style.display='none'" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:10px;">FECHAR PAINEL</button>
-        </div>
+        <h3 style="color:#fff; border-left:4px solid #FF9500; padding-left:10px;">Eventos do Mês</h3>
+        <div id="eventsContainer"></div>
     </div>
 
-    <div class="admin-trigger" onclick="abrirLogin()">⚙️</div>
+    <a href="admin.html" class="admin-trigger">⚙️</a>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk",
-            authDomain: "gil-eventos-app-911fe.firebaseapp.com",
-            projectId: "gil-eventos-app-911fe",
-            storageBucket: "gil-eventos-app-911fe.firebasestorage.app",
-            messagingSenderId: "503025880352",
-            appId: "1:503025880352:web:694b7f2889cff501c7db45",
-            measurementId: "G-3DZ1P5C0M3"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk", authDomain: "gil-eventos-app-911fe.firebaseapp.com", projectId: "gil-eventos-app-911fe", storageBucket: "gil-eventos-app-911fe.firebasestorage.app", messagingSenderId: "503025880352", appId: "1:503025880352:web:694b7f2889cff501c7db45" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-
         let currentDate = new Date();
         let eventsCache = [];
-        const SENHA_MESTRA = "9859";
 
-        carregarEventos();
+        db.collection("agendamentos").onSnapshot(snapshot => {
+            eventsCache = [];
+            snapshot.forEach(doc => eventsCache.push(doc.data()));
+            renderCalendar();
+            renderEventBlocks();
+        });
 
-        function carregarEventos() {
-            db.collection("agendamentos").onSnapshot(snapshot => {
-                eventsCache = [];
-                snapshot.forEach(doc => { eventsCache.push({ id: doc.id, ...doc.data() }); });
-                renderCalendar();
-                renderEventBlocks();
-                renderAdminList();
-            });
-        }
-
-        // --- VERIFICAÇÃO PRECISA (MINUTOS) ---
         function verificarDisponibilidade() {
             const data = document.getElementById('checkDate').value;
             const hora = document.getElementById('checkTime').value;
             const resultDiv = document.getElementById('resultArea');
-
             if (!data || !hora) return alert("Selecione data e hora!");
 
             const [h, m] = hora.split(':').map(Number);
-            const reqTotalMinutes = (h * 60) + m;
-
+            const reqMinutos = h * 60 + m;
             const eventsOnDay = eventsCache.filter(e => e.data_evento === data);
             
             let status = "LIVRE";
-            let conflictMsg = "";
+            let msg = "Horário Disponível!";
 
             if (eventsOnDay.length > 0) {
-                status = "NEGOCIAR"; 
-
+                status = "NEGOCIAR"; msg = "Data com evento, mas talvez dê para encaixar.";
                 eventsOnDay.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
-                        const eventTotalMinutes = (eh * 60) + em;
-                        
-                        const diffMinutes = Math.abs(reqTotalMinutes - eventTotalMinutes);
-
-                        // Regra de 4 horas = 240 minutos
-                        if (diffMinutes < 240) {
-                            status = "OCUPADO";
-                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Mínimo 4h de intervalo)`;
-                        }
-                    } else {
-                        status = "OCUPADO";
-                        conflictMsg = "Data fechada (Feriado/Bloqueio)";
-                    }
+                        const diff = Math.abs(reqMinutos - (eh * 60 + em));
+                        if (diff < 240) { status = "OCUPADO"; msg = "Conflito de horário (menos de 4h de intervalo)."; }
+                    } else { status = "OCUPADO"; msg = "Data Bloqueada."; }
                 });
             }
 
-            const dataFormatada = data.split('-').reverse().join('/');
-            
-            if (status === "OCUPADO") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Vi que dia ${dataFormatada} as ${hora} ta ocupado, tem jeito de encaixar?`;
-                resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
-                resultDiv.innerHTML = `<h3 style="margin:0;">❌ OCUPADO</h3><p>${conflictMsg}</p><a href="${linkZap}" class="btn-whatsapp orange">TENTAR ENCAIXE ➔</a>`;
-            } 
-            else if (status === "NEGOCIAR") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} tem intervalo bom. Podemos fechar?`;
-                resultDiv.style.display = 'block'; resultDiv.className = 'status-negotiate';
-                resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário permite encaixe!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
-            } 
-            else {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Quero reservar dia ${dataFormatada} as ${hora}.`;
-                resultDiv.style.display = 'block'; resultDiv.className = 'status-available';
-                resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><p>Horário livre.</p><a href="${linkZap}" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
-            }
+            resultDiv.style.display = 'block';
+            resultDiv.className = status === 'OCUPADO' ? 'status-busy' : (status === 'NEGOCIAR' ? 'status-negotiate' : 'status-available');
+            resultDiv.innerHTML = `<h3>${status}</h3><p>${msg}</p>`;
         }
 
-        // --- CALENDÁRIO ---
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const monthDisplay = document.getElementById('monthDisplay');
             grid.innerHTML = '';
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            const weekDays = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
-            weekDays.forEach(d => grid.innerHTML += `<div class="weekday">${d}</div>`);
             monthDisplay.innerText = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-            const firstDayIndex = new Date(year, month, 1).getDay();
+            
+            const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const todayStr = new Date().toISOString().split('T')[0];
 
-            for (let i = 0; i < firstDayIndex; i++) grid.innerHTML += `<div></div>`;
-            for (let i = 1; i <= daysInMonth; i++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                const eventsOnDay = eventsCache.filter(e => e.data_evento === dateStr);
-                const count = eventsOnDay.length;
-                const isToday = dateStr === todayStr;
-                const isPast = dateStr < todayStr;
-                let cellClass = "day-cell";
-                if (isToday) cellClass += " today";
-                if (isPast && count > 0) cellClass += " has-past-event";
-                let badgeHTML = count > 0 ? `<div class="event-badge">${count}</div>` : "";
-                grid.innerHTML += `<div class="${cellClass}" onclick="cliqueDia('${dateStr}')">${i} ${badgeHTML}</div>`;
+            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`;
+            for(let i=1; i<=daysInMonth; i++) {
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                const count = eventsCache.filter(e => e.data_evento === dateStr).length;
+                grid.innerHTML += `<div class="day-cell ${dateStr === new Date().toISOString().split('T')[0] ? 'today' : ''}" onclick="document.getElementById('checkDate').value='${dateStr}'">${i} ${count > 0 ? `<div class="event-badge">${count}</div>` : ''}</div>`;
             }
         }
 
-        // --- BLOCOS DE VITRINE ---
         function renderEventBlocks() {
             const container = document.getElementById('eventsContainer');
             container.innerHTML = '';
             const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            const monthStr = String(month).padStart(2, '0');
-            const todayStr = new Date().toISOString().split('T')[0];
-            const monthEvents = eventsCache.filter(e => e.data_evento.startsWith(`${year}-${monthStr}`));
-            monthEvents.sort((a,b) => new Date(a.data_evento) - new Date(b.data_evento));
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const monthEvents = eventsCache.filter(e => e.data_evento.startsWith(`${year}-${month}`));
+            
+            if(monthEvents.length === 0) container.innerHTML = '<p style="color:#666; text-align:center;">Sem eventos públicos.</p>';
 
-            if (monthEvents.length === 0) {
-                container.innerHTML = '<p style="color:#666; text-align:center; width:100%; grid-column: 1 / -1;">Nenhum evento visível neste mês.</p>';
-                return;
-            }
-
-            monthEvents.forEach(e => {
-                const isPast = e.data_evento < todayStr;
-                const dataObj = new Date(e.data_evento + 'T00:00:00');
-                const dia = dataObj.getDate();
-                const mesExtenso = dataObj.toLocaleDateString('pt-BR', { month: 'short' });
-                const timeInfo = e.hora_inicio ? `🕒 Início: ${e.hora_inicio}` : '🕒 Dia Todo';
-                let statusLabel = "";
-                let blockClass = "";
-
-                if (isPast) {
-                    statusLabel = "✅ CONCLUÍDO";
-                    blockClass = "past";
-                } else {
-                    const lowerName = e.cliente.toLowerCase();
-                    const feriadoKeywords = ['natal', 'ano novo', 'réveillon', 'feriado', 'carnaval', 'páscoa', 'tiradentes', 'independência', 'finados', 'trabalho', 'dia dos'];
-                    if (feriadoKeywords.some(key => lowerName.includes(key))) {
-                        statusLabel = "✨ DATA COMEMORATIVA - CONSULTE";
-                        blockClass = "holiday";
-                    } else {
-                        statusLabel = "📅 AGENDADO - CONSULTE DISPONIBILIDADE";
-                        blockClass = "future";
-                    }
-                }
-
-                container.innerHTML += `
-                    <div class="event-block ${blockClass}">
-                        <div class="status-pill">${statusLabel}</div>
-                        <span class="event-date">${dia}</span>
-                        <span class="event-month">${mesExtenso}</span>
-                        <strong class="event-client">${e.cliente}</strong>
-                        <div class="event-time">${timeInfo}</div>
-                    </div>`;
+            monthEvents.sort((a,b) => a.data_evento.localeCompare(b.data_evento)).forEach(e => {
+                container.innerHTML += `<div class="event-block"><strong style="color:#FF9500;">${e.data_evento.split('-')[2]}/${e.data_evento.split('-')[1]}</strong> - ${e.cliente}</div>`;
             });
         }
 
         function mudarMes(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); renderEventBlocks(); }
-        function cliqueDia(data) { document.getElementById('checkDate').value = data; window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-        // --- GESTÃO ADMIN ---
-        function abrirLogin() { document.getElementById('loginOverlay').style.display = 'flex'; }
-        function logarAdmin() { if(document.getElementById('senhaInput').value === SENHA_MESTRA) { document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('adminArea').style.display = 'block'; } else alert("Senha errada"); }
-        
-        function salvarEventoManual() {
-            const cliente = document.getElementById('admCliente').value;
-            const data = document.getElementById('admData').value;
-            const hora = document.getElementById('admHora').value;
-            const duracao = document.getElementById('admDuracao').value;
-            const detalhes = document.getElementById('admDetalhes').value;
-            if(!cliente || !data) return alert("Preencha dados!");
-            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao, detalhes: detalhes, status: 'pendente' }).then(() => { 
-                alert("Salvo!"); document.getElementById('admCliente').value=''; document.getElementById('admDetalhes').value=''; 
-            });
-        }
-
-        function mudarAbaAdmin(aba) {
-            document.querySelectorAll('.tab-adm-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content-admin').forEach(c => c.classList.remove('active'));
-            const btnIndex = aba === 'confirmados' ? 0 : aba === 'outros' ? 1 : 2;
-            document.querySelectorAll('.tab-adm-btn')[btnIndex].classList.add('active');
-            if(aba === 'confirmados') document.getElementById('listConfirmed').classList.add('active');
-            if(aba === 'outros') document.getElementById('listOthers').classList.add('active');
-            if(aba === 'concluidos') document.getElementById('listConcluded').classList.add('active');
-        }
-
-        function renderAdminList() {
-            const listConf = document.getElementById('listConfirmed');
-            const listOther = document.getElementById('listOthers');
-            const listConc = document.getElementById('listConcluded');
-            listConf.innerHTML = ''; listOther.innerHTML = ''; listConc.innerHTML = '';
-
-            eventsCache.sort((a,b) => new Date(a.data_evento) - new Date(b.data_evento));
-            const todayStr = new Date().toISOString().split('T')[0];
-
-            eventsCache.forEach(e => {
-                const dataDisplay = e.data_evento.split('-').reverse().join('/');
-                const horaDisplay = e.hora_inicio || 'S/H';
-                const isPast = e.data_evento < todayStr;
-                
-                let cardHTML = `
-                    <div class="event-list-item ${isPast ? 'past' : (e.status === 'confirmado' ? 'confirmed' : 'pending')}">
-                        <div style="flex-grow:1;">
-                            <strong style="color:${isPast ? '#777' : (e.status==='confirmado' ? '#00E676' : '#FF9500')}">${dataDisplay}</strong> (${horaDisplay})<br>
-                            ${e.cliente}
-                        </div>
-                        <div class="event-actions">`;
-                if(!isPast) {
-                    if(e.status !== 'confirmado') cardHTML += `<button onclick="confirmarEvento('${e.id}')" class="btn-icon confirm-btn" title="Confirmar">✅</button>`;
-                    else cardHTML += `<button onclick="desconfirmarEvento('${e.id}')" class="btn-icon" title="Voltar para pendente">↩️</button>`;
-                }
-                cardHTML += `<button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button>
-                            <button onclick="deletarEvento('${e.id}')" class="btn-icon delete-btn">✖</button>
-                        </div></div>`;
-                if (isPast) listConc.innerHTML += cardHTML;
-                else if (e.status === 'confirmado') listConf.innerHTML += cardHTML;
-                else listOther.innerHTML += cardHTML;
-            });
-        }
-
-        function confirmarEvento(id) { db.collection("agendamentos").doc(id).update({ status: 'confirmado' }); }
-        function desconfirmarEvento(id) { db.collection("agendamentos").doc(id).update({ status: 'pendente' }); }
-
-        function abrirEdicao(id) {
-            const ev = eventsCache.find(e => e.id === id);
-            if(!ev) return;
-            document.getElementById('editId').value = ev.id;
-            document.getElementById('editCliente').value = ev.cliente;
-            document.getElementById('editData').value = ev.data_evento;
-            document.getElementById('editHora').value = ev.hora_inicio || '';
-            document.getElementById('editDuracao').value = ev.duracao || 5;
-            document.getElementById('editDetalhes').value = ev.detalhes || '';
-            document.getElementById('editModalOverlay').style.display = 'flex';
-        }
-
-        function salvarEdicao() {
-            const id = document.getElementById('editId').value;
-            const dados = { cliente: document.getElementById('editCliente').value, data_evento: document.getElementById('editData').value, hora_inicio: document.getElementById('editHora').value, duracao: document.getElementById('editDuracao').value, detalhes: document.getElementById('editDetalhes').value };
-            db.collection("agendamentos").doc(id).update(dados).then(() => { alert("Atualizado!"); document.getElementById('editModalOverlay').style.display = 'none'; });
-        }
-
-        function deletarEvento(id) { if(confirm("Apagar?")) db.collection("agendamentos").doc(id).delete(); }
-        function gerarHistoricoFicticio() { if(!confirm("Gerar passados?")) return; const nomes=["Aniversário 15 Anos","Casamento Civil","Confraternização"]; const hoje=new Date(); for(let i=0;i<5;i++){ let d=new Date(); d.setDate(hoje.getDate()-Math.floor(Math.random()*60)-1); db.collection("agendamentos").add({cliente:nomes[Math.floor(Math.random()*nomes.length)], data_evento:d.toISOString().split('T')[0], hora_inicio:"19:00", duracao:4, detalhes:"Histórico", status:'confirmado'}); } alert("Gerado!"); }
-        function gerarFeriados() { if(!confirm("Importar feriados?")) return; const ano=new Date().getFullYear(); const feriados=[{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"},{d:`${ano}-05-01`,n:"Dia do Trabalho"}]; feriados.forEach(f=>db.collection("agendamentos").add({cliente:f.n, data_evento:f.d, hora_inicio:"", duracao:24, status:'pendente'})); alert("Feito!"); }
     </script>
 </body>
 </html>
