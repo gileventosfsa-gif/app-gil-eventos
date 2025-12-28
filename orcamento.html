@@ -676,15 +676,4 @@
         function gerarFeriados() { if(!confirm("Importar feriados?")) return; const ano=new Date().getFullYear(); const feriados=[{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"},{d:`${ano}-05-01`,n:"Dia do Trabalho"}]; feriados.forEach(f=>db.collection("agendamentos").add({cliente:f.n, data_evento:f.d, hora_inicio:"", duracao:24, status:'pendente'})); alert("Feito!"); }
     </script>
 </body>
-</html> NA PÁGINA DE ORÇAMENTOS  EM ESSAS IFORMAÇÕES NO FINAL DA PÁGINA: ### 2. Arquivo: `agenda.html` (Com o botão NOVO) *Peguei exatamente o código que você colou e **SÓ ADICIONEI O BOTÃO**. O restante está intacto.* ```html
-GIL EVENTOS
-Agenda & Disponibilidade
-💰 SIMULAR ORÇAMENTO
-🔍 Pesquisar Data
-
-VERIFICAR AGORA
-❮
-...
-❯
-Agendamentos deste Mês
-Nenhum evento público neste mês.  QUERO RETIRAR POIS É IRRELEVANTE PARA ESSA PÁGINA.  EU TAMBÉM SUBI O VIDEO NO YOUTUBE, AGORA ELE DEVE FICAR 100% LIMPO SEM AQUELE BOTÃO DO YOUTUBE É POSSIVEL?: https://youtu.be/SYIByr8BKoQ 
+</html> 
