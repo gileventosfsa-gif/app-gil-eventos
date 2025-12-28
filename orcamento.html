@@ -11,7 +11,6 @@
         html { scroll-behavior: smooth; }
         body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; overflow-x: hidden; }
         
-        /* CORES PADRÃO */
         :root {
             --gold: #FFD580;
             --orange: #FF9500;
@@ -19,11 +18,9 @@
             --card-bg: #1E1E1E;
         }
 
-        /* ANIMAÇÕES */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes growLine { from { width: 0; opacity: 0; } to { width: 80px; opacity: 1; } }
         
-        /* BOTÕES */
         .btn-gold {
             background: transparent; border: 2px solid var(--gold); color: var(--gold);
             padding: 12px 35px; font-size: 1em; font-weight: 600; text-transform: uppercase;
@@ -40,25 +37,21 @@
         }
         .btn-gradient:hover { transform: scale(1.02); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
 
-        /* HERO & VIDEO */
+        /* HERO */
         .hero-section { position:relative; height:100vh; height:100dvh; overflow:hidden; border-bottom:4px solid var(--gold); }
         .hero-video { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; filter:brightness(50%); }
         .hero-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(18,18,18,0.9) 100%); z-index:1; }
         .hero-content { position:relative; z-index:2; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; padding: 0 20px; }
 
-        /* CARTA DE DRINKS (NETFLIX STYLE) */
+        /* MENU GRID */
         .menu-section { background-color:#121212; background-image: radial-gradient(circle at top right, #1f1f1f, #121212); padding:60px 20px; }
         .gil-category { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 60px 0 30px; }
         .gil-category h2 { color: #FFB84D; font-size: 1.8em; text-transform: uppercase; letter-spacing: 1.5px; margin: 0; text-align: center; }
         .gil-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, transparent, #FFB84D, transparent); max-width: 100px; }
         .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         
-        .gil-card {
-            background: var(--card-bg); border: 1px solid rgba(255, 213, 128, 0.1); border-radius: 16px;
-            overflow: hidden; transition: all 0.4s ease; position: relative; display: flex; flex-direction: column;
-        }
+        .gil-card { background: var(--card-bg); border: 1px solid rgba(255, 213, 128, 0.1); border-radius: 16px; overflow: hidden; transition: all 0.4s ease; position: relative; display: flex; flex-direction: column; }
         .gil-card:hover { transform: translateY(-7px); border-color: rgba(255, 149, 0, 0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-
         .drink-img-box { width: 100%; height: 320px; position: relative; overflow: hidden; background: #000; }
         .blur-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.5); transform: scale(1.1); z-index: 1; }
         .drink-img { width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 2; transition: transform 0.6s ease; drop-shadow: 0 5px 15px rgba(0,0,0,0.6); }
@@ -87,6 +80,7 @@
         .result-card.highlight { border: 2px solid var(--orange); background: radial-gradient(circle at top left, rgba(60,40,20,0.9), rgba(20,20,20,0.95)); transform: scale(1.02); }
         .result-card h2 { font-size: 1.4em; margin-bottom: 10px; }
         .price-display { font-size: 2em; color: var(--gold); font-weight: 800; margin: 15px 0; }
+        .price-per-drink { font-size: 0.8em; color: #aaa; display: block; margin-top: -10px; margin-bottom: 20px; }
         .package-details { text-align: left; font-size: 0.9em; color: #ddd; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
         .lista-compras { display:none; text-align:left; margin-top:15px; padding:15px; background: rgba(0,0,0,0.5); border-radius:12px; font-size:0.85em; color:#ddd; white-space: pre-wrap; border: 1px solid #333; }
         .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
@@ -133,6 +127,12 @@
             <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg');"></div><img src="https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Gin Tropical</h3><p>Gin, abacaxi grelhado e especiarias.</p></div></div>
             <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg');"></div><img src="https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Mojito da Ilha</h3><p>Rum branco, hortelã fresca e limão.</p></div></div>
         </div>
+
+        <div class="gil-category"><span class="gil-line"></span><h2>Coquetéis</h2><span class="gil-line"></span></div>
+        <div class="gil-grid">
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg');"></div><img src="https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Coquetel Kids</h3><p>Mix cremoso de frutas vermelhas. Delicioso, colorido e perfeito para festas infantis.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg');"></div><img src="https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Personalizado</h3><p>O cliente escolhe as frutas e combinações na hora.</p></div></div>
+        </div>
     </div>
 
     <section style="background-color:#111; color:#f5f5f5; padding:80px 20px; text-align:center;">
@@ -168,7 +168,6 @@
         <button class="btn-gradient" onclick="calcular()">Calcular Opções</button>
         
         <div id="resultado" class="results-grid"></div>
-        <div id="resultadoExtra" class="results-grid" style="grid-template-columns: 1fr;"></div>
     </div>
 
     <div style="text-align:center; background:#111; padding:60px 20px; color:var(--gold); border-top:2px solid #FFD58033;">
@@ -178,22 +177,21 @@
     </div>
 
     <script>
-        // DADOS DAS LISTAS (TEXTO EXATO DO USUÁRIO)
+        // DADOS DAS LISTAS (INCLUINDO AS DE 100+ AGORA)
         const BANCO_DE_LISTAS = {
-            'reduzida': `*Lista Reduzida- Menos que 30 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás(GRANDES)\n\n*Frutas Vermelhas:*\n📍02 pacote de morango congelado (preferencialmente congelados)\n📍02 caixinhas de uva preta sem caroço\n📍01 litros de acerola\n⚠️Outras frutas opcionais do cliente\n⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)\n\n*Descartáveis Diversos:*\n📍20 kg de gelo ESCAMAS\n📍Escolher uma opção: 12 unidades de Schweppes citrus lata(sai mais caro) ou 2 garrafas de 1,5L(sai mais em conta) ou 3 litros de água de coco\n📍1 a 2 litros de vodka(se os convidados beber muito pode comprar 5)\n📍1 a 2 litros de aguardente - Ypioca (preferencialmente)\n📍01 pacotes canudo pra drinks com paletas(o mais largo)\n📍01 pacotes de copo 400 ml\n📍01 kg de açúcar\n\n*Folhas indispensáveis*\n📍01 môio de manjericão\n📍01 môio de hortelã\n📍01 môio de alecrim\n📍01 pedaço de gengibre\n📍Especiarias(opcional do cliente)\n\n*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*\n📍01 pacote de leite ninho pequeno\n📍01 pacote de Nes Quick pequeno\n📍12 unidades de Polpas de frutas\n📍01 litros de H2O\n📍03 caixinhas de leite condensado\n📍03 caixinhas de creme de leite\n📍01 calda de morango\n\n⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*`,
+            'reduzida': `*Lista Reduzida - Menos que 30 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás(GRANDES)\n\n*Frutas Vermelhas:*\n📍02 pacote de morango congelado\n📍02 caixinhas de uva preta sem caroço\n📍01 litros de acerola\n\n*Descartáveis Diversos:*\n📍20 kg de gelo ESCAMAS\n📍Escolher opção: 12 Schweppes lata OU 2 garrafas 1,5L OU 3L água de coco\n📍1 a 2L vodka\n📍1 a 2L aguardente\n📍01 pct canudo\n📍01 pct copo 400ml\n📍01 kg açúcar\n\n*Folhas:*\n📍Manjericão, Hortelã, Alecrim, Gengibre\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍12 Polpas\n📍01L H2O\n📍03 Leite Cond.\n📍03 Creme Leite\n📍01 Calda`,
             
-            '30-35': `*Lista até 35 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍04 abacaxis\n📍15 tangerinas\n📍15 limões taiti\n📍15 kiwi\n📍10 maracujás\n\n*Frutas Vermelhas:*\n📍03 pacote de morango congelado\n📍02 caixinhas de uva preta sem caroço\n📍2 litros de acerola\n\n*Descartáveis Diversos:*\n📍20 kg de gelo ESCAMAS\n📍Escolher uma opção: 18 unidades de Schweppes citrus lata ou 3 garrafas de 1,5L ou 4 litros de água de coco\n📍2 a 3 litros de vodka\n📍2 a 3 litros de aguardente - Ypioca\n📍02 pacotes canudo\n📍02 pacotes de copo 400 ml\n📍01 kg de açúcar\n\n*Folhas indispensáveis*\n📍01 môio de manjericão\n📍01 môio de hortelã\n📍01 môio de alecrim\n📍01 pedaço de gengibre\n\n*Para oferecer coquetel acrescenta:*\n📍01 pacote de leite ninho pequeno\n📍01 pacote de Nes Quick pequeno\n📍20 unidades de Polpas de frutas\n📍02 litros de H2O\n📍05 caixinhas de leite condensado\n📍05 caixinhas de creme de leite\n📍01 calda de morango`,
+            '30-35': `*Lista até 35 convidados*\n@_gileventos\n\n*Frutas:*\n📍04 abacaxis\n📍15 tangerinas\n📍15 limões taiti\n📍15 kiwi\n📍10 maracujás\n\n*Frutas Vermelhas:*\n📍03 pct morango\n📍02 cx uva preta\n📍2L acerola\n\n*Descartáveis:*\n📍20kg gelo escama\n📍18 Schweppes lata OU 3 garrafas 1,5L\n📍2 a 3L vodka\n📍2 a 3L aguardente\n📍02 pct canudo\n📍02 pct copo\n📍01kg açúcar\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍20 Polpas\n📍02L H2O\n📍05 Leite Cond.\n📍05 Creme Leite`,
             
-            '40-60': `*Lista 40 a 60 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍07 abacaxis\n📍20 tangerinas\n📍20 limões taiti\n📍15 kiwi\n📍15 maracujás\n\n*Frutas Vermelhas:*\n📍04 pacote de morango congelado\n📍03 caixinhas de uva preta sem caroço\n📍03 litros de acerola\n\n*Descartáveis Diversos:*\n📍30 kg de gelo ESCAMAS\n📍Escolher: 24 Schweppes lata ou 4 garrafas de 1,5L ou 5L água de coco\n📍3 a 4 litros de vodka\n📍3 a 4 litros de aguardente\n📍03 pacotes de canudo\n📍03 pacotes de copo 400 ml\n📍02 kg de açúcar\n\n*Folhas indispensáveis*\n📍Manjericão, Hortelã, Alecrim, Gengibre\n\n*Para Coquetel acrescenta:*\n📍01 leite ninho grande\n📍01 Nes Quick grande\n📍24 Polpas\n📍05L H2O\n📍06 Leite Condensado\n📍06 Creme de Leite\n📍01 Calda`,
+            '40-60': `*Lista 40 a 60 convidados*\n@_gileventos\n\n*Frutas:*\n📍07 abacaxis\n📍20 tangerinas\n📍20 limões taiti\n📍15 kiwi\n📍15 maracujás\n\n*Frutas Vermelhas:*\n📍04 pct morango\n📍03 cx uva preta\n📍03L acerola\n\n*Descartáveis:*\n📍30kg gelo escama\n📍24 Schweppes lata OU 4 garrafas 1,5L\n📍3 a 4L vodka\n📍3 a 4L aguardente\n📍03 pct canudo\n📍03 pct copo\n📍02kg açúcar\n\n*Para Coquetel (Add):*\n📍01 leite ninho gde\n📍01 Nes Quick gde\n📍24 Polpas\n📍05L H2O\n📍06 Leite Cond.\n📍06 Creme Leite`,
             
-            '70-100': `*Lista 70 a 100 convidados*\n@_gileventos\n\n*Frutas:*\n📍10 a 15 abacaxis\n📍25 a 35 tangerinas\n📍30 a 40 limões taiti\n📍20 a 30 kiwi\n📍20 a 30 maracujás\n\n*Frutas Vermelhas:*\n📍05 a 07 pct morango\n📍05 a 07 cx uva preta\n📍05 a 07 L acerola\n\n*Descartáveis:*\n📍40kg a 70kg Gelo Escama\n📍7 a 10L Vodka\n📍5 a 7L Aguardente\n📍3 a 5 pct canudos\n📍4 a 6 pct copos 400ml\n📍2 a 4kg açúcar\n\n*Folhas e Temperos:*\n📍Manjericão, Hortelã, Alecrim, Gengibre\n\n*Para Coquetel (Add):*\n📍02 leite ninho gde\n📍02 Nes Quick gde\n📍24 a 40 Polpas\n📍7 a 10L H2O\n📍7 a 10 Leite Condensado\n📍7 a 10 Creme de Leite`,
+            '70-100': `*Lista 70 a 100 convidados*\n@_gileventos\n\n*Frutas:*\n📍10 a 15 abacaxis\n📍25 a 35 tangerinas\n📍30 a 40 limões taiti\n📍20 a 30 kiwi\n📍20 a 30 maracujás\n\n*Frutas Vermelhas:*\n📍05 a 07 pct morango\n📍05 a 07 cx uva preta\n📍05 a 07L acerola\n\n*Descartáveis:*\n📍40 a 70kg Gelo Escama\n📍7 a 10L Vodka\n📍5 a 7L Aguardente\n📍3 a 5 pct canudo\n📍4 a 6 pct copo\n📍2 a 4kg açúcar\n\n*Para Coquetel (Add):*\n📍02 leite ninho gde\n📍02 Nes Quick gde\n📍24 a 40 Polpas\n📍7 a 10L H2O\n📍7 a 10 Leite Cond.\n📍7 a 10 Creme Leite`,
             
             '150-200': `*Lista 150 a 200 convidados*\n@_gileventos\n\n*Frutas:*\n📍15 a 20 abacaxis\n📍30 a 45 tangerinas\n📍35 a 50 limões taiti\n📍30 a 45 kiwi\n📍30 a 40 maracujás\n\n*Frutas Vermelhas:*\n📍10 a 15 pct morango\n📍07 a 10 cx uva preta\n📍10 a 15 L acerola\n\n*Descartáveis:*\n📍50kg a 70kg Gelo Escama\n📍10 a 15L Vodka\n📍7 a 10L Aguardente\n📍5 a 8 pct canudos\n📍7 a 10 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍28 a 40 Polpas\n📍10 a 15L H2O\n📍10 a 15 Leite Condensado\n📍10 a 15 Creme de Leite`,
             
             '250-300': `*Lista 250 a 300 convidados*\n@_gileventos\n\n*Frutas:*\n📍20 a 25 abacaxis\n📍35 a 50 tangerinas\n📍40 a 55 limões taiti\n📍35 a 50 kiwi\n📍35 a 50 maracujás\n\n*Frutas Vermelhas:*\n📍15 a 20 pct morango\n📍10 a 15 cx uva preta\n📍15 a 20 L acerola\n\n*Descartáveis:*\n📍60kg a 70kg Gelo Escama\n📍15 a 17L Vodka\n📍10 a 15L Aguardente\n📍6 a 8 pct canudos\n📍10 a 13 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍32 a 52 Polpas\n📍13 a 15L H2O\n📍13 a 17 Leite Condensado\n📍15 a 20 Creme de Leite`
         };
 
-        // PREÇOS ATUALIZADOS
         const pacotesClassicos = [
             {drinks:100, price:750}, {drinks:150, price:950}, {drinks:200, price:1150}, {drinks:250, price:1350}, 
             {drinks:300, price:1450}, {drinks:400, price:1850}, {drinks:500, price:2250}, {drinks:600, price:2650}, 
@@ -237,36 +235,39 @@
             navigator.clipboard.writeText(texto).then(() => alert("✅ Lista copiada!")).catch(() => alert("Erro ao copiar"));
         }
 
+        function mostrarPacotesExtras() {
+            const container = document.getElementById('pacotesExtras');
+            container.style.display = 'grid';
+            container.scrollIntoView({behavior: 'smooth'});
+        }
+
         function calcular(){
             const convidados = parseInt(document.getElementById('convidados').value);
             const tipo = document.getElementById('tipo').value;
             const resultado = document.getElementById('resultado');
-            const resultadoExtra = document.getElementById('resultadoExtra');
             
             if(!convidados || convidados < 1) return alert("Digite o número de convidados");
 
             resultado.innerHTML = "";
-            resultadoExtra.innerHTML = "";
 
-            if(convidados < 100){
-                // LÓGICA DE FAIXA PARA LISTA DE MATERIAIS
-                let faixa = '70-100'; // Default
-                if(convidados < 30) faixa = 'reduzida';
-                else if(convidados <= 39) faixa = '30-35';
-                else if(convidados <= 69) faixa = '40-60';
-                else if(convidados <= 149) faixa = '70-100'; // Cobre até 149 para cair na lista de 100
-                else if(convidados <= 249) faixa = '150-200';
-                else faixa = '250-300';
+            // Lógica de Faixa para Lista de Materiais (Mesmo para eventos grandes)
+            let faixa = '70-100'; 
+            if(convidados < 30) faixa = 'reduzida';
+            else if(convidados <= 39) faixa = '30-35';
+            else if(convidados <= 69) faixa = '40-60';
+            else if(convidados <= 149) faixa = '70-100';
+            else if(convidados <= 249) faixa = '150-200';
+            else faixa = '250-300';
 
-                const drinksEstimados = convidados * 3;
-                const maoDeObra = 350;
-                
-                const pClassico = getPacote(pacotesClassicos, drinksEstimados);
-                const pMisto = getPacote(pacotesMistos, drinksEstimados);
-                const pPremium = getPacote(pacotesPremium, drinksEstimados);
+            const drinksEstimados = convidados * 3;
+            const maoDeObra = 350; // Ajuste se necessário para eventos grandes
+            
+            const pClassico = getPacote(pacotesClassicos, drinksEstimados);
+            const pMisto = getPacote(pacotesMistos, drinksEstimados);
+            const pPremium = getPacote(pacotesPremium, drinksEstimados);
 
-                // CARD 1: MÃO DE OBRA (COM A LISTA CLÁSSICA)
-                resultado.innerHTML += `
+            // GERAÇÃO DOS CARDS PADRÃO
+            const cardsPadrao = `
                 <div class="result-card">
                     <h2 style="color:var(--gold);">🥃 Serviço Tradicional</h2>
                     <p style="font-size:0.9em; margin-bottom:15px;">Mão de obra profissional. Insumos por sua conta.</p>
@@ -277,10 +278,8 @@
                     <button class="btn-gold" onclick="copiarLista('${faixa}')">Copiar Lista</button>
                     <br><br>
                     <a href="https://wa.me/5575998649927?text=Gostaria%20de%20contratar%20Mão%20de%20Obra%20para%20${convidados}%20pessoas" target="_blank" class="btn-gradient" style="margin-top:15px;">Solicitar</a>
-                </div>`;
+                </div>
 
-                // CARD 2: CLÁSSICO COMPLETO
-                resultado.innerHTML += `
                 <div class="result-card">
                     <h2 style="color:var(--gold);">💎 Pacote Clássico</h2>
                     <p style="font-size:0.9em; margin-bottom:15px;">Bar completo com drinks Clássicos.</p>
@@ -288,10 +287,8 @@
                     <div class="price-display">R$ ${pClassico.price.toFixed(2)}</div>
                     <span class="price-per-drink">R$ ${(pClassico.price/pClassico.drinks).toFixed(2)} / drink</span>
                     <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Clássico%20de%20${pClassico.drinks}%20drinks" target="_blank" class="btn-gradient">Contratar</a>
-                </div>`;
+                </div>
 
-                // CARD 3: MISTO (DESTAQUE)
-                resultado.innerHTML += `
                 <div class="result-card highlight">
                     <h2 style="color:var(--orange);">🌟 Combo Misto (Gold)</h2>
                     <p style="font-size:0.9em; margin-bottom:15px;">O melhor dos dois mundos.</p>
@@ -299,10 +296,8 @@
                     <div class="price-display">R$ ${pMisto.price.toFixed(2)}</div>
                     <span class="price-per-drink">R$ ${(pMisto.price/pMisto.drinks).toFixed(2)} / drink</span>
                     <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Combo%20Misto%20de%20${pMisto.drinks}%20drinks" target="_blank" class="btn-gradient">Eu Quero Esse!</a>
-                </div>`;
+                </div>
 
-                // CARD 4: PREMIUM
-                resultado.innerHTML += `
                 <div class="result-card">
                     <h2 style="color:#E0E0E0;">👑 Pacote Premium</h2>
                     <p style="font-size:0.9em; margin-bottom:15px;">Experiência de alto luxo com Gin, Aperol e Mojito.</p>
@@ -310,16 +305,29 @@
                     <div class="price-display">R$ ${pPremium.price.toFixed(2)}</div>
                     <span class="price-per-drink">R$ ${(pPremium.price/pPremium.drinks).toFixed(2)} / drink</span>
                     <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Premium%20de%20${pPremium.drinks}%20drinks" target="_blank" class="btn-gradient" style="background:#333; border:1px solid #777;">Contratar Premium</a>
-                </div>`;
+                </div>
+            `;
 
+            if(convidados < 100){
+                // MENOS DE 100: MOSTRA TUDO DIRETO
+                resultado.innerHTML = cardsPadrao;
             } else {
-                // OPÇÃO 3 GRANDE PORTE
-                resultadoExtra.innerHTML = `
-                <div class="result-card">
-                    <h2 style="color:#ccc;">🤝 Opção Parceria Pré-venda</h2>
-                    <p>Para grandes eventos (100+ pessoas). Você não paga nada adiantado!</p>
-                    <p>Nós vendemos os drinks diretamente aos convidados.</p>
-                    <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Saber Mais no WhatsApp</a>
+                // MAIS DE 100: ESTRATÉGIA DE ANCORAGEM (Parceria primeiro)
+                resultado.innerHTML = `
+                <div class="result-card" style="grid-column: 1 / -1; border-color:#fff;">
+                    <h2 style="color:#ccc;">🤝 Opção Recomendada: Parceria Pré-venda</h2>
+                    <p>Para grandes eventos (100+ pessoas). <strong>Você não paga nada adiantado!</strong></p>
+                    <p>Nós montamos a estrutura e vendemos os drinks diretamente aos convidados.</p>
+                    <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Quero essa Parceria (Sem Custo)</a>
+                </div>
+                
+                <div style="grid-column: 1 / -1; text-align:center; margin-top:30px;">
+                    <p style="color:#888; margin-bottom:10px;">Ou se preferir pagar pelos drinks:</p>
+                    <button class="btn-gold" onclick="mostrarPacotesExtras()">⬇️ Prefiro contratar um Pacote (Ver Preços)</button>
+                </div>
+
+                <div id="pacotesExtras" class="results-grid" style="display:none; grid-column: 1 / -1;">
+                    ${cardsPadrao}
                 </div>`;
             }
             
