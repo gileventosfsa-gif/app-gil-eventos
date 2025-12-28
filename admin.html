@@ -23,6 +23,9 @@
         .select-mini { width: 100%; padding: 8px; font-size: 0.9em; border: 1px solid #555; }
         .btn-add { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
         .row { display: flex; gap: 10px; } .col { flex: 1; }
+        
+        /* Destaque para o Combo Misto */
+        #selectComboMisto { border: 2px solid #FF9500; background: #2A2210; color: #FFD580; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -38,13 +41,14 @@
                 <select id="tipoServico" onchange="togglePacote()">
                     <option value="pacote">📦 Pacote Clássico</option>
                     <option value="premium">👑 Pacote Premium</option>
-                    <option value="misto">🌟 Pacote Misto (Novo)</option>
+                    <option value="misto">🌟 Pacote Misto (Definido)</option>
                     <option value="tradicional">🍹 Tradicional (Open)</option>
                 </select>
             </div>
             <div class="col" id="boxQuantidade">
-                <label>Limite Total (Drinks)</label>
+                <label id="labelQtd">Limite Total (Drinks)</label>
                 <input type="number" id="qtdPacote" placeholder="Ex: 300">
+                <select id="selectComboMisto" style="display:none;"></select>
             </div>
         </div>
 
@@ -83,7 +87,20 @@
     const params = new URLSearchParams(window.location.search);
     const EVENTO_ID = params.get('evento');
 
-    // MENU PADRÃO (INCLUI TUDO PARA O MISTO)
+    // TABELA DE COMBOS MISTOS
+    const COMBOS_MISTOS = [
+        { total: 100, classicos: 70, premiums: 30, label: "100 Drinks (70 Clás + 30 Prem) - R$1.050" },
+        { total: 150, classicos: 100, premiums: 50, label: "150 Drinks (100 Clás + 50 Prem) - R$1.350" },
+        { total: 200, classicos: 140, premiums: 60, label: "200 Drinks (140 Clás + 60 Prem) - R$1.650" },
+        { total: 250, classicos: 170, premiums: 80, label: "250 Drinks (170 Clás + 80 Prem) - R$1.950" },
+        { total: 300, classicos: 200, premiums: 100, label: "300 Drinks (200 Clás + 100 Prem) - R$2.250" },
+        { total: 400, classicos: 300, premiums: 100, label: "400 Drinks (300 Clás + 100 Prem) - R$2.550" },
+        { total: 500, classicos: 400, premiums: 100, label: "500 Drinks (400 Clás + 100 Prem) - R$2.850" },
+        { total: 600, classicos: 500, premiums: 100, label: "600 Drinks (500 Clás + 100 Prem) - R$3.150" },
+        { total: 750, classicos: 600, premiums: 150, label: "750 Drinks (600 Clás + 150 Prem) - R$3.450" },
+        { total: 900, classicos: 700, premiums: 200, label: "900 Drinks (700 Clás + 200 Prem) - R$3.750" }
+    ];
+
     let cardapioAtual = [
         { nome: "⚡ Elixir do Sol", desc: "Abacaxi, hortelã e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
         { nome: "❤️ Desejo Proibido", desc: "Frutas vermelhas e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
@@ -93,11 +110,19 @@
         { nome: "💥 Fúria Rubi", desc: "Morango e tangerina.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
         { nome: "🍋 Caipirinha Premium", desc: "Limão taiti e aguardente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
         
-        // PREMIUMS (Deixamos como 'pacote' por padrão para o Menu Misto, mas se for Clássico o sistema cobra extra depois)
         { nome: "🧡 Aperol Sunset", desc: "Aperol e espumante.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
         { nome: "🌴 Gin Tropical", desc: "Gin e especiarias.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
         { nome: "🍃 Mojito da Ilha", desc: "Rum e hortelã.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 }
     ];
+
+    // Preencher Select Misto
+    const selectMisto = document.getElementById('selectComboMisto');
+    COMBOS_MISTOS.forEach((combo, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.innerText = combo.label;
+        selectMisto.appendChild(opt);
+    });
 
     if(EVENTO_ID) {
         document.getElementById('tituloPagina').innerText = "Editar Evento ✏️";
@@ -114,6 +139,13 @@
                 document.getElementById('nomeEvento').value = dados.nome;
                 document.getElementById('tipoServico').value = dados.tipo_servico;
                 document.getElementById('qtdPacote').value = dados.total_contratado;
+                
+                // Tenta achar qual combo foi selecionado
+                if(dados.tipo_servico === 'misto') {
+                    const idx = COMBOS_MISTOS.findIndex(c => c.total === dados.total_contratado);
+                    if(idx !== -1) document.getElementById('selectComboMisto').value = idx;
+                }
+
                 document.getElementById('chavePix').value = dados.chave_pix || "";
                 document.getElementById('timerBloqueio').value = dados.timer_minutos;
                 document.getElementById('senhaAdmin').value = dados.senha_admin;
@@ -130,8 +162,6 @@
         cardapioAtual.forEach((drink, index) => {
             const div = document.createElement('div');
             div.className = 'drink-item';
-            const pPrev = drink.preco_prevenda || drink.preco || 0;
-
             div.innerHTML = `
                 <div class="drink-header">
                     <input type="text" value="${drink.nome}" class="input-nome" placeholder="Nome">
@@ -153,8 +183,8 @@
                             <option value="pago" ${drink.tipo_cobranca==='pago'?'selected':''}>💲 Pago</option>
                         </select>
                     </div>
-                    <div class="config-group"><span class="config-label">R$ PRÉ-VENDA</span><input type="number" value="${pPrev}" class="input-preco-prevenda select-mini"></div>
-                    <div class="config-group"><span class="config-label">R$ NO DIA</span><input type="number" value="${drink.preco}" class="input-preco select-mini"></div>
+                    <div class="config-group"><span class="config-label">R$ PRÉ-VENDA</span><input type="number" value="${drink.preco_prevenda||0}" class="input-preco-prevenda select-mini"></div>
+                    <div class="config-group"><span class="config-label">R$ NO DIA</span><input type="number" value="${drink.preco||0}" class="input-preco select-mini"></div>
                 </div>`;
             container.appendChild(div);
         });
@@ -162,16 +192,54 @@
 
     function adicionarNovoDrink() { cardapioAtual.push({ nome: "", desc: "", categoria: "classico", tipo_cobranca: "pacote", preco: 0, preco_prevenda: 0 }); renderizarEditor(); }
     function removerDrink(index) { cardapioAtual.splice(index, 1); renderizarEditor(); }
-    function togglePacote() { const t=document.getElementById('tipoServico').value; document.getElementById('boxQuantidade').style.display = (t==='tradicional')?'none':'block'; if(t==='tradicional')document.getElementById('qtdPacote').value=999999; }
+    
+    function togglePacote() { 
+        const t = document.getElementById('tipoServico').value; 
+        const box = document.getElementById('boxQuantidade');
+        const inputNormal = document.getElementById('qtdPacote');
+        const selectMisto = document.getElementById('selectComboMisto');
+        const label = document.getElementById('labelQtd');
+
+        box.style.display = (t === 'tradicional') ? 'none' : 'block';
+        
+        if (t === 'tradicional') {
+            inputNormal.value = 999999;
+        } else if (t === 'misto') {
+            label.innerText = "Selecione o Combo";
+            inputNormal.style.display = 'none';
+            selectMisto.style.display = 'block';
+        } else {
+            label.innerText = "Limite Total (Drinks)";
+            inputNormal.style.display = 'block';
+            selectMisto.style.display = 'none';
+        }
+    }
 
     function salvarEvento() {
         const nome = document.getElementById('nomeEvento').value;
         const tipo = document.getElementById('tipoServico').value;
-        const qtd = parseInt(document.getElementById('qtdPacote').value) || 0;
         const pix = document.getElementById('chavePix').value || "Não informada";
         const timer = parseInt(document.getElementById('timerBloqueio').value);
         const senha = document.getElementById('senhaAdmin').value;
         
+        // Lógica de Quantidade Mista vs Normal
+        let qtdTotal = 0;
+        let limiteClassico = 0;
+        let limitePremium = 0;
+
+        if (tipo === 'misto') {
+            const idx = document.getElementById('selectComboMisto').value;
+            const combo = COMBOS_MISTOS[idx];
+            qtdTotal = combo.total;
+            limiteClassico = combo.classicos;
+            limitePremium = combo.premiums;
+        } else {
+            qtdTotal = parseInt(document.getElementById('qtdPacote').value) || 0;
+            // Se não é misto, o limite específico é igual ao total (ou 0 se não se aplicar)
+            limiteClassico = qtdTotal; 
+            limitePremium = qtdTotal;
+        }
+
         let cardapioFinal = [];
         document.querySelectorAll('.drink-item').forEach(item => {
             cardapioFinal.push({
@@ -188,12 +256,32 @@
         if(!nome || !senha) return alert("Preencha campos obrigatórios!");
         const btn = document.getElementById('btnSalvar'); btn.innerText = "Salvando..."; btn.disabled = true;
 
-        const dados = { nome: nome, tipo_servico: tipo, total_contratado: qtd, chave_pix: pix, timer_minutos: timer, senha_admin: senha, cardapio: cardapioFinal };
+        const dados = { 
+            nome: nome, 
+            tipo_servico: tipo, 
+            total_contratado: qtdTotal, 
+            // NOVOS CAMPOS PARA CONTROLE MISTO
+            limite_classico: limiteClassico,
+            limite_premium: limitePremium,
+            chave_pix: pix, 
+            timer_minutos: timer, 
+            senha_admin: senha, 
+            cardapio: cardapioFinal 
+        };
 
         if(EVENTO_ID) {
             db.collection("eventos").doc(EVENTO_ID).update(dados).then(() => { alert("Atualizado!"); window.location.href = `dashboard.html?evento=${EVENTO_ID}`; });
         } else {
-            dados.total_consumido = 0; dados.total_vendas_extra = 0; dados.total_faturamento = 0; dados.ativo = true; dados.data_criacao = new Date(); dados.modo_preco = 'normal';
+            // Inicializa contadores
+            dados.total_consumido = 0; 
+            dados.consumido_classico = 0; // Novo
+            dados.consumido_premium = 0; // Novo
+            dados.total_vendas_extra = 0; 
+            dados.total_faturamento = 0; 
+            dados.ativo = true; 
+            dados.data_criacao = new Date(); 
+            dados.modo_preco = 'normal';
+            
             db.collection("eventos").add(dados).then((docRef) => { window.location.href = `dashboard.html?evento=${docRef.id}`; });
         }
     }
