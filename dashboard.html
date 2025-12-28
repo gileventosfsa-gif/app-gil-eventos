@@ -211,7 +211,7 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
-                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${p.categoria_drink}')">✅ PRONTO</button>`;
+                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${p.categoria_drink}', '${p.drink}')">✅ PRONTO</button>`;
                     }
 
                     lista.innerHTML += `
@@ -230,7 +230,7 @@
             monitorarChat();
         }
 
-        // --- LANÇAMENTO MANUAL INTELIGENTE PARA MISTO ---
+        // --- LANÇAMENTO MANUAL INTELIGENTE ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -243,10 +243,8 @@
             if(item.tipo_cobranca === 'pago') {
                 tipo = 'extra';
             } else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
-                // Lógica Simples (Total Geral)
                 if(DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) tipo = 'extra';
             } else if (DADOS_EVENTO.tipo_servico === 'misto') {
-                // LÓGICA MISTA (SEPARADA)
                 if (item.categoria === 'classico') {
                     if ((DADOS_EVENTO.consumido_classico || 0) >= DADOS_EVENTO.limite_classico) tipo = 'extra';
                 } else if (item.categoria === 'premium') {
@@ -259,7 +257,7 @@
             db.collection("pedidos").add({ 
                 evento_id: EVENTO_ID, 
                 drink: item.nome, 
-                categoria_drink: item.categoria, // Salva a categoria para incrementar certo depois
+                categoria_drink: item.categoria || 'classico', 
                 tipo: tipo, 
                 preco: precoFinal,
                 nome_convidado: nome || "Balcão", 
@@ -287,6 +285,29 @@
             }); 
         }
 
+        // --- ATUALIZAÇÃO DO STATUS + CONTADORES SEPARADOS ---
+        function mudarStatus(id, novoStatus, tipo, categoriaRecebida, nomeDrink) { 
+            if(!confirm("Entregar pedido?")) return; 
+            db.collection("pedidos").doc(id).update({ status: novoStatus }); 
+            
+            if(novoStatus === 'servido' && tipo === 'pacote') {
+                const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
+                
+                // Se for Misto, incrementa específico também
+                if (DADOS_EVENTO.tipo_servico === 'misto') {
+                    let cat = categoriaRecebida;
+                    if (!cat || cat === 'undefined') {
+                        const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === nomeDrink);
+                        if(itemMenu) cat = itemMenu.categoria;
+                    }
+                    if (cat === 'classico') updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
+                    if (cat === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
+                }
+                
+                db.collection("eventos").doc(EVENTO_ID).update(updateData); 
+            } 
+        }
+        
         function monitorarChat() {
             db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 let novasMensagens = 0;
@@ -303,31 +324,20 @@
         
         function confirmarPagamento(id, preco) { if(!confirm("Confirmar pagamento?")) return; db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); }
         function recusarPagamento(id) { if(!confirm("Tem certeza que NÃO consta?")) return; db.collection("pedidos").doc(id).update({ status: 'pagamento_rejeitado', sinalizou_pagamento: false }); }
-        
-        // ATUALIZAÇÃO DO STATUS + CONTADORES SEPARADOS
-        function mudarStatus(id, novoStatus, tipo, categoria) { 
-            if(!confirm("Entregar pedido?")) return; 
-            db.collection("pedidos").doc(id).update({ status: novoStatus }); 
-            
-            if(novoStatus === 'servido' && tipo === 'pacote') {
-                const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
-                
-                // Se for Misto, incrementa específico também
-                if (DADOS_EVENTO.tipo_servico === 'misto') {
-                    if (categoria === 'classico') updateData.consumido_classico = firebase.firestore.FieldValue.increment(1);
-                    if (categoria === 'premium') updateData.consumido_premium = firebase.firestore.FieldValue.increment(1);
-                }
-                
-                db.collection("eventos").doc(EVENTO_ID).update(updateData); 
-            } 
-        }
-        
         function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }); }
         function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
         function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
-        function editarEvento() { window.location.href = window.location.href.replace('dashboard.html', 'admin.html'); }
+        
+        // --- FUNÇÃO CORRIGIDA PARA O BOTÃO EDITAR ---
+        function editarEvento() { 
+            // Agora montamos a URL manualmente para garantir que funcione
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('evento');
+            window.location.href = `admin.html?evento=${id}`;
+        }
+        
         function verificarSenha() { if(document.getElementById('senhaInput').value === DADOS_EVENTO.senha_admin) { document.getElementById('loginOverlay').style.display = 'none'; sessionStorage.setItem(`logado_${EVENTO_ID}`, true); document.getElementById('somAlerta').play().catch(()=>{}); } else document.getElementById('erroSenha').style.display='block'; }
         function toggleFaturamento() { const el=document.getElementById('valorFaturamento'); if(FATURAMENTO_VISIVEL){el.style.filter='blur(5px)';FATURAMENTO_VISIVEL=false;}else{document.getElementById('eyeAuthOverlay').style.display='flex';document.getElementById('senhaEyeInput').focus();} }
         function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
@@ -338,7 +348,6 @@
             document.getElementById('nomeEvento').innerText = dados.nome; 
             document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
             
-            // Lógica de Exibição Misto vs Normal
             if (dados.tipo_servico === 'misto') {
                 document.getElementById('boxConsumoSimples').style.display = 'none';
                 document.getElementById('boxConsumoMisto').style.display = 'block';
