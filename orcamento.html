@@ -16,21 +16,11 @@
         .btn-gold:hover { background: var(--gold); color: var(--dark); box-shadow: 0 0 20px rgba(255, 213, 128, 0.4); }
         .btn-gradient { background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: #fff; padding: 14px 28px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1em; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255,149,0,0.3); text-decoration: none; display: inline-block; width: 100%; text-align: center; }
         .btn-gradient:hover { transform: scale(1.02); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
-        
-        /* AJUSTE PARA VÍDEO DO YOUTUBE NO FUNDO */
         .hero-section { position:relative; height:100vh; height:100dvh; overflow:hidden; border-bottom:4px solid var(--gold); }
+        
+        /* VIDEO BACKGROUND YOUTUBE */
         .hero-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
-        .hero-video { 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            width: 100vw; 
-            height: 56.25vw; /* 16:9 Aspect Ratio */
-            min-height: 100vh; 
-            min-width: 177.77vh; /* 16:9 Aspect Ratio */
-            transform: translate(-50%, -50%); 
-            pointer-events: none;
-        }
+        .hero-video { position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; transform: translate(-50%, -50%); pointer-events: none; }
         
         .hero-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(18,18,18,0.9) 100%); z-index:1; }
         .hero-content { position:relative; z-index:2; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; padding: 0 20px; }
@@ -66,6 +56,11 @@
         .lista-compras { display:none; text-align:left; margin-top:15px; padding:15px; background: rgba(0,0,0,0.5); border-radius:12px; font-size:0.85em; color:#ddd; white-space: pre-wrap; border: 1px solid #333; }
         .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
         .location-warning { color: var(--gold); font-size: 0.95em; margin-top: 20px; margin-bottom: 10px; font-weight: 600; background: rgba(255, 213, 128, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 213, 128, 0.3); display: inline-block; }
+        
+        /* Estilo para o menu escondido */
+        details { width: 100%; text-align: left; margin-top: 15px; }
+        details summary { cursor: pointer; color: #FF9500; font-size: 0.85em; list-style: none; font-weight: 600; }
+        details summary:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -78,7 +73,6 @@
                 allowfullscreen>
             </iframe>
         </div>
-        
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1 style="font-size: clamp(3em, 8vw, 5em); font-weight:800; text-transform:uppercase; margin:0; line-height:1.1; background: linear-gradient(45deg, #FFD580, #FFAE00, #FFF5D0, #FFAE00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 20px rgba(255, 174, 0, 0.3)); opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 0.2s;">Gil Eventos</h1>
@@ -241,17 +235,20 @@
                         <button class="btn-gold" style="width:100%; margin-top:5px; font-size:0.8em; padding:5px;" onclick="copiarLista('${chaveClassico}')">Copiar Clássica</button>
                     </div>
 
-                    <div style="text-align:left; margin-top:10px;">
-                        <button class="btn-small" onclick="toggleLista(this)">💎 Ver Lista PREMIUM (Apenas)</button>
-                        <div class="lista-compras">${BANCO_DE_LISTAS[chavePremium]}</div>
-                        <button class="btn-gold" style="width:100%; margin-top:5px; font-size:0.8em; padding:5px;" onclick="copiarLista('${chavePremium}')">Copiar Premium</button>
-                    </div>
+                    <details style="margin-top:15px; cursor:pointer;">
+                        <summary style="font-size:0.85em; color:#FF9500; list-style:none;">🔽 Vai fornecer bebidas Premium? (Clique)</summary>
+                        <div style="margin-top:10px; padding-left:10px; border-left:2px solid #333;">
+                            <p style="font-size:0.8em; color:#aaa; margin-bottom:10px;">*Recomendamos contratar o Pacote Premium para economizar tempo e garantir a qualidade.</p>
+                            
+                            <button class="btn-small" onclick="toggleLista(this)">💎 Ver Lista PREMIUM (Apenas)</button>
+                            <div class="lista-compras">${BANCO_DE_LISTAS[chavePremium]}</div>
+                            <button class="btn-gold" style="width:100%; margin-top:5px; font-size:0.8em; padding:5px; margin-bottom:10px;" onclick="copiarLista('${chavePremium}')">Copiar Premium</button>
 
-                    <div style="text-align:left; margin-top:10px;">
-                        <button class="btn-small" onclick="toggleLista(this)">🌟 Ver Lista COMPLETA</button>
-                        <div class="lista-compras">${BANCO_DE_LISTAS[chaveCompleto]}</div>
-                        <button class="btn-gold" style="width:100%; margin-top:5px; font-size:0.8em; padding:5px;" onclick="copiarLista('${chaveCompleto}')">Copiar Completa</button>
-                    </div>
+                            <button class="btn-small" onclick="toggleLista(this)">🌟 Ver Lista COMPLETA</button>
+                            <div class="lista-compras">${BANCO_DE_LISTAS[chaveCompleto]}</div>
+                            <button class="btn-gold" style="width:100%; margin-top:5px; font-size:0.8em; padding:5px;" onclick="copiarLista('${chaveCompleto}')">Copiar Completa</button>
+                        </div>
+                    </details>
 
                     <br><a href="https://wa.me/5575998649927?text=Gostaria%20de%20contratar%20Mão%20de%20Obra%20para%20${convidados}%20pessoas" target="_blank" class="btn-gradient" style="margin-top:15px;">Solicitar Mão de Obra</a>
                 </div>
