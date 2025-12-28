@@ -9,8 +9,9 @@
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; padding-bottom: 80px; }
         .container { max-width: 800px; margin: auto; }
         
-        h2 { color: #FF9500; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 30px; }
-        h4 { color: #aaa; margin-bottom: 5px; margin-top: 15px; }
+        h1 { text-align: center; color: #FF9500; text-transform: uppercase; margin-bottom: 5px; }
+        h2 { color: #FF9500; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 30px; font-size: 1.2em; }
+        p.subtitle { text-align: center; color: #777; margin-bottom: 30px; font-size: 0.9em; }
 
         .input-3d, .select-3d, .textarea-3d {
             padding: 12px; border-radius: 10px; border: 1px solid #333;
@@ -22,6 +23,7 @@
         .btn-action { width: 100%; padding: 15px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; margin-top: 10px; font-size: 1em; transition: 0.2s; }
         .btn-save { background: linear-gradient(90deg, #FF9500, #FF6F00); color: #000; }
         .btn-import { background: #333; color: #FF9500; border: 1px solid #FF9500; margin-bottom: 15px; }
+        .btn-close { background: #333; color: #aaa; }
         .btn-action:active { transform: scale(0.98); }
 
         /* LISTA DE EVENTOS */
@@ -32,6 +34,7 @@
         }
         .event-list-item.confirmed { border-left-color: #00E676; background: rgba(0, 230, 118, 0.05); }
         .event-list-item.pending { border-left-color: #FF9500; }
+        .event-list-item.past { border-left-color: #555; opacity: 0.6; }
         
         .btn-icon { width: 35px; height: 35px; border-radius: 50%; border: none; cursor: pointer; margin-left: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
         .btn-check { background: #00E676; color: #000; }
@@ -45,20 +48,48 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* MODAL */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* MODAIS */
+        #loginOverlay, #editModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #editModalOverlay { display: none; } /* Começa escondido */
+        
+        .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
+        .modal-label { display: block; text-align: left; color: #aaa; margin: 10px 0 5px 0; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
     <div id="loginOverlay">
-        <h2 style="color:#FF9500;">ACESSO RESTRITO</h2>
+        <h2 style="color:#FF9500; margin-top:0;">ACESSO RESTRITO</h2>
         <input type="password" id="senhaInput" class="input-3d" style="max-width:200px; text-align:center;" placeholder="Senha">
         <button class="btn-action btn-save" style="max-width:200px;" onclick="logar()">ENTRAR</button>
     </div>
 
+    <div id="editModalOverlay">
+        <div class="modal-box">
+            <h3 style="color:#FF9500; margin-top:0;">📝 Editar Evento</h3>
+            <input type="hidden" id="editId">
+            
+            <span class="modal-label">Cliente:</span>
+            <input type="text" id="editCliente" class="input-3d">
+            
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1"><span class="modal-label">Data:</span><input type="date" id="editData" class="input-3d"></div>
+                <div style="flex:1"><span class="modal-label">Hora:</span><input type="time" id="editHora" class="input-3d"></div>
+            </div>
+
+            <span class="modal-label">Detalhes / Materiais:</span>
+            <textarea id="editDetalhes" class="textarea-3d"></textarea>
+
+            <button class="btn-action btn-save" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
+            <button class="btn-action btn-close" onclick="fecharEdicao()">CANCELAR</button>
+        </div>
+    </div>
+
     <div class="container" id="painelPrincipal" style="display:none;">
         
+        <h1>Painel de Gestão</h1>
+        <p class="subtitle">Gil Eventos - CRM</p>
+
         <h2>➕ Novo Agendamento</h2>
         
         <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Cliente / Evento">
@@ -72,7 +103,7 @@
             <select id="admTipoMenu" class="select-3d">
                 <option value="classico">🥃 Menu Clássico</option>
                 <option value="premium">👑 Menu Premium</option>
-                <option value="misto">🌟 Clássico + Premium (Misto)</option>
+                <option value="misto">🌟 Clássico + Premium</option>
             </select>
             
             <select id="admTamanhoLista" class="select-3d">
@@ -126,8 +157,9 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const SENHA_MESTRA = "9859";
+        let eventsCache = [];
 
-        // BANCO DE DADOS DAS LISTAS (COPIADO E ATUALIZADO)
+        // BANCO DE DADOS DAS LISTAS
         const LISTAS = {
             'classico': {
                 'reduzida': `*Lista Reduzida (<30) - Clássico*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás\n📍02 pct morango\n📍02 cx uva\n📍01L acerola\n📍20kg Gelo\n📍1-2L Vodka\n📍1-2L Aguardente`,
@@ -200,12 +232,14 @@
                 const concluidos = document.getElementById('tabConcluidos');
                 
                 pendentes.innerHTML = ""; confirmados.innerHTML = ""; concluidos.innerHTML = "";
-                
+                eventsCache = [];
                 const hoje = new Date().toISOString().split('T')[0];
 
                 snapshot.forEach(doc => {
                     const e = doc.data();
                     const id = doc.id;
+                    eventsCache.push({id, ...e}); // Salva no cache para edição
+                    
                     const dataFormatada = e.data_evento.split('-').reverse().join('/');
                     const isPast = e.data_evento < hoje;
 
@@ -217,6 +251,7 @@
                             </div>
                             <div style="display:flex;">
                                 ${!isPast && e.status !== 'confirmado' ? `<button onclick="mudarStatus('${id}','confirmado')" class="btn-icon btn-check">✅</button>` : ''}
+                                <button onclick="abrirEdicao('${id}')" class="btn-icon btn-edit">📄</button>
                                 <button onclick="deletarEvento('${id}')" class="btn-icon btn-trash">✖</button>
                             </div>
                         </div>`;
@@ -232,10 +267,41 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            // Lógica simples para ativar a aba correta
             if(aba === 'pendentes') { document.querySelectorAll('.tab-btn')[0].classList.add('active'); document.getElementById('tabPendentes').classList.add('active'); }
             if(aba === 'confirmados') { document.querySelectorAll('.tab-btn')[1].classList.add('active'); document.getElementById('tabConfirmados').classList.add('active'); }
             if(aba === 'concluidos') { document.querySelectorAll('.tab-btn')[2].classList.add('active'); document.getElementById('tabConcluidos').classList.add('active'); }
+        }
+
+        // --- FUNÇÕES DE EDIÇÃO ---
+        function abrirEdicao(id) {
+            const ev = eventsCache.find(e => e.id === id);
+            if(!ev) return;
+
+            document.getElementById('editId').value = ev.id;
+            document.getElementById('editCliente').value = ev.cliente;
+            document.getElementById('editData').value = ev.data_evento;
+            document.getElementById('editHora').value = ev.hora_inicio || '';
+            document.getElementById('editDetalhes').value = ev.detalhes || '';
+
+            document.getElementById('editModalOverlay').style.display = 'flex';
+        }
+
+        function salvarEdicao() {
+            const id = document.getElementById('editId').value;
+            const dados = {
+                cliente: document.getElementById('editCliente').value,
+                data_evento: document.getElementById('editData').value,
+                hora_inicio: document.getElementById('editHora').value,
+                detalhes: document.getElementById('editDetalhes').value
+            };
+            db.collection("agendamentos").doc(id).update(dados).then(() => {
+                alert("Atualizado!");
+                fecharEdicao();
+            });
+        }
+
+        function fecharEdicao() {
+            document.getElementById('editModalOverlay').style.display = 'none';
         }
 
         function mudarStatus(id, status) { db.collection("agendamentos").doc(id).update({status: status}); }
