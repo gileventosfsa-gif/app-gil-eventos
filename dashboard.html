@@ -173,8 +173,6 @@
         let wakeLock = null;
         let SELECTED_CHAT_USER = null;
         let CHAT_UNREAD_COUNT = 0;
-        
-        // --- FILA SEPARADA POR CATEGORIA ---
         let PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
 
         if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
@@ -182,6 +180,15 @@
 
         async function requestWakeLock() { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
         document.addEventListener('visibilitychange', async () => { if (wakeLock !== null && document.visibilityState === 'visible') requestWakeLock(); });
+
+        // FUNÇÃO DE LIMPEZA DE STRING (A MÁGICA)
+        function limparString(str) {
+            if(!str) return "";
+            return str.toLowerCase()
+                      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Tira acentos
+                      .replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "") // Tira emojis
+                      .trim();
+        }
 
         function iniciarTorreControle() {
             requestWakeLock();
@@ -200,7 +207,6 @@
                 lista.innerHTML = snapshot.empty ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
                 
                 let pedidos = [];
-                // RESET DA FILA
                 PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
 
                 snapshot.forEach(doc => {
@@ -209,9 +215,14 @@
                     
                     if (p.status === 'pendente' && p.tipo === 'pacote') {
                         PENDING_COUNTS.total++;
-                        // Normalização Rigorosa da Categoria
-                        let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
-                        if (cat === 'premium') {
+                        // AQUI TAMBÉM PRECISA DE BLINDAGEM NO CÁLCULO DA FILA
+                        let cat = 'classico';
+                        if(DADOS_EVENTO && DADOS_EVENTO.cardapio) {
+                            const itemReal = DADOS_EVENTO.cardapio.find(d => limparString(d.nome) === limparString(p.drink));
+                            if(itemReal) cat = itemReal.categoria;
+                        }
+                        
+                        if (limparString(cat) === 'premium') {
                             PENDING_COUNTS.premium++;
                         } else {
                             PENDING_COUNTS.classico++;
@@ -234,10 +245,7 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
-                        // IMPORTANTE: Envia os dados normalizados para garantir a baixa correta
-                        let catLimpa = (p.categoria_drink || 'classico').toLowerCase().trim();
-                        let nomeLimpo = (p.drink || '').replace(/'/g, "\\'");
-                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${catLimpa}', '${nomeLimpo}')">✅ PRONTO</button>`;
+                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${p.drink}')">✅ PRONTO</button>`;
                     }
 
                     lista.innerHTML += `
@@ -256,7 +264,6 @@
             monitorarChat();
         }
 
-        // --- LÓGICA DE LANÇAMENTO (SEPARADA E BLINDADA) ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -265,30 +272,29 @@
             let precoFinal = item.preco || 0;
             if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
 
-            // NORMALIZAÇÃO DE CATEGORIA
-            const categoriaNorm = (item.categoria || 'classico').toLowerCase().trim();
+            // IDENTIFICAÇÃO CORRETA DA CATEGORIA
+            const categoriaNorm = limparString(item.categoria); // Usa a função de limpeza
 
-            // CHECAGEM DE COBRANÇA
             if(item.tipo_cobranca === 'pago') {
                 tipo = 'extra';
             } 
-            // --- LÓGICA MISTA ---
             else if (DADOS_EVENTO.tipo_servico === 'misto') {
-                // SOMA: O QUE JÁ BEBEU + O QUE ESTÁ NA FILA
                 if (categoriaNorm === 'premium') {
                     const consumido = Number(DADOS_EVENTO.consumido_premium || 0);
                     const naFila = Number(PENDING_COUNTS.premium || 0);
                     const limite = Number(DADOS_EVENTO.limite_premium || 0);
+                    // DEBUG NO CONSOLE
+                    console.log(`Premium check: Consumido(${consumido}) + Fila(${naFila}) >= Limite(${limite})?`);
                     if ((consumido + naFila) >= limite) tipo = 'extra';
                 } else {
-                    // Qualquer outra coisa cai no clássico
                     const consumido = Number(DADOS_EVENTO.consumido_classico || 0);
                     const naFila = Number(PENDING_COUNTS.classico || 0);
                     const limite = Number(DADOS_EVENTO.limite_classico || 0);
+                    // DEBUG NO CONSOLE
+                    console.log(`Classico check: Consumido(${consumido}) + Fila(${naFila}) >= Limite(${limite})?`);
                     if ((consumido + naFila) >= limite) tipo = 'extra';
                 }
             } 
-            // --- LÓGICA GERAL (Pacote Normal / Premium Puro) ---
             else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
                 const consumidoGeral = Number(DADOS_EVENTO.total_consumido || 0);
                 const naFilaGeral = Number(PENDING_COUNTS.total || 0);
@@ -301,7 +307,7 @@
             db.collection("pedidos").add({ 
                 evento_id: EVENTO_ID, 
                 drink: item.nome, 
-                categoria_drink: categoriaNorm, 
+                categoria_drink: item.categoria, // Salva a categoria original do item
                 tipo: tipo, 
                 preco: precoFinal,
                 nome_convidado: nome || "Balcão", 
@@ -317,8 +323,7 @@
             menu.forEach(item => { 
                 const btn = document.createElement('button'); 
                 const pausado = item.disponivel === false; 
-                // Detecção visual
-                const isPremium = (item.categoria || '').toLowerCase().trim() === 'premium';
+                const isPremium = limparString(item.categoria) === 'premium';
                 btn.className = isPremium ? 'btn-drink premium' : 'btn-drink'; 
                 if(pausado) btn.classList.add('pausado'); 
                 
@@ -331,8 +336,8 @@
             }); 
         }
 
-        // --- MUDAR STATUS (CORREÇÃO DE CONTAGEM MISTA) ---
-        function mudarStatus(id, novoStatus, tipo, categoriaRecebida, nomeDrink) { 
+        // --- MUDAR STATUS (CORRIGIDO E BLINDADO) ---
+        function mudarStatus(id, novoStatus, tipo, nomeDrink) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
             
@@ -340,24 +345,22 @@
                 const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
                 
                 if (DADOS_EVENTO.tipo_servico === 'misto') {
-                    // BLINDAGEM: Verifica no cardápio oficial qual é a categoria real do drink
-                    // Isso evita que drinks venham com 'categoria' errada do pedido
-                    let catReal = 'classico'; // Default
+                    // BLINDAGEM TOTAL: Busca a categoria no cardápio OFICIAL ignorando emojis e case
+                    let catReal = 'classico'; 
                     
-                    // Busca pelo nome do drink no array do cardápio (normalizando string)
                     if(DADOS_EVENTO.cardapio) {
-                        const drinkOriginal = DADOS_EVENTO.cardapio.find(d => 
-                            d.nome.toLowerCase().trim() === nomeDrink.toLowerCase().trim()
-                        );
-                        if(drinkOriginal) {
-                            catReal = (drinkOriginal.categoria || 'classico').toLowerCase().trim();
+                        const nomePedidoLimpo = limparString(nomeDrink);
+                        const itemEncontrado = DADOS_EVENTO.cardapio.find(d => limparString(d.nome) === nomePedidoLimpo);
+                        
+                        if(itemEncontrado) {
+                            catReal = itemEncontrado.categoria;
                         } else {
-                            // Se não achar pelo nome, usa o que veio no pedido como fallback
-                            catReal = (categoriaRecebida || 'classico').toLowerCase().trim();
+                            // Se não achar (muito raro), tenta deduzir
+                            console.log("Drink não achado no cardápio oficial, usando padrão Clássico: " + nomeDrink);
                         }
                     }
 
-                    if (catReal === 'premium') {
+                    if (limparString(catReal) === 'premium') {
                         updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
                     } else {
                         updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
