@@ -24,8 +24,10 @@
         .btn-add { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
         .row { display: flex; gap: 10px; } .col { flex: 1; }
         
-        /* Destaque para o Combo Misto */
+        /* Estilos Específicos do Misto */
         #selectComboMisto { border: 2px solid #FF9500; background: #2A2210; color: #FFD580; font-weight: bold; }
+        #boxMistoPersonalizado { background: #2A2210; padding: 10px; border-radius: 8px; border: 1px dashed #FF9500; margin-top: 10px; display: none; }
+        .mini-label { font-size: 0.8em; color: #FFD580; margin-bottom: 2px; display: block; }
     </style>
 </head>
 <body>
@@ -41,14 +43,29 @@
                 <select id="tipoServico" onchange="togglePacote()">
                     <option value="pacote">📦 Pacote Clássico</option>
                     <option value="premium">👑 Pacote Premium</option>
-                    <option value="misto">🌟 Pacote Misto (Definido)</option>
+                    <option value="misto">🌟 Pacote Misto</option>
                     <option value="tradicional">🍹 Tradicional (Open)</option>
                 </select>
             </div>
             <div class="col" id="boxQuantidade">
                 <label id="labelQtd">Limite Total (Drinks)</label>
+                
                 <input type="number" id="qtdPacote" placeholder="Ex: 300">
-                <select id="selectComboMisto" style="display:none;"></select>
+                
+                <select id="selectComboMisto" style="display:none;" onchange="verificarPersonalizado()"></select>
+                
+                <div id="boxMistoPersonalizado">
+                    <div class="row">
+                        <div class="col">
+                            <span class="mini-label">Qtd. Clássicos</span>
+                            <input type="number" id="manualClassico" placeholder="0">
+                        </div>
+                        <div class="col">
+                            <span class="mini-label">Qtd. Premiums</span>
+                            <input type="number" id="manualPremium" placeholder="0">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -87,7 +104,7 @@
     const params = new URLSearchParams(window.location.search);
     const EVENTO_ID = params.get('evento');
 
-    // TABELA DE COMBOS MISTOS
+    // TABELA DE COMBOS MISTOS + OPÇÃO PERSONALIZADA
     const COMBOS_MISTOS = [
         { total: 100, classicos: 70, premiums: 30, label: "100 Drinks (70 Clás + 30 Prem) - R$1.050" },
         { total: 150, classicos: 100, premiums: 50, label: "150 Drinks (100 Clás + 50 Prem) - R$1.350" },
@@ -98,7 +115,8 @@
         { total: 500, classicos: 400, premiums: 100, label: "500 Drinks (400 Clás + 100 Prem) - R$2.850" },
         { total: 600, classicos: 500, premiums: 100, label: "600 Drinks (500 Clás + 100 Prem) - R$3.150" },
         { total: 750, classicos: 600, premiums: 150, label: "750 Drinks (600 Clás + 150 Prem) - R$3.450" },
-        { total: 900, classicos: 700, premiums: 200, label: "900 Drinks (700 Clás + 200 Prem) - R$3.750" }
+        { total: 900, classicos: 700, premiums: 200, label: "900 Drinks (700 Clás + 200 Prem) - R$3.750" },
+        { total: 0, classicos: 0, premiums: 0, label: "✏️ PERSONALIZADO (Definir Quantidades)" } // Opção extra
     ];
 
     let cardapioAtual = [
@@ -140,10 +158,24 @@
                 document.getElementById('tipoServico').value = dados.tipo_servico;
                 document.getElementById('qtdPacote').value = dados.total_contratado;
                 
-                // Tenta achar qual combo foi selecionado
+                // Lógica Inteligente para Carregar Misto (Padrão ou Personalizado)
                 if(dados.tipo_servico === 'misto') {
-                    const idx = COMBOS_MISTOS.findIndex(c => c.total === dados.total_contratado);
-                    if(idx !== -1) document.getElementById('selectComboMisto').value = idx;
+                    // Tenta achar o combo exato
+                    const idx = COMBOS_MISTOS.findIndex(c => 
+                        c.total === dados.total_contratado && 
+                        c.classicos === dados.limite_classico && 
+                        c.premiums === dados.limite_premium
+                    );
+
+                    if(idx !== -1 && COMBOS_MISTOS[idx].total > 0) {
+                        // Achou um combo padrão
+                        document.getElementById('selectComboMisto').value = idx;
+                    } else {
+                        // É personalizado
+                        document.getElementById('selectComboMisto').value = COMBOS_MISTOS.length - 1; // Último (Personalizado)
+                        document.getElementById('manualClassico').value = dados.limite_classico;
+                        document.getElementById('manualPremium').value = dados.limite_premium;
+                    }
                 }
 
                 document.getElementById('chavePix').value = dados.chave_pix || "";
@@ -208,10 +240,25 @@
             label.innerText = "Selecione o Combo";
             inputNormal.style.display = 'none';
             selectMisto.style.display = 'block';
+            verificarPersonalizado(); // Checa se deve mostrar os inputs manuais
         } else {
             label.innerText = "Limite Total (Drinks)";
             inputNormal.style.display = 'block';
             selectMisto.style.display = 'none';
+            document.getElementById('boxMistoPersonalizado').style.display = 'none';
+        }
+    }
+
+    function verificarPersonalizado() {
+        const idx = document.getElementById('selectComboMisto').value;
+        const combo = COMBOS_MISTOS[idx];
+        const boxManual = document.getElementById('boxMistoPersonalizado');
+        
+        // Se a label contiver "PERSONALIZADO", mostra os inputs
+        if (combo.label.includes("PERSONALIZADO")) {
+            boxManual.style.display = 'block';
+        } else {
+            boxManual.style.display = 'none';
         }
     }
 
@@ -222,7 +269,6 @@
         const timer = parseInt(document.getElementById('timerBloqueio').value);
         const senha = document.getElementById('senhaAdmin').value;
         
-        // Lógica de Quantidade Mista vs Normal
         let qtdTotal = 0;
         let limiteClassico = 0;
         let limitePremium = 0;
@@ -230,12 +276,20 @@
         if (tipo === 'misto') {
             const idx = document.getElementById('selectComboMisto').value;
             const combo = COMBOS_MISTOS[idx];
-            qtdTotal = combo.total;
-            limiteClassico = combo.classicos;
-            limitePremium = combo.premiums;
+            
+            if (combo.label.includes("PERSONALIZADO")) {
+                // Lê dos inputs manuais
+                limiteClassico = parseInt(document.getElementById('manualClassico').value) || 0;
+                limitePremium = parseInt(document.getElementById('manualPremium').value) || 0;
+                qtdTotal = limiteClassico + limitePremium;
+            } else {
+                // Lê do combo padrão
+                qtdTotal = combo.total;
+                limiteClassico = combo.classicos;
+                limitePremium = combo.premiums;
+            }
         } else {
             qtdTotal = parseInt(document.getElementById('qtdPacote').value) || 0;
-            // Se não é misto, o limite específico é igual ao total (ou 0 se não se aplicar)
             limiteClassico = qtdTotal; 
             limitePremium = qtdTotal;
         }
@@ -260,7 +314,6 @@
             nome: nome, 
             tipo_servico: tipo, 
             total_contratado: qtdTotal, 
-            // NOVOS CAMPOS PARA CONTROLE MISTO
             limite_classico: limiteClassico,
             limite_premium: limitePremium,
             chave_pix: pix, 
@@ -272,10 +325,9 @@
         if(EVENTO_ID) {
             db.collection("eventos").doc(EVENTO_ID).update(dados).then(() => { alert("Atualizado!"); window.location.href = `dashboard.html?evento=${EVENTO_ID}`; });
         } else {
-            // Inicializa contadores
             dados.total_consumido = 0; 
-            dados.consumido_classico = 0; // Novo
-            dados.consumido_premium = 0; // Novo
+            dados.consumido_classico = 0; 
+            dados.consumido_premium = 0; 
             dados.total_vendas_extra = 0; 
             dados.total_faturamento = 0; 
             dados.ativo = true; 
