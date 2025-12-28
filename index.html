@@ -28,7 +28,7 @@
         
         .card-image-box {
             width: 100%;
-            height: 220px; /* Aumentei um pouco para valorizar a foto */
+            height: 220px; 
             position: relative;
             background: #000;
         }
@@ -47,12 +47,12 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 80px; /* Gradiente maior para o texto */
+            height: 80px; 
             background: linear-gradient(to top, #1E1E1E, transparent);
         }
 
         .drink-content { padding: 15px 20px; position: relative; }
-        .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); position: relative; bottom: 10px; } /* Título sobe um pouco para a foto */
+        .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); position: relative; bottom: 10px; } 
         .drink-desc { font-size: 0.9em; color: #bbb; margin: 0 0 15px 0; line-height: 1.4; font-weight: 300; }
         
         /* PREÇOS */
@@ -65,7 +65,7 @@
         .btn-paid { background: linear-gradient(45deg, #FF8F00, #FFD580); color: #000; box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3); }
         .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
 
-        /* FLOATING BUTTON & MODAIS (Mantidos iguais) */
+        /* FLOATING BUTTON & MODAIS */
         .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; animation: floatUp 0.3s; }
         .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
@@ -189,40 +189,29 @@
         if(NOME_CONVIDADO) carregarChat(); 
     }
 
-    // --- MAPA DE IMAGENS EXATAS (SELEÇÃO MANUAL LUXO) ---
+    // --- MAPA DE IMAGENS EXATAS (LINKS PINTEREST) ---
     function getDrinkImage(nomeOriginal) {
-        // Normaliza o nome (minúsculo, sem acentos, sem espaços extras) para comparar
         const n = nomeOriginal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").trim();
-
-        // Tabela de correspondência exata dos seus drinks para fotos de alta qualidade
         const mapaImagens = {
-            // CLÁSSICOS
-            'elixir do sol': 'https://images.unsplash.com/photo-1546171753-97d7676e4602?auto=format&fit=crop&w=800&q=80', // Abacaxi sofisticado, amarelo vibrante
-            'desejo proibido': 'https://images.unsplash.com/photo-1560512823-8db03e1b0949?auto=format&fit=crop&w=800&q=80', // Vermelho intenso, taça elegante
-            'encanto noturno': 'https://images.unsplash.com/photo-1615758630612-254432261990?auto=format&fit=crop&w=800&q=80', // Roxo profundo, misterioso, luxo
-            'tropical mix': 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=800&q=80', // Colorido, vibrante, verão
-            'brisa verde': 'https://images.unsplash.com/photo-1609951651556-5334e2706168?auto=format&fit=crop&w=800&q=80', // Verde limão sofisticado, copo baixo
-            'caipirinha premium': 'https://images.unsplash.com/photo-1566925827857-8179fb7504fb?auto=format&fit=crop&w=800&q=80', // Caipirinha gourmet, bem apresentada
-            'furia rubi': 'https://images.unsplash.com/photo-1542849187-5ec6ea5e6a27?auto=format&fit=crop&w=800&q=80', // Vermelho menos intenso, refrescante
-            'segredo da casa': 'https://images.unsplash.com/photo-1516486392848-8b67ef89f113?auto=format&fit=crop&w=800&q=80', // Sombrio, misterioso, contraluz
-            'coquetel kids': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?auto=format&fit=crop&w=800&q=80', // Vermelho divertido, copo alto, sem álcool visualmente
-            'coquetel personalizado': 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80', // Drink complexo, muito top e bonito
-
-            // PREMIUMS (Busca por palavra-chave se não achar o nome exato acima)
-            'aperol': 'https://images.unsplash.com/photo-1560963689-0989366e6c0f?auto=format&fit=crop&w=800&q=80', // Aperol Spritz clássico top
-            'gin': 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', // Gin Tônica botânico lindo
-            'mojito': 'https://images.unsplash.com/photo-1551538827-9c037cb4f32d?auto=format&fit=crop&w=800&q=80' // Mojito bem feito, hortelã fresca (Melhorado)
+            'elixir do sol': 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg',
+            'desejo proibido': 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg',
+            'encanto noturno': 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg',
+            'tropical mix': 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg',
+            'brisa verde': 'https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg',
+            'caipirinha premium': 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg',
+            'furia rubi': 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg',
+            'segredo da casa': 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg',
+            'coquetel kids': 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg',
+            'coquetel personalizado': 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg',
+            'aperol': 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg',
+            'gin': 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg',
+            'mojito': 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg'
         };
 
-        // 1. Tenta achar o nome exato no mapa
         if (mapaImagens[n]) return mapaImagens[n];
-
-        // 2. Se não achou exato, tenta achar por palavra-chave (para os premiums variarem o nome)
         if (n.includes('aperol')) return mapaImagens['aperol'];
         if (n.includes('gin')) return mapaImagens['gin'];
         if (n.includes('mojito')) return mapaImagens['mojito'];
-
-        // 3. Imagem padrão de luxo se não achar nada (Fallback seguro)
         return 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=800&q=80';
     }
 
@@ -243,7 +232,6 @@
                 let disponivel = item.disponivel !== false;
                 let precoFinal = item.preco || 0;
                 let htmlPreco = '';
-                // CHAMA A NOVA FUNÇÃO DE MAPA DE IMAGENS
                 let imagemUrl = getDrinkImage(item.nome);
                 
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
@@ -277,7 +265,6 @@
                     btnHtml = `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 PEGAR DO PACOTE</button>`; 
                 }
 
-                // ESTRUTURA DO CARD AJUSTADA PARA O TÍTULO FICAR DENTRO DA FOTO
                 html += `
                 <div class="drink-card ${classeExtra}">
                     <div class="card-image-box">
@@ -298,7 +285,6 @@
         lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums);
     }
 
-    // --- MANUTENÇÃO DAS FUNÇÕES ANTERIORES (CHAT, PEDIDOS) ---
     function mudarAba(aba) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -411,9 +397,7 @@
     function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText); alert("Copiado!"); }
     function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
     function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
-    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
-    function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
+    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-free').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
 </script>
 </body>
 </html>
-
