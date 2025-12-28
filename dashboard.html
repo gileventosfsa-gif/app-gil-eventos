@@ -19,13 +19,12 @@
         .big-stat { font-size: 2em; font-weight: 800; color: #4CAF50; }
         .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; }
         
-        /* ESTILO NOVO DOS BOTÕES MANUAIS */
         .manual-row { display: flex; align-items: center; justify-content: space-between; background: #333; padding: 8px; margin-bottom: 5px; border-radius: 6px; border: 1px solid #444; }
         .manual-name { font-size: 0.9em; font-weight: 600; color: #fff; flex: 1; }
         .manual-actions { display: flex; gap: 5px; }
         .btn-manual { border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8em; color: white; transition: 0.2s; }
-        .btn-manual.pct { background: #2E7D32; border: 1px solid #4CAF50; } /* Verde Pacote */
-        .btn-manual.vd { background: #FF8F00; border: 1px solid #FFD580; color: black; } /* Laranja Venda */
+        .btn-manual.pct { background: #2E7D32; border: 1px solid #4CAF50; } 
+        .btn-manual.vd { background: #FF8F00; border: 1px solid #FFD580; color: black; } 
         .btn-manual:hover { transform: scale(1.05); filter: brightness(1.1); }
         .manual-row.pausado { opacity: 0.5; }
 
@@ -59,7 +58,6 @@
         input:checked + .slider:before { transform: translateX(26px); }
         .obs-tag { background: #FFD580; color: black; padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 0.8em; display: block; margin-top: 5px; }
         
-        /* CHAT ADMIN */
         .chat-layout { display: flex; height: 400px; gap: 10px; }
         .chat-users { width: 30%; background: #111; border-right: 1px solid #333; overflow-y: auto; }
         .chat-area { width: 70%; display: flex; flex-direction: column; }
@@ -69,9 +67,7 @@
         .msg { padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; max-width: 80%; font-size: 0.9em; }
         .msg-client { background: #444; align-self: flex-start; }
         .msg-admin { background: #007bff; align-self: flex-end; text-align: right; }
-        /* AQUI A CLASSE QUE FAZ APARECER A MENSAGEM DO SISTEMA */
         .msg-sistema { background: none; border: none; color: #777; text-align: center; width: 100%; padding: 5px; font-size: 0.8em; font-style: italic; }
-        
         .chat-controls { display: flex; gap: 5px; }
         .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
 
@@ -340,22 +336,40 @@
                 if(novasMensagens > 0) { CHAT_UNREAD_COUNT += novasMensagens; const badge = document.getElementById('chatBadgeGlobal'); badge.innerText = CHAT_UNREAD_COUNT; badge.style.display = 'flex'; }
             });
         }
+        
+        // *** CORREÇÃO DO CHAT AQUI: AGORA LÊ TAMBÉM OS PEDIDOS ***
         function abrirChatAdmin() { 
             document.getElementById('chatOverlay').style.display = 'flex'; 
             CHAT_UNREAD_COUNT = 0; 
             document.getElementById('chatBadgeGlobal').style.display = 'none'; 
             
-            // CARREGA A LISTA DE USUÁRIOS
-            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { 
-                const usuarios = new Set(); 
-                s.forEach(d => usuarios.add(d.data().nome)); 
+            let usersFromChat = new Set();
+            let usersFromOrders = new Set();
+            
+            const render = () => {
+                const allUsers = new Set([...usersFromChat, ...usersFromOrders]);
                 const lista = document.getElementById('chatUsersList'); 
                 lista.innerHTML = ''; 
-                usuarios.forEach(u => { 
+                allUsers.forEach(u => { 
                     lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; 
                 }); 
+            };
+
+            // Listener 1: Mensagens
+            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { 
+                usersFromChat.clear();
+                s.forEach(d => usersFromChat.add(d.data().nome)); 
+                render();
             }); 
+            
+            // Listener 2: Pedidos (GARANTE QUE QUEM PEDIU APARECE)
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).onSnapshot(s => {
+                usersFromOrders.clear();
+                s.forEach(d => usersFromOrders.add(d.data().nome_convidado));
+                render();
+            });
         }
+        
         function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
         
         function carregarConversa(nome) { 
@@ -401,16 +415,12 @@
             if (dados.tipo_servico === 'misto') {
                 document.getElementById('boxConsumoSimples').style.display = 'none';
                 document.getElementById('boxConsumoMisto').style.display = 'block';
-                const cClassico = Number(dados.consumido_classico || 0);
-                const lClassico = Number(dados.limite_classico || 0);
-                const cPremium = Number(dados.consumido_premium || 0);
-                const lPremium = Number(dados.limite_premium || 0);
-
+                const cClassico = Number(dados.consumido_classico || 0); const lClassico = Number(dados.limite_classico || 0);
+                const cPremium = Number(dados.consumido_premium || 0); const lPremium = Number(dados.limite_premium || 0);
                 document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`;
                 document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
                 const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0;
                 const pctPremium = lPremium > 0 ? (cPremium/lPremium)*100 : 0;
-
                 document.getElementById('barClassico').style.width = pctClassico + '%';
                 document.getElementById('barPremium').style.width = pctPremium + '%';
             } else {
