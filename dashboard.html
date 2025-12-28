@@ -174,13 +174,9 @@
         let SELECTED_CHAT_USER = null;
         let CHAT_UNREAD_COUNT = 0;
         
-        // --- FUNÇÃO LIMPAR STRING (ESSENCIAL) ---
         function limparString(str) {
             if(!str) return "";
-            return str.toLowerCase()
-                      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                      .replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "")
-                      .trim();
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim();
         }
 
         if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
@@ -222,7 +218,7 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
-                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${p.drink}')">✅ PRONTO</button>`;
+                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido')">✅ PRONTO</button>`;
                     }
 
                     lista.innerHTML += `
@@ -241,7 +237,7 @@
             monitorarChat();
         }
 
-        // --- LANÇAR MANUAL (INCREMENTA NA HORA) ---
+        // --- LANÇAMENTO MANUAL: INCREMENTA NA HORA ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -252,19 +248,26 @@
 
             const categoriaNorm = limparString(item.categoria); 
 
-            // Checagem se DEVE ser cobrado (limite estourado ou item pago)
+            // LÓGICA DE COBRANÇA (Checa se tem vaga no pacote)
             if(item.tipo_cobranca === 'pago') {
                 tipo = 'extra';
             } 
             else if (DADOS_EVENTO.tipo_servico === 'misto') {
+                const consumidoC = Number(DADOS_EVENTO.consumido_classico || 0);
+                const limiteC = Number(DADOS_EVENTO.limite_classico || 0);
+                const consumidoP = Number(DADOS_EVENTO.consumido_premium || 0);
+                const limiteP = Number(DADOS_EVENTO.limite_premium || 0);
+
                 if (categoriaNorm === 'premium') {
-                    if ((DADOS_EVENTO.consumido_premium || 0) >= (DADOS_EVENTO.limite_premium || 0)) tipo = 'extra';
+                    if (consumidoP >= limiteP) tipo = 'extra';
                 } else {
-                    if ((DADOS_EVENTO.consumido_classico || 0) >= (DADOS_EVENTO.limite_classico || 0)) tipo = 'extra';
+                    if (consumidoC >= limiteC) tipo = 'extra';
                 }
             } 
             else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
-                if((DADOS_EVENTO.total_consumido || 0) >= (DADOS_EVENTO.total_contratado || 0)) tipo = 'extra';
+                const totalC = Number(DADOS_EVENTO.total_consumido || 0);
+                const totalL = Number(DADOS_EVENTO.total_contratado || 0);
+                if(totalC >= totalL) tipo = 'extra';
             }
             
             let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
@@ -280,7 +283,7 @@
                 sinalizou_pagamento: false, 
                 data: new Date() 
             }).then(() => {
-                // INCREMENTA SE FOR PACOTE
+                // INCREMENTA O CONTADOR SE FOR PACOTE
                 if(tipo === 'pacote') {
                     const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
                     if (DADOS_EVENTO.tipo_servico === 'misto') {
@@ -311,38 +314,28 @@
             }); 
         }
 
-        // --- MUDAR STATUS (APENAS VISUAL) ---
-        function mudarStatus(id, novoStatus, tipo, nomeDrink) { 
+        // --- PRONTO: SÓ MUDA STATUS (NÃO CONTA) ---
+        function mudarStatus(id, novoStatus) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
         }
 
-        // --- CANCELAR (DECREMENTA) ---
+        // --- CANCELAR: DECREMENTA (DEVOLVE PRO PACOTE) ---
         function cancelarPedido(id) { 
-            if(!confirm("Cancelar? O drink voltará para o pacote (se aplicável).")) return; 
+            if(!confirm("Cancelar? O drink voltará para o saldo do pacote.")) return; 
             
-            // Primeiro busca o pedido para saber se era pacote e qual categoria
             db.collection("pedidos").doc(id).get().then(doc => {
                 if(doc.exists) {
                     const p = doc.data();
-                    
                     db.collection("pedidos").doc(id).update({ status: 'cancelado' });
 
                     if(p.tipo === 'pacote') {
                         const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) };
-                        
                         if (DADOS_EVENTO.tipo_servico === 'misto') {
-                            // Tenta categoria do pedido ou busca no oficial
-                            let catReal = 'classico';
-                            if(DADOS_EVENTO.cardapio) {
-                                const itemReal = DADOS_EVENTO.cardapio.find(d => limparString(d.nome) === limparString(p.drink));
-                                if(itemReal) catReal = itemReal.categoria;
-                            }
-                            
-                            if (limparString(catReal) === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1);
+                            const cat = limparString(p.categoria_drink || 'classico');
+                            if (cat === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1);
                             else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1);
                         }
-                        
                         db.collection("eventos").doc(EVENTO_ID).update(updateData);
                     }
                 }
