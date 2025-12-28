@@ -13,43 +13,37 @@
         .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; font-size: 1.2em; }
         .page-title { font-size: 2em; margin: 5px 0; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
+        /* NOVO BOTÃO DE ORÇAMENTO */
+        .btn-orcamento {
+            display: inline-block; margin-top: 15px; padding: 12px 30px; 
+            background: linear-gradient(145deg, #1e1e1e, #252525); 
+            border: 2px solid #FF9500; color: #FF9500; text-decoration: none; 
+            font-weight: 800; border-radius: 50px; text-transform: uppercase; 
+            font-size: 0.9em; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.3s;
+        }
+        .btn-orcamento:hover { background: #FF9500; color: #000; transform: scale(1.05); }
+
         /* --- VERIFICAÇÃO --- */
         .check-availability-box {
             background: linear-gradient(145deg, #1e1e1e, #252525);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            text-align: center;
-            margin-bottom: 30px;
-            border: 1px solid #333;
+            padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center; margin-bottom: 30px; border: 1px solid #333;
         }
         .check-title { color: #FF9500; font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.1em; text-transform: uppercase; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         
         .input-3d, .textarea-3d {
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            background: #121212;
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1em;
-            width: 100%;
+            padding: 12px; border-radius: 10px; border: 1px solid #333;
+            background: #121212; color: #fff; font-family: 'Poppins', sans-serif;
+            font-size: 1em; width: 100%;
         }
         .input-3d { flex: 1; min-width: 140px; }
         .textarea-3d { resize: vertical; min-height: 80px; }
 
         .btn-3d-check {
-            background: linear-gradient(145deg, #FF9500, #F57C00);
-            color: #000;
-            font-weight: 800;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 149, 0, 0.2);
-            transition: 0.2s;
-            text-transform: uppercase;
+            background: linear-gradient(145deg, #FF9500, #F57C00); color: #000; font-weight: 800;
+            padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 149, 0, 0.2); transition: 0.2s; text-transform: uppercase;
         }
         .btn-3d-check:active { transform: scale(0.95); }
 
@@ -68,6 +62,7 @@
         /* --- BLOCOS DE EVENTOS --- */
         .events-grid-title { font-size: 1.2em; color: #fff; margin-bottom: 15px; border-left: 4px solid #FF9500; padding-left: 10px; }
         .events-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        
         .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; padding-top: 40px; position: relative; border: 1px solid #333; transition: transform 0.2s; overflow: hidden; }
         .event-block:hover { transform: translateY(-3px); border-color: #555; }
         .event-block.future { border-bottom: 4px solid #FF9500; }
@@ -98,7 +93,6 @@
         .admin-section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
         .btn-admin { background: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin: 5px; }
         
-        /* ABAS ADMIN */
         .admin-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #333; }
         .tab-adm-btn { flex: 1; padding: 10px; background: #222; border: none; color: #777; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .tab-adm-btn.active { background: #FF9500; color: #000; border-top-left-radius: 8px; border-top-right-radius: 8px; }
@@ -156,6 +150,7 @@
         <div class="header">
             <span class="brand">GIL EVENTOS</span>
             <h1 class="page-title">Agenda & Disponibilidade</h1>
+            <a href="orcamento.html" class="btn-orcamento">💰 SIMULAR ORÇAMENTO</a>
         </div>
 
         <div class="check-availability-box">
@@ -201,13 +196,11 @@
 
             <div class="admin-section">
                 <h4 style="color:#aaa;">Minha Agenda</h4>
-                
                 <div class="admin-tabs">
                     <button class="tab-adm-btn active" onclick="mudarAbaAdmin('confirmados')">✅ CONFIRMADOS</button>
                     <button class="tab-adm-btn" onclick="mudarAbaAdmin('outros')">📝 OUTROS / PENDENTES</button>
                     <button class="tab-adm-btn" onclick="mudarAbaAdmin('concluidos')">🏁 CONCLUÍDOS</button>
                 </div>
-
                 <div id="listConfirmed" class="tab-content-admin active"></div>
                 <div id="listOthers" class="tab-content-admin"></div>
                 <div id="listConcluded" class="tab-content-admin"></div>
@@ -263,7 +256,6 @@
 
             if (!data || !hora) return alert("Selecione data e hora!");
 
-            // Converte hora solicitada para minutos (0-1439)
             const [h, m] = hora.split(':').map(Number);
             const reqTotalMinutes = (h * 60) + m;
 
@@ -280,10 +272,8 @@
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
                         const eventTotalMinutes = (eh * 60) + em;
                         
-                        // Diferença absoluta em minutos
                         const diffMinutes = Math.abs(reqTotalMinutes - eventTotalMinutes);
 
-                        // Regra de 4 horas = 240 minutos
                         if (diffMinutes < 240) {
                             status = "OCUPADO";
                             conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Intervalo mínimo de 4h)`;
@@ -408,83 +398,3 @@
             const duracao = document.getElementById('admDuracao').value;
             const detalhes = document.getElementById('admDetalhes').value;
             if(!cliente || !data) return alert("Preencha dados!");
-            db.collection("agendamentos").add({ cliente, data_evento: data, hora_inicio: hora, duracao: duracao, detalhes: detalhes, status: 'pendente' }).then(() => { 
-                alert("Salvo!"); document.getElementById('admCliente').value=''; document.getElementById('admDetalhes').value=''; 
-            });
-        }
-
-        function mudarAbaAdmin(aba) {
-            document.querySelectorAll('.tab-adm-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content-admin').forEach(c => c.classList.remove('active'));
-            const btnIndex = aba === 'confirmados' ? 0 : aba === 'outros' ? 1 : 2;
-            document.querySelectorAll('.tab-adm-btn')[btnIndex].classList.add('active');
-            if(aba === 'confirmados') document.getElementById('listConfirmed').classList.add('active');
-            if(aba === 'outros') document.getElementById('listOthers').classList.add('active');
-            if(aba === 'concluidos') document.getElementById('listConcluded').classList.add('active');
-        }
-
-        function renderAdminList() {
-            const listConf = document.getElementById('listConfirmed');
-            const listOther = document.getElementById('listOthers');
-            const listConc = document.getElementById('listConcluded');
-            listConf.innerHTML = ''; listOther.innerHTML = ''; listConc.innerHTML = '';
-
-            eventsCache.sort((a,b) => new Date(a.data_evento) - new Date(b.data_evento));
-            const todayStr = new Date().toISOString().split('T')[0];
-
-            eventsCache.forEach(e => {
-                const dataDisplay = e.data_evento.split('-').reverse().join('/');
-                const horaDisplay = e.hora_inicio || 'S/H';
-                const isPast = e.data_evento < todayStr;
-                
-                let cardHTML = `
-                    <div class="event-list-item ${isPast ? 'past' : (e.status === 'confirmado' ? 'confirmed' : 'pending')}">
-                        <div style="flex-grow:1;">
-                            <strong style="color:${isPast ? '#777' : (e.status==='confirmado' ? '#00E676' : '#FF9500')}">${dataDisplay}</strong> (${horaDisplay})<br>
-                            ${e.cliente}
-                        </div>
-                        <div class="event-actions">`;
-
-                if(!isPast) {
-                    if(e.status !== 'confirmado') cardHTML += `<button onclick="confirmarEvento('${e.id}')" class="btn-icon confirm-btn" title="Confirmar">✅</button>`;
-                    else cardHTML += `<button onclick="desconfirmarEvento('${e.id}')" class="btn-icon" title="Voltar para pendente">↩️</button>`;
-                }
-
-                cardHTML += `<button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button>
-                            <button onclick="deletarEvento('${e.id}')" class="btn-icon delete-btn">✖</button>
-                        </div></div>`;
-
-                if (isPast) listConc.innerHTML += cardHTML;
-                else if (e.status === 'confirmado') listConf.innerHTML += cardHTML;
-                else listOther.innerHTML += cardHTML;
-            });
-        }
-
-        function confirmarEvento(id) { db.collection("agendamentos").doc(id).update({ status: 'confirmado' }); }
-        function desconfirmarEvento(id) { db.collection("agendamentos").doc(id).update({ status: 'pendente' }); }
-
-        function abrirEdicao(id) {
-            const ev = eventsCache.find(e => e.id === id);
-            if(!ev) return;
-            document.getElementById('editId').value = ev.id;
-            document.getElementById('editCliente').value = ev.cliente;
-            document.getElementById('editData').value = ev.data_evento;
-            document.getElementById('editHora').value = ev.hora_inicio || '';
-            document.getElementById('editDuracao').value = ev.duracao || 5;
-            document.getElementById('editDetalhes').value = ev.detalhes || '';
-            document.getElementById('editModalOverlay').style.display = 'flex';
-        }
-
-        function salvarEdicao() {
-            const id = document.getElementById('editId').value;
-            const dados = { cliente: document.getElementById('editCliente').value, data_evento: document.getElementById('editData').value, hora_inicio: document.getElementById('editHora').value, duracao: document.getElementById('editDuracao').value, detalhes: document.getElementById('editDetalhes').value };
-            db.collection("agendamentos").doc(id).update(dados).then(() => { alert("Atualizado!"); document.getElementById('editModalOverlay').style.display = 'none'; });
-        }
-
-        function deletarEvento(id) { if(confirm("Apagar?")) db.collection("agendamentos").doc(id).delete(); }
-        function gerarHistoricoFicticio() { if(!confirm("Gerar passados?")) return; const nomes=["Aniversário 15 Anos","Casamento Civil","Confraternização"]; const hoje=new Date(); for(let i=0;i<5;i++){ let d=new Date(); d.setDate(hoje.getDate()-Math.floor(Math.random()*60)-1); db.collection("agendamentos").add({cliente:nomes[Math.floor(Math.random()*nomes.length)], data_evento:d.toISOString().split('T')[0], hora_inicio:"19:00", duracao:4, detalhes:"Histórico", status:'confirmado'}); } alert("Gerado!"); }
-        function gerarFeriados() { if(!confirm("Importar feriados?")) return; const ano=new Date().getFullYear(); const feriados=[{d:`${ano}-12-25`,n:"Natal"},{d:`${ano}-12-31`,n:"Réveillon"},{d:`${ano}-01-01`,n:"Ano Novo"},{d:`${ano}-05-01`,n:"Dia do Trabalho"}]; feriados.forEach(f=>db.collection("agendamentos").add({cliente:f.n, data_evento:f.d, hora_inicio:"", duracao:24, status:'pendente'})); alert("Feito!"); }
-    </script>
-</body>
-</html>
-
