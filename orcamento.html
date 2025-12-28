@@ -37,16 +37,16 @@
             background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: #fff;
             padding: 14px 28px; border-radius: 12px; font-weight: bold; cursor: pointer;
             font-size: 1em; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255,149,0,0.3);
-            text-decoration: none; display: inline-block;
+            text-decoration: none; display: inline-block; width: 100%; text-align: center;
         }
-        .btn-gradient:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
+        .btn-gradient:hover { transform: scale(1.02); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
 
-        /* SEÇÃO 2 - GRID E CARDS (DESIGN "SEM CORTES") */
+        /* SEÇÃO 2 - GRID E CARDS */
         .gil-category { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 60px 0 30px; }
         .gil-category h2 { color: #FFB84D; font-size: 1.8em; text-transform: uppercase; letter-spacing: 1.5px; margin: 0; text-align: center; }
         .gil-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, transparent, #FFB84D, transparent); max-width: 100px; }
         
-        .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         
         .gil-card {
             background: var(--card-bg); border: 1px solid rgba(255, 213, 128, 0.1); border-radius: 16px;
@@ -55,51 +55,29 @@
         }
         .gil-card:hover { transform: translateY(-7px); border-color: rgba(255, 149, 0, 0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-        /* ÁREA DA FOTO (Técnica Netflix) */
+        /* ÁREA DA FOTO */
         .drink-img-box {
-            width: 100%;
-            height: 320px; /* Altura aumentada para caber a foto vertical */
-            position: relative;
-            overflow: hidden;
-            background: #000;
+            width: 100%; height: 320px; position: relative; overflow: hidden; background: #000;
         }
-        
-        /* Fundo Borrado */
         .blur-bg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover;
-            background-position: center;
-            filter: blur(15px) brightness(0.5); /* Desfoque */
-            transform: scale(1.1);
-            z-index: 1;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            filter: blur(15px) brightness(0.5); transform: scale(1.1); z-index: 1;
         }
-
-        /* Foto Principal Inteira */
         .drink-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* MOSTRA TUDO SEM CORTAR */
-            position: relative;
-            z-index: 2;
-            transition: transform 0.6s ease;
-            drop-shadow: 0 5px 15px rgba(0,0,0,0.6); /* Sombra para destacar do fundo */
+            width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 2;
+            transition: transform 0.6s ease; drop-shadow: 0 5px 15px rgba(0,0,0,0.6);
         }
         .gil-card:hover .drink-img { transform: scale(1.05); }
-        
-        /* SOMBRA NA BASE */
         .img-overlay {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
-            background: linear-gradient(to top, #1E1E1E, transparent);
-            z-index: 3;
+            background: linear-gradient(to top, #1E1E1E, transparent); z-index: 3;
         }
 
-        /* CONTEÚDO DO CARD */
         .card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; position: relative; z-index: 4; }
         .gil-card h3 { font-size: 1.3em; color: var(--gold); margin: 0 0 8px 0; font-weight: 700; }
         .gil-card p { font-size: 0.9em; line-height: 1.5; color: #ccc; margin: 0; flex-grow: 1; }
 
-        /* BADGES (ETIQUETAS) */
         .badge { 
             position: absolute; top: 15px; right: 15px; z-index: 5;
             font-size: 0.7em; padding: 5px 12px; border-radius: 20px; 
@@ -115,12 +93,26 @@
         .calc-container { max-width: 950px; margin: auto; padding: 50px 20px; text-align: center; }
         label { display: block; margin-top: 25px; color: var(--gold); font-weight: 500; text-align: left; width: 90%; margin-left: auto; margin-right: auto; }
         select, input { width: 90%; padding: 12px; border-radius: 10px; border: none; margin-top: 8px; background: rgba(36,36,36,0.9); color: #EAEAEA; font-size: 1em; }
+        
+        .results-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; margin-top: 30px;
+        }
+
         .result-card { 
             border: 1px solid rgba(255,213,128,0.25); border-radius: 18px; padding: 25px 30px; 
-            margin: 20px auto; background: radial-gradient(circle at top left, rgba(40,40,40,0.85), rgba(18,18,18,0.9)); 
-            max-width: 700px; text-align: center; opacity: 0; animation: fadeUp 0.8s forwards ease-out; 
+            background: radial-gradient(circle at top left, rgba(40,40,40,0.85), rgba(18,18,18,0.9)); 
+            text-align: center; opacity: 0; animation: fadeUp 0.8s forwards ease-out; display: flex; flex-direction: column; justify-content: space-between;
         }
+        
+        .result-card.highlight { border: 2px solid var(--orange); background: radial-gradient(circle at top left, rgba(60,40,20,0.9), rgba(20,20,20,0.95)); transform: scale(1.02); }
+        .result-card h2 { font-size: 1.4em; margin-bottom: 10px; }
+        .price-display { font-size: 2em; color: var(--gold); font-weight: 800; margin: 15px 0; }
+        .price-per-drink { font-size: 0.8em; color: #aaa; display: block; margin-top: -10px; margin-bottom: 20px; }
+        .package-details { text-align: left; font-size: 0.9em; color: #ddd; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
+
         .lista-compras { display:none; text-align:left; margin-top:15px; padding:15px; background: rgba(0,0,0,0.5); border-radius:12px; font-size:0.85em; color:#ddd; white-space: pre-wrap; border: 1px solid #333; }
+        .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -129,9 +121,7 @@
         <video autoplay muted loop playsinline style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; filter:brightness(50%);">
             <source src="https://solucoesdigital.site/wp-content/uploads/2025/10/A_cinematic_tropical_202510312102_lig90.mp4" type="video/mp4">
         </video>
-
         <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(18,18,18,0.9) 100%); z-index:1;"></div>
-
         <div style="position:relative; z-index:2; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; padding: 0 20px;">
             <h1 style="font-size: clamp(3em, 8vw, 5em); font-weight:800; text-transform:uppercase; margin:0; line-height:1.1; 
                        background: linear-gradient(45deg, #FFD580, #FFAE00, #FFF5D0, #FFAE00); 
@@ -147,9 +137,7 @@
                 Transformando celebrações em memórias inesquecíveis com drinks autorais e serviço de excelência.
             </p>
             <div style="margin-top: 35px; opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 1.3s;">
-                <button onclick="document.getElementById('simulador').scrollIntoView({behavior: 'smooth'})" class="btn-gold">
-                    Fazer Orçamento Agora
-                </button>
+                <button onclick="document.getElementById('simulador').scrollIntoView({behavior: 'smooth'})" class="btn-gold">Fazer Orçamento Agora</button>
             </div>
         </div>
         <div style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); z-index:2; animation: bounce 2s infinite;">
@@ -167,162 +155,27 @@
 
         <div class="gil-category"><span class="gil-line"></span><h2>Clássicos da Casa</h2><span class="gil-line"></span></div>
         <div class="gil-grid">
-            
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg" class="drink-img" alt="Elixir do Sol">
-                    <span class="badge badge-pop">Mais Pedido</span>
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Elixir do Sol</h3><p><strong>Roska Energia:</strong> Abacaxi, hortelã, toque cítrico e especiarias.</p>
-                </div>
-            </div>
-
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg" class="drink-img" alt="Desejo Proibido">
-                    <span class="badge badge-sweet">Doce</span>
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Desejo Proibido</h3><p><strong>Roska das Paixões:</strong> Frutas vermelhas intensas, cítrico e hortelã.</p>
-                </div>
-            </div>
-
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg" class="drink-img" alt="Encanto Noturno">
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Encanto Noturno</h3><p><strong>Roska do Encanto:</strong> Uva roxa, cítrico e manjericão fresco.</p>
-                </div>
-            </div>
-
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg');"></div>
-                    <img src="https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg" class="drink-img" alt="Tropical Mix">
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Tropical Mix</h3><p><strong>Roska do Paraíso:</strong> Tangerina, kiwi, abacaxi e ervas frescas.</p>
-                </div>
-            </div>
-
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg" class="drink-img" alt="Brisa Verde">
-                    <span class="badge badge-fresh">Refrescante</span>
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Brisa Verde</h3><p><strong>Roska Fresh:</strong> Limão, gengibre, manjericão e açúcar de cana.</p>
-                </div>
-            </div>
-
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg');"></div>
-                    <img src="https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg" class="drink-img" alt="Fúria Rubi">
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Fúria Rubi</h3><p><strong>Roska Explosão:</strong> Morango, tangerina e maracujá.</p>
-                </div>
-            </div>
-
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg" class="drink-img" alt="Caipirinha Premium">
-                    <span class="badge badge-pop">Clássico</span>
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Caipirinha Premium</h3><p>Limão tahiti, açúcar na medida e aguardente de qualidade.</p>
-                </div>
-            </div>
-
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg" class="drink-img" alt="Segredo da Casa">
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Segredo da Casa</h3><p>Criação autoral com toque secreto do barman.</p>
-                </div>
-            </div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg');"></div><img src="https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg" class="drink-img"><span class="badge badge-pop">Mais Pedido</span><div class="img-overlay"></div></div><div class="card-content"><h3>Elixir do Sol</h3><p><strong>Roska Energia:</strong> Abacaxi, hortelã, toque cítrico e especiarias.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg');"></div><img src="https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg" class="drink-img"><span class="badge badge-sweet">Doce</span><div class="img-overlay"></div></div><div class="card-content"><h3>Desejo Proibido</h3><p><strong>Roska das Paixões:</strong> Frutas vermelhas intensas, cítrico e hortelã.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg');"></div><img src="https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Encanto Noturno</h3><p><strong>Roska do Encanto:</strong> Uva roxa, cítrico e manjericão fresco.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg');"></div><img src="https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Tropical Mix</h3><p><strong>Roska do Paraíso:</strong> Tangerina, kiwi, abacaxi e ervas frescas.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg');"></div><img src="https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg" class="drink-img"><span class="badge badge-fresh">Refrescante</span><div class="img-overlay"></div></div><div class="card-content"><h3>Brisa Verde</h3><p><strong>Roska Fresh:</strong> Limão, gengibre, manjericão e açúcar de cana.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg');"></div><img src="https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Fúria Rubi</h3><p><strong>Roska Explosão:</strong> Morango, tangerina e maracujá.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg');"></div><img src="https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg" class="drink-img"><span class="badge badge-pop">Clássico</span><div class="img-overlay"></div></div><div class="card-content"><h3>Caipirinha Premium</h3><p>Limão tahiti, açúcar na medida e aguardente de qualidade.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg');"></div><img src="https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Segredo da Casa</h3><p>Criação autoral com toque secreto do barman.</p></div></div>
         </div>
 
         <div class="gil-category"><span class="gil-line"></span><h2>Drinks Premium</h2><span class="gil-line"></span></div>
         <div class="gil-grid">
-            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg" class="drink-img" alt="Aperol">
-                    <span class="badge badge-premium">Premium</span>
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Aperol Sunset</h3><p>Aperol com espumante e laranja caramelizada.</p>
-                </div>
-            </div>
-
-            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg" class="drink-img" alt="Gin">
-                    <span class="badge badge-premium">Premium</span>
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Gin Tropical</h3><p>Gin, abacaxi grelhado, especiarias e limão siciliano.</p>
-                </div>
-            </div>
-
-            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg');"></div>
-                    <img src="https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg" class="drink-img" alt="Mojito">
-                    <span class="badge badge-premium">Premium</span>
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Mojito da Ilha</h3><p>Rum branco, hortelã fresca e limão tahiti.</p>
-                </div>
-            </div>
+            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg');"></div><img src="https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Aperol Sunset</h3><p>Aperol com espumante e laranja caramelizada.</p></div></div>
+            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg');"></div><img src="https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Gin Tropical</h3><p>Gin, abacaxi grelhado, especiarias e limão siciliano.</p></div></div>
+            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg');"></div><img src="https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Mojito da Ilha</h3><p>Rum branco, hortelã fresca e limão tahiti.</p></div></div>
         </div>
 
         <div class="gil-category"><span class="gil-line"></span><h2>Coquetéis</h2><span class="gil-line"></span></div>
         <div class="gil-grid">
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg');"></div>
-                    <img src="https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg" class="drink-img" alt="Coquetel Kids">
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Coquetel Kids</h3><p>Mix cremoso de frutas vermelhas. Delicioso, colorido e perfeito para festas infantis.</p>
-                </div>
-            </div>
-
-            <div class="gil-card">
-                <div class="drink-img-box">
-                    <div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg');"></div>
-                    <img src="https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg" class="drink-img" alt="Coquetel Personalizado">
-                    <div class="img-overlay"></div>
-                </div>
-                <div class="card-content">
-                    <h3>Personalizado</h3><p>O cliente escolhe as frutas e combinações na hora.</p>
-                </div>
-            </div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg');"></div><img src="https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Coquetel Kids</h3><p>Mix cremoso de frutas vermelhas. Delicioso, colorido e perfeito para festas infantis.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg');"></div><img src="https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Personalizado</h3><p>O cliente escolhe as frutas e combinações na hora.</p></div></div>
         </div>
     </div>
 
@@ -379,13 +232,14 @@
         <br><br>
         <button class="btn-gradient" onclick="calcular()">Calcular Agora</button>
 
-        <div id="resultado"></div>
+        <div id="resultado" class="results-grid"></div>
+        <div id="resultadoExtra" class="results-grid" style="grid-template-columns: 1fr;"></div>
     </div>
 
     <div style="text-align:center; background:#111; padding:60px 20px; color:var(--gold); border-top:2px solid #FFD58033;">
         <h2 style="font-size:2em;">✨ Faça seu evento brilhar com Gil Eventos ✨</h2>
         <p style="color:#ddd; margin:20px 0;">Drinks autorais, energia contagiante e atendimento impecável.</p>
-        <a href="https://wa.me/5575998649927?text=Olá!%20Quero%20um%20orçamento%20de%20drinks!" target="_blank" class="btn-gradient">
+        <a href="https://wa.me/5575998649927?text=Olá!%20Quero%20um%20orçamento%20de%20drinks!" target="_blank" class="btn-gradient" style="max-width:300px;">
             Falar no WhatsApp
         </a>
         <p style="margin-top:30px; font-size:0.8em; color:#555;">&copy; 2025 Gil Eventos. Todos os direitos reservados.</p>
@@ -400,18 +254,37 @@
         };
 
         const pacotesClassicos = [
-            {drinks:100, price:500}, {drinks:150, price:700}, {drinks:200, price:900},
-            {drinks:250, price:1100}, {drinks:300, price:1200}, {drinks:400, price:1600},
-            {drinks:500, price:2000}, {drinks:600, price:2400}, {drinks:750, price:3000},
-            {drinks:900, price:3600}
+            {drinks:100, price:750}, {drinks:150, price:950}, {drinks:200, price:1150},
+            {drinks:250, price:1350}, {drinks:300, price:1450}, {drinks:400, price:1850},
+            {drinks:500, price:2250}, {drinks:600, price:2650}, {drinks:750, price:3250},
+            {drinks:900, price:3850}
         ];
 
-        function escolherPacotePorConvidados(convidados){
-            const drinks = convidados * 3;
-            for(let i=0; i<pacotesClassicos.length; i++){
-                if(pacotesClassicos[i].drinks >= drinks) return pacotesClassicos[i];
+        const pacotesPremium = [
+            {drinks:100, price:1450}, {drinks:150, price:1750}, {drinks:200, price:2050},
+            {drinks:250, price:2350}, {drinks:300, price:2650}, {drinks:400, price:2950},
+            {drinks:500, price:3250}, {drinks:600, price:3550}, {drinks:750, price:3850},
+            {drinks:900, price:4150}
+        ];
+
+        const pacotesMistos = [
+            {drinks:100, price:1050, desc:"70 Clássicos + 30 Premium"},
+            {drinks:150, price:1350, desc:"100 Clássicos + 50 Premium"},
+            {drinks:200, price:1650, desc:"140 Clássicos + 60 Premium"},
+            {drinks:250, price:1950, desc:"170 Clássicos + 80 Premium"},
+            {drinks:300, price:2250, desc:"200 Clássicos + 100 Premium"},
+            {drinks:400, price:2550, desc:"300 Clássicos + 100 Premium"},
+            {drinks:500, price:2850, desc:"400 Clássicos + 100 Premium"},
+            {drinks:600, price:3150, desc:"500 Clássicos + 100 Premium"},
+            {drinks:750, price:3450, desc:"600 Clássicos + 150 Premium"},
+            {drinks:900, price:3750, desc:"700 Clássicos + 200 Premium"}
+        ];
+
+        function getPacote(array, drinksNeeded) {
+            for(let i=0; i<array.length; i++){
+                if(array[i].drinks >= drinksNeeded) return array[i];
             }
-            return pacotesClassicos[pacotesClassicos.length-1];
+            return array[array.length-1];
         }
 
         function toggleLista(btn){
@@ -429,10 +302,12 @@
             const convidados = parseInt(document.getElementById('convidados').value);
             const tipo = document.getElementById('tipo').value;
             const resultado = document.getElementById('resultado');
+            const resultadoExtra = document.getElementById('resultadoExtra');
             
             if(!convidados || convidados < 1) return alert("Digite o número de convidados");
 
             resultado.innerHTML = "";
+            resultadoExtra.innerHTML = "";
 
             if(convidados < 100){
                 let faixa = '70-100';
@@ -440,47 +315,72 @@
                 else if(convidados <= 35) faixa = '30-35';
                 else if(convidados <= 60) faixa = '40-60';
 
+                const drinksEstimados = convidados * 3;
                 const maoDeObra = 350;
-                const pacote = escolherPacotePorConvidados(convidados);
+                
+                const pClassico = getPacote(pacotesClassicos, drinksEstimados);
+                const pMisto = getPacote(pacotesMistos, drinksEstimados);
+                const pPremium = getPacote(pacotesPremium, drinksEstimados);
 
-                // CARD 1
+                // MÃO DE OBRA
                 resultado.innerHTML += `
                 <div class="result-card">
-                    <h2 style="color:var(--gold);">🥃 Opção 01 – Serviço Tradicional</h2>
-                    <p>Mão de obra profissional. Você fornece os materiais.</p>
-                    <p><strong>Valor Mão de Obra:</strong> R$ ${maoDeObra.toFixed(2)}</p>
-                    <button class="btn-gold" onclick="toggleLista(this)" style="font-size:0.8em; padding:8px;">📋 Ver Lista de Compras</button>
+                    <h2 style="color:var(--gold);">🥃 Serviço Tradicional</h2>
+                    <p style="font-size:0.9em; margin-bottom:15px;">Mão de obra profissional. Insumos por sua conta.</p>
+                    <div class="price-display">R$ ${maoDeObra.toFixed(2)}</div>
+                    <button class="btn-small" onclick="toggleLista(this)">📋 Ver Lista de Compras</button>
                     <div class="lista-compras">${BANCO_DE_LISTAS[faixa]}</div>
                     <br><br>
                     <button class="btn-gold" onclick="copiarLista('${faixa}')">Copiar Lista</button>
                     <br><br>
-                    <a href="https://wa.me/5575998649927?text=Quero%20contratar%20Serviço%20Tradicional%20para%20${convidados}%20pessoas" target="_blank" class="btn-gradient">Solicitar no WhatsApp</a>
+                    <a href="https://wa.me/5575998649927?text=Gostaria%20de%20contratar%20Mão%20de%20Obra%20para%20${convidados}%20pessoas" target="_blank" class="btn-gradient" style="margin-top:15px;">Solicitar no WhatsApp</a>
                 </div>`;
 
-                // CARD 2
+                // CLÁSSICO COMPLETO
                 resultado.innerHTML += `
                 <div class="result-card">
-                    <h2 style="color:var(--orange);">💎 Opção 02 – Pacote Completo</h2>
-                    <p>Levamos tudo: Bebidas, frutas, copos e estrutura.</p>
-                    <p><strong>Pacote Sugerido:</strong> ${pacote.drinks} Drinks</p>
-                    <p><strong>Valor Estimado:</strong> R$ ${pacote.price.toFixed(2)}</p>
-                    <a href="https://wa.me/5575998649927?text=Quero%20contratar%20Pacote%20Completo%20para%20${convidados}%20pessoas" target="_blank" class="btn-gradient">Contratar Pacote</a>
+                    <h2 style="color:var(--gold);">💎 Pacote Clássico</h2>
+                    <p style="font-size:0.9em; margin-bottom:15px;">Bar completo com drinks Clássicos.</p>
+                    <div class="package-details">🍹 <strong>${pClassico.drinks} Drinks</strong><br>Insumos e Estrutura inclusos.</div>
+                    <div class="price-display">R$ ${pClassico.price.toFixed(2)}</div>
+                    <span class="price-per-drink">R$ ${(pClassico.price/pClassico.drinks).toFixed(2)} / drink</span>
+                    <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Clássico%20de%20${pClassico.drinks}%20drinks" target="_blank" class="btn-gradient">Contratar</a>
                 </div>`;
-            } else {
-                // OPÇÃO 3
-                resultado.innerHTML = `
+
+                // MISTO (DESTAQUE)
+                resultado.innerHTML += `
+                <div class="result-card highlight">
+                    <h2 style="color:var(--orange);">🌟 Combo Misto (Gold)</h2>
+                    <p style="font-size:0.9em; margin-bottom:15px;">O melhor dos dois mundos.</p>
+                    <div class="package-details" style="background:rgba(255,149,0,0.2);">🍹 <strong>${pMisto.drinks} Drinks Total</strong><br>${pMisto.desc}</div>
+                    <div class="price-display">R$ ${pMisto.price.toFixed(2)}</div>
+                    <span class="price-per-drink">R$ ${(pMisto.price/pMisto.drinks).toFixed(2)} / drink</span>
+                    <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Combo%20Misto%20de%20${pMisto.drinks}%20drinks" target="_blank" class="btn-gradient">Eu Quero Esse!</a>
+                </div>`;
+
+                // PREMIUM
+                resultado.innerHTML += `
                 <div class="result-card">
-                    <h2 style="color:#ccc;">🤝 Opção 03 – Parceria Pré-venda</h2>
+                    <h2 style="color:#E0E0E0;">👑 Pacote Premium</h2>
+                    <p style="font-size:0.9em; margin-bottom:15px;">Experiência de alto luxo com Gin, Aperol e Mojito.</p>
+                    <div class="package-details">🍸 <strong>${pPremium.drinks} Drinks Premium</strong><br>Bar completo de luxo.</div>
+                    <div class="price-display">R$ ${pPremium.price.toFixed(2)}</div>
+                    <span class="price-per-drink">R$ ${(pPremium.price/pPremium.drinks).toFixed(2)} / drink</span>
+                    <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Premium%20de%20${pPremium.drinks}%20drinks" target="_blank" class="btn-gradient" style="background:#333; border:1px solid #777;">Contratar Premium</a>
+                </div>`;
+
+            } else {
+                // OPÇÃO 3 GRANDE PORTE
+                resultadoExtra.innerHTML = `
+                <div class="result-card">
+                    <h2 style="color:#ccc;">🤝 Opção Parceria Pré-venda</h2>
                     <p>Para grandes eventos (100+ pessoas). Você não paga nada adiantado!</p>
                     <p>Nós vendemos os drinks diretamente aos convidados.</p>
                     <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Saber Mais no WhatsApp</a>
                 </div>`;
             }
             
-            // Scroll suave até o resultado
-            setTimeout(() => {
-                document.getElementById('resultado').scrollIntoView({behavior: 'smooth'});
-            }, 300);
+            setTimeout(() => { document.getElementById('resultado').scrollIntoView({behavior: 'smooth'}); }, 300);
         }
     </script>
 </body>
