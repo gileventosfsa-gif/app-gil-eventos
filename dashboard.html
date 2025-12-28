@@ -40,6 +40,7 @@
         .btn-deny { flex: 1; background: #D32F2F; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .btn-cancel { flex: 1; background: transparent; border: 1px solid #777; padding: 10px; border-radius: 5px; color: #aaa; cursor: pointer; }
         
+        /* Barra Dupla para Misto */
         .bars-container { display: flex; gap: 5px; margin-top: 5px; }
         .sub-bar { flex: 1; background: #333; height: 8px; border-radius: 4px; overflow: hidden; position: relative; }
         .sub-bar-fill { height: 100%; }
@@ -55,6 +56,7 @@
         input:checked + .slider:before { transform: translateX(26px); }
         .obs-tag { background: #FFD580; color: black; padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 0.8em; display: block; margin-top: 5px; }
         
+        /* CHAT ADMIN */
         .chat-layout { display: flex; height: 400px; gap: 10px; }
         .chat-users { width: 30%; background: #111; border-right: 1px solid #333; overflow-y: auto; }
         .chat-area { width: 70%; display: flex; flex-direction: column; }
@@ -124,10 +126,12 @@
         <div class="col-commands">
             <div class="card-box">
                 <div class="label">Consumo Pacote</div>
+                
                 <div id="boxConsumoSimples">
                     <div class="big-stat"><span id="consumido">0</span> <span style="font-size:0.5em; color:#666;">/ <span id="total">∞</span></span></div>
                     <div style="height:5px; background:#333; margin-top:5px;"><div id="progressoBar" style="height:100%; width:0%; background:#4CAF50;"></div></div>
                 </div>
+
                 <div id="boxConsumoMisto" style="display:none;">
                     <div class="bars-container">
                         <div class="sub-bar" title="Clássico"><div id="barClassico" class="sub-bar-fill" style="background:#4CAF50; width:0%"></div></div>
@@ -139,6 +143,7 @@
                     </div>
                 </div>
             </div>
+            
             <div class="card-box"><button class="eye-btn" onclick="toggleFaturamento()">👁️</button><div class="label">Faturamento</div><div class="big-stat" style="color:#FFD580;"><span id="valorFaturamento" style="filter:blur(5px);">R$ 0,00</span></div><div style="font-size:0.8em; color:#666;">Vendas: <span id="qtdVendasExtras">0</span></div></div>
             <div class="card-box"><div class="label">📝 Pedido Manual</div><div id="listaBotoesManual" style="margin-top:10px;"></div></div>
         </div>
@@ -168,6 +173,9 @@
         let wakeLock = null;
         let SELECTED_CHAT_USER = null;
         let CHAT_UNREAD_COUNT = 0;
+        
+        // VARIÁVEL PARA RASTREAR FILA (SOMA INTELIGENTE)
+        let PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
 
         if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
         if(EVENTO_ID) iniciarTorreControle();
@@ -192,7 +200,29 @@
                 lista.innerHTML = snapshot.empty ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
                 
                 let pedidos = [];
-                snapshot.forEach(doc => pedidos.push({id: doc.id, ...doc.data()}));
+                // RESET DA CONTAGEM DE FILA
+                PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
+
+                snapshot.forEach(doc => {
+                    const p = {id: doc.id, ...doc.data()};
+                    pedidos.push(p);
+                    
+                    // SÓ CONTA O QUE É 'PENDENTE' (PACOTE)
+                    if (p.status === 'pendente' && p.tipo === 'pacote') {
+                        PENDING_COUNTS.total++;
+                        // Fallback para pedidos antigos ou sem categoria
+                        let cat = p.categoria_drink;
+                        if (!cat || cat === 'undefined') {
+                            // Tenta adivinhar (menos preciso, mas ajuda)
+                            const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === p.drink);
+                            cat = itemMenu ? itemMenu.categoria : 'classico';
+                        }
+                        
+                        if (cat === 'premium') PENDING_COUNTS.premium++;
+                        else PENDING_COUNTS.classico++;
+                    }
+                });
+                
                 pedidos.sort((a, b) => { return a.data - b.data; });
 
                 pedidos.forEach(p => {
@@ -227,7 +257,7 @@
             monitorarChat();
         }
 
-        // --- LANÇAMENTO MANUAL BLINDADO (CORRIGIDO) ---
+        // --- LANÇAMENTO MANUAL BLINDADO (COM SOMA DA FILA) ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -239,18 +269,22 @@
             if(item.tipo_cobranca === 'pago') {
                 tipo = 'extra';
             } else if (DADOS_EVENTO.tipo_servico === 'misto') {
-                // LÓGICA DE LIMITE BLINDADA
-                const isPremium = (item.categoria === 'premium'); // Verifica se é Premium
+                // SOMA: O QUE JÁ BEBEU + O QUE ESTÁ NA FILA
+                const isPremium = (item.categoria === 'premium'); 
+                
                 const consumido = Number(isPremium ? (DADOS_EVENTO.consumido_premium || 0) : (DADOS_EVENTO.consumido_classico || 0));
+                const naFila = Number(isPremium ? PENDING_COUNTS.premium : PENDING_COUNTS.classico);
                 const limite = Number(isPremium ? (DADOS_EVENTO.limite_premium || 0) : (DADOS_EVENTO.limite_classico || 0));
 
-                if (consumido >= limite) {
+                if ((consumido + naFila) >= limite) {
                     tipo = 'extra';
                 }
             } else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
                 const consumidoGeral = Number(DADOS_EVENTO.total_consumido || 0);
+                const naFilaGeral = Number(PENDING_COUNTS.total);
                 const limiteGeral = Number(DADOS_EVENTO.total_contratado || 0);
-                if(consumidoGeral >= limiteGeral) tipo = 'extra';
+                
+                if((consumidoGeral + naFilaGeral) >= limiteGeral) tipo = 'extra';
             }
             
             let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
@@ -286,7 +320,6 @@
             }); 
         }
 
-        // --- ATUALIZAÇÃO DO STATUS E INCREMENTO NO BANCO ---
         function mudarStatus(id, novoStatus, tipo, categoriaRecebida, nomeDrink) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
@@ -294,11 +327,8 @@
             if(novoStatus === 'servido' && tipo === 'pacote') {
                 const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
                 
-                // Se for Misto, incrementa específico também
                 if (DADOS_EVENTO.tipo_servico === 'misto') {
                     let cat = categoriaRecebida;
-                    
-                    // Fallback para pedidos antigos ou sem categoria
                     if (!cat || cat === 'undefined') {
                         const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === nomeDrink);
                         if(itemMenu) cat = itemMenu.categoria;
@@ -307,7 +337,6 @@
                     if (cat === 'premium') {
                         updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
                     } else {
-                        // Se não for premium, assume que é clássico
                         updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
                     }
                 }
