@@ -84,6 +84,13 @@
         .package-details { text-align: left; font-size: 0.9em; color: #ddd; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
         .lista-compras { display:none; text-align:left; margin-top:15px; padding:15px; background: rgba(0,0,0,0.5); border-radius:12px; font-size:0.85em; color:#ddd; white-space: pre-wrap; border: 1px solid #333; }
         .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
+
+        /* AVISO DE LOCALIZAÇÃO */
+        .location-warning {
+            color: var(--gold); font-size: 0.95em; margin-top: 20px; margin-bottom: 10px;
+            font-weight: 600; background: rgba(255, 213, 128, 0.1); padding: 12px;
+            border-radius: 8px; border: 1px solid rgba(255, 213, 128, 0.3); display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -167,7 +174,11 @@
         <br><br>
         <button class="btn-gradient" onclick="calcular()">Calcular Opções</button>
         
+        <br>
+        <p class="location-warning">⚠️ Valores válidos apenas para Feira de Santana - Bahia</p>
+
         <div id="resultado" class="results-grid"></div>
+        <div id="resultadoExtra" class="results-grid" style="grid-template-columns: 1fr;"></div>
     </div>
 
     <div style="text-align:center; background:#111; padding:60px 20px; color:var(--gold); border-top:2px solid #FFD58033;">
@@ -177,7 +188,7 @@
     </div>
 
     <script>
-        // DADOS DAS LISTAS (INCLUINDO AS DE 100+ AGORA)
+        // DADOS DAS LISTAS
         const BANCO_DE_LISTAS = {
             'reduzida': `*Lista Reduzida - Menos que 30 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás(GRANDES)\n\n*Frutas Vermelhas:*\n📍02 pacote de morango congelado\n📍02 caixinhas de uva preta sem caroço\n📍01 litros de acerola\n\n*Descartáveis Diversos:*\n📍20 kg de gelo ESCAMAS\n📍Escolher opção: 12 Schweppes lata OU 2 garrafas 1,5L OU 3L água de coco\n📍1 a 2L vodka\n📍1 a 2L aguardente\n📍01 pct canudo\n📍01 pct copo 400ml\n📍01 kg açúcar\n\n*Folhas:*\n📍Manjericão, Hortelã, Alecrim, Gengibre\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍12 Polpas\n📍01L H2O\n📍03 Leite Cond.\n📍03 Creme Leite\n📍01 Calda`,
             
@@ -245,12 +256,14 @@
             const convidados = parseInt(document.getElementById('convidados').value);
             const tipo = document.getElementById('tipo').value;
             const resultado = document.getElementById('resultado');
+            const resultadoExtra = document.getElementById('resultadoExtra');
             
             if(!convidados || convidados < 1) return alert("Digite o número de convidados");
 
             resultado.innerHTML = "";
+            resultadoExtra.innerHTML = "";
 
-            // Lógica de Faixa para Lista de Materiais (Mesmo para eventos grandes)
+            // Lógica de Faixa para Lista de Materiais
             let faixa = '70-100'; 
             if(convidados < 30) faixa = 'reduzida';
             else if(convidados <= 39) faixa = '30-35';
@@ -260,7 +273,7 @@
             else faixa = '250-300';
 
             const drinksEstimados = convidados * 3;
-            const maoDeObra = 350; // Ajuste se necessário para eventos grandes
+            const maoDeObra = 350; // Ajuste se necessário
             
             const pClassico = getPacote(pacotesClassicos, drinksEstimados);
             const pMisto = getPacote(pacotesMistos, drinksEstimados);
