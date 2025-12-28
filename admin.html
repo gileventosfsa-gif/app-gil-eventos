@@ -22,6 +22,8 @@
         .config-label { font-size: 0.75em; color: #888; margin-bottom: 3px; display: block; }
         .select-mini { width: 100%; padding: 8px; font-size: 0.9em; border: 1px solid #555; }
         .btn-add { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        .btn-restore { background: #444; border: 1px solid #666; color: #FFD580; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: 0.9em; font-weight: bold; }
+        
         .row { display: flex; gap: 10px; } .col { flex: 1; }
         
         /* Estilos Específicos do Misto */
@@ -73,6 +75,9 @@
         <input type="text" id="chavePix" placeholder="E-mail ou CPF">
 
         <label style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Cardápio Oficial & Preços</label>
+        
+        <button class="btn-restore" onclick="restaurarCardapioPadrao()">🔄 RESTAURAR CARDÁPIO OFICIAL</button>
+        
         <div id="listaDrinksEditor"></div>
         <button class="btn-add" onclick="adicionarNovoDrink()">+ ADICIONAR NOVO DRINK</button>
 
@@ -104,10 +109,8 @@
     const params = new URLSearchParams(window.location.search);
     const EVENTO_ID = params.get('evento');
     
-    // VARIÁVEL PARA GUARDAR O TIPO ORIGINAL DO EVENTO
     let TIPO_ORIGINAL = '';
 
-    // TABELA DE COMBOS MISTOS + OPÇÃO PERSONALIZADA
     const COMBOS_MISTOS = [
         { total: 100, classicos: 70, premiums: 30, label: "100 Drinks (70 Clás + 30 Prem) - R$1.050" },
         { total: 150, classicos: 100, premiums: 50, label: "150 Drinks (100 Clás + 50 Prem) - R$1.350" },
@@ -122,20 +125,27 @@
         { total: 0, classicos: 0, premiums: 0, label: "✏️ PERSONALIZADO (Definir Quantidades)" }
     ];
 
-    // *** AQUI ESTAVA O PROBLEMA: RESTAUREI A LISTA PADRÃO ***
-    let cardapioAtual = [
-        { nome: "⚡ Elixir do Sol", desc: "Abacaxi, hortelã e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "❤️ Desejo Proibido", desc: "Frutas vermelhas e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "💜 Encanto Noturno", desc: "Uva e manjericão.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "🌴 Tropical Mix", desc: "Tangerina, Kiwi e Abacaxi.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
-        { nome: "🌿 Brisa Verde", desc: "Limão e gengibre.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "💥 Fúria Rubi", desc: "Morango e tangerina.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
-        { nome: "🍋 Caipirinha Premium", desc: "Limão taiti e aguardente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+    // *** CARDÁPIO PADRÃO COM AS DESCRIÇÕES CORRETAS ***
+    const CARDAPIO_PADRAO = [
+        { nome: "Elixir do Sol", desc: "Abacaxi, hortelã, toque cítrico e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Desejo Proibido", desc: "Frutas vermelhas intensas, cítrico e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Encanto Noturno", desc: "Uva roxa, cítrico e manjericão fresco.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Tropical Mix", desc: "Tangerina, kiwi, abacaxi e ervas frescas.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
+        { nome: "Brisa Verde", desc: "Limão, gengibre, manjericão e açúcar de cana.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Fúria Rubi", desc: "Morango, tangerina e maracujá.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
+        { nome: "Caipirinha Premium", desc: "Limão tahiti, açúcar na medida e aguardente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Segredo da Casa", desc: "Criação autoral com toque secreto.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
         
-        { nome: "🧡 Aperol Sunset", desc: "Aperol e espumante.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
-        { nome: "🌴 Gin Tropical", desc: "Gin e especiarias.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
-        { nome: "🍃 Mojito da Ilha", desc: "Rum e hortelã.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 }
+        { nome: "Aperol Sunset", desc: "Aperol com espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
+        { nome: "Gin Tropical", desc: "Gin, abacaxi grelhado e especiarias.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
+        { nome: "Mojito da Ilha", desc: "Rum branco, hortelã fresca e limão.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
+        
+        { nome: "Coquetel Kids", desc: "Mix cremoso de frutas vermelhas.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "Personalizado", desc: "O cliente escolhe as frutas.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 }
     ];
+
+    // Inicializa com o padrão (Cópia profunda para não alterar a constante)
+    let cardapioAtual = JSON.parse(JSON.stringify(CARDAPIO_PADRAO));
 
     const selectMisto = document.getElementById('selectComboMisto');
     COMBOS_MISTOS.forEach((combo, index) => {
@@ -157,8 +167,6 @@
         db.collection("eventos").doc(EVENTO_ID).get().then((doc) => {
             if(doc.exists) {
                 const dados = doc.data();
-                
-                // SALVA O TIPO ORIGINAL PARA COMPARAR DEPOIS
                 TIPO_ORIGINAL = dados.tipo_servico;
 
                 document.getElementById('nomeEvento').value = dados.nome;
@@ -184,11 +192,25 @@
                 document.getElementById('chavePix').value = dados.chave_pix || "";
                 document.getElementById('timerBloqueio').value = dados.timer_minutos;
                 document.getElementById('senhaAdmin').value = dados.senha_admin;
-                cardapioAtual = dados.cardapio || [];
+                
+                // SE O CARDÁPIO NO BANCO EXISTIR E TIVER ITENS, USA ELE. SE NÃO, USA O PADRÃO.
+                if(dados.cardapio && dados.cardapio.length > 0) {
+                    cardapioAtual = dados.cardapio;
+                } else {
+                    cardapioAtual = JSON.parse(JSON.stringify(CARDAPIO_PADRAO));
+                }
+                
                 togglePacote();
                 renderizarEditor();
             }
         });
+    }
+
+    function restaurarCardapioPadrao() {
+        if(confirm("Deseja substituir a lista atual pelo Cardápio Oficial completo?")) {
+            cardapioAtual = JSON.parse(JSON.stringify(CARDAPIO_PADRAO));
+            renderizarEditor();
+        }
     }
 
     function renderizarEditor() {
@@ -333,7 +355,6 @@
                     dados.total_vendas_extra = 0;
                     dados.total_faturamento = 0;
 
-                    // 2. APAGA TODOS OS PEDIDOS ANTIGOS (Limpa Fila e Histórico)
                     try {
                         const batch = db.batch();
                         const snapshot = await db.collection("pedidos").where("evento_id", "==", EVENTO_ID).get();
@@ -352,7 +373,7 @@
             }
 
             db.collection("eventos").doc(EVENTO_ID).update(dados).then(() => { 
-                alert("Evento Atualizado e Sincronizado!"); 
+                alert("Evento Atualizado!"); 
                 window.location.href = `dashboard.html?evento=${EVENTO_ID}`; 
             });
         } else {
