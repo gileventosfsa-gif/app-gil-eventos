@@ -174,7 +174,6 @@
         let SELECTED_CHAT_USER = null;
         let CHAT_UNREAD_COUNT = 0;
         
-        // VARIÁVEL DE FILA EM TEMPO REAL
         let PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
 
         if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
@@ -200,24 +199,17 @@
                 lista.innerHTML = snapshot.empty ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
                 
                 let pedidos = [];
-                // RESET DA FILA
                 PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
 
                 snapshot.forEach(doc => {
                     const p = {id: doc.id, ...doc.data()};
                     pedidos.push(p);
                     
-                    // CONTABILIZAR FILA APENAS SE FOR DO TIPO PACOTE (PENDENTE)
                     if (p.status === 'pendente' && p.tipo === 'pacote') {
                         PENDING_COUNTS.total++;
-                        // Tentar pegar categoria salva ou buscar no menu
-                        let cat = p.categoria_drink;
-                        if (!cat || cat === 'undefined') {
-                            const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === p.drink);
-                            cat = itemMenu ? itemMenu.categoria : 'classico';
-                        }
-                        // Normalização
-                        cat = cat.toLowerCase().trim();
+                        // Normalização da categoria da fila
+                        let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
+                        // Se não for premium, conta como clássico
                         if (cat === 'premium') PENDING_COUNTS.premium++;
                         else PENDING_COUNTS.classico++;
                     }
@@ -238,7 +230,8 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
-                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${p.categoria_drink}', '${p.drink}')">✅ PRONTO</button>`;
+                        // IMPORTANTE: Envia os dados normalizados para garantir a baixa correta
+                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${(p.categoria_drink||'').replace(/'/g, "\\'")}', '${(p.drink||'').replace(/'/g, "\\'")}')">✅ PRONTO</button>`;
                     }
 
                     lista.innerHTML += `
@@ -257,7 +250,7 @@
             monitorarChat();
         }
 
-        // --- LÓGICA BLINDADA DE LANÇAMENTO (SOMA FILA + CONSUMIDO) ---
+        // --- LÓGICA DE LANÇAMENTO (COM SOMA DA FILA) ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -266,37 +259,31 @@
             let precoFinal = item.preco || 0;
             if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
 
-            // Define categoria normalizada
-            const categoriaReal = item.categoria ? item.categoria.toLowerCase().trim() : 'classico';
+            // Normaliza categoria do item
+            const categoriaNorm = (item.categoria || 'classico').toLowerCase().trim();
 
-            // VERIFICAÇÕES DE LIMITE
             if(item.tipo_cobranca === 'pago') {
                 tipo = 'extra';
-            } 
-            else if (DADOS_EVENTO.tipo_servico === 'misto') {
-                // Lógica Mista: Soma Consumido + Fila
-                if (categoriaReal === 'premium') {
+            } else if (DADOS_EVENTO.tipo_servico === 'misto') {
+                // SOMA: O QUE JÁ BEBEU + O QUE ESTÁ NA FILA
+                if (categoriaNorm === 'premium') {
                     const consumido = Number(DADOS_EVENTO.consumido_premium || 0);
                     const naFila = Number(PENDING_COUNTS.premium || 0);
                     const limite = Number(DADOS_EVENTO.limite_premium || 0);
-                    
                     if ((consumido + naFila) >= limite) tipo = 'extra';
                 } else {
-                    // Clássico (Padrão)
+                    // Qualquer outra coisa cai no clássico
                     const consumido = Number(DADOS_EVENTO.consumido_classico || 0);
                     const naFila = Number(PENDING_COUNTS.classico || 0);
                     const limite = Number(DADOS_EVENTO.limite_classico || 0);
-                    
                     if ((consumido + naFila) >= limite) tipo = 'extra';
                 }
-            } 
-            else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
-                // Lógica Simples (Total Geral)
+            } else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
+                // Lógica Simples
                 const consumido = Number(DADOS_EVENTO.total_consumido || 0);
                 const naFila = Number(PENDING_COUNTS.total || 0);
                 const limite = Number(DADOS_EVENTO.total_contratado || 0);
-
-                if ((consumido + naFila) >= limite) tipo = 'extra';
+                if((consumido + naFila) >= limite) tipo = 'extra';
             }
             
             let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
@@ -304,7 +291,7 @@
             db.collection("pedidos").add({ 
                 evento_id: EVENTO_ID, 
                 drink: item.nome, 
-                categoria_drink: categoriaReal, 
+                categoria_drink: categoriaNorm, 
                 tipo: tipo, 
                 preco: precoFinal,
                 nome_convidado: nome || "Balcão", 
@@ -320,8 +307,8 @@
             menu.forEach(item => { 
                 const btn = document.createElement('button'); 
                 const pausado = item.disponivel === false; 
-                // Verifica categoria para pintar de roxo ou normal
-                const isPremium = item.categoria && item.categoria.toLowerCase().trim() === 'premium';
+                // Detecção visual
+                const isPremium = (item.categoria || '').toLowerCase().trim() === 'premium';
                 btn.className = isPremium ? 'btn-drink premium' : 'btn-drink'; 
                 if(pausado) btn.classList.add('pausado'); 
                 
@@ -334,7 +321,6 @@
             }); 
         }
 
-        // --- MUDAR STATUS E INCREMENTO NO BANCO ---
         function mudarStatus(id, novoStatus, tipo, categoriaRecebida, nomeDrink) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
@@ -348,8 +334,7 @@
                         const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === nomeDrink);
                         cat = itemMenu ? itemMenu.categoria : 'classico';
                     }
-                    // Normalização
-                    cat = cat.toLowerCase().trim();
+                    cat = (cat || '').toLowerCase().trim();
 
                     if (cat === 'premium') {
                         updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
@@ -383,7 +368,6 @@
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
         function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
         
-        // CORREÇÃO DO BOTÃO EDITAR
         function editarEvento() { 
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('evento');
