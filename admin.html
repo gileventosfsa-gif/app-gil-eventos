@@ -36,7 +36,9 @@
             <div class="col">
                 <label>Modelo do Contrato</label>
                 <select id="tipoServico" onchange="togglePacote()">
-                    <option value="pacote">📦 Pacote Fechado</option>
+                    <option value="pacote">📦 Pacote Clássico</option>
+                    <option value="premium">👑 Pacote Premium</option>
+                    <option value="misto">🌟 Pacote Misto (Novo)</option>
                     <option value="tradicional">🍹 Tradicional (Open)</option>
                 </select>
             </div>
@@ -81,23 +83,20 @@
     const params = new URLSearchParams(window.location.search);
     const EVENTO_ID = params.get('evento');
 
-    // --- MENU OFICIAL COM EMOJIS ---
+    // MENU PADRÃO (INCLUI TUDO PARA O MISTO)
     let cardapioAtual = [
-        { nome: "⚡ Elixir do Sol – Roska Energia", desc: "Abacaxi, hortelã, toque cítrico e especiarias suaves.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "❤️ Desejo Proibido – Roska das Paixões", desc: "Frutas vermelhas intensas, cítrico, hortelã e vodka.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "💜 Encanto Noturno – Roska do Encanto", desc: "Uva roxa, toque cítrico e manjericão fresco.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "🌴 Tropical Mix – Roska do Paraíso", desc: "Tangerina, Kiwi e Abacaxi, toque cítrico e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
-        { nome: "🌿 Brisa Verde – Roska Azedinha Fresh", desc: "Limão fresco, gengibre, manjericão e açúcar de cana.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "💥 Fúria Rubi – Roska Explosão", desc: "Morango, tangerina, maracujá e manjericão.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
-        { nome: "🍋 Caipirinha Premium", desc: "Limão taiti e aguardente. Refrescante e autêntica.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "🍹 Segredo da Casa", desc: "Criação autoral e envolvente com frutas tropicais.", categoria: "classico", tipo_cobranca: "pacote", preco: 17, preco_prevenda: 15 },
+        { nome: "⚡ Elixir do Sol", desc: "Abacaxi, hortelã e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "❤️ Desejo Proibido", desc: "Frutas vermelhas e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "💜 Encanto Noturno", desc: "Uva e manjericão.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "🌴 Tropical Mix", desc: "Tangerina, Kiwi e Abacaxi.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
+        { nome: "🌿 Brisa Verde", desc: "Limão e gengibre.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "💥 Fúria Rubi", desc: "Morango e tangerina.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
+        { nome: "🍋 Caipirinha Premium", desc: "Limão taiti e aguardente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
         
-        { nome: "🍓 Coquetel Kids", desc: "Mix cremoso de frutas vermelhas. Pode ser preparado com ou sem álcool.", categoria: "classico", tipo_cobranca: "pacote", preco: 15, preco_prevenda: 12 },
-        { nome: "🍍 Coquetel Personalizado", desc: "O cliente escolhe as frutas e combinações. Pode ser com ou sem álcool.", categoria: "classico", tipo_cobranca: "pacote", preco: 15, preco_prevenda: 12 },
-
-        { nome: "🧡 Aperol Sunset", desc: "Aperol, espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 },
-        { nome: "🌴 Gin Tropical", desc: "Gin, abacaxi grelhado, limão siciliano e hortelã.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 },
-        { nome: "🍃 Mojito da Ilha", desc: "Rum, hortelã, limão e água com gás.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 }
+        // PREMIUMS (Deixamos como 'pacote' por padrão para o Menu Misto, mas se for Clássico o sistema cobra extra depois)
+        { nome: "🧡 Aperol Sunset", desc: "Aperol e espumante.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
+        { nome: "🌴 Gin Tropical", desc: "Gin e especiarias.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
+        { nome: "🍃 Mojito da Ilha", desc: "Rum e hortelã.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 }
     ];
 
     if(EVENTO_ID) {
@@ -202,5 +201,3 @@
 </script>
 </body>
 </html>
-
-
