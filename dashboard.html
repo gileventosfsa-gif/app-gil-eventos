@@ -331,7 +331,7 @@
             }); 
         }
 
-        // --- MUDAR STATUS (INCREMENTO SEPARADO) ---
+        // --- MUDAR STATUS (CORREÇÃO DE CONTAGEM MISTA) ---
         function mudarStatus(id, novoStatus, tipo, categoriaRecebida, nomeDrink) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
@@ -340,16 +340,24 @@
                 const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
                 
                 if (DADOS_EVENTO.tipo_servico === 'misto') {
-                    // Normalização
-                    let cat = (categoriaRecebida || '').toLowerCase().trim();
+                    // BLINDAGEM: Verifica no cardápio oficial qual é a categoria real do drink
+                    // Isso evita que drinks venham com 'categoria' errada do pedido
+                    let catReal = 'classico'; // Default
                     
-                    // Fallback se vier vazio
-                    if (!cat || cat === 'undefined') {
-                        const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === nomeDrink);
-                        cat = (itemMenu && itemMenu.categoria) ? itemMenu.categoria.toLowerCase().trim() : 'classico';
+                    // Busca pelo nome do drink no array do cardápio (normalizando string)
+                    if(DADOS_EVENTO.cardapio) {
+                        const drinkOriginal = DADOS_EVENTO.cardapio.find(d => 
+                            d.nome.toLowerCase().trim() === nomeDrink.toLowerCase().trim()
+                        );
+                        if(drinkOriginal) {
+                            catReal = (drinkOriginal.categoria || 'classico').toLowerCase().trim();
+                        } else {
+                            // Se não achar pelo nome, usa o que veio no pedido como fallback
+                            catReal = (categoriaRecebida || 'classico').toLowerCase().trim();
+                        }
                     }
 
-                    if (cat === 'premium') {
+                    if (catReal === 'premium') {
                         updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
                     } else {
                         updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
@@ -380,7 +388,7 @@
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
         function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
-        function editarEvento() { const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('evento'); window.location.href = `admin.html?evento=${id}`; }
+        function editarEvento() { const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('evento'); window.location.href = `config.html?evento=${id}`; }
         function verificarSenha() { if(document.getElementById('senhaInput').value === DADOS_EVENTO.senha_admin) { document.getElementById('loginOverlay').style.display = 'none'; sessionStorage.setItem(`logado_${EVENTO_ID}`, true); document.getElementById('somAlerta').play().catch(()=>{}); } else document.getElementById('erroSenha').style.display='block'; }
         function toggleFaturamento() { const el=document.getElementById('valorFaturamento'); if(FATURAMENTO_VISIVEL){el.style.filter='blur(5px)';FATURAMENTO_VISIVEL=false;}else{document.getElementById('eyeAuthOverlay').style.display='flex';document.getElementById('senhaEyeInput').focus();} }
         function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
