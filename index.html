@@ -181,7 +181,7 @@
             else if(convidados <= 249) faixa = '150-200'; 
             else faixa = '250-300';
             
-            // LÓGICA DE BARMANS REVISADA (1-150 / 151-250 / 251-400)
+            // LÓGICA DE BARMANS (NOVAS FAIXAS 1-150, 151-250, 251-400)
             let qtdBarmans = 1;
             let avisoBarman = "";
             
@@ -198,7 +198,7 @@
                 return;
             }
 
-            // CÁLCULOS MATEMÁTICOS DE BARMAN
+            // PREÇOS E DESCONTOS
             const precoPorBarmanOriginal = 370;
             const precoPorBarmanPromocional = 350;
             const descontoPorBarman = precoPorBarmanOriginal - precoPorBarmanPromocional;
