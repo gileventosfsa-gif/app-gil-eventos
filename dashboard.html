@@ -17,7 +17,7 @@
         .card-box { background: #1E1E1E; padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; }
         .eye-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.2em; color: #888; background: none; border: none; }
         .big-stat { font-size: 2em; font-weight: 800; color: #4CAF50; }
-        .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; }
+        .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
         
         .manual-row { display: flex; align-items: center; justify-content: space-between; background: #333; padding: 8px; margin-bottom: 5px; border-radius: 6px; border: 1px solid #444; }
         .manual-name { font-size: 0.9em; font-weight: 600; color: #fff; flex: 1; }
@@ -79,6 +79,7 @@
         .contact-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; font-size: 0.9em; }
         .contact-row span { color: #aaa; }
         .contact-row strong { color: #FFD580; }
+        .btn-recalc { font-size: 0.7em; padding: 4px 8px; background: #333; border: 1px solid #555; border-radius: 4px; color: #aaa; cursor: pointer; }
 
         @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; height: auto; } .col-commands, .col-queue, .col-history { height: 500px; margin-bottom: 20px; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -127,7 +128,10 @@
     <div class="grid-layout">
         <div class="col-commands">
             <div class="card-box">
-                <div class="label">Consumo Pacote</div>
+                <div class="label">
+                    <span>Consumo Pacote</span>
+                    <button class="btn-recalc" onclick="recalcularContadores()" title="Corrigir números se estiverem errados">🔄 Recalcular</button>
+                </div>
                 
                 <div id="boxConsumoSimples">
                     <div class="big-stat"><span id="consumido">0</span> <span style="font-size:0.5em; color:#666;">/ <span id="total">∞</span></span></div>
@@ -238,8 +242,39 @@
             });
             monitorarChat();
         }
+        
+        // *** FUNÇÃO NUCLEAR: RECALCULA TUDO DO ZERO ***
+        function recalcularContadores() {
+            if(!confirm("Tem certeza? Isso vai varrer todos os pedidos e corrigir os contadores.")) return;
+            
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["pendente", "servido"]).get().then(snapshot => {
+                let totalC = 0;
+                let mistoClassico = 0;
+                let mistoPremium = 0;
+                
+                snapshot.forEach(doc => {
+                    const p = doc.data();
+                    if (p.tipo === 'pacote') {
+                        totalC++;
+                        
+                        // Lógica de categoria segura
+                        let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
+                        cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "");
+                        
+                        if (cat.includes('premium')) mistoPremium++;
+                        else mistoClassico++;
+                    }
+                });
 
-        // --- LANÇAR MANUAL (LÓGICA NOVA: ADMIN ESCOLHE) ---
+                // Atualiza o evento com os números reais contados
+                db.collection("eventos").doc(EVENTO_ID).update({
+                    total_consumido: totalC,
+                    consumido_classico: mistoClassico,
+                    consumido_premium: mistoPremium
+                }).then(() => alert("Contadores corrigidos com sucesso!"));
+            });
+        }
+
         function lancarManual(item, tipoForcado) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -262,7 +297,6 @@
                 sinalizou_pagamento: false, 
                 data: new Date() 
             }).then(() => {
-                // INCREMENTA O CONTADOR SE FOR PACOTE (ADMIN FORÇOU)
                 if(tipo === 'pacote') {
                     const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
                     if (DADOS_EVENTO.tipo_servico === 'misto') {
@@ -274,7 +308,6 @@
             });
         }
 
-        // --- GERAR BOTÕES DUPLOS (ADMIN) ---
         function gerarBotoes(menu) { 
             const div = document.getElementById('listaBotoesManual'); 
             div.innerHTML = ''; 
@@ -299,13 +332,11 @@
             }); 
         }
 
-        // --- MUDAR STATUS (APENAS VISUAL) ---
         function mudarStatus(id, novoStatus) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
         }
 
-        // --- CANCELAR: DECREMENTA (DEVOLVE PRO PACOTE) ---
         function cancelarPedido(id) { 
             if(!confirm("Cancelar? O drink voltará para o saldo do pacote.")) return; 
             
@@ -336,29 +367,7 @@
         }
         function abrirChatAdmin() { document.getElementById('chatOverlay').style.display = 'flex'; CHAT_UNREAD_COUNT = 0; document.getElementById('chatBadgeGlobal').style.display = 'none'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { const usuarios = new Set(); s.forEach(d => usuarios.add(d.data().nome)); const lista = document.getElementById('chatUsersList'); lista.innerHTML = ''; usuarios.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; }); }); }
         function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
-        
-        function carregarConversa(nome) { 
-            SELECTED_CHAT_USER = nome; 
-            const area = document.getElementById('chatAdminMsgs'); 
-            area.innerHTML = 'Carregando...'; 
-            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { 
-                area.innerHTML = ''; 
-                let msgs = []; 
-                s.forEach(doc => msgs.push(doc.data())); 
-                msgs.sort((a,b) => a.data - b.data); 
-                msgs.forEach(m => { 
-                    // LÓGICA DO TIPO DE MENSAGEM
-                    let classe = '';
-                    if (m.remetente === 'cliente') classe = 'msg-client';
-                    else if (m.remetente === 'admin') classe = 'msg-admin';
-                    else classe = 'msg-sistema'; // Para '🔔 Entrou no cardápio'
-
-                    area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; 
-                }); 
-                area.scrollTop = area.scrollHeight; 
-            }); 
-        }
-        
+        function carregarConversa(nome) { SELECTED_CHAT_USER = nome; const area = document.getElementById('chatAdminMsgs'); area.innerHTML = 'Carregando...'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { area.innerHTML = ''; let msgs = []; s.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { let classe = ''; if (m.remetente === 'cliente') classe = 'msg-client'; else if (m.remetente === 'admin') classe = 'msg-admin'; else classe = 'msg-sistema'; area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; }); area.scrollTop = area.scrollHeight; }); }
         function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
         function abrirContatos() { document.getElementById('contactsOverlay').style.display = 'flex'; const lista = document.getElementById('listaContatos'); lista.innerHTML = "Carregando..."; db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => { if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; } lista.innerHTML = ""; q.forEach((doc) => { const d = doc.data(); let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : ""; lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`; }); }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; }); }
         function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
@@ -369,10 +378,7 @@
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
         function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
-        
-        // LINK CORRIGIDO PARA ADMIN.HTML
         function editarEvento() { const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('evento'); window.location.href = `admin.html?evento=${id}`; }
-        
         function verificarSenha() { if(document.getElementById('senhaInput').value === DADOS_EVENTO.senha_admin) { document.getElementById('loginOverlay').style.display = 'none'; sessionStorage.setItem(`logado_${EVENTO_ID}`, true); document.getElementById('somAlerta').play().catch(()=>{}); } else document.getElementById('erroSenha').style.display='block'; }
         function toggleFaturamento() { const el=document.getElementById('valorFaturamento'); if(FATURAMENTO_VISIVEL){el.style.filter='blur(5px)';FATURAMENTO_VISIVEL=false;}else{document.getElementById('eyeAuthOverlay').style.display='flex';document.getElementById('senhaEyeInput').focus();} }
         function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
@@ -382,25 +388,17 @@
         function atualizarInterface(dados) { 
             document.getElementById('nomeEvento').innerText = dados.nome; 
             document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
-            
             if (dados.tipo_servico === 'misto') {
                 document.getElementById('boxConsumoSimples').style.display = 'none';
                 document.getElementById('boxConsumoMisto').style.display = 'block';
-                
-                const cClassico = Number(dados.consumido_classico || 0);
-                const lClassico = Number(dados.limite_classico || 0);
-                const cPremium = Number(dados.consumido_premium || 0);
-                const lPremium = Number(dados.limite_premium || 0);
-
+                const cClassico = Number(dados.consumido_classico || 0); const lClassico = Number(dados.limite_classico || 0);
+                const cPremium = Number(dados.consumido_premium || 0); const lPremium = Number(dados.limite_premium || 0);
                 document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`;
                 document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
-                
                 const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0;
                 const pctPremium = lPremium > 0 ? (cPremium/lPremium)*100 : 0;
-
                 document.getElementById('barClassico').style.width = pctClassico + '%';
                 document.getElementById('barPremium').style.width = pctPremium + '%';
-
             } else {
                 document.getElementById('boxConsumoSimples').style.display = 'block';
                 document.getElementById('boxConsumoMisto').style.display = 'none';
@@ -408,20 +406,12 @@
                 if(dados.tipo_servico === 'pacote' || dados.tipo_servico === 'premium') { 
                     document.getElementById('total').innerText = dados.total_contratado; 
                     document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; 
-                } else {
-                    document.getElementById('total').innerText = '∞';
-                }
+                } else { document.getElementById('total').innerText = '∞'; }
             }
-
             document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
             document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; 
-            
             const btnModo = document.getElementById('btnModoPreco'); 
-            if(dados.modo_preco === 'prevenda') { 
-                btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; 
-            } else { 
-                btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; 
-            } 
+            if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; } 
         }
     </script>
 </body>
