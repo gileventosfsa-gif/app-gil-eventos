@@ -380,118 +380,90 @@
 
 
 
-  function abrirConfirmacao(nome, tipo, preco, categoria) {
+  function iniciarApp() {
 
-    if(tipo === 'pacote') { const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`); }
+    db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
 
-    ITEM_ATUAL = { nome, tipo, preco, categoria };
+      if(doc.exists) {
 
-    document.getElementById('inputObservacao').value = '';
+        DADOS_EVENTO = doc.data();
 
-    const div = document.getElementById('conteudoConfirmacao');
+        if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15;
 
-    if(tipo === 'extra') {
+        renderizarCardapio();
 
-      div.innerHTML = `
+        verificarTimer();
 
-        <p style="color:#ddd; margin-bottom:15px;">Você pediu: <strong>${nome}</strong></p>
+        verificarCombosAtivos();
 
-        <div class="pix-area">
-
-          <span style="display:block; color:#aaa; font-size:0.8em;">Valor a pagar:</span>
-
-          <strong style="font-size:1.8em; color:#4CAF50;">R$ ${preco},00</strong>
-
-          <hr style="border-color:#444; margin:10px 0;">
-
-          <span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span>
-
-          <span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "75992011008"}</span>
-
-          <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button>
-
-          <div style="margin-top:15px; text-align:left; background:#111; padding:10px; border-radius:5px; border:1px solid #333;">
-
-            <p style="margin:0; color:#888; font-size:0.8em;">Nome: <strong style="color:#fff;">Gilvan Xavier Borges</strong></p>
-
-            <p style="margin:5px 0 0 0; color:#888; font-size:0.8em;">Banco: <strong style="color:#fff;">Inter</strong></p>
-
-          </div>
-
-        </div>
-
-        <div style="background:rgba(255, 68, 68, 0.1); border:1px solid #FF4444; padding:10px; border-radius:8px; margin-top:10px; font-size:0.85em; color:#FF8888; text-align:left;">
-
-          ⚠️ <strong>IMPORTANTE:</strong> Confira os dados acima antes de confirmar. Transferências para contas erradas <u>não serão preparadas</u>.
-
-        </div>
-
-      `;
-
-      document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI / ENVIAR";
-
-    } else {
-
-      div.innerHTML = `<div style="font-size:3em; margin-bottom:10px;">🍹</div><p style="color:#fff; font-size:1.1em;">Pedir <strong>${nome}</strong>?</p><p style="color:#aaa; font-size:0.9em;">(Do seu pacote - Grátis)</p>`;
-
-      document.getElementById('btnFinalizar').innerText = "CONFIRMAR PEDIDO";
-
-    }
-
-    document.getElementById('modalConfirm').style.display = 'flex';
-
-  }
-
-
-  document.getElementById('btnFinalizar').onclick = function() {
-
-    const btn = this; btn.innerText = "..."; btn.disabled = true;
-
-    const obs = document.getElementById('inputObservacao').value;
-
-    // Recalcula se é pacote ou extra no momento do pedido (evita esperar o bar marcar como pronto)
-    let finalTipo = ITEM_ATUAL.tipo;
-
-    if(ITEM_ATUAL.tipo === 'pacote') {
-      if(DADOS_EVENTO.tipo_servico === 'misto') {
-        const guess = DADOS_EVENTO.cardapio ? DADOS_EVENTO.cardapio.find(i => i.nome === ITEM_ATUAL.nome) : null;
-        const cat = ITEM_ATUAL.categoria || (guess && guess.categoria) || 'classico';
-        if(cat === 'classico' && (DADOS_EVENTO.consumido_classico || 0) >= (DADOS_EVENTO.limite_classico || 0)) finalTipo = 'extra';
-        if(cat === 'premium' && (DADOS_EVENTO.consumido_premium || 0) >= (DADOS_EVENTO.limite_premium || 0)) finalTipo = 'extra';
-      } else if(DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
-        if((DADOS_EVENTO.total_consumido || 0) >= (DADOS_EVENTO.total_contratado || 0)) finalTipo = 'extra';
       }
-    }
-
-    const statusInicial = finalTipo === 'extra' ? 'aguardando_pagamento' : 'pendente';
-
-    const guess2 = DADOS_EVENTO.cardapio ? DADOS_EVENTO.cardapio.find(i => i.nome === ITEM_ATUAL.nome) : null;
-    const categoriaFinal = ITEM_ATUAL.categoria || (guess2 && guess2.categoria) || 'classico';
-    db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: ITEM_ATUAL.nome, tipo: finalTipo, categoria_drink: categoriaFinal, preco: ITEM_ATUAL.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: obs, status: statusInicial, sinalizou_pagamento: false, contabilizado: false, data: new Date() }).then((docRef) => {
-
-      // Se for pedido de pacote, contabiliza imediatamente (evita esperar o bar clicar 'PRONTO')
-      if(finalTipo === 'pacote') {
-        const inc = { total_consumido: firebase.firestore.FieldValue.increment(1) };
-        if(DADOS_EVENTO.tipo_servico === 'misto') {
-          if(categoriaFinal === 'classico') inc['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
-          if(categoriaFinal === 'premium') inc['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
-        }
-        db.collection('eventos').doc(EVENTO_ID).update(inc).then(() => {
-          db.collection('pedidos').doc(docRef.id).update({ contabilizado: true });
-        }).catch(()=>{});
-      }
-
-      document.getElementById('modalConfirm').style.display = 'none'; btn.disabled = false; btn.innerText = "CONFIRMAR";
-
-      if(finalTipo === 'pacote') salvarTimer();
-
-      MEUS_PEDIDOS_IDS.push(docRef.id); localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); rastrearPedidos();
-
-      setTimeout(abrirMeusPedidos, 500);
 
     });
 
+    if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
+
+    if(NOME_CONVIDADO) carregarChat(); 
+
   }
+
+
+
+  function verificarCombosAtivos() {
+
+    let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago');
+
+    let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado;
+
+     
+
+    if(temPagos || pacoteEsgotado) {
+
+      document.getElementById('areaCombos').style.display = 'grid';
+
+    } else {
+
+      document.getElementById('areaCombos').style.display = 'none';
+
+    }
+
+  }
+
+
+
+  function abrirMontadorCombo(qtd) {
+
+    COMBO_QTD_ALVO = qtd;
+
+    ITENS_COMBO_SELECIONADOS = [];
+
+    document.getElementById('maxComboQtd').innerText = qtd;
+
+    const lista = document.getElementById('listaSelecaoCombo');
+
+    lista.innerHTML = '';
+
+     
+
+    let itensPagos = [];
+
+    DADOS_EVENTO.cardapio.forEach(item => {
+
+      let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado);
+
+      if(isPaid && item.disponivel !== false) {
+
+        itensPagos.push(item);
+
+      }
+
+    });
+
+
+
+    if(itensPagos.length === 0) return alert("Não há drinks pagos disponíveis para combo.");
+
+
+
     itensPagos.forEach((item, index) => {
 
       let precoReal = item.preco;
@@ -754,26 +726,17 @@
 
 
 
-        let isPaid = item.tipo_cobranca === 'pago';
+        let isPaid = item.tipo_cobranca === 'pago' || esgotado;
 
-        // Ajuste: para pacote tradicional não considera pacote gratuito
-        // Em modo misto, checa limites por categoria (classico / premium)
-        if (DADOS_EVENTO.tipo_servico === 'misto') {
-          if (item.categoria === 'classico') {
-            isPaid = isPaid || ((DADOS_EVENTO.consumido_classico || 0) >= (DADOS_EVENTO.limite_classico || 0));
-          } else if (item.categoria === 'premium') {
-            isPaid = isPaid || ((DADOS_EVENTO.consumido_premium || 0) >= (DADOS_EVENTO.limite_premium || 0));
-          }
-        }
         if(DADOS_EVENTO.tipo_servico === 'tradicional' && item.tipo_cobranca === 'pacote') isPaid = false;
 
 
 
         if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; }
 
-        else if(isPaid) { cardHTML += `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal}, '${item.categoria}')">🛒 COMPRAR</button>`; }
+        else if(isPaid) { cardHTML += `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal})">🛒 COMPRAR</button>`; }
 
-        else { cardHTML += `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0, '${item.categoria}')">🆓 PEGAR DO PACOTE</button>`; }
+        else { cardHTML += `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 PEGAR DO PACOTE</button>`; }
 
 
 
