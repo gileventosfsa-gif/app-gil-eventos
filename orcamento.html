@@ -173,6 +173,7 @@
             resultado.innerHTML = ""; 
             resultadoExtra.innerHTML = "";
             
+            // Define o sufixo da faixa de convidados
             let faixa = '70-100'; 
             if(convidados < 30) faixa = 'reduzida'; 
             else if(convidados <= 39) faixa = '30-35'; 
@@ -193,7 +194,10 @@
                 <div class="result-card">
                     <h2 style="color:var(--gold);">🥃 Serviço Tradicional</h2>
                     <p style="font-size:0.9em; margin-bottom:15px;">Mão de obra profissional. Insumos por sua conta.</p>
-                    <div class="price-display">R$ ${maoDeObra.toFixed(2)}</div>
+                    <div class="price-display">
+                        <span style="color:#ff4444; text-decoration:line-through; font-size:0.6em; margin-right:5px;">R$ 370,00</span>
+                        R$ ${maoDeObra.toFixed(2)}
+                    </div>
                     
                     <div style="background:rgba(255,149,0,0.1); padding:10px; border-radius:8px; border:1px solid #FF9500; margin-bottom:15px;">
                         <p style="font-size:0.85em; color:#FF9500; margin:0;">⚠️ <strong>ATENÇÃO:</strong> Este serviço é exclusivo para o preparo de <strong>Drinks Clássicos</strong> (Caipirinhas/Roskas).</p>
