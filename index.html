@@ -57,9 +57,10 @@
         .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
         .location-warning { color: var(--gold); font-size: 0.95em; margin-top: 20px; margin-bottom: 10px; font-weight: 600; background: rgba(255, 213, 128, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 213, 128, 0.3); display: inline-block; }
         
+        /* ESTILOS ESPECÍFICOS PARA A LÓGICA DE BARMAN */
         .aviso-barman { color: #FF9500; font-weight: bold; font-size: 0.9em; margin-top: 10px; border: 1px dashed #FF9500; padding: 10px; border-radius: 5px; background: rgba(255, 149, 0, 0.1); line-height: 1.4; }
-        .preco-detalhe { font-size: 0.6em; color: #aaa; font-weight: normal; display: block; margin-top: 5px; text-decoration: line-through; }
-        .destaque-preco { color: #FF9500; font-weight: 900; font-size: 1.1em; }
+        .preco-detalhe { font-size: 0.65em; color: #aaa; font-weight: normal; display: block; margin-top: 5px; text-decoration: line-through; }
+        .destaque-preco { color: #FF9500; font-weight: 900; font-size: 1.2em; letter-spacing: 1px; }
         .desconto-tag { background: #2E7D32; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.5em; vertical-align: middle; margin-left: 5px; display:inline-block; }
     </style>
 </head>
@@ -172,7 +173,6 @@
             resultado.innerHTML = ""; 
             resultadoExtra.innerHTML = "";
             
-            // Define o sufixo da faixa de convidados
             let faixa = '70-100'; 
             if(convidados < 30) faixa = 'reduzida'; 
             else if(convidados <= 39) faixa = '30-35'; 
@@ -181,26 +181,28 @@
             else if(convidados <= 249) faixa = '150-200'; 
             else faixa = '250-300';
             
-            // LÓGICA DE BARMANS E PREÇO - CORRIGIDA
+            // LÓGICA DE BARMANS REVISADA (1-150 / 151-250 / 251-400)
             let qtdBarmans = 1;
             let avisoBarman = "";
             
-            if (convidados > 100 && convidados <= 200) {
+            if (convidados <= 150) {
+                qtdBarmans = 1;
+            } else if (convidados > 150 && convidados <= 250) {
                 qtdBarmans = 2;
                 avisoBarman = `<div class="aviso-barman">⚠️ ATENÇÃO: PARA ATENDER SEU EVENTO SERÁ NECESSÁRIO NO MÍNIMO 2 BARMANS.</div>`;
-            } else if (convidados > 200 && convidados <= 300) {
+            } else if (convidados > 250 && convidados <= 400) {
                 qtdBarmans = 3;
                 avisoBarman = `<div class="aviso-barman">⚠️ ATENÇÃO: PARA ATENDER SEU EVENTO SERÁ NECESSÁRIO NO MÍNIMO 3 BARMANS.</div>`;
-            } else if (convidados > 300) {
-                resultado.innerHTML = `<div class="result-card" style="grid-column: 1 / -1;"><h2 style="color:var(--gold);">Eventos Grandes (300+ Convidados)</h2><p>Para eventos deste porte, precisamos fazer um orçamento personalizado.</p><a href="https://wa.me/5575998649927?text=Tenho%20um%20evento%20para%20${convidados}%20pessoas%20e%20gostaria%20de%20um%20orçamento" target="_blank" class="btn-gradient">Falar com Gil no WhatsApp</a></div>`;
+            } else if (convidados > 400) {
+                resultado.innerHTML = `<div class="result-card" style="grid-column: 1 / -1;"><h2 style="color:var(--gold);">Eventos Grandes (400+ Convidados)</h2><p>Para eventos deste porte, precisamos fazer um orçamento personalizado.</p><a href="https://wa.me/5575998649927?text=Tenho%20um%20evento%20para%20${convidados}%20pessoas%20e%20gostaria%20de%20um%20orçamento" target="_blank" class="btn-gradient">Falar com Gil no WhatsApp</a></div>`;
                 return;
             }
 
+            // CÁLCULOS MATEMÁTICOS DE BARMAN
             const precoPorBarmanOriginal = 370;
             const precoPorBarmanPromocional = 350;
             const descontoPorBarman = precoPorBarmanOriginal - precoPorBarmanPromocional;
             
-            // CÁLCULOS TOTAIS
             const totalOriginal = precoPorBarmanOriginal * qtdBarmans;
             const totalPromocional = precoPorBarmanPromocional * qtdBarmans;
             const totalDesconto = descontoPorBarman * qtdBarmans;
@@ -248,10 +250,10 @@
                 
                 <div class="result-card"><h2 style="color:#E0E0E0;">👑 Pacote Premium</h2><p style="font-size:0.9em; margin-bottom:15px;">Experiência de alto luxo com Gin, Aperol e Mojito.</p><div class="package-details">🍸 <strong>${pPremium.drinks} Drinks Premium</strong><br>Bar completo de luxo.</div><div class="price-display">R$ ${pPremium.price.toFixed(2)}</div><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Premium%20de%20${pPremium.drinks}%20drinks" target="_blank" class="btn-gradient" style="background:#333; border:1px solid #777;">Contratar Premium</a></div>`;
 
-            if(convidados < 100) { 
+            if(convidados <= 400) { 
                 resultado.innerHTML = cardsPadrao; 
             } else { 
-                resultado.innerHTML = `<div class="result-card" style="grid-column: 1 / -1; border-color:#fff;"><h2 style="color:#ccc;">🤝 Opção Recomendada: Parceria Pré-venda</h2><p>Para grandes eventos (100+ pessoas). <strong>Você não paga nada adiantado!</strong></p><p>Nós montamos a estrutura e vendemos os drinks diretamente aos convidados.</p><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Quero essa Parceria (Sem Custo)</a></div><div style="grid-column: 1 / -1; text-align:center; margin-top:30px;"><p style="color:#888; margin-bottom:10px;">Ou se preferir pagar pelos drinks:</p><button class="btn-gold" onclick="mostrarPacotesExtras()">⬇️ Prefiro contratar um Pacote (Ver Preços)</button></div><div id="pacotesExtras" class="results-grid" style="display:none; grid-column: 1 / -1;">${cardsPadrao}</div>`; 
+                resultado.innerHTML = `<div class="result-card" style="grid-column: 1 / -1; border-color:#fff;"><h2 style="color:#ccc;">🤝 Opção Recomendada: Parceria Pré-venda</h2><p>Para grandes eventos. <strong>Você não paga nada adiantado!</strong></p><p>Nós montamos a estrutura e vendemos os drinks diretamente aos convidados.</p><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Quero essa Parceria (Sem Custo)</a></div><div style="grid-column: 1 / -1; text-align:center; margin-top:30px;"><p style="color:#888; margin-bottom:10px;">Ou se preferir pagar pelos drinks:</p><button class="btn-gold" onclick="mostrarPacotesExtras()">⬇️ Prefiro contratar um Pacote (Ver Preços)</button></div><div id="pacotesExtras" class="results-grid" style="display:none; grid-column: 1 / -1;">${cardsPadrao}</div>`; 
             }
             setTimeout(() => { document.getElementById('resultado').scrollIntoView({behavior: 'smooth'}); }, 300);
         }
