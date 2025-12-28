@@ -17,7 +17,7 @@
         .card-box { background: #1E1E1E; padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; }
         .eye-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.2em; color: #888; background: none; border: none; }
         .big-stat { font-size: 2em; font-weight: 800; color: #4CAF50; }
-        .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .label { color: #888; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; }
         
         .manual-row { display: flex; align-items: center; justify-content: space-between; background: #333; padding: 8px; margin-bottom: 5px; border-radius: 6px; border: 1px solid #444; }
         .manual-name { font-size: 0.9em; font-weight: 600; color: #fff; flex: 1; }
@@ -79,7 +79,6 @@
         .contact-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; font-size: 0.9em; }
         .contact-row span { color: #aaa; }
         .contact-row strong { color: #FFD580; }
-        .btn-recalc { font-size: 0.7em; padding: 4px 8px; background: #333; border: 1px solid #555; border-radius: 4px; color: #aaa; cursor: pointer; }
 
         @media (max-width: 1000px) { .grid-layout { grid-template-columns: 1fr; height: auto; } .col-commands, .col-queue, .col-history { height: 500px; margin-bottom: 20px; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -128,10 +127,7 @@
     <div class="grid-layout">
         <div class="col-commands">
             <div class="card-box">
-                <div class="label">
-                    <span>Consumo Pacote</span>
-                    <button class="btn-recalc" onclick="recalcularContadores()" title="Corrigir números se estiverem errados">🔄 Recalcular</button>
-                </div>
+                <div class="label">Consumo Pacote</div>
                 
                 <div id="boxConsumoSimples">
                     <div class="big-stat"><span id="consumido">0</span> <span style="font-size:0.5em; color:#666;">/ <span id="total">∞</span></span></div>
@@ -242,37 +238,36 @@
             });
             monitorarChat();
         }
-        
-        // *** FUNÇÃO NUCLEAR: RECALCULA TUDO DO ZERO ***
-        function recalcularContadores() {
-            if(!confirm("Tem certeza? Isso vai varrer todos os pedidos e corrigir os contadores.")) return;
-            
-            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["pendente", "servido"]).get().then(snapshot => {
-                let totalC = 0;
-                let mistoClassico = 0;
-                let mistoPremium = 0;
-                
-                snapshot.forEach(doc => {
-                    const p = doc.data();
-                    if (p.tipo === 'pacote') {
-                        totalC++;
-                        
-                        // Lógica de categoria segura
-                        let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
-                        cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "");
-                        
-                        if (cat.includes('premium')) mistoPremium++;
-                        else mistoClassico++;
-                    }
-                });
 
-                // Atualiza o evento com os números reais contados
-                db.collection("eventos").doc(EVENTO_ID).update({
-                    total_consumido: totalC,
-                    consumido_classico: mistoClassico,
-                    consumido_premium: mistoPremium
-                }).then(() => alert("Contadores corrigidos com sucesso!"));
-            });
+        // *** FUNÇÃO DE RECALCULAR SILENCIOSA E AUTOMÁTICA ***
+        function sincronizarContadores() {
+            // Busca apenas os pedidos ativos (pendente ou servido) e que sejam do pacote
+            db.collection("pedidos")
+              .where("evento_id", "==", EVENTO_ID)
+              .where("tipo", "==", "pacote") 
+              .where("status", "in", ["pendente", "servido"]) 
+              .get()
+              .then(snapshot => {
+                  let total = 0;
+                  let classico = 0;
+                  let premium = 0;
+
+                  snapshot.forEach(doc => {
+                      const p = doc.data();
+                      total++;
+                      let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
+                      cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "");
+                      if(cat.includes('premium')) premium++;
+                      else classico++;
+                  });
+
+                  // Atualiza o evento com os números reais
+                  db.collection("eventos").doc(EVENTO_ID).update({
+                      total_consumido: total,
+                      consumido_classico: classico,
+                      consumido_premium: premium
+                  }).then(() => console.log("Contadores sincronizados automaticamente."));
+              });
         }
 
         function lancarManual(item, tipoForcado) { 
@@ -298,12 +293,8 @@
                 data: new Date() 
             }).then(() => {
                 if(tipo === 'pacote') {
-                    const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
-                    if (DADOS_EVENTO.tipo_servico === 'misto') {
-                        if (categoriaNorm === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
-                        else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
-                    }
-                    db.collection("eventos").doc(EVENTO_ID).update(updateData);
+                    // Chama a sincronização para garantir contagem exata
+                    setTimeout(sincronizarContadores, 500); 
                 }
             });
         }
@@ -334,28 +325,18 @@
 
         function mudarStatus(id, novoStatus) { 
             if(!confirm("Entregar pedido?")) return; 
-            db.collection("pedidos").doc(id).update({ status: novoStatus }); 
+            db.collection("pedidos").doc(id).update({ status: novoStatus })
+              .then(() => setTimeout(sincronizarContadores, 500)); // Sincroniza ao entregar também
         }
 
+        // *** CANCELAR COM SINCRONIZAÇÃO AUTOMÁTICA ***
         function cancelarPedido(id) { 
-            if(!confirm("Cancelar? O drink voltará para o saldo do pacote.")) return; 
-            
-            db.collection("pedidos").doc(id).get().then(doc => {
-                if(doc.exists) {
-                    const p = doc.data();
-                    db.collection("pedidos").doc(id).update({ status: 'cancelado' });
-
-                    if(p.tipo === 'pacote') {
-                        const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) };
-                        if (DADOS_EVENTO.tipo_servico === 'misto') {
-                            const cat = limparString(p.categoria_drink || 'classico');
-                            if (cat === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1);
-                            else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1);
-                        }
-                        db.collection("eventos").doc(EVENTO_ID).update(updateData);
-                    }
-                }
-            });
+            if(!confirm("Cancelar?")) return; 
+            db.collection("pedidos").doc(id).update({ status: 'cancelado' })
+              .then(() => {
+                  console.log("Pedido cancelado. Recalculando...");
+                  setTimeout(sincronizarContadores, 500); // Aguarda meio segundo pro banco processar e recalcula
+              });
         }
 
         function monitorarChat() {
@@ -373,7 +354,6 @@
         function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
         function confirmarPagamento(id, preco) { if(!confirm("Confirmar pagamento?")) return; db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); }
         function recusarPagamento(id) { if(!confirm("Tem certeza que NÃO consta?")) return; db.collection("pedidos").doc(id).update({ status: 'pagamento_rejeitado', sinalizou_pagamento: false }); }
-        function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }); }
         function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
@@ -388,11 +368,14 @@
         function atualizarInterface(dados) { 
             document.getElementById('nomeEvento').innerText = dados.nome; 
             document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
+            
             if (dados.tipo_servico === 'misto') {
                 document.getElementById('boxConsumoSimples').style.display = 'none';
                 document.getElementById('boxConsumoMisto').style.display = 'block';
-                const cClassico = Number(dados.consumido_classico || 0); const lClassico = Number(dados.limite_classico || 0);
-                const cPremium = Number(dados.consumido_premium || 0); const lPremium = Number(dados.limite_premium || 0);
+                const cClassico = Number(dados.consumido_classico || 0);
+                const lClassico = Number(dados.limite_classico || 0);
+                const cPremium = Number(dados.consumido_premium || 0);
+                const lPremium = Number(dados.limite_premium || 0);
                 document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`;
                 document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
                 const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0;
