@@ -60,6 +60,7 @@
     .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
     .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; background: #111; padding: 10px; border-radius: 5px; text-align: center; }
     .disclaimer { text-align: center; color: #666; font-size: 0.7em; text-transform: uppercase; margin-top: 30px; letter-spacing: 1px; opacity: 0.7; }
+    
     .combo-banner { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
     .btn-combo { background: linear-gradient(135deg, #6A1B9A, #9C27B0); color: white; padding: 15px 10px; border-radius: 12px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3); transition: 0.2s; }
     .btn-combo:active { transform: scale(0.95); }
@@ -69,8 +70,8 @@
     .combo-item-row.selected { border-color: #4CAF50; background: #1a2e1a; }
     .chk-combo { transform: scale(1.5); accent-color: #4CAF50; }
     #totalComboDisplay { font-size: 1.5em; color: #4CAF50; font-weight: bold; margin: 15px 0; display: block; }
-    
-    /* === NOVOS ESTILOS DO SELETOR === */
+
+    /* SELETOR DE QUANTIDADE */
     .qtd-control { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 20px; }
     .btn-qtd { width: 32px; height: 32px; border-radius: 50%; border: none; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: white; transition: 0.2s; }
     .btn-minus { background: #444; }
@@ -87,10 +88,12 @@
 <div class="container">
   <div class="header"><span class="brand-subtitle">GIL EVENTOS</span><div class="event-name" id="nomeEvento">Carregando...</div><div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div></div>
   <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
+  
   <div id="areaCombos" class="combo-banner" style="display:none;">
     <div class="btn-combo" onclick="abrirMontadorCombo(3)"><span class="combo-title">🔥 COMBO TRIO</span><span class="combo-desc">Escolha 3 drinks<br>Desconto: -R$ 3,00</span></div>
     <div class="btn-combo" style="background: linear-gradient(135deg, #BF360C, #FF5722);" onclick="abrirMontadorCombo(5)"><span class="combo-title">🖐️ COMBO 5</span><span class="combo-desc">Escolha 5 drinks<br>Desconto: -R$ 10,00</span></div>
   </div>
+
   <div id="listaCardapio"></div>
   <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
 </div>
@@ -128,9 +131,21 @@
     if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
     if(NOME_CONVIDADO) carregarChat(); 
   }
-  function verificarCombosAtivos() { let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago'); let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado; if(temPagos || pacoteEsgotado) { document.getElementById('areaCombos').style.display = 'grid'; } else { document.getElementById('areaCombos').style.display = 'none'; } }
   
-  // *** ALTERAÇÃO SEGURA: FUNÇÃO ABRIR MONTADOR COMBO ***
+  // *** CORREÇÃO: LIBERA COMBO NO PACOTE MISTO ***
+  function verificarCombosAtivos() {
+    let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago');
+    let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado;
+    let ehMisto = DADOS_EVENTO.tipo_servico === 'misto'; // Nova linha
+    
+    if(temPagos || pacoteEsgotado || ehMisto) { 
+        document.getElementById('areaCombos').style.display = 'grid'; 
+    } else { 
+        document.getElementById('areaCombos').style.display = 'none'; 
+    }
+  }
+
+  // *** LISTAGEM DE ITENS COM SELETOR ***
   function abrirMontadorCombo(qtd) {
     COMBO_QTD_ALVO = qtd;
     ITENS_COMBO_SELECIONADOS = [];
@@ -140,11 +155,14 @@
     
     let itensPagos = [];
     DADOS_EVENTO.cardapio.forEach(item => {
-      let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado);
+      // CORREÇÃO: No Misto, libera todos os drinks para venda de combo
+      let isPaid = item.tipo_cobranca === 'pago' || 
+                   (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) ||
+                   (DADOS_EVENTO.tipo_servico === 'misto'); 
       if(isPaid && item.disponivel !== false) { itensPagos.push(item); }
     });
     
-    if(itensPagos.length === 0) return alert("Não há drinks pagos disponíveis para combo.");
+    if(itensPagos.length === 0) return alert("Não há drinks disponíveis para combo.");
     
     itensPagos.forEach((item, index) => {
       let precoReal = item.preco;
@@ -154,9 +172,8 @@
       div.className = 'combo-item-row';
       div.id = `row_combo_${index}`;
       
-      // *** AQUI ENTRA O SELETOR ***
       div.innerHTML = `
-        <div style="flex:1;">
+        <div style="flex:1; text-align:left;">
             <strong style="color:#fff;">${item.nome}</strong><br>
             <span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span>
         </div>
@@ -173,7 +190,7 @@
     document.getElementById('modalCombo').style.display = 'flex';
   }
 
-  // *** ALTERAÇÃO SEGURA: FUNÇÃO ALTERAR QUANTIDADE ***
+  // *** LÓGICA DO SELETOR ***
   function alterarQtdCombo(index, delta, preco, nome) {
       const spanQtd = document.getElementById(`qtd_combo_${index}`);
       let currentQtd = parseInt(spanQtd.innerText);
