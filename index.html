@@ -57,8 +57,7 @@
         .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
         .location-warning { color: var(--gold); font-size: 0.95em; margin-top: 20px; margin-bottom: 10px; font-weight: 600; background: rgba(255, 213, 128, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 213, 128, 0.3); display: inline-block; }
         
-        /* NOVOS ESTILOS PARA OS AVISOS */
-        .aviso-barman { color: #ff4444; font-weight: bold; font-size: 0.9em; margin-top: 10px; border: 1px dashed #ff4444; padding: 5px; border-radius: 5px; background: rgba(255,0,0,0.1); }
+        .aviso-barman { color: #FF9500; font-weight: bold; font-size: 0.9em; margin-top: 10px; border: 1px dashed #FF9500; padding: 10px; border-radius: 5px; background: rgba(255, 149, 0, 0.1); line-height: 1.4; }
         .preco-detalhe { font-size: 0.6em; color: #aaa; font-weight: normal; display: block; margin-top: 5px; text-decoration: line-through; }
         .destaque-preco { color: #FF9500; font-weight: 900; font-size: 1.1em; }
         .desconto-tag { background: #2E7D32; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.5em; vertical-align: middle; margin-left: 5px; display:inline-block; }
@@ -182,7 +181,7 @@
             else if(convidados <= 249) faixa = '150-200'; 
             else faixa = '250-300';
             
-            // LÓGICA DE BARMANS E PREÇO
+            // LÓGICA DE BARMANS E PREÇO - CORRIGIDA
             let qtdBarmans = 1;
             let avisoBarman = "";
             
@@ -201,6 +200,7 @@
             const precoPorBarmanPromocional = 350;
             const descontoPorBarman = precoPorBarmanOriginal - precoPorBarmanPromocional;
             
+            // CÁLCULOS TOTAIS
             const totalOriginal = precoPorBarmanOriginal * qtdBarmans;
             const totalPromocional = precoPorBarmanPromocional * qtdBarmans;
             const totalDesconto = descontoPorBarman * qtdBarmans;
