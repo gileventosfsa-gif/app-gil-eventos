@@ -1,1027 +1,260 @@
 <!DOCTYPE html>
-
 <html lang="pt-br">
-
 <head>
-
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-  <title>Cardápio Digital</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-
-  <style>
-
-    body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
-
-    .container { max-width: 600px; margin: auto; }
-
-    .header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
-
-    .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 5px; font-weight: 300; }
-
-    .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 213, 128, 0.2); }
-
-    .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 8px; margin: 30px 0 20px 0; text-transform: uppercase; font-size: 0.95em; letter-spacing: 1px; font-weight: 600; }
-
-     
-
-    .drink-card { background: #1E1E1E; border-radius: 16px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #333; transition: transform 0.2s; }
-
-    .drink-card:active { transform: scale(0.98); }
-
-     
-
-    .card-image-box { width: 100%; height: 350px; position: relative; background: #000; overflow: hidden; }
-
-    .blur-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.5); transform: scale(1.1); z-index: 1; }
-
-    .front-image { position: relative; width: 100%; height: 100%; object-fit: contain; z-index: 2; drop-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-
-    .card-image-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; background: linear-gradient(to top, #1E1E1E, transparent); z-index: 3; }
-
-
-
-    .drink-content { padding: 15px 20px; position: relative; z-index: 4; }
-
-    .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); position: relative; bottom: 20px; }
-
-    .drink-desc { font-size: 0.95em; color: #ccc; margin: -10px 0 15px 0; line-height: 1.4; font-weight: 300; }
-
-     
-
-    .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 5; }
-
-    .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.75em; display: block; font-weight: bold; }
-
-    .price-now { color: #4CAF50; font-weight: 800; font-size: 1.1em; }
-
-     
-
-    .btn-action { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-
-    .btn-free { background: linear-gradient(45deg, #2E7D32, #4CAF50); color: white; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); }
-
-    .btn-paid { background: linear-gradient(45deg, #FF8F00, #FFD580); color: #000; box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3); }
-
-    .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
-
-
-
-    .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; animation: floatUp 0.3s; }
-
-    .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
-
-     
-
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-
-    .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-
-    .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; font-size: 1em; }
-
-    .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
-
-     
-
-    .modal-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
-
-    .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 12px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
-
-    .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
-
-    .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 8px; right: 15px; display: none; }
-
-    .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
-
-    .tab-content.active { display: block; }
-
-     
-
-    .chat-container { display: flex; flex-direction: column; height: 300px; }
-
-    .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-
-    .chat-input-area { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
-
-    .chat-input { flex: 1; background: #111; border: 1px solid #444; color: white; padding: 12px; border-radius: 25px; outline: none; }
-
-    .chat-send { background: #FFD580; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: black; }
-
-    .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; line-height: 1.4; position: relative; }
-
-    .msg-mine { background: #2E7D32; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-
-    .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
-
-    .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
-
-    .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; }
-
-    .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: 500; }
-
-    .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
-
-    .btn-i-paid { background: #4CAF50; color: white; }
-
-    .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
-
-     
-
-    #avisoPacote { background: rgba(255, 68, 68, 0.15); border: 1px solid #FF4444; color: #FF4444; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; display: none; }
-
-    #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 25px; border-radius: 50px; display:none; border: 1px solid #FFD580; z-index:950; white-space:nowrap; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 0.9em; }
-
-    .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
-
-    .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; background: #111; padding: 10px; border-radius: 5px; text-align: center; }
-
-    .disclaimer { text-align: center; color: #666; font-size: 0.7em; text-transform: uppercase; margin-top: 30px; letter-spacing: 1px; opacity: 0.7; }
-
-     
-
-    /* ESTILOS DE COMBO */
-
-    .combo-banner { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
-
-    .btn-combo { background: linear-gradient(135deg, #6A1B9A, #9C27B0); color: white; padding: 15px 10px; border-radius: 12px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3); transition: 0.2s; }
-
-    .btn-combo:active { transform: scale(0.95); }
-
-    .combo-title { font-weight: 800; font-size: 1.1em; display: block; margin-bottom: 5px; }
-
-    .combo-desc { font-size: 0.8em; opacity: 0.9; }
-
-    .combo-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border: 1px solid #333; }
-
-    .combo-item-row.selected { border-color: #4CAF50; background: #1a2e1a; }
-
-    .chk-combo { transform: scale(1.5); accent-color: #4CAF50; }
-
-    #totalComboDisplay { font-size: 1.5em; color: #4CAF50; font-weight: bold; margin: 15px 0; display: block; }
-
-
-
-    @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
-
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
-
-  </style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orçamento Online - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; overflow-x: hidden; }
+        :root { --gold: #FFD580; --orange: #FF9500; --dark: #121212; --card-bg: #1E1E1E; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes growLine { from { width: 0; opacity: 0; } to { width: 80px; opacity: 1; } }
+        .btn-gold { background: transparent; border: 2px solid var(--gold); color: var(--gold); padding: 12px 35px; font-size: 1em; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; border-radius: 5px; text-decoration: none; display: inline-block; }
+        .btn-gold:hover { background: var(--gold); color: var(--dark); box-shadow: 0 0 20px rgba(255, 213, 128, 0.4); }
+        .btn-gradient { background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: #fff; padding: 14px 28px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1em; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255,149,0,0.3); text-decoration: none; display: inline-block; width: 100%; text-align: center; }
+        .btn-gradient:hover { transform: scale(1.02); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
+        
+        /* VIDEO BACKGROUND */
+        .hero-section { position:relative; height:100vh; height:100dvh; overflow:hidden; border-bottom:4px solid var(--gold); }
+        .hero-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
+        .hero-video { position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; transform: translate(-50%, -50%); pointer-events: none; }
+        
+        .hero-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(18,18,18,0.9) 100%); z-index:1; }
+        .hero-content { position:relative; z-index:2; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; padding: 0 20px; }
+        .menu-section { background-color:#121212; background-image: radial-gradient(circle at top right, #1f1f1f, #121212); padding:60px 20px; }
+        .gil-category { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 60px 0 30px; }
+        .gil-category h2 { color: #FFB84D; font-size: 1.8em; text-transform: uppercase; letter-spacing: 1.5px; margin: 0; text-align: center; }
+        .gil-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, transparent, #FFB84D, transparent); max-width: 100px; }
+        .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .gil-card { background: var(--card-bg); border: 1px solid rgba(255, 213, 128, 0.1); border-radius: 16px; overflow: hidden; transition: all 0.4s ease; position: relative; display: flex; flex-direction: column; }
+        .gil-card:hover { transform: translateY(-7px); border-color: rgba(255, 149, 0, 0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .drink-img-box { width: 100%; height: 320px; position: relative; overflow: hidden; background: #000; }
+        .blur-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.5); transform: scale(1.1); z-index: 1; }
+        .drink-img { width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 2; transition: transform 0.6s ease; drop-shadow: 0 5px 15px rgba(0,0,0,0.6); }
+        .gil-card:hover .drink-img { transform: scale(1.05); }
+        .img-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(to top, #1E1E1E, transparent); z-index: 3; }
+        .card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; position: relative; z-index: 4; }
+        .gil-card h3 { font-size: 1.3em; color: var(--gold); margin: 0 0 8px 0; font-weight: 700; }
+        .gil-card p { font-size: 0.9em; line-height: 1.5; color: #ccc; margin: 0; flex-grow: 1; }
+        .badge { position: absolute; top: 15px; right: 15px; z-index: 5; font-size: 0.7em; padding: 5px 12px; border-radius: 20px; font-weight: bold; text-transform: uppercase; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .badge-pop { background: #FF9500; color: #000; }
+        .badge-fresh { background: #00E676; color: #000; }
+        .badge-sweet { background: #FF4081; color: #fff; }
+        .badge-premium { background: linear-gradient(45deg, #FFD700, #FFAA00); color: #000; }
+        .calc-container { max-width: 950px; margin: auto; padding: 50px 20px; text-align: center; }
+        label { display: block; margin-top: 25px; color: var(--gold); font-weight: 500; text-align: left; width: 90%; margin-left: auto; margin-right: auto; }
+        select, input { width: 90%; padding: 12px; border-radius: 10px; border: none; margin-top: 8px; background: rgba(36,36,36,0.9); color: #EAEAEA; font-size: 1em; }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+        .result-card { border: 1px solid rgba(255,213,128,0.25); border-radius: 18px; padding: 25px 30px; background: radial-gradient(circle at top left, rgba(40,40,40,0.85), rgba(18,18,18,0.9)); text-align: center; opacity: 0; animation: fadeUp 0.8s forwards ease-out; display: flex; flex-direction: column; justify-content: space-between; }
+        .result-card.highlight { border: 2px solid var(--orange); background: radial-gradient(circle at top left, rgba(60,40,20,0.9), rgba(20,20,20,0.95)); transform: scale(1.02); }
+        .result-card h2 { font-size: 1.4em; margin-bottom: 10px; }
+        .price-display { font-size: 1.8em; color: var(--gold); font-weight: 800; margin: 15px 0 25px 0; }
+        .package-details { text-align: left; font-size: 0.9em; color: #ddd; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
+        .lista-compras { display:none; text-align:left; margin-top:15px; padding:15px; background: rgba(0,0,0,0.5); border-radius:12px; font-size:0.85em; color:#ddd; white-space: pre-wrap; border: 1px solid #333; }
+        .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
+        .location-warning { color: var(--gold); font-size: 0.95em; margin-top: 20px; margin-bottom: 10px; font-weight: 600; background: rgba(255, 213, 128, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 213, 128, 0.3); display: inline-block; }
+        
+        /* NOVOS ESTILOS PARA OS AVISOS */
+        .aviso-barman { color: #ff4444; font-weight: bold; font-size: 0.9em; margin-top: 10px; border: 1px dashed #ff4444; padding: 5px; border-radius: 5px; background: rgba(255,0,0,0.1); }
+        .preco-detalhe { font-size: 0.6em; color: #aaa; font-weight: normal; display: block; margin-top: 5px; text-decoration: line-through; }
+        .destaque-preco { color: #FF9500; font-weight: 900; font-size: 1.1em; }
+        .desconto-tag { background: #2E7D32; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.5em; vertical-align: middle; margin-left: 5px; display:inline-block; }
+    </style>
 </head>
-
 <body>
-
-
-
-<div class="container">
-
-  <div class="header">
-
-    <span class="brand-subtitle">GIL EVENTOS</span>
-
-    <div class="event-name" id="nomeEvento">Carregando...</div>
-
-    <div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div>
-
-  </div>
-
-  <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
-
-
-
-  <div id="areaCombos" class="combo-banner" style="display:none;">
-
-    <div class="btn-combo" onclick="abrirMontadorCombo(3)">
-
-      <span class="combo-title">🔥 COMBO TRIO</span>
-
-      <span class="combo-desc">Escolha 3 drinks<br>Desconto: -R$ 3,00</span>
-
-    </div>
-
-    <div class="btn-combo" style="background: linear-gradient(135deg, #BF360C, #FF5722);" onclick="abrirMontadorCombo(5)">
-
-      <span class="combo-title">🖐️ COMBO 5</span>
-
-      <span class="combo-desc">Escolha 5 drinks<br>Desconto: -R$ 10,00</span>
-
-    </div>
-
-  </div>
-
-
-
-  <div id="listaCardapio"></div>
-
-  <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
-
-</div>
-
-
-
-<div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">🍹 Pedidos / Chat <div class="float-badge" id="badgeMeusPedidos">0</div></div>
-
-
-
-<div class="modal-overlay" id="modalCombo">
-
-  <div class="modal-box" style="height: 600px;">
-
-    <h2 style="color:#FFD580; margin:0 0 5px 0;">Montar Combo</h2>
-
-    <p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">Selecione <span id="maxComboQtd" style="color:#fff; font-weight:bold;">3</span> drinks:</p>
-
-    <div id="listaSelecaoCombo" style="flex-grow:1; overflow-y:auto; text-align:left;"></div>
-
-    <div style="border-top:1px solid #333; padding-top:10px;">
-
-      <span id="totalComboDisplay">R$ 0,00</span>
-
-      <button class="btn-confirm" id="btnFinalizarCombo" onclick="finalizarCombo()">CONFIRMAR COMBO</button>
-
-      <button onclick="document.getElementById('modalCombo').style.display='none'" style="background:none; border:none; color:#888; margin-top:10px;">Cancelar</button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Como devemos te chamar?</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
-
-
-
-<div class="modal-overlay" id="modalConfirm"><div class="modal-box"><h2 style="color:#FFD580; margin:0;">Confirmar Pedido</h2><div id="conteudoConfirmacao"></div><textarea id="inputObservacao" class="input-obs" placeholder="Alguma preferência? (Ex: Pouco gelo)"></textarea><button class="btn-confirm" id="btnFinalizar">ENVIAR PEDIDO</button><button onclick="document.getElementById('modalConfirm').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline; cursor:pointer;">Cancelar</button></div></div>
-
-
-
-<div class="modal-overlay" id="modalListaPedidos">
-
-  <div class="modal-box" style="height: 550px;">
-
-    <div class="modal-tabs">
-
-      <button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Meus Pedidos</button>
-
-      <button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button>
-
-    </div>
-
-    <div id="tab-pedidos" class="tab-content active">
-
-      <div style="background:#252525; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #FFD580; text-align:left;">
-
-        <small style="color:#FFD580; font-weight:bold; display:block; margin-bottom:5px;">🔔 Receba novidades!</small>
-
-        <div style="display:flex; gap:8px;">
-
-          <input type="tel" id="mktZap" style="background:#111; border:1px solid #444; color:white; padding:8px; border-radius:8px; flex:1; width:100%;" placeholder="Seu WhatsApp">
-
-          <button onclick="salvarZap()" style="background:#4CAF50; border:none; color:white; padding:8px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">Salvar</button>
-
+    <div class="hero-section">
+        <div class="hero-video-container">
+            <iframe class="hero-video" 
+                src="https://www.youtube.com/embed/SYIByr8BKoQ?autoplay=1&mute=1&controls=0&loop=1&playlist=SYIByr8BKoQ&playsinline=1&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1" 
+                frameborder="0" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen>
+            </iframe>
         </div>
-
-      </div>
-
-      <div id="listaMeusPedidosHTML"></div>
-
-    </div>
-
-    <div id="tab-chat" class="tab-content">
-
-      <div class="chat-container">
-
-        <div class="chat-messages" id="chatMessages"><p style="text-align:center; color:#555; font-size:0.8em; margin-top:20px;">Fale diretamente com o barman aqui.</p></div>
-
-        <div class="chat-input-area"><input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem..."><button class="chat-send" onclick="enviarMensagem()">➤</button></div>
-
-      </div>
-
-    </div>
-
-    <button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:15px; background:#333; color:#fff;">FECHAR</button>
-
-  </div>
-
-</div>
-
-
-
-<div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">🎉</div><h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2><p style="color:#fff;">Pode buscar no balcão.</p><button class="btn-confirm" style="background:#4CAF50;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
-
-<div id="notification"></div>
-
-
-
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
-<script>
-
-  const firebaseConfig = {
-
-    apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk",
-
-    authDomain: "gil-eventos-app-911fe.firebaseapp.com",
-
-    projectId: "gil-eventos-app-911fe",
-
-    storageBucket: "gil-eventos-app-911fe.firebasestorage.app",
-
-    messagingSenderId: "503025880352",
-
-    appId: "1:503025880352:web:694b7f2889cff501c7db45",
-
-    measurementId: "G-3DZ1P5C0M3"
-
-  };
-
-  firebase.initializeApp(firebaseConfig);
-
-  const db = firebase.firestore();
-
-  const params = new URLSearchParams(window.location.search);
-
-  const EVENTO_ID = params.get('evento');
-
-  let DADOS_EVENTO = null;
-
-  let NOME_CONVIDADO = localStorage.getItem('nome_usuario_gil');
-
-  let TIMER_MINUTOS = 15;
-
-  let ITEM_ATUAL = null;
-
-  let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
-
-   
-
-  // VARIÁVEIS DO COMBO
-
-  let COMBO_QTD_ALVO = 0;
-
-  let ITENS_COMBO_SELECIONADOS = [];
-
-
-
-  if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
-
-  if(EVENTO_ID) iniciarApp();
-
-
-
-  function iniciarApp() {
-
-    db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
-
-      if(doc.exists) {
-
-        DADOS_EVENTO = doc.data();
-
-        if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15;
-
-        renderizarCardapio();
-
-        verificarTimer();
-
-        verificarCombosAtivos();
-
-      }
-
-    });
-
-    if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
-
-    if(NOME_CONVIDADO) carregarChat(); 
-
-  }
-
-
-
-  function verificarCombosAtivos() {
-
-    let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago');
-
-    let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado;
-
-     
-
-    if(temPagos || pacoteEsgotado) {
-
-      document.getElementById('areaCombos').style.display = 'grid';
-
-    } else {
-
-      document.getElementById('areaCombos').style.display = 'none';
-
-    }
-
-  }
-
-
-
-  function abrirMontadorCombo(qtd) {
-
-    COMBO_QTD_ALVO = qtd;
-
-    ITENS_COMBO_SELECIONADOS = [];
-
-    document.getElementById('maxComboQtd').innerText = qtd;
-
-    const lista = document.getElementById('listaSelecaoCombo');
-
-    lista.innerHTML = '';
-
-     
-
-    let itensPagos = [];
-
-    DADOS_EVENTO.cardapio.forEach(item => {
-
-      let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado);
-
-      if(isPaid && item.disponivel !== false) {
-
-        itensPagos.push(item);
-
-      }
-
-    });
-
-
-
-    if(itensPagos.length === 0) return alert("Não há drinks pagos disponíveis para combo.");
-
-
-
-    itensPagos.forEach((item, index) => {
-
-      let precoReal = item.preco;
-
-      if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda;
-
-
-
-      const div = document.createElement('div');
-
-      div.className = 'combo-item-row';
-
-      div.onclick = (e) => { if(e.target.type !== 'checkbox') toggleItemCombo(index, precoReal, item.nome); };
-
-      div.innerHTML = `
-
-        <div>
-
-          <strong style="color:#fff;">${item.nome}</strong><br>
-
-          <span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span>
-
+        
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 style="font-size: clamp(3em, 8vw, 5em); font-weight:800; text-transform:uppercase; margin:0; line-height:1.1; background: linear-gradient(45deg, #FFD580, #FFAE00, #FFF5D0, #FFAE00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 20px rgba(255, 174, 0, 0.3)); opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 0.2s;">Gil Eventos</h1>
+            <h2 style="font-size: clamp(1.2em, 4vw, 2em); color:#fff; margin-top:15px; font-weight:300; letter-spacing:1px; opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 0.5s;">Bar Premium & Coquetelaria</h2>
+            <div style="width: 80px; height: 3px; background: #FF9500; margin: 20px 0; opacity:0; animation: growLine 1s ease-out forwards; animation-delay: 0.8s;"></div>
+            <p style="margin-top:0; color:#ddd; font-size: clamp(1em, 2.5vw, 1.2em); max-width: 600px; opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 1s;">Transformando celebrações em memórias inesquecíveis.</p>
+            <div style="margin-top: 35px; opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 1.3s;">
+                <button onclick="document.getElementById('simulador').scrollIntoView({behavior: 'smooth'})" class="btn-gold">Fazer Orçamento Agora</button>
+            </div>
         </div>
-
-        <input type="checkbox" class="chk-combo" id="chk_${index}" onchange="toggleItemCombo(${index}, ${precoReal}, '${item.nome}')">
-
-      `;
-
-      lista.appendChild(div);
-
-    });
-
-
-
-    atualizarTotalCombo();
-
-    document.getElementById('modalCombo').style.display = 'flex';
-
-  }
-
-
-
-  function toggleItemCombo(index, preco, nome) {
-
-    const chk = document.getElementById(`chk_${index}`);
-
-    if(event.target.type !== 'checkbox') chk.checked = !chk.checked;
-
-
-
-    if(chk.checked) {
-
-      if(ITENS_COMBO_SELECIONADOS.length >= COMBO_QTD_ALVO) {
-
-        chk.checked = false; 
-
-        return alert(`Máximo de ${COMBO_QTD_ALVO} drinks!`);
-
-      }
-
-      ITENS_COMBO_SELECIONADOS.push({ nome, preco });
-
-      chk.parentElement.classList.add('selected');
-
-    } else {
-
-      ITENS_COMBO_SELECIONADOS = ITENS_COMBO_SELECIONADOS.filter(i => i.nome !== nome);
-
-      chk.parentElement.classList.remove('selected');
-
-    }
-
-    atualizarTotalCombo();
-
-  }
-
-
-
-  function atualizarTotalCombo() {
-
-    let soma = ITENS_COMBO_SELECIONADOS.reduce((acc, i) => acc + i.preco, 0);
-
-    let desconto = 0;
-
-    let btn = document.getElementById('btnFinalizarCombo');
-
-
-
-    if(ITENS_COMBO_SELECIONADOS.length === COMBO_QTD_ALVO) {
-
-      if(COMBO_QTD_ALVO === 3) desconto = 3;
-
-      if(COMBO_QTD_ALVO === 5) desconto = 10;
-
-      btn.disabled = false;
-
-      btn.style.opacity = 1;
-
-      btn.innerText = "CONFIRMAR COMBO";
-
-    } else {
-
-      btn.disabled = true;
-
-      btn.style.opacity = 0.5;
-
-      btn.innerText = `Selecione ${COMBO_QTD_ALVO}`;
-
-    }
-
-
-
-    let totalFinal = Math.max(0, soma - desconto);
-
-    document.getElementById('totalComboDisplay').innerText = `Total: R$ ${totalFinal.toFixed(2)}`;
-
-     
-
-    ITEM_ATUAL = {
-
-      nome: `COMBO ${COMBO_QTD_ALVO}: ${ITENS_COMBO_SELECIONADOS.map(i => i.nome).join(', ')}`,
-
-      tipo: 'extra',
-
-      preco: totalFinal
-
-    };
-
-  }
-
-
-
-  function finalizarCombo() {
-
-    document.getElementById('modalCombo').style.display = 'none';
-
-    abrirConfirmacao(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco);
-
-  }
-
-
-
-  function getDrinkImage(nomeOriginal) {
-
-    const n = nomeOriginal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-
-    const mapa = {
-
-      'elixir do sol': 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg',
-
-      'desejo proibido': 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg',
-
-      'encanto noturno': 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg',
-
-      'tropical mix': 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg',
-
-      'brisa verde': 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg',
-
-      'caipirinha premium': 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', 
-
-      'furia rubi': 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg',
-
-      'segredo da casa': 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg',
-
-      'coquetel kids': 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg',
-
-      'coquetel personalizado': 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg',
-
-      'aperol': 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg',
-
-      'gin': 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg',
-
-      'mojito da ilha': 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg'
-
-    };
-
-    for (const [key, url] of Object.entries(mapa)) { if (n.includes(key)) return url; }
-
-    if (n.includes('mojito')) return mapa['mojito da ilha'];
-
-    if (n.includes('gin')) return mapa['gin'];
-
-    return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80';
-
-  }
-
-
-
-  function renderizarCardapio() {
-
-    document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome;
-
-    const lista = document.getElementById('listaCardapio');
-
-    lista.innerHTML = '';
-
-    let esgotado = false;
-
-    if(DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) esgotado = true;
-
-
-
-    const classicos = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico');
-
-    const premiums = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium');
-
-
-
-    const renderGrupo = (titulo, items) => {
-
-      if(items.length === 0) return '';
-
-      let html = `<div class="section-title">${titulo}</div>`;
-
-      items.forEach(item => {
-
-        let disponivel = item.disponivel !== false;
-
-        let precoFinal = item.preco || 0;
-
-        let htmlPreco = '';
-
-        let imagemUrl = getDrinkImage(item.nome);
-
-         
-
-        let descricao = item.desc || 'Uma experiência de sabor única.';
-
-        if(item.nome.toLowerCase().includes('mojito')) { descricao = descricao + " (c/ Xarope de Groselha)"; }
-
-
-
-        if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) {
-
-          precoFinal = item.preco_prevenda;
-
-          htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`;
-
-        } else if(item.tipo_cobranca === 'pago') {
-
-          htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`;
-
+    </div>
+
+    <div class="menu-section">
+        <div style="text-align:center; max-width:800px; margin:0 auto 60px;">
+            <span style="color:#FF9500; font-size:0.9em; letter-spacing:3px; text-transform:uppercase; font-weight:600;">Gil Eventos</span>
+            <h1 style="color:#FFD580; font-size:2.5em; margin:10px 0 15px; text-transform:uppercase; letter-spacing:1px; line-height:1.2;">Carta de Drinks</h1>
+            <div style="width:60px; height:3px; background:#FF9500; margin:0 auto 20px;"></div>
+        </div>
+        <div class="gil-category"><span class="gil-line"></span><h2>Clássicos</h2><span class="gil-line"></span></div>
+        <div class="gil-grid">
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg');"></div><img src="https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg" class="drink-img"><span class="badge badge-pop">Mais Pedido</span><div class="img-overlay"></div></div><div class="card-content"><h3>Elixir do Sol</h3><p>Abacaxi, hortelã, toque cítrico e especiarias.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg');"></div><img src="https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg" class="drink-img"><span class="badge badge-sweet">Doce</span><div class="img-overlay"></div></div><div class="card-content"><h3>Desejo Proibido</h3><p>Frutas vermelhas intensas, cítrico e hortelã.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg');"></div><img src="https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Encanto Noturno</h3><p>Uva roxa, cítrico e manjericão fresco.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg');"></div><img src="https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Tropical Mix</h3><p>Tangerina, kiwi, abacaxi e ervas frescas.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg');"></div><img src="https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg" class="drink-img"><span class="badge badge-fresh">Refrescante</span><div class="img-overlay"></div></div><div class="card-content"><h3>Brisa Verde</h3><p>Limão, gengibre, manjericão e açúcar de cana.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg');"></div><img src="https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Fúria Rubi</h3><p>Morango, tangerina e maracujá.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg');"></div><img src="https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg" class="drink-img"><span class="badge badge-pop">Clássico</span><div class="img-overlay"></div></div><div class="card-content"><h3>Caipirinha Premium</h3><p>Limão tahiti, açúcar na medida e aguardente.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg');"></div><img src="https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Segredo da Casa</h3><p>Criação autoral com toque secreto.</p></div></div>
+        </div>
+        <div class="gil-category"><span class="gil-line"></span><h2>Premium</h2><span class="gil-line"></span></div>
+        <div class="gil-grid">
+            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg');"></div><img src="https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Aperol Sunset</h3><p>Aperol com espumante e laranja caramelizada.</p></div></div>
+            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg');"></div><img src="https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Gin Tropical</h3><p>Gin, abacaxi grelhado e especiarias.</p></div></div>
+            <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg');"></div><img src="https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Mojito da Ilha</h3><p>Rum branco, hortelã fresca e limão.</p></div></div>
+        </div>
+        <div class="gil-category"><span class="gil-line"></span><h2>Coquetéis</h2><span class="gil-line"></span></div>
+        <div class="gil-grid">
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg');"></div><img src="https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Coquetel Kids</h3><p>Mix cremoso de frutas vermelhas. Delicioso, colorido e perfeito para festas infantis.</p></div></div>
+            <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg');"></div><img src="https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Personalizado</h3><p>O cliente escolhe as frutas e combinações na hora.</p></div></div>
+        </div>
+    </div>
+
+    <div class="calc-container" id="simulador">
+        <h1 style="color:var(--gold); font-size:2.4em; text-transform:uppercase;">🍸 Simulador de Orçamento</h1>
+        <p>Descubra o formato ideal e valores em segundos.</p>
+        <label for="tipo">Tipo de Evento</label>
+        <select id="tipo"><option value="Casamento">Casamento</option><option value="Aniversário">Aniversário</option><option value="Corporativo">Corporativo</option><option value="Infantil">Infantil</option></select>
+        <label for="convidados">Número de Convidados</label>
+        <input type="number" id="convidados" min="1" placeholder="Ex: 80">
+        <br><br>
+        <button class="btn-gradient" onclick="calcular()">Calcular Opções</button>
+        <br>
+        <p class="location-warning">⚠️ Valores válidos apenas para Feira de Santana - Bahia</p>
+        <div id="resultado" class="results-grid"></div>
+        <div id="resultadoExtra" class="results-grid" style="grid-template-columns: 1fr;"></div>
+    </div>
+
+    <div style="text-align:center; background:#111; padding:60px 20px; color:var(--gold); border-top:2px solid #FFD58033;">
+        <h2 style="font-size:2em;">✨ Faça seu evento brilhar com Gil Eventos ✨</h2>
+        <a href="https://wa.me/5575998649927" target="_blank" class="btn-gradient" style="max-width:300px;">Falar no WhatsApp</a>
+        <p style="margin-top:30px; font-size:0.8em; color:#555;">&copy; 2025 Gil Eventos.</p>
+    </div>
+
+    <script>
+        const BANCO_DE_LISTAS = {
+            'classico_reduzida': `*Lista Reduzida - Menos que 30 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás(GRANDES)\n\n*Frutas Vermelhas:*\n📍02 pacote de morango congelado\n📍02 caixinhas de uva preta sem caroço\n📍01 litros de acerola\n⚠️Outras frutas opcionais do cliente\n\n*Descartáveis:*\n📍20 kg de gelo ESCAMAS\n📍Escolher opção: 12 Schweppes lata OU 2 garrafas 1,5L OU 3L água de coco\n📍1 a 2L vodka\n📍1 a 2L aguardente\n📍01 pct canudo\n📍01 pct copo 400ml\n📍01 kg açúcar\n\n*Folhas:*\n📍Manjericão, Hortelã, Alecrim, Gengibre\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍12 Polpas\n📍01L H2O\n📍03 Leite Cond.\n📍03 Creme Leite\n📍01 Calda`,
+            'classico_30-35': `*Lista até 35 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍04 abacaxis\n📍15 tangerinas\n📍15 limões taiti\n📍15 kiwi\n📍10 maracujás\n\n*Frutas Vermelhas:*\n📍03 pct morango\n📍02 cx uva preta\n📍2L acerola\n\n*Descartáveis:*\n📍20kg gelo escama\n📍18 Schweppes lata OU 3 garrafas 1,5L\n📍2 a 3L vodka\n📍2 a 3L aguardente\n📍02 pct canudo\n📍02 pct copo\n📍01kg açúcar\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍20 Polpas\n📍02L H2O\n📍05 Leite Cond.\n📍05 Creme Leite`,
+            'classico_40-60': `*Lista 40 a 60 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍07 abacaxis\n📍20 tangerinas\n📍20 limões taiti\n📍15 kiwi\n📍15 maracujás\n\n*Frutas Vermelhas:*\n📍04 pct morango\n📍03 cx uva preta\n📍03L acerola\n\n*Descartáveis:*\n📍30kg gelo escama\n📍24 Schweppes lata OU 4 garrafas 1,5L\n📍3 a 4L vodka\n📍3 a 4L aguardente\n📍03 pct canudo\n📍03 pct copo\n📍02kg açúcar\n\n*Para Coquetel (Add):*\n📍01 leite ninho gde\n📍01 Nes Quick gde\n📍24 Polpas\n📍05L H2O\n📍06 Leite Cond.\n📍06 Creme Leite`,
+            'classico_70-100': `*Lista 70 a 100 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍10 a 15 abacaxis\n📍25 a 35 tangerinas\n📍30 a 40 limões taiti\n📍20 a 30 kiwi\n📍20 a 30 maracujás\n\n*Frutas Vermelhas:*\n📍05 a 07 pct morango\n📍05 a 07 cx uva preta\n📍05 a 07L acerola\n\n*Descartáveis:*\n📍40 a 70kg Gelo Escama\n📍7 a 10L Vodka\n📍5 a 7L Aguardente\n📍3 a 5 pct canudo\n📍4 a 6 pct copo\n📍2 a 4kg açúcar\n\n*Para Coquetel (Add):*\n📍02 leite ninho gde\n📍02 Nes Quick gde\n📍24 a 40 Polpas\n📍7 a 10L H2O\n📍7 a 10 Leite Cond.\n📍7 a 10 Creme Leite`,
+            'classico_150-200': `*Lista 150 a 200 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍15 a 20 abacaxis\n📍30 a 45 tangerinas\n📍35 a 50 limões taiti\n📍30 a 45 kiwi\n📍30 a 40 maracujás\n\n*Frutas Vermelhas:*\n📍10 a 15 pct morango\n📍07 a 10 cx uva preta\n📍10 a 15 L acerola\n\n*Descartáveis:*\n📍50kg a 70kg Gelo Escama\n📍10 a 15L Vodka\n📍7 a 10L Aguardente\n📍5 a 8 pct canudos\n📍7 a 10 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍28 a 40 Polpas\n📍10 a 15L H2O\n📍10 a 15 Leite Condensado\n📍10 a 15 Creme Leite`,
+            'classico_250-300': `*Lista 250 a 300 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍20 a 25 abacaxis\n📍35 a 50 tangerinas\n📍40 a 55 limões taiti\n📍35 a 50 kiwi\n📍35 a 50 maracujás\n\n*Frutas Vermelhas:*\n📍15 a 20 pct morango\n📍10 a 15 cx uva preta\n📍15 a 20 L acerola\n\n*Descartáveis:*\n📍60kg a 70kg Gelo Escama\n📍15 a 17L Vodka\n📍10 a 15L Aguardente\n📍6 a 8 pct canudos\n📍10 a 13 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍32 a 52 Polpas\n📍13 a 15L H2O\n📍13 a 17 Leite Condensado\n📍15 a 20 Creme de Leite`
+        };
+
+        const pacotesClassicos = [
+            {drinks:100, price:750}, {drinks:150, price:950}, {drinks:200, price:1150}, {drinks:250, price:1350}, {drinks:300, price:1450}, {drinks:400, price:1850}, {drinks:500, price:2250}, {drinks:600, price:2650}, {drinks:750, price:3250}, {drinks:900, price:3850}
+        ];
+        const pacotesPremium = [
+            {drinks:100, price:1450}, {drinks:150, price:1750}, {drinks:200, price:2050}, {drinks:250, price:2350}, {drinks:300, price:2650}, {drinks:400, price:2950}, {drinks:500, price:3250}, {drinks:600, price:3550}, {drinks:750, price:3850}, {drinks:900, price:4150}
+        ];
+        const pacotesMistos = [
+            {drinks:100, price:1050, desc:"70 Clássicos + 30 Premium"}, {drinks:150, price:1350, desc:"100 Clássicos + 50 Premium"}, {drinks:200, price:1650, desc:"140 Clássicos + 60 Premium"}, {drinks:250, price:1950, desc:"170 Clássicos + 80 Premium"}, {drinks:300, price:2250, desc:"200 Clássicos + 100 Premium"}, {drinks:400, price:2550, desc:"300 Clássicos + 100 Premium"}, {drinks:500, price:2850, desc:"400 Clássicos + 100 Premium"}, {drinks:600, price:3150, desc:"500 Clássicos + 100 Premium"}, {drinks:750, price:3450, desc:"600 Clássicos + 150 Premium"}, {drinks:900, price:3750, desc:"700 Clássicos + 200 Premium"}
+        ];
+
+        function getPacote(array, drinksNeeded) { for(let i=0; i<array.length; i++){ if(array[i].drinks >= drinksNeeded) return array[i]; } return array[array.length-1]; }
+        function toggleLista(btn) { const lista = btn.nextElementSibling; lista.style.display = lista.style.display === 'none' || lista.style.display === '' ? 'block' : 'none'; }
+        function copiarLista(chave) { const texto = BANCO_DE_LISTAS[chave]; if(!texto) return alert("Lista não encontrada para essa quantidade."); navigator.clipboard.writeText(texto).then(() => alert("✅ Lista copiada!")).catch(() => alert("Erro ao copiar")); }
+        function mostrarPacotesExtras() { const container = document.getElementById('pacotesExtras'); container.style.display = 'grid'; container.scrollIntoView({behavior: 'smooth'}); }
+
+        function calcular() {
+            const convidados = parseInt(document.getElementById('convidados').value);
+            const resultado = document.getElementById('resultado');
+            const resultadoExtra = document.getElementById('resultadoExtra');
+            
+            if(!convidados || convidados < 1) return alert("Digite o número de convidados");
+            
+            resultado.innerHTML = ""; 
+            resultadoExtra.innerHTML = "";
+            
+            // Define o sufixo da faixa de convidados
+            let faixa = '70-100'; 
+            if(convidados < 30) faixa = 'reduzida'; 
+            else if(convidados <= 39) faixa = '30-35'; 
+            else if(convidados <= 69) faixa = '40-60'; 
+            else if(convidados <= 149) faixa = '70-100'; 
+            else if(convidados <= 249) faixa = '150-200'; 
+            else faixa = '250-300';
+            
+            // LÓGICA DE BARMANS E PREÇO
+            let qtdBarmans = 1;
+            let avisoBarman = "";
+            
+            if (convidados > 100 && convidados <= 200) {
+                qtdBarmans = 2;
+                avisoBarman = `<div class="aviso-barman">⚠️ ATENÇÃO: PARA ATENDER SEU EVENTO SERÁ NECESSÁRIO NO MÍNIMO 2 BARMANS.</div>`;
+            } else if (convidados > 200 && convidados <= 300) {
+                qtdBarmans = 3;
+                avisoBarman = `<div class="aviso-barman">⚠️ ATENÇÃO: PARA ATENDER SEU EVENTO SERÁ NECESSÁRIO NO MÍNIMO 3 BARMANS.</div>`;
+            } else if (convidados > 300) {
+                resultado.innerHTML = `<div class="result-card" style="grid-column: 1 / -1;"><h2 style="color:var(--gold);">Eventos Grandes (300+ Convidados)</h2><p>Para eventos deste porte, precisamos fazer um orçamento personalizado.</p><a href="https://wa.me/5575998649927?text=Tenho%20um%20evento%20para%20${convidados}%20pessoas%20e%20gostaria%20de%20um%20orçamento" target="_blank" class="btn-gradient">Falar com Gil no WhatsApp</a></div>`;
+                return;
+            }
+
+            const precoPorBarmanOriginal = 370;
+            const precoPorBarmanPromocional = 350;
+            const descontoPorBarman = precoPorBarmanOriginal - precoPorBarmanPromocional;
+            
+            const totalOriginal = precoPorBarmanOriginal * qtdBarmans;
+            const totalPromocional = precoPorBarmanPromocional * qtdBarmans;
+            const totalDesconto = descontoPorBarman * qtdBarmans;
+
+            const drinksEstimados = convidados * 3; 
+            const pClassico = getPacote(pacotesClassicos, drinksEstimados);
+            const pMisto = getPacote(pacotesMistos, drinksEstimados);
+            const pPremium = getPacote(pacotesPremium, drinksEstimados);
+
+            const chaveClassico = `classico_${faixa}`;
+
+            const cardsPadrao = `
+                <div class="result-card">
+                    <h2 style="color:var(--gold);">🥃 Serviço Tradicional</h2>
+                    <p style="font-size:0.9em; margin-bottom:15px;">Mão de obra profissional. Insumos por sua conta.</p>
+                    
+                    ${avisoBarman}
+
+                    <div class="price-display">
+                        <span class="preco-detalhe"> DE R$ ${totalOriginal.toFixed(2)}</span>
+                        R$ ${totalPromocional.toFixed(2)}
+                        <span class="desconto-tag">ECONOMIA DE R$ ${totalDesconto.toFixed(2)}</span>
+                    </div>
+                    
+                    <div style="font-size:0.9em; color:#FF9500; font-weight:bold; margin-bottom:15px;">
+                        <span class="destaque-preco">R$ 370,00</span> POR BARMAN
+                    </div>
+                    
+                    <div style="background:rgba(255,149,0,0.1); padding:10px; border-radius:8px; border:1px solid #FF9500; margin-bottom:15px;">
+                        <p style="font-size:0.85em; color:#FF9500; margin:0;">⚠️ <strong>OBSERVAÇÃO:</strong> 1 Barman atende até 50 pessoas, podendo chegar até 100 se os drinks servidos forem apenas clássicos.</p>
+                    </div>
+
+                    <div style="text-align:left; margin-top:10px;">
+                        <button class="btn-small" onclick="toggleLista(this)">📋 Ver Lista de Compras (Clássicos)</button>
+                        <div class="lista-compras">${BANCO_DE_LISTAS[chaveClassico]}</div>
+                        <button class="btn-gold" style="width:100%; margin-top:5px; font-size:0.8em; padding:5px;" onclick="copiarLista('${chaveClassico}')">Copiar Lista</button>
+                    </div>
+
+                    <br><a href="https://wa.me/5575998649927?text=Gostaria%20de%20contratar%20Mão%20de%20Obra%20para%20${convidados}%20pessoas%20(${qtdBarmans}%20Barmans)" target="_blank" class="btn-gradient" style="margin-top:15px;">Solicitar Mão de Obra</a>
+                </div>
+
+                <div class="result-card"><h2 style="color:var(--gold);">💎 Pacote Clássico</h2><p style="font-size:0.9em; margin-bottom:15px;">Bar completo com drinks Clássicos.</p><div class="package-details">🍹 <strong>${pClassico.drinks} Drinks</strong><br>Insumos e Estrutura inclusos.</div><div class="price-display">R$ ${pClassico.price.toFixed(2)}</div><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Clássico%20de%20${pClassico.drinks}%20drinks" target="_blank" class="btn-gradient">Contratar</a></div>
+                
+                <div class="result-card highlight"><h2 style="color:var(--orange);">🌟 Combo Misto (Gold)</h2><p style="font-size:0.9em; margin-bottom:15px;">O melhor dos dois mundos.</p><div class="package-details" style="background:rgba(255,149,0,0.2);">🍹 <strong>${pMisto.drinks} Drinks Total</strong><br>${pMisto.desc}</div><div class="price-display">R$ ${pMisto.price.toFixed(2)}</div><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Combo%20Misto%20de%20${pMisto.drinks}%20drinks" target="_blank" class="btn-gradient">Eu Quero Esse!</a></div>
+                
+                <div class="result-card"><h2 style="color:#E0E0E0;">👑 Pacote Premium</h2><p style="font-size:0.9em; margin-bottom:15px;">Experiência de alto luxo com Gin, Aperol e Mojito.</p><div class="package-details">🍸 <strong>${pPremium.drinks} Drinks Premium</strong><br>Bar completo de luxo.</div><div class="price-display">R$ ${pPremium.price.toFixed(2)}</div><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Premium%20de%20${pPremium.drinks}%20drinks" target="_blank" class="btn-gradient" style="background:#333; border:1px solid #777;">Contratar Premium</a></div>`;
+
+            if(convidados < 100) { 
+                resultado.innerHTML = cardsPadrao; 
+            } else { 
+                resultado.innerHTML = `<div class="result-card" style="grid-column: 1 / -1; border-color:#fff;"><h2 style="color:#ccc;">🤝 Opção Recomendada: Parceria Pré-venda</h2><p>Para grandes eventos (100+ pessoas). <strong>Você não paga nada adiantado!</strong></p><p>Nós montamos a estrutura e vendemos os drinks diretamente aos convidados.</p><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Quero essa Parceria (Sem Custo)</a></div><div style="grid-column: 1 / -1; text-align:center; margin-top:30px;"><p style="color:#888; margin-bottom:10px;">Ou se preferir pagar pelos drinks:</p><button class="btn-gold" onclick="mostrarPacotesExtras()">⬇️ Prefiro contratar um Pacote (Ver Preços)</button></div><div id="pacotesExtras" class="results-grid" style="display:none; grid-column: 1 / -1;">${cardsPadrao}</div>`; 
+            }
+            setTimeout(() => { document.getElementById('resultado').scrollIntoView({behavior: 'smooth'}); }, 300);
         }
-
-         
-
-        let cardHTML = `
-
-        <div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}">
-
-          <div class="card-image-box">
-
-            <div class="blur-bg" style="background-image: url('${imagemUrl}')"></div>
-
-            <img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}">
-
-            <div class="card-image-overlay"></div>
-
-          ${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${descricao}</p>`;
-
-
-
-        let isPaid = item.tipo_cobranca === 'pago' || esgotado;
-
-        if(DADOS_EVENTO.tipo_servico === 'tradicional' && item.tipo_cobranca === 'pacote') isPaid = false;
-
-
-
-        if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; }
-
-        else if(isPaid) { cardHTML += `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal})">🛒 COMPRAR</button>`; }
-
-        else { cardHTML += `<button class="btn-action btn-free" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0)">🆓 PEGAR DO PACOTE</button>`; }
-
-
-
-        cardHTML += `</div></div>`;
-
-        html += cardHTML;
-
-      });
-
-      return html;
-
-    };
-
-    lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', classicos);
-
-    lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums);
-
-  }
-
-
-
-  function mudarAba(aba) {
-
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-    if(aba === 'pedidos') {
-
-      document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
-
-      document.getElementById('tab-pedidos').classList.add('active');
-
-    } else {
-
-      document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
-
-      document.getElementById('tab-chat').classList.add('active');
-
-      document.getElementById('alertChatTab').style.display = 'none';
-
-      rolarChat();
-
-    }
-
-  }
-
-
-
-  function enviarMensagem() {
-
-    const txt = document.getElementById('chatInput').value;
-
-    if(!txt.trim()) return;
-
-    db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: txt, remetente: 'cliente', data: new Date() });
-
-    document.getElementById('chatInput').value = '';
-
-  }
-
-
-
-  function carregarChat() {
-
-    db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => {
-
-      const div = document.getElementById('chatMessages');
-
-      div.innerHTML = '';
-
-      let msgs = [];
-
-      snapshot.forEach(doc => msgs.push(doc.data()));
-
-      msgs.sort((a,b) => a.data - b.data);
-
-      msgs.forEach(m => {
-
-        const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-        const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin';
-
-        div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`;
-
-      });
-
-      rolarChat();
-
-      if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) {
-
-        document.getElementById('alertChatTab').style.display = 'block';
-
-      }
-
-    });
-
-  }
-
-  function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
-
-
-
-  function salvarZap() {
-
-    const zap = document.getElementById('mktZap').value;
-
-    if(!zap) return alert("Digite o número!");
-
-    db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() });
-
-    alert("Salvo!");
-
-  }
-
-
-
-  function rastrearPedidos() {
-
-    if(MEUS_PEDIDOS_IDS.length === 0) return;
-
-    db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => {
-
-      const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0;
-
-      let pedidos = [];
-
-      snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()}));
-
-      pedidos.sort((a,b) => b.data - a.data);
-
-      pedidos.forEach(p => {
-
-        let statusText = "Fila", cor = "#888", extraHTML = "";
-
-        let podeCancelar = true;
-
-        if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; }
-
-        else if(p.status === 'aguardando_pagamento') { 
-
-          statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; contagemAtivos++; 
-
-          if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`;
-
-          else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`;
-
-        }
-
-        else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; }
-
-        else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; }
-
-        else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; }
-
-        if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
-
-        listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong><span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`;
-
-      });
-
-      const btn = document.getElementById('btnMeusPedidos');
-
-      if(snapshot.size > 0) { btn.style.display = 'flex'; document.getElementById('badgeMeusPedidos').innerText = contagemAtivos; } else { btn.style.display = 'none'; }
-
-    });
-
-  }
-
-
-
-  function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
-
-  function cancelarPedidoCliente(id) { if(confirm("Cancelar?")) { db.collection("pedidos").doc(id).update({ status: 'cancelado' }); } }
-
-  let pedidosNotificados = []; 
-
-  function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
-
-   
-
-  function abrirConfirmacao(nome, tipo, preco) {
-
-    if(tipo === 'pacote') { const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`); }
-
-    ITEM_ATUAL = { nome, tipo, preco };
-
-    document.getElementById('inputObservacao').value = '';
-
-    const div = document.getElementById('conteudoConfirmacao');
-
-    if(tipo === 'extra') {
-
-      div.innerHTML = `
-
-        <p style="color:#ddd; margin-bottom:15px;">Você pediu: <strong>${nome}</strong></p>
-
-        <div class="pix-area">
-
-          <span style="display:block; color:#aaa; font-size:0.8em;">Valor a pagar:</span>
-
-          <strong style="font-size:1.8em; color:#4CAF50;">R$ ${preco},00</strong>
-
-          <hr style="border-color:#444; margin:10px 0;">
-
-          <span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span>
-
-          <span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "75992011008"}</span>
-
-          <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button>
-
-          <div style="margin-top:15px; text-align:left; background:#111; padding:10px; border-radius:5px; border:1px solid #333;">
-
-            <p style="margin:0; color:#888; font-size:0.8em;">Nome: <strong style="color:#fff;">Gilvan Xavier Borges</strong></p>
-
-            <p style="margin:5px 0 0 0; color:#888; font-size:0.8em;">Banco: <strong style="color:#fff;">Inter</strong></p>
-
-          </div>
-
-        </div>
-
-        <div style="background:rgba(255, 68, 68, 0.1); border:1px solid #FF4444; padding:10px; border-radius:8px; margin-top:10px; font-size:0.85em; color:#FF8888; text-align:left;">
-
-          ⚠️ <strong>IMPORTANTE:</strong> Confira os dados acima antes de confirmar. Transferências para contas erradas <u>não serão preparadas</u>.
-
-        </div>
-
-      `;
-
-      document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI / ENVIAR";
-
-    } else {
-
-      div.innerHTML = `<div style="font-size:3em; margin-bottom:10px;">🍹</div><p style="color:#fff; font-size:1.1em;">Pedir <strong>${nome}</strong>?</p><p style="color:#aaa; font-size:0.9em;">(Do seu pacote - Grátis)</p>`;
-
-      document.getElementById('btnFinalizar').innerText = "CONFIRMAR PEDIDO";
-
-    }
-
-    document.getElementById('modalConfirm').style.display = 'flex';
-
-  }
-
-
-
-  document.getElementById('btnFinalizar').onclick = function() {
-
-    const btn = this; btn.innerText = "..."; btn.disabled = true;
-
-    const obs = document.getElementById('inputObservacao').value;
-
-    let statusInicial = ITEM_ATUAL.tipo === 'extra' ? 'aguardando_pagamento' : 'pendente';
-
-    db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: ITEM_ATUAL.nome, tipo: ITEM_ATUAL.tipo, preco: ITEM_ATUAL.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: obs, status: statusInicial, sinalizou_pagamento: false, data: new Date() }).then((docRef) => {
-
-      document.getElementById('modalConfirm').style.display = 'none'; btn.disabled = false; btn.innerText = "CONFIRMAR";
-
-      if(ITEM_ATUAL.tipo === 'pacote') salvarTimer();
-
-      MEUS_PEDIDOS_IDS.push(docRef.id); localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); rastrearPedidos();
-
-      setTimeout(abrirMeusPedidos, 500);
-
-    });
-
-  }
-
-
-
-  function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
-
-  function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; rastrearPedidos(); carregarChat(); }
-
-  function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText); alert("Copiado!"); }
-
-  function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
-
-  function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
-
-  function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
-
-  function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
-
-</script>
-
+    </script>
 </body>
-
 </html>
