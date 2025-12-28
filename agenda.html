@@ -13,6 +13,29 @@
         .brand { color: #FF9500; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; font-size: 1.2em; }
         .page-title { font-size: 2em; margin: 5px 0; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
+        /* BOTÃO PARA IR AO ORÇAMENTO */
+        .btn-orcamento {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: linear-gradient(145deg, #1e1e1e, #252525);
+            border: 2px solid #FF9500;
+            color: #FF9500;
+            text-decoration: none;
+            font-weight: 800;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        .btn-orcamento:hover {
+            background: #FF9500;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 149, 0, 0.4);
+        }
+
         /* --- VERIFICAÇÃO --- */
         .check-availability-box {
             background: linear-gradient(145deg, #1e1e1e, #252525);
@@ -22,6 +45,7 @@
             text-align: center;
             margin-bottom: 30px;
             border: 1px solid #333;
+            margin-top: 30px; /* Espaço para o botão de orçamento */
         }
         .check-title { color: #FF9500; font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.1em; text-transform: uppercase; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
@@ -68,19 +92,30 @@
         /* --- BLOCOS DE EVENTOS --- */
         .events-grid-title { font-size: 1.2em; color: #fff; margin-bottom: 15px; border-left: 4px solid #FF9500; padding-left: 10px; }
         .events-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        
         .event-block { background: #1E1E1E; border-radius: 12px; padding: 20px; padding-top: 40px; position: relative; border: 1px solid #333; transition: transform 0.2s; overflow: hidden; }
         .event-block:hover { transform: translateY(-3px); border-color: #555; }
+        
         .event-block.future { border-bottom: 4px solid #FF9500; }
         .event-block.future .status-pill { background: rgba(255, 149, 0, 0.15); color: #FF9500; border: 1px solid #FF9500; }
+        
         .event-block.holiday { border-bottom: 4px solid #9C27B0; }
         .event-block.holiday .status-pill { background: rgba(156, 39, 176, 0.15); color: #E040FB; border: 1px solid #E040FB; }
+
         .event-block.past { border-bottom: 4px solid #555; opacity: 0.7; }
         .event-block.past .status-pill { background: #333; color: #aaa; border: 1px solid #555; }
+        
         .event-date { font-size: 1.8em; font-weight: 800; color: #fff; line-height: 1; }
         .event-month { font-size: 0.9em; text-transform: uppercase; color: #888; margin-bottom: 10px; display: block; }
         .event-client { font-size: 1.1em; color: #ddd; display: block; margin-bottom: 5px; }
         .event-time { font-size: 0.9em; color: #888; display: flex; align-items: center; gap: 5px; }
-        .status-pill { position: absolute; top: 10px; right: 10px; left: 10px; text-align: center; padding: 4px 5px; border-radius: 20px; font-size: 0.65em; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .status-pill { 
+            position: absolute; top: 10px; right: 10px; left: 10px;
+            text-align: center; padding: 4px 5px; border-radius: 20px; 
+            font-size: 0.65em; font-weight: bold; text-transform: uppercase; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
 
         /* --- RESULTADOS --- */
         #resultArea { margin-top: 20px; display: none; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid transparent; }
@@ -156,6 +191,8 @@
         <div class="header">
             <span class="brand">GIL EVENTOS</span>
             <h1 class="page-title">Agenda & Disponibilidade</h1>
+            
+            <a href="orcamento.html" class="btn-orcamento">💰 SIMULAR ORÇAMENTO</a>
         </div>
 
         <div class="check-availability-box">
@@ -201,13 +238,11 @@
 
             <div class="admin-section">
                 <h4 style="color:#aaa;">Minha Agenda</h4>
-                
                 <div class="admin-tabs">
                     <button class="tab-adm-btn active" onclick="mudarAbaAdmin('confirmados')">✅ CONFIRMADOS</button>
-                    <button class="tab-adm-btn" onclick="mudarAbaAdmin('outros')">📝 OUTROS / PENDENTES</button>
+                    <button class="tab-adm-btn" onclick="mudarAbaAdmin('outros')">📝 OUTROS</button>
                     <button class="tab-adm-btn" onclick="mudarAbaAdmin('concluidos')">🏁 CONCLUÍDOS</button>
                 </div>
-
                 <div id="listConfirmed" class="tab-content-admin active"></div>
                 <div id="listOthers" class="tab-content-admin"></div>
                 <div id="listConcluded" class="tab-content-admin"></div>
@@ -263,7 +298,6 @@
 
             if (!data || !hora) return alert("Selecione data e hora!");
 
-            // Converte hora solicitada para minutos (0-1439)
             const [h, m] = hora.split(':').map(Number);
             const reqTotalMinutes = (h * 60) + m;
 
@@ -273,20 +307,19 @@
             let conflictMsg = "";
 
             if (eventsOnDay.length > 0) {
-                status = "NEGOCIAR";
+                status = "NEGOCIAR"; 
 
                 eventsOnDay.forEach(e => {
                     if(e.hora_inicio) {
                         const [eh, em] = e.hora_inicio.split(':').map(Number);
                         const eventTotalMinutes = (eh * 60) + em;
                         
-                        // Diferença absoluta em minutos
                         const diffMinutes = Math.abs(reqTotalMinutes - eventTotalMinutes);
 
                         // Regra de 4 horas = 240 minutos
                         if (diffMinutes < 240) {
                             status = "OCUPADO";
-                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Intervalo mínimo de 4h)`;
+                            conflictMsg = `Muito próximo do evento das ${e.hora_inicio} (Mínimo 4h de intervalo)`;
                         }
                     } else {
                         status = "OCUPADO";
@@ -444,16 +477,13 @@
                             ${e.cliente}
                         </div>
                         <div class="event-actions">`;
-
                 if(!isPast) {
                     if(e.status !== 'confirmado') cardHTML += `<button onclick="confirmarEvento('${e.id}')" class="btn-icon confirm-btn" title="Confirmar">✅</button>`;
                     else cardHTML += `<button onclick="desconfirmarEvento('${e.id}')" class="btn-icon" title="Voltar para pendente">↩️</button>`;
                 }
-
                 cardHTML += `<button onclick="abrirEdicao('${e.id}')" class="btn-icon" style="color:#2196F3;">📄</button>
                             <button onclick="deletarEvento('${e.id}')" class="btn-icon delete-btn">✖</button>
                         </div></div>`;
-
                 if (isPast) listConc.innerHTML += cardHTML;
                 else if (e.status === 'confirmado') listConf.innerHTML += cardHTML;
                 else listOther.innerHTML += cardHTML;
