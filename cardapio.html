@@ -69,12 +69,15 @@
     .combo-item-row.selected { border-color: #4CAF50; background: #1a2e1a; }
     .chk-combo { transform: scale(1.5); accent-color: #4CAF50; }
     #totalComboDisplay { font-size: 1.5em; color: #4CAF50; font-weight: bold; margin: 15px 0; display: block; }
+    
+    /* ESTILOS DO SELETOR DE QUANTIDADE */
     .qtd-control { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 20px; }
     .btn-qtd { width: 32px; height: 32px; border-radius: 50%; border: none; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: white; transition: 0.2s; }
     .btn-minus { background: #444; }
     .btn-plus { background: #4CAF50; }
     .btn-qtd:active { transform: scale(0.9); }
     .qtd-display { font-weight: bold; font-size: 1.1em; width: 20px; text-align: center; color: white; }
+
     @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
@@ -84,10 +87,12 @@
 <div class="container">
   <div class="header"><span class="brand-subtitle">GIL EVENTOS</span><div class="event-name" id="nomeEvento">Carregando...</div><div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div></div>
   <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
+  
   <div id="areaCombos" class="combo-banner" style="display:none;">
     <div class="btn-combo" onclick="abrirMontadorCombo(3)"><span class="combo-title">🔥 COMBO TRIO</span><span class="combo-desc">Escolha 3 drinks<br>Desconto: -R$ 3,00</span></div>
     <div class="btn-combo" style="background: linear-gradient(135deg, #BF360C, #FF5722);" onclick="abrirMontadorCombo(5)"><span class="combo-title">🖐️ COMBO 5</span><span class="combo-desc">Escolha 5 drinks<br>Desconto: -R$ 10,00</span></div>
   </div>
+
   <div id="listaCardapio"></div>
   <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
 </div>
@@ -191,7 +196,43 @@
 
   function atualizarTotalCombo() { let soma = ITENS_COMBO_SELECIONADOS.reduce((acc, i) => acc + i.preco, 0); let desconto = 0; let btn = document.getElementById('btnFinalizarCombo'); if(ITENS_COMBO_SELECIONADOS.length === COMBO_QTD_ALVO) { if(COMBO_QTD_ALVO === 3) desconto = 3; if(COMBO_QTD_ALVO === 5) desconto = 10; btn.disabled = false; btn.style.opacity = 1; btn.innerText = "CONFIRMAR COMBO"; } else { btn.disabled = true; btn.style.opacity = 0.5; btn.innerText = `Selecione ${COMBO_QTD_ALVO}`; } let totalFinal = Math.max(0, soma - desconto); document.getElementById('totalComboDisplay').innerText = `Total: R$ ${totalFinal.toFixed(2)}`; ITEM_ATUAL = { nome: `COMBO ${COMBO_QTD_ALVO}: ${ITENS_COMBO_SELECIONADOS.map(i => i.nome).join(', ')}`, tipo: 'extra', preco: totalFinal }; }
   function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; abrirConfirmacao(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco); }
-  function getDrinkImage(nomeOriginal) { const n = limparString(nomeOriginal); const mapa = { 'elixir do sol': 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg', 'desejo proibido': 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg', 'encanto noturno': 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg', 'tropical mix': 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg', 'brisa verde': 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg', 'furia rubi': 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg', 'segredo da casa': 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg', 'coquetel kids': 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', 'coquetel personalizado': 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', 'aperol': 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg', 'gin': 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', 'mojito da ilha': 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', 'caipirinha': 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg' }; for (const [key, url] of Object.entries(mapa)) { if (n.includes(key)) return url; } if (n.includes('mojito')) return mapa['mojito da ilha']; if (n.includes('gin')) return mapa['gin']; return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80'; }
+  
+  // *** NOVA FUNÇÃO PARA PUXAR DESCRICAO DO ORCAMENTO ***
+  function getDrinkData(nomeOriginal) {
+    const n = limparString(nomeOriginal);
+    const dados = {
+      'elixir do sol': { img: 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg', desc: 'Abacaxi, hortelã, toque cítrico e especiarias.' },
+      'desejo proibido': { img: 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg', desc: 'Frutas vermelhas intensas, cítrico e hortelã.' },
+      'encanto noturno': { img: 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg', desc: 'Uva roxa, cítrico e manjericão fresco.' },
+      'tropical mix': { img: 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg', desc: 'Tangerina, kiwi, abacaxi e ervas frescas.' },
+      'brisa verde': { img: 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg', desc: 'Limão, gengibre, manjericão e açúcar de cana.' },
+      'furia rubi': { img: 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg', desc: 'Morango, tangerina e maracujá.' },
+      'caipirinha premium': { img: 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', desc: 'Limão tahiti, açúcar na medida e aguardente.' },
+      'segredo da casa': { img: 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg', desc: 'Criação autoral com toque secreto.' },
+      'aperol sunset': { img: 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg', desc: 'Aperol com espumante e laranja caramelizada.' },
+      'gin tropical': { img: 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', desc: 'Gin, abacaxi grelhado e especiarias.' },
+      'mojito da ilha': { img: 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', desc: 'Rum branco, hortelã fresca e limão.' },
+      'coquetel kids': { img: 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', desc: 'Mix cremoso de frutas vermelhas. Delicioso e colorido.' },
+      'personalizado': { img: 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', desc: 'O cliente escolhe as frutas e combinações na hora.' }
+    };
+    
+    // Procura exato ou parcial
+    for (const [key, data] of Object.entries(dados)) { 
+        if (n.includes(key)) return data; 
+    }
+    
+    // Fallbacks genéricos
+    if (n.includes('mojito')) return dados['mojito da ilha'];
+    if (n.includes('gin')) return dados['gin tropical'];
+    
+    return { 
+        img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', 
+        desc: 'Uma experiência de sabor única.' 
+    };
+  }
+
+  function getDrinkImage(nome) { return getDrinkData(nome).img; }
+
   function renderizarCardapio() {
     document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome; const lista = document.getElementById('listaCardapio'); lista.innerHTML = '';
     let esgotadoGeral = false; if((DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) esgotadoGeral = true;
@@ -201,8 +242,13 @@
     const renderGrupo = (titulo, items) => {
       if(items.length === 0) return ''; let html = `<div class="section-title">${titulo}</div>`;
       items.forEach(item => {
-        let disponivel = item.disponivel !== false; let precoFinal = item.preco || 0; let htmlPreco = ''; let imagemUrl = getDrinkImage(item.nome);
-        let descricao = item.desc || 'Uma experiência de sabor única.'; if(item.nome.toLowerCase().includes('mojito')) { descricao = descricao + " (c/ Xarope de Groselha)"; }
+        let disponivel = item.disponivel !== false; let precoFinal = item.preco || 0; let htmlPreco = ''; 
+        
+        // USA A NOVA FUNÇÃO DE DADOS CENTRALIZADOS
+        const dadosVisuais = getDrinkData(item.nome);
+        let imagemUrl = dadosVisuais.img;
+        let descricao = dadosVisuais.desc;
+
         if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) { precoFinal = item.preco_prevenda; htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`; } else if(item.tipo_cobranca === 'pago') { htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`; }
         let cardHTML = `<div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}"><div class="card-image-box"><div class="blur-bg" style="background-image: url('${imagemUrl}')"></div><img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}"><div class="card-image-overlay"></div>${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${descricao}</p>`;
         let deveCobrar = false; if(item.tipo_cobranca === 'pago') deveCobrar = true; else if(esgotadoGeral) deveCobrar = true; else if(DADOS_EVENTO.tipo_servico === 'misto') { if(item.categoria === 'classico' && esgotadoClassico) deveCobrar = true; if(item.categoria === 'premium' && esgotadoPremium) deveCobrar = true; }
@@ -216,38 +262,7 @@
   function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
   function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
   function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
-  
-  // *** CORREÇÃO APLICADA: AGORA É PODE CANCELAR = FALSE SE ESTIVER PENDENTE ***
-  function rastrearPedidos() { 
-      if(MEUS_PEDIDOS_IDS.length === 0) return; 
-      db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { 
-          const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0; let pedidos = []; 
-          snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()})); 
-          pedidos.sort((a,b) => b.data - a.data); 
-          pedidos.forEach(p => { 
-              let statusText = "Fila", cor = "#888", extraHTML = ""; 
-              let podeCancelar = true; // PADRÃO
-              
-              if(p.status === 'pendente') { 
-                  statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; 
-                  podeCancelar = false; // TRAVA O CANCELAMENTO AQUI
-              } 
-              else if(p.status === 'aguardando_pagamento') { 
-                  statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; contagemAtivos++; 
-                  if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; 
-                  else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`; 
-              } 
-              else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; } 
-              else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; } 
-              else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; } 
-              
-              if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`; 
-              listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong><span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; 
-          }); 
-          const btn = document.getElementById('btnMeusPedidos'); if(snapshot.size > 0) { btn.style.display = 'flex'; document.getElementById('badgeMeusPedidos').innerText = contagemAtivos; } else { btn.style.display = 'none'; } 
-      }); 
-  }
-
+  function rastrearPedidos() { if(MEUS_PEDIDOS_IDS.length === 0) return; db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0; let pedidos = []; snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()})); pedidos.sort((a,b) => b.data - a.data); pedidos.forEach(p => { let statusText = "Fila", cor = "#888", extraHTML = ""; let podeCancelar = true; if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; } else if(p.status === 'aguardando_pagamento') { statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; contagemAtivos++; if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`; } else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; } else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; } else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; } if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`; listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong><span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; }); const btn = document.getElementById('btnMeusPedidos'); if(snapshot.size > 0) { btn.style.display = 'flex'; document.getElementById('badgeMeusPedidos').innerText = contagemAtivos; } else { btn.style.display = 'none'; } }); }
   function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
   function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
   let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
@@ -280,18 +295,8 @@
       localStorage.setItem('nome_usuario_gil', val); 
       document.getElementById('modalNome').style.display = 'none'; 
       document.getElementById('displayNome').innerText = val; 
-      
-      // ENVIA SINAL PARA O CHAT
-      db.collection("chat_mensagens").add({
-          evento_id: EVENTO_ID,
-          nome: NOME_CONVIDADO,
-          mensagem: "🔔 Entrou no cardápio.", 
-          remetente: 'sistema', 
-          data: new Date()
-      });
-
-      rastrearPedidos(); 
-      carregarChat(); 
+      db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "🔔 Entrou no cardápio.", remetente: 'sistema', data: new Date() });
+      rastrearPedidos(); carregarChat(); 
   }
 
   function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
