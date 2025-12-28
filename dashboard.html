@@ -174,6 +174,7 @@
         let SELECTED_CHAT_USER = null;
         let CHAT_UNREAD_COUNT = 0;
         
+        // --- FILA SEPARADA POR CATEGORIA ---
         let PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
 
         if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
@@ -199,6 +200,7 @@
                 lista.innerHTML = snapshot.empty ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
                 
                 let pedidos = [];
+                // RESET DA FILA
                 PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
 
                 snapshot.forEach(doc => {
@@ -207,11 +209,14 @@
                     
                     if (p.status === 'pendente' && p.tipo === 'pacote') {
                         PENDING_COUNTS.total++;
-                        // Normalização da categoria da fila
+                        
+                        // Normalização Rigorosa da Categoria
                         let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
-                        // Se não for premium, conta como clássico
-                        if (cat === 'premium') PENDING_COUNTS.premium++;
-                        else PENDING_COUNTS.classico++;
+                        if (cat === 'premium') {
+                            PENDING_COUNTS.premium++;
+                        } else {
+                            PENDING_COUNTS.classico++;
+                        }
                     }
                 });
                 
@@ -230,8 +235,10 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
-                        // IMPORTANTE: Envia os dados normalizados para garantir a baixa correta
-                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${(p.categoria_drink||'').replace(/'/g, "\\'")}', '${(p.drink||'').replace(/'/g, "\\'")}')">✅ PRONTO</button>`;
+                        // ENVIAR CATEGORIA LIMPA PARA O MUDAR STATUS
+                        let catLimpa = (p.categoria_drink || 'classico').toLowerCase().trim();
+                        let nomeLimpo = (p.drink || '').replace(/'/g, "\\'");
+                        btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${catLimpa}', '${nomeLimpo}')">✅ PRONTO</button>`;
                     }
 
                     lista.innerHTML += `
@@ -250,7 +257,7 @@
             monitorarChat();
         }
 
-        // --- LÓGICA DE LANÇAMENTO (COM SOMA DA FILA) ---
+        // --- LÓGICA DE LANÇAMENTO (SEPARADA E BLINDADA) ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -259,31 +266,34 @@
             let precoFinal = item.preco || 0;
             if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
 
-            // Normaliza categoria do item
+            // NORMALIZAÇÃO DE CATEGORIA
             const categoriaNorm = (item.categoria || 'classico').toLowerCase().trim();
 
             if(item.tipo_cobranca === 'pago') {
                 tipo = 'extra';
-            } else if (DADOS_EVENTO.tipo_servico === 'misto') {
-                // SOMA: O QUE JÁ BEBEU + O QUE ESTÁ NA FILA
+            } 
+            // --- LÓGICA MISTA ---
+            else if (DADOS_EVENTO.tipo_servico === 'misto') {
                 if (categoriaNorm === 'premium') {
+                    // Verifica SÓ o Premium
                     const consumido = Number(DADOS_EVENTO.consumido_premium || 0);
                     const naFila = Number(PENDING_COUNTS.premium || 0);
                     const limite = Number(DADOS_EVENTO.limite_premium || 0);
                     if ((consumido + naFila) >= limite) tipo = 'extra';
                 } else {
-                    // Qualquer outra coisa cai no clássico
+                    // Verifica SÓ o Clássico (Padrão para qualquer outra coisa)
                     const consumido = Number(DADOS_EVENTO.consumido_classico || 0);
                     const naFila = Number(PENDING_COUNTS.classico || 0);
                     const limite = Number(DADOS_EVENTO.limite_classico || 0);
                     if ((consumido + naFila) >= limite) tipo = 'extra';
                 }
-            } else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
-                // Lógica Simples
-                const consumido = Number(DADOS_EVENTO.total_consumido || 0);
-                const naFila = Number(PENDING_COUNTS.total || 0);
-                const limite = Number(DADOS_EVENTO.total_contratado || 0);
-                if((consumido + naFila) >= limite) tipo = 'extra';
+            } 
+            // --- LÓGICA GERAL (Pacote Normal / Premium Puro) ---
+            else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
+                const consumidoGeral = Number(DADOS_EVENTO.total_consumido || 0);
+                const naFilaGeral = Number(PENDING_COUNTS.total || 0);
+                const limiteGeral = Number(DADOS_EVENTO.total_contratado || 0);
+                if((consumidoGeral + naFilaGeral) >= limiteGeral) tipo = 'extra';
             }
             
             let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
@@ -321,6 +331,7 @@
             }); 
         }
 
+        // --- MUDAR STATUS (INCREMENTO SEPARADO) ---
         function mudarStatus(id, novoStatus, tipo, categoriaRecebida, nomeDrink) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
@@ -329,12 +340,14 @@
                 const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
                 
                 if (DADOS_EVENTO.tipo_servico === 'misto') {
-                    let cat = categoriaRecebida;
+                    // Normalização
+                    let cat = (categoriaRecebida || '').toLowerCase().trim();
+                    
+                    // Fallback se vier vazio
                     if (!cat || cat === 'undefined') {
                         const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === nomeDrink);
-                        cat = itemMenu ? itemMenu.categoria : 'classico';
+                        cat = (itemMenu && itemMenu.categoria) ? itemMenu.categoria.toLowerCase().trim() : 'classico';
                     }
-                    cat = (cat || '').toLowerCase().trim();
 
                     if (cat === 'premium') {
                         updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
@@ -367,13 +380,7 @@
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
         function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
-        
-        function editarEvento() { 
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('evento');
-            window.location.href = `admin.html?evento=${id}`;
-        }
-        
+        function editarEvento() { const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('evento'); window.location.href = `admin.html?evento=${id}`; }
         function verificarSenha() { if(document.getElementById('senhaInput').value === DADOS_EVENTO.senha_admin) { document.getElementById('loginOverlay').style.display = 'none'; sessionStorage.setItem(`logado_${EVENTO_ID}`, true); document.getElementById('somAlerta').play().catch(()=>{}); } else document.getElementById('erroSenha').style.display='block'; }
         function toggleFaturamento() { const el=document.getElementById('valorFaturamento'); if(FATURAMENTO_VISIVEL){el.style.filter='blur(5px)';FATURAMENTO_VISIVEL=false;}else{document.getElementById('eyeAuthOverlay').style.display='flex';document.getElementById('senhaEyeInput').focus();} }
         function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
