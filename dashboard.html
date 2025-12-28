@@ -40,7 +40,7 @@
         .btn-deny { flex: 1; background: #D32F2F; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .btn-cancel { flex: 1; background: transparent; border: 1px solid #777; padding: 10px; border-radius: 5px; color: #aaa; cursor: pointer; }
         
-        /* Barra Dupla para Misto (ESSENCIAL PARA MOSTRAR A CONTAGEM CERTA) */
+        /* Barra Dupla para Misto */
         .bars-container { display: flex; gap: 5px; margin-top: 5px; }
         .sub-bar { flex: 1; background: #333; height: 8px; border-radius: 4px; overflow: hidden; position: relative; }
         .sub-bar-fill { height: 100%; }
@@ -213,7 +213,6 @@
                     } else {
                         classe = p.tipo === 'extra' ? 'extra' : 'pacote';
                         badge = p.tipo === 'extra' ? '💲 PAGO' : '🆓 PACOTE';
-                        // *** CORREÇÃO: Enviamos a Categoria e o Nome do Drink para o mudarStatus ***
                         btnHtml = `<button class="btn-ok" onclick="mudarStatus('${p.id}', 'servido', '${p.tipo}', '${p.categoria_drink}', '${p.drink}')">✅ PRONTO</button>`;
                     }
 
@@ -233,6 +232,7 @@
             monitorarChat();
         }
 
+        // --- LANÇAMENTO MANUAL COM LÓGICA MISTA CORRIGIDA ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -241,18 +241,25 @@
             let precoFinal = item.preco || 0;
             if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
 
-            // *** LÓGICA CORRIGIDA PARA MISTO E COBRANÇA AUTOMÁTICA ***
+            // Lógica de Cobrança (Misto vs Normal)
             if(item.tipo_cobranca === 'pago') {
                 tipo = 'extra';
             } else if (DADOS_EVENTO.tipo_servico === 'misto') {
-                // Se for MISTO, verifica limite específico
-                if (item.categoria === 'classico') {
-                    if ((DADOS_EVENTO.consumido_classico || 0) >= DADOS_EVENTO.limite_classico) tipo = 'extra';
-                } else { // Premium
-                    if ((DADOS_EVENTO.consumido_premium || 0) >= DADOS_EVENTO.limite_premium) tipo = 'extra';
+                // Lógica de Limite Misto
+                const cat = item.categoria; // 'classico' ou 'premium'
+                const consumidoC = Number(DADOS_EVENTO.consumido_classico || 0);
+                const limiteC = Number(DADOS_EVENTO.limite_classico || 0);
+                const consumidoP = Number(DADOS_EVENTO.consumido_premium || 0);
+                const limiteP = Number(DADOS_EVENTO.limite_premium || 0);
+
+                if (cat === 'premium') {
+                    if (consumidoP >= limiteP) tipo = 'extra';
+                } else {
+                    // Fallback para clássico
+                    if (consumidoC >= limiteC) tipo = 'extra';
                 }
             } else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
-                // Se for PACOTE normal ou PREMIUM, verifica total geral
+                // Lógica Normal
                 if(DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) tipo = 'extra';
             }
             
@@ -261,7 +268,7 @@
             db.collection("pedidos").add({ 
                 evento_id: EVENTO_ID, 
                 drink: item.nome, 
-                categoria_drink: item.categoria || 'classico', // Salva a categoria para usar no contador depois
+                categoria_drink: item.categoria || 'classico', 
                 tipo: tipo, 
                 preco: precoFinal,
                 nome_convidado: nome || "Balcão", 
@@ -289,7 +296,7 @@
             }); 
         }
 
-        // *** FUNÇÃO ATUALIZADA PARA CONTABILIZAR CORRETAMENTE ***
+        // --- ATUALIZAÇÃO DO STATUS E INCREMENTO NO BANCO ---
         function mudarStatus(id, novoStatus, tipo, categoriaRecebida, nomeDrink) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
@@ -297,18 +304,21 @@
             if(novoStatus === 'servido' && tipo === 'pacote') {
                 const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
                 
-                // Se for Misto, precisamos incrementar o contador específico
+                // Incremento Misto
                 if (DADOS_EVENTO.tipo_servico === 'misto') {
                     let cat = categoriaRecebida;
-                    
-                    // Fallback: Se não veio categoria (pedidos antigos), procura no cardápio pelo nome
+                    // Fallback se vier undefined
                     if (!cat || cat === 'undefined') {
                         const itemMenu = DADOS_EVENTO.cardapio.find(i => i.nome === nomeDrink);
                         if(itemMenu) cat = itemMenu.categoria;
                     }
 
-                    if (cat === 'classico') updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
-                    if (cat === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
+                    if (cat === 'premium') {
+                        updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
+                    } else {
+                        // Fallback para clássico
+                        updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
+                    }
                 }
                 
                 db.collection("eventos").doc(EVENTO_ID).update(updateData); 
@@ -337,9 +347,8 @@
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
         function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
         
-        // CORREÇÃO DO BOTÃO EDITAR
+        // EDITAR EVENTO (CORRIGIDO)
         function editarEvento() { 
-            // Usa o parâmetro atual da URL para garantir que o ID vá junto
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('evento');
             window.location.href = `admin.html?evento=${id}`;
@@ -355,7 +364,6 @@
             document.getElementById('nomeEvento').innerText = dados.nome; 
             document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
             
-            // EXIBIÇÃO MISTO vs NORMAL
             if (dados.tipo_servico === 'misto') {
                 document.getElementById('boxConsumoSimples').style.display = 'none';
                 document.getElementById('boxConsumoMisto').style.display = 'block';
