@@ -65,10 +65,19 @@
     .btn-combo:active { transform: scale(0.95); }
     .combo-title { font-weight: 800; font-size: 1.1em; display: block; margin-bottom: 5px; }
     .combo-desc { font-size: 0.8em; opacity: 0.9; }
-    .combo-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border: 1px solid #333; }
+    .combo-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border: 1px solid #333; transition: 0.2s; }
     .combo-item-row.selected { border-color: #4CAF50; background: #1a2e1a; }
     .chk-combo { transform: scale(1.5); accent-color: #4CAF50; }
     #totalComboDisplay { font-size: 1.5em; color: #4CAF50; font-weight: bold; margin: 15px 0; display: block; }
+
+    /* ESTILOS DO SELETOR DE QUANTIDADE */
+    .qtd-control { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 20px; }
+    .btn-qtd { width: 32px; height: 32px; border-radius: 50%; border: none; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: white; transition: 0.2s; }
+    .btn-minus { background: #444; }
+    .btn-plus { background: #4CAF50; }
+    .btn-qtd:active { transform: scale(0.9); }
+    .qtd-display { font-weight: bold; font-size: 1.1em; width: 20px; text-align: center; color: white; }
+
     @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
@@ -120,8 +129,72 @@
     if(NOME_CONVIDADO) carregarChat(); 
   }
   function verificarCombosAtivos() { let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago'); let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado; if(temPagos || pacoteEsgotado) { document.getElementById('areaCombos').style.display = 'grid'; } else { document.getElementById('areaCombos').style.display = 'none'; } }
-  function abrirMontadorCombo(qtd) { COMBO_QTD_ALVO = qtd; ITENS_COMBO_SELECIONADOS = []; document.getElementById('maxComboQtd').innerText = qtd; const lista = document.getElementById('listaSelecaoCombo'); lista.innerHTML = ''; let itensPagos = []; DADOS_EVENTO.cardapio.forEach(item => { let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado); if(isPaid && item.disponivel !== false) { itensPagos.push(item); } }); if(itensPagos.length === 0) return alert("Não há drinks pagos disponíveis para combo."); itensPagos.forEach((item, index) => { let precoReal = item.preco; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda; const div = document.createElement('div'); div.className = 'combo-item-row'; div.onclick = (e) => { if(e.target.type !== 'checkbox') toggleItemCombo(index, precoReal, item.nome); }; div.innerHTML = `<div><strong style="color:#fff;">${item.nome}</strong><br><span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span></div><input type="checkbox" class="chk-combo" id="chk_${index}" onchange="toggleItemCombo(${index}, ${precoReal}, '${item.nome}')">`; lista.appendChild(div); }); atualizarTotalCombo(); document.getElementById('modalCombo').style.display = 'flex'; }
-  function toggleItemCombo(index, preco, nome) { const chk = document.getElementById(`chk_${index}`); if(event.target.type !== 'checkbox') chk.checked = !chk.checked; if(chk.checked) { if(ITENS_COMBO_SELECIONADOS.length >= COMBO_QTD_ALVO) { chk.checked = false; return alert(`Máximo de ${COMBO_QTD_ALVO} drinks!`); } ITENS_COMBO_SELECIONADOS.push({ nome, preco }); chk.parentElement.classList.add('selected'); } else { ITENS_COMBO_SELECIONADOS = ITENS_COMBO_SELECIONADOS.filter(i => i.nome !== nome); chk.parentElement.classList.remove('selected'); } atualizarTotalCombo(); }
+  
+  // *** NOVA FUNÇÃO: LISTAR COMBOS COM SELETOR DE QUANTIDADE ***
+  function abrirMontadorCombo(qtd) {
+    COMBO_QTD_ALVO = qtd;
+    ITENS_COMBO_SELECIONADOS = [];
+    document.getElementById('maxComboQtd').innerText = qtd;
+    const lista = document.getElementById('listaSelecaoCombo');
+    lista.innerHTML = '';
+    
+    let itensPagos = [];
+    DADOS_EVENTO.cardapio.forEach(item => {
+      let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado);
+      if(isPaid && item.disponivel !== false) { itensPagos.push(item); }
+    });
+    
+    if(itensPagos.length === 0) return alert("Não há drinks pagos disponíveis para combo.");
+    
+    itensPagos.forEach((item, index) => {
+      let precoReal = item.preco;
+      if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda;
+      
+      const div = document.createElement('div');
+      div.className = 'combo-item-row';
+      div.id = `row_combo_${index}`;
+      
+      // LAYOUT COM BOTÕES - 0 +
+      div.innerHTML = `
+        <div style="flex:1; text-align:left;">
+            <strong style="color:#fff;">${item.nome}</strong><br>
+            <span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span>
+        </div>
+        <div class="qtd-control">
+             <button class="btn-qtd btn-minus" onclick="alterarQtdCombo(${index}, -1, ${precoReal}, '${item.nome}')">-</button>
+             <span class="qtd-display" id="qtd_combo_${index}">0</span>
+             <button class="btn-qtd btn-plus" onclick="alterarQtdCombo(${index}, 1, ${precoReal}, '${item.nome}')">+</button>
+        </div>
+      `;
+      lista.appendChild(div);
+    });
+    
+    atualizarTotalCombo();
+    document.getElementById('modalCombo').style.display = 'flex';
+  }
+
+  // *** NOVA FUNÇÃO: LÓGICA DO SELETOR ***
+  function alterarQtdCombo(index, delta, preco, nome) {
+      const spanQtd = document.getElementById(`qtd_combo_${index}`);
+      let currentQtd = parseInt(spanQtd.innerText);
+      const row = document.getElementById(`row_combo_${index}`);
+
+      if (delta === 1) {
+          if (ITENS_COMBO_SELECIONADOS.length >= COMBO_QTD_ALVO) return alert(`Máximo de ${COMBO_QTD_ALVO} drinks!`);
+          ITENS_COMBO_SELECIONADOS.push({nome: nome, preco: preco});
+          currentQtd++;
+      } else {
+          if (currentQtd > 0) {
+              currentQtd--;
+              const idxToRemove = ITENS_COMBO_SELECIONADOS.findIndex(i => i.nome === nome);
+              if (idxToRemove > -1) ITENS_COMBO_SELECIONADOS.splice(idxToRemove, 1);
+          }
+      }
+      spanQtd.innerText = currentQtd;
+      if(currentQtd > 0) row.classList.add('selected'); else row.classList.remove('selected');
+      atualizarTotalCombo();
+  }
+
   function atualizarTotalCombo() { let soma = ITENS_COMBO_SELECIONADOS.reduce((acc, i) => acc + i.preco, 0); let desconto = 0; let btn = document.getElementById('btnFinalizarCombo'); if(ITENS_COMBO_SELECIONADOS.length === COMBO_QTD_ALVO) { if(COMBO_QTD_ALVO === 3) desconto = 3; if(COMBO_QTD_ALVO === 5) desconto = 10; btn.disabled = false; btn.style.opacity = 1; btn.innerText = "CONFIRMAR COMBO"; } else { btn.disabled = true; btn.style.opacity = 0.5; btn.innerText = `Selecione ${COMBO_QTD_ALVO}`; } let totalFinal = Math.max(0, soma - desconto); document.getElementById('totalComboDisplay').innerText = `Total: R$ ${totalFinal.toFixed(2)}`; ITEM_ATUAL = { nome: `COMBO ${COMBO_QTD_ALVO}: ${ITENS_COMBO_SELECIONADOS.map(i => i.nome).join(', ')}`, tipo: 'extra', preco: totalFinal }; }
   function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; abrirConfirmacao(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco); }
   function getDrinkImage(nomeOriginal) { const n = limparString(nomeOriginal); const mapa = { 'elixir do sol': 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg', 'desejo proibido': 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg', 'encanto noturno': 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg', 'tropical mix': 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg', 'brisa verde': 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg', 'furia rubi': 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg', 'segredo da casa': 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg', 'coquetel kids': 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', 'coquetel personalizado': 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', 'aperol': 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg', 'gin': 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', 'mojito da ilha': 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', 'caipirinha': 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg' }; for (const [key, url] of Object.entries(mapa)) { if (n.includes(key)) return url; } if (n.includes('mojito')) return mapa['mojito da ilha']; if (n.includes('gin')) return mapa['gin']; return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80'; }
