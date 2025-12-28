@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cardápio Digital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
+    .container { max-width: 600px; margin: auto; }
+    .header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+    .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 5px; font-weight: 300; }
+    .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 213, 128, 0.2); }
+    .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 8px; margin: 30px 0 20px 0; text-transform: uppercase; font-size: 0.95em; letter-spacing: 1px; font-weight: 600; }
+    .drink-card { background: #1E1E1E; border-radius: 16px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #333; transition: transform 0.2s; }
+    .drink-card:active { transform: scale(0.98); }
+    .card-image-box { width: 100%; height: 350px; position: relative; background: #000; overflow: hidden; }
+    .blur-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.5); transform: scale(1.1); z-index: 1; }
+    .front-image { position: relative; width: 100%; height: 100%; object-fit: contain; z-index: 2; drop-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .card-image-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; background: linear-gradient(to top, #1E1E1E, transparent); z-index: 3; }
+    .drink-content { padding: 15px 20px; position: relative; z-index: 4; }
+    .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); position: relative; bottom: 20px; }
+    .drink-desc { font-size: 0.95em; color: #ccc; margin: -10px 0 15px 0; line-height: 1.4; font-weight: 300; }
+    .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 5; }
+    .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.75em; display: block; font-weight: bold; }
+    .price-now { color: #4CAF50; font-weight: 800; font-size: 1.1em; }
+    .btn-action { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-free { background: linear-gradient(45deg, #2E7D32, #4CAF50); color: white; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); }
+    .btn-paid { background: linear-gradient(45deg, #FF8F00, #FFD580); color: #000; box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3); }
+    .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
+    .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: none; align-items: center; gap: 10px; animation: floatUp 0.3s; }
+    .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+    .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+    .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; font-size: 1em; }
+    .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
+    .modal-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
+    .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 12px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
+    .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
+    .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 8px; right: 15px; display: none; }
+    .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
+    .tab-content.active { display: block; }
+    .chat-container { display: flex; flex-direction: column; height: 300px; }
+    .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-input-area { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
+    .chat-input { flex: 1; background: #111; border: 1px solid #444; color: white; padding: 12px; border-radius: 25px; outline: none; }
+    .chat-send { background: #FFD580; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: black; }
+    .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; line-height: 1.4; position: relative; }
+    .msg-mine { background: #2E7D32; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
+    .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
+    .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; }
+    .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: 500; }
+    .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
+    .btn-i-paid { background: #4CAF50; color: white; }
+    .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
+    #avisoPacote { background: rgba(255, 68, 68, 0.15); border: 1px solid #FF4444; color: #FF4444; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; display: none; }
+    #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 25px; border-radius: 50px; display:none; border: 1px solid #FFD580; z-index:950; white-space:nowrap; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 0.9em; }
+    .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
+    .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; background: #111; padding: 10px; border-radius: 5px; text-align: center; }
+    .disclaimer { text-align: center; color: #666; font-size: 0.7em; text-transform: uppercase; margin-top: 30px; letter-spacing: 1px; opacity: 0.7; }
+    .combo-banner { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+    .btn-combo { background: linear-gradient(135deg, #6A1B9A, #9C27B0); color: white; padding: 15px 10px; border-radius: 12px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3); transition: 0.2s; }
+    .btn-combo:active { transform: scale(0.95); }
+    .combo-title { font-weight: 800; font-size: 1.1em; display: block; margin-bottom: 5px; }
+    .combo-desc { font-size: 0.8em; opacity: 0.9; }
+    .combo-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border: 1px solid #333; }
+    .combo-item-row.selected { border-color: #4CAF50; background: #1a2e1a; }
+    .chk-combo { transform: scale(1.5); accent-color: #4CAF50; }
+    #totalComboDisplay { font-size: 1.5em; color: #4CAF50; font-weight: bold; margin: 15px 0; display: block; }
+    @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header"><span class="brand-subtitle">GIL EVENTOS</span><div class="event-name" id="nomeEvento">Carregando...</div><div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div></div>
+  <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
+  <div id="areaCombos" class="combo-banner" style="display:none;">
+    <div class="btn-combo" onclick="abrirMontadorCombo(3)"><span class="combo-title">🔥 COMBO TRIO</span><span class="combo-desc">Escolha 3 drinks<br>Desconto: -R$ 3,00</span></div>
+    <div class="btn-combo" style="background: linear-gradient(135deg, #BF360C, #FF5722);" onclick="abrirMontadorCombo(5)"><span class="combo-title">🖐️ COMBO 5</span><span class="combo-desc">Escolha 5 drinks<br>Desconto: -R$ 10,00</span></div>
+  </div>
+  <div id="listaCardapio"></div>
+  <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
+</div>
+<div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()">🍹 Pedidos / Chat <div class="float-badge" id="badgeMeusPedidos">0</div></div>
+<div class="modal-overlay" id="modalCombo"><div class="modal-box" style="height: 600px;"><h2 style="color:#FFD580; margin:0 0 5px 0;">Montar Combo</h2><p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">Selecione <span id="maxComboQtd" style="color:#fff; font-weight:bold;">3</span> drinks:</p><div id="listaSelecaoCombo" style="flex-grow:1; overflow-y:auto; text-align:left;"></div><div style="border-top:1px solid #333; padding-top:10px;"><span id="totalComboDisplay">R$ 0,00</span><button class="btn-confirm" id="btnFinalizarCombo" onclick="finalizarCombo()">CONFIRMAR COMBO</button><button onclick="document.getElementById('modalCombo').style.display='none'" style="background:none; border:none; color:#888; margin-top:10px;">Cancelar</button></div></div></div>
+<div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Como devemos te chamar?</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
+<div class="modal-overlay" id="modalConfirm"><div class="modal-box"><h2 style="color:#FFD580; margin:0;">Confirmar Pedido</h2><div id="conteudoConfirmacao"></div><textarea id="inputObservacao" class="input-obs" placeholder="Alguma preferência? (Ex: Pouco gelo)"></textarea><button class="btn-confirm" id="btnFinalizar">ENVIAR PEDIDO</button><button onclick="document.getElementById('modalConfirm').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline; cursor:pointer;">Cancelar</button></div></div>
+<div class="modal-overlay" id="modalListaPedidos"><div class="modal-box" style="height: 550px;"><div class="modal-tabs"><button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Meus Pedidos</button><button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button></div><div id="tab-pedidos" class="tab-content active"><div style="background:#252525; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #FFD580; text-align:left;"><small style="color:#FFD580; font-weight:bold; display:block; margin-bottom:5px;">🔔 Receba novidades!</small><div style="display:flex; gap:8px;"><input type="tel" id="mktZap" style="background:#111; border:1px solid #444; color:white; padding:8px; border-radius:8px; flex:1; width:100%;" placeholder="Seu WhatsApp"><button onclick="salvarZap()" style="background:#4CAF50; border:none; color:white; padding:8px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">Salvar</button></div></div><div id="listaMeusPedidosHTML"></div></div><div id="tab-chat" class="tab-content"><div class="chat-container"><div class="chat-messages" id="chatMessages"><p style="text-align:center; color:#555; font-size:0.8em; margin-top:20px;">Fale diretamente com o barman aqui.</p></div><div class="chat-input-area"><input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem..."><button class="chat-send" onclick="enviarMensagem()">➤</button></div></div></div><button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:15px; background:#333; color:#fff;">FECHAR</button></div></div>
+<div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">🎉</div><h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2><p style="color:#fff;">Pode buscar no balcão.</p><button class="btn-confirm" style="background:#4CAF50;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
+<div id="notification"></div>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = { apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk", authDomain: "gil-eventos-app-911fe.firebaseapp.com", projectId: "gil-eventos-app-911fe", storageBucket: "gil-eventos-app-911fe.firebasestorage.app", messagingSenderId: "503025880352", appId: "1:503025880352:web:694b7f2889cff501c7db45", measurementId: "G-3DZ1P5C0M3" };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const params = new URLSearchParams(window.location.search);
+  const EVENTO_ID = params.get('evento');
+  let DADOS_EVENTO = null;
+  let NOME_CONVIDADO = localStorage.getItem('nome_usuario_gil');
+  let TIMER_MINUTOS = 15;
+  let ITEM_ATUAL = null;
+  let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
+  let COMBO_QTD_ALVO = 0;
+  let ITENS_COMBO_SELECIONADOS = [];
+
+  function limparString(str) { if(!str) return ""; return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); }
+  if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
+  if(EVENTO_ID) iniciarApp();
+
+  function iniciarApp() {
+    db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
+      if(doc.exists) { DADOS_EVENTO = doc.data(); if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); }
+    });
+    if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
+    if(NOME_CONVIDADO) carregarChat(); 
+  }
+  function verificarCombosAtivos() { let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago'); let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado; if(temPagos || pacoteEsgotado) { document.getElementById('areaCombos').style.display = 'grid'; } else { document.getElementById('areaCombos').style.display = 'none'; } }
+  function abrirMontadorCombo(qtd) { COMBO_QTD_ALVO = qtd; ITENS_COMBO_SELECIONADOS = []; document.getElementById('maxComboQtd').innerText = qtd; const lista = document.getElementById('listaSelecaoCombo'); lista.innerHTML = ''; let itensPagos = []; DADOS_EVENTO.cardapio.forEach(item => { let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado); if(isPaid && item.disponivel !== false) { itensPagos.push(item); } }); if(itensPagos.length === 0) return alert("Não há drinks pagos disponíveis para combo."); itensPagos.forEach((item, index) => { let precoReal = item.preco; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda; const div = document.createElement('div'); div.className = 'combo-item-row'; div.onclick = (e) => { if(e.target.type !== 'checkbox') toggleItemCombo(index, precoReal, item.nome); }; div.innerHTML = `<div><strong style="color:#fff;">${item.nome}</strong><br><span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span></div><input type="checkbox" class="chk-combo" id="chk_${index}" onchange="toggleItemCombo(${index}, ${precoReal}, '${item.nome}')">`; lista.appendChild(div); }); atualizarTotalCombo(); document.getElementById('modalCombo').style.display = 'flex'; }
+  function toggleItemCombo(index, preco, nome) { const chk = document.getElementById(`chk_${index}`); if(event.target.type !== 'checkbox') chk.checked = !chk.checked; if(chk.checked) { if(ITENS_COMBO_SELECIONADOS.length >= COMBO_QTD_ALVO) { chk.checked = false; return alert(`Máximo de ${COMBO_QTD_ALVO} drinks!`); } ITENS_COMBO_SELECIONADOS.push({ nome, preco }); chk.parentElement.classList.add('selected'); } else { ITENS_COMBO_SELECIONADOS = ITENS_COMBO_SELECIONADOS.filter(i => i.nome !== nome); chk.parentElement.classList.remove('selected'); } atualizarTotalCombo(); }
+  function atualizarTotalCombo() { let soma = ITENS_COMBO_SELECIONADOS.reduce((acc, i) => acc + i.preco, 0); let desconto = 0; let btn = document.getElementById('btnFinalizarCombo'); if(ITENS_COMBO_SELECIONADOS.length === COMBO_QTD_ALVO) { if(COMBO_QTD_ALVO === 3) desconto = 3; if(COMBO_QTD_ALVO === 5) desconto = 10; btn.disabled = false; btn.style.opacity = 1; btn.innerText = "CONFIRMAR COMBO"; } else { btn.disabled = true; btn.style.opacity = 0.5; btn.innerText = `Selecione ${COMBO_QTD_ALVO}`; } let totalFinal = Math.max(0, soma - desconto); document.getElementById('totalComboDisplay').innerText = `Total: R$ ${totalFinal.toFixed(2)}`; ITEM_ATUAL = { nome: `COMBO ${COMBO_QTD_ALVO}: ${ITENS_COMBO_SELECIONADOS.map(i => i.nome).join(', ')}`, tipo: 'extra', preco: totalFinal }; }
+  function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; abrirConfirmacao(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco); }
+  function getDrinkImage(nomeOriginal) { const n = limparString(nomeOriginal); const mapa = { 'elixir do sol': 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg', 'desejo proibido': 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg', 'encanto noturno': 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg', 'tropical mix': 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg', 'brisa verde': 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg', 'furia rubi': 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg', 'segredo da casa': 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg', 'coquetel kids': 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', 'coquetel personalizado': 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', 'aperol': 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg', 'gin': 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', 'mojito da ilha': 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', 'caipirinha': 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg' }; for (const [key, url] of Object.entries(mapa)) { if (n.includes(key)) return url; } if (n.includes('mojito')) return mapa['mojito da ilha']; if (n.includes('gin')) return mapa['gin']; return 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80'; }
+  function renderizarCardapio() {
+    document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome; const lista = document.getElementById('listaCardapio'); lista.innerHTML = '';
+    let esgotadoGeral = false; if((DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) esgotadoGeral = true;
+    let esgotadoClassico = false; let esgotadoPremium = false;
+    if(DADOS_EVENTO.tipo_servico === 'misto') { if(DADOS_EVENTO.consumido_classico >= DADOS_EVENTO.limite_classico) esgotadoClassico = true; if(DADOS_EVENTO.consumido_premium >= DADOS_EVENTO.limite_premium) esgotadoPremium = true; }
+    const classicos = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico'); const premiums = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium');
+    const renderGrupo = (titulo, items) => {
+      if(items.length === 0) return ''; let html = `<div class="section-title">${titulo}</div>`;
+      items.forEach(item => {
+        let disponivel = item.disponivel !== false; let precoFinal = item.preco || 0; let htmlPreco = ''; let imagemUrl = getDrinkImage(item.nome);
+        let descricao = item.desc || 'Uma experiência de sabor única.'; if(item.nome.toLowerCase().includes('mojito')) { descricao = descricao + " (c/ Xarope de Groselha)"; }
+        if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) { precoFinal = item.preco_prevenda; htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`; } else if(item.tipo_cobranca === 'pago') { htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`; }
+        let cardHTML = `<div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}"><div class="card-image-box"><div class="blur-bg" style="background-image: url('${imagemUrl}')"></div><img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}"><div class="card-image-overlay"></div>${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${descricao}</p>`;
+        let deveCobrar = false; if(item.tipo_cobranca === 'pago') deveCobrar = true; else if(esgotadoGeral) deveCobrar = true; else if(DADOS_EVENTO.tipo_servico === 'misto') { if(item.categoria === 'classico' && esgotadoClassico) deveCobrar = true; if(item.categoria === 'premium' && esgotadoPremium) deveCobrar = true; }
+        if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; } else if(deveCobrar) { cardHTML += `<button class="btn-action btn-paid" onclick="abrirConfirmacao('${item.nome}', 'extra', ${precoFinal}, '${item.categoria}')">🛒 COMPRAR</button>`; } else { cardHTML += `<button class="btn-action btn-free btn-pacote" onclick="abrirConfirmacao('${item.nome}', 'pacote', 0, '${item.categoria}')">🆓 PEGAR DO PACOTE</button>`; } cardHTML += `</div></div>`; html += cardHTML;
+      }); return html;
+    };
+    lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', classicos); lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums);
+  }
+  function mudarAba(aba) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); if(aba === 'pedidos') { document.querySelector('.tab-btn:nth-child(1)').classList.add('active'); document.getElementById('tab-pedidos').classList.add('active'); } else { document.querySelector('.tab-btn:nth-child(2)').classList.add('active'); document.getElementById('tab-chat').classList.add('active'); document.getElementById('alertChatTab').style.display = 'none'; rolarChat(); } }
+  function enviarMensagem() { const txt = document.getElementById('chatInput').value; if(!txt.trim()) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: txt, remetente: 'cliente', data: new Date() }); document.getElementById('chatInput').value = ''; }
+  function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
+  function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
+  function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
+  function rastrearPedidos() { if(MEUS_PEDIDOS_IDS.length === 0) return; db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0; let pedidos = []; snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()})); pedidos.sort((a,b) => b.data - a.data); pedidos.forEach(p => { let statusText = "Fila", cor = "#888", extraHTML = ""; let podeCancelar = true; if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; } else if(p.status === 'aguardando_pagamento') { statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; contagemAtivos++; if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`; } else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; } else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; } else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; } if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`; listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong><span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; }); const btn = document.getElementById('btnMeusPedidos'); if(snapshot.size > 0) { btn.style.display = 'flex'; document.getElementById('badgeMeusPedidos').innerText = contagemAtivos; } else { btn.style.display = 'none'; } }); }
+  function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
+  function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
+  let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
+  function abrirConfirmacao(nome, tipo, preco, categoria) {
+    let tipoFinal = tipo; let precoFinal = preco;
+    if(tipo === 'pacote') {
+        const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
+        let estourou = false; if(DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) estourou = true;
+        if(DADOS_EVENTO.tipo_servico === 'misto') { if(categoria === 'classico' && DADOS_EVENTO.consumido_classico >= DADOS_EVENTO.limite_classico) estourou = true; if(categoria === 'premium' && DADOS_EVENTO.consumido_premium >= DADOS_EVENTO.limite_premium) estourou = true; }
+        if(estourou) { alert("⚠️ O pacote acabou de esgotar! Você será redirecionado para compra."); tipoFinal = 'extra'; const drinkData = DADOS_EVENTO.cardapio.find(d => d.nome === nome); precoFinal = drinkData ? (DADOS_EVENTO.modo_preco==='prevenda' ? drinkData.preco_prevenda : drinkData.preco) : 10; }
+    }
+    ITEM_ATUAL = { nome, tipo: tipoFinal, preco: precoFinal, categoria: categoria };
+    document.getElementById('inputObservacao').value = ''; const div = document.getElementById('conteudoConfirmacao');
+    if(tipoFinal === 'extra') { div.innerHTML = `<p style="color:#ddd; margin-bottom:15px;">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor a pagar:</span><strong style="font-size:1.8em; color:#4CAF50;">R$ ${precoFinal},00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "75992011008"}</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button><div style="margin-top:15px; text-align:left; background:#111; padding:10px; border-radius:5px; border:1px solid #333;"><p style="margin:0; color:#888; font-size:0.8em;">Nome: <strong style="color:#fff;">Gilvan Xavier Borges</strong></p><p style="margin:5px 0 0 0; color:#888; font-size:0.8em;">Banco: <strong style="color:#fff;">Inter</strong></p></div></div><div style="background:rgba(255, 68, 68, 0.1); border:1px solid #FF4444; padding:10px; border-radius:8px; margin-top:10px; font-size:0.85em; color:#FF8888; text-align:left;">⚠️ <strong>IMPORTANTE:</strong> Confira os dados acima antes de confirmar. Transferências para contas erradas <u>não serão preparadas</u>.</div>`; document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI / ENVIAR"; } else { div.innerHTML = `<div style="font-size:3em; margin-bottom:10px;">🍹</div><p style="color:#fff; font-size:1.1em;">Pedir <strong>${nome}</strong>?</p><p style="color:#aaa; font-size:0.9em;">(Do seu pacote - Grátis)</p>`; document.getElementById('btnFinalizar').innerText = "CONFIRMAR PEDIDO"; }
+    document.getElementById('modalConfirm').style.display = 'flex';
+  }
+  document.getElementById('btnFinalizar').onclick = function() {
+    const btn = this; btn.innerText = "..."; btn.disabled = true; const obs = document.getElementById('inputObservacao').value; let statusInicial = ITEM_ATUAL.tipo === 'extra' ? 'aguardando_pagamento' : 'pendente';
+    db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: ITEM_ATUAL.nome, categoria_drink: ITEM_ATUAL.categoria || 'classico', tipo: ITEM_ATUAL.tipo, preco: ITEM_ATUAL.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: obs, status: statusInicial, sinalizou_pagamento: false, data: new Date() }).then((docRef) => {
+      document.getElementById('modalConfirm').style.display = 'none'; btn.disabled = false; btn.innerText = "CONFIRMAR";
+      if(ITEM_ATUAL.tipo === 'pacote') { salvarTimer(); const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (ITEM_ATUAL.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) { updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); } else { updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } } db.collection("eventos").doc(EVENTO_ID).update(updateData); }
+      MEUS_PEDIDOS_IDS.push(docRef.id); localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); rastrearPedidos(); setTimeout(abrirMeusPedidos, 500);
+    });
+  }
+  function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
+  function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; rastrearPedidos(); carregarChat(); }
+  function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTexto').innerText); alert("Copiado!"); }
+  function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
+  function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
+  function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 Pedir`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
+  function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
+</script>
+</body>
+</html>
