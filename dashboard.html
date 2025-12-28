@@ -68,6 +68,7 @@
         .msg { padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; max-width: 80%; font-size: 0.9em; }
         .msg-client { background: #444; align-self: flex-start; }
         .msg-admin { background: #007bff; align-self: flex-end; text-align: right; }
+        .msg-sistema { background: none; border: none; color: #777; text-align: center; width: 100%; padding: 5px; font-size: 0.8em; font-style: italic; }
         .chat-controls { display: flex; gap: 5px; }
         .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
 
@@ -336,7 +337,29 @@
         }
         function abrirChatAdmin() { document.getElementById('chatOverlay').style.display = 'flex'; CHAT_UNREAD_COUNT = 0; document.getElementById('chatBadgeGlobal').style.display = 'none'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { const usuarios = new Set(); s.forEach(d => usuarios.add(d.data().nome)); const lista = document.getElementById('chatUsersList'); lista.innerHTML = ''; usuarios.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; }); }); }
         function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
-        function carregarConversa(nome) { SELECTED_CHAT_USER = nome; const area = document.getElementById('chatAdminMsgs'); area.innerHTML = 'Carregando...'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { area.innerHTML = ''; let msgs = []; s.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const classe = m.remetente === 'admin' ? 'msg-admin' : 'msg-client'; area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; }); area.scrollTop = area.scrollHeight; }); }
+        
+        function carregarConversa(nome) { 
+            SELECTED_CHAT_USER = nome; 
+            const area = document.getElementById('chatAdminMsgs'); 
+            area.innerHTML = 'Carregando...'; 
+            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { 
+                area.innerHTML = ''; 
+                let msgs = []; 
+                s.forEach(doc => msgs.push(doc.data())); 
+                msgs.sort((a,b) => a.data - b.data); 
+                msgs.forEach(m => { 
+                    // LÓGICA DO TIPO DE MENSAGEM
+                    let classe = '';
+                    if (m.remetente === 'cliente') classe = 'msg-client';
+                    else if (m.remetente === 'admin') classe = 'msg-admin';
+                    else classe = 'msg-sistema'; // Para '🔔 Entrou no cardápio'
+
+                    area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; 
+                }); 
+                area.scrollTop = area.scrollHeight; 
+            }); 
+        }
+        
         function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
         function abrirContatos() { document.getElementById('contactsOverlay').style.display = 'flex'; const lista = document.getElementById('listaContatos'); lista.innerHTML = "Carregando..."; db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => { if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; } lista.innerHTML = ""; q.forEach((doc) => { const d = doc.data(); let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : ""; lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`; }); }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; }); }
         function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
@@ -347,8 +370,10 @@
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
         function toggleModoPreco() { const novo = DADOS_EVENTO.modo_preco === 'prevenda' ? 'normal' : 'prevenda'; db.collection("eventos").doc(EVENTO_ID).update({ modo_preco: novo }); }
-        // *** CORREÇÃO DO LINK DE EDIÇÃO AQUI ***
+        
+        // LINK CORRIGIDO PARA ADMIN.HTML
         function editarEvento() { const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('evento'); window.location.href = `admin.html?evento=${id}`; }
+        
         function verificarSenha() { if(document.getElementById('senhaInput').value === DADOS_EVENTO.senha_admin) { document.getElementById('loginOverlay').style.display = 'none'; sessionStorage.setItem(`logado_${EVENTO_ID}`, true); document.getElementById('somAlerta').play().catch(()=>{}); } else document.getElementById('erroSenha').style.display='block'; }
         function toggleFaturamento() { const el=document.getElementById('valorFaturamento'); if(FATURAMENTO_VISIVEL){el.style.filter='blur(5px)';FATURAMENTO_VISIVEL=false;}else{document.getElementById('eyeAuthOverlay').style.display='flex';document.getElementById('senhaEyeInput').focus();} }
         function confirmarSenhaEye() { if(document.getElementById('senhaEyeInput').value===DADOS_EVENTO.senha_admin){document.getElementById('eyeAuthOverlay').style.display='none';document.getElementById('valorFaturamento').style.filter='none';FATURAMENTO_VISIVEL=true;}else alert("Senha errada"); }
