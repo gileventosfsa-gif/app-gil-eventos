@@ -7,43 +7,110 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; padding-bottom: 80px; }
-        .input-3d { padding: 15px; border-radius: 12px; border: 1px solid #333; background: #1E1E1E; color: #fff; width: 100%; font-size: 1.1em; margin-bottom: 10px; box-sizing: border-box; }
+        .container { max-width: 800px; margin: auto; }
         
-        .btn-action { width: 100%; padding: 15px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; margin-bottom: 10px; font-size: 1em; }
-        .btn-add { background: #FF9500; color: #000; }
-        
-        .queue-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
-        
-        .order-card { 
-            background: #222; padding: 15px; border-radius: 10px; border-left: 5px solid #FF9500; 
-            display: flex; justify-content: space-between; align-items: center; 
-        }
-        .order-card.ready { border-left-color: #00E676; background: rgba(0, 230, 118, 0.1); }
-        
-        .order-name { font-size: 1.2em; font-weight: bold; color: #fff; }
-        .order-time { font-size: 0.8em; color: #777; }
+        h2 { color: #FF9500; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 30px; }
+        h4 { color: #aaa; margin-bottom: 5px; margin-top: 15px; }
 
-        .btn-icon { width: 40px; height: 40px; border-radius: 50%; border: none; font-size: 1.2em; cursor: pointer; margin-left: 5px; }
+        .input-3d, .select-3d, .textarea-3d {
+            padding: 12px; border-radius: 10px; border: 1px solid #333;
+            background: #1E1E1E; color: #fff; width: 100%; font-size: 1em;
+            margin-bottom: 10px; box-sizing: border-box; font-family: 'Poppins', sans-serif;
+        }
+        .textarea-3d { min-height: 150px; resize: vertical; white-space: pre-wrap; }
+
+        .btn-action { width: 100%; padding: 15px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; margin-top: 10px; font-size: 1em; transition: 0.2s; }
+        .btn-save { background: linear-gradient(90deg, #FF9500, #FF6F00); color: #000; }
+        .btn-import { background: #333; color: #FF9500; border: 1px solid #FF9500; margin-bottom: 15px; }
+        .btn-action:active { transform: scale(0.98); }
+
+        /* LISTA DE EVENTOS */
+        .event-list-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; background: #222; margin-bottom: 10px; border-radius: 10px; 
+            border-left: 5px solid #777; 
+        }
+        .event-list-item.confirmed { border-left-color: #00E676; background: rgba(0, 230, 118, 0.05); }
+        .event-list-item.pending { border-left-color: #FF9500; }
+        
+        .btn-icon { width: 35px; height: 35px; border-radius: 50%; border: none; cursor: pointer; margin-left: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
         .btn-check { background: #00E676; color: #000; }
+        .btn-edit { background: #2196F3; color: #fff; }
         .btn-trash { background: #F44336; color: #fff; }
 
-        h2 { color: #FF9500; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        /* ABAS */
+        .admin-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; background: #222; border: none; color: #777; cursor: pointer; font-weight: bold; border-radius: 8px 8px 0 0; }
+        .tab-btn.active { background: #FF9500; color: #000; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* MODAL */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <h2>🍹 Operação de Bar (Fila)</h2>
-    
-    <input type="text" id="nomeCliente" class="input-3d" placeholder="Nome ou Nº Mesa (Ex: João ou 12)">
-    <button class="btn-action btn-add" onclick="adicionarFila()">➕ MANDAR PARA O TELÃO</button>
-
-    <div style="display:flex; justify-content:space-between; margin-top:20px; color:#aaa; font-size:0.9em;">
-        <span>⏳ Em Preparo (<span id="countPrep">0</span>)</span>
-        <span>✅ Prontos (<span id="countReady">0</span>)</span>
+    <div id="loginOverlay">
+        <h2 style="color:#FF9500;">ACESSO RESTRITO</h2>
+        <input type="password" id="senhaInput" class="input-3d" style="max-width:200px; text-align:center;" placeholder="Senha">
+        <button class="btn-action btn-save" style="max-width:200px;" onclick="logar()">ENTRAR</button>
     </div>
 
-    <div id="listaPedidos" class="queue-grid">
+    <div class="container" id="painelPrincipal" style="display:none;">
+        
+        <h2>➕ Novo Agendamento</h2>
+        
+        <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Cliente / Evento">
+        
+        <div style="display:flex; gap:10px;">
+            <input type="date" id="admData" class="input-3d">
+            <input type="time" id="admHora" class="input-3d">
         </div>
+
+        <div style="display:flex; gap:10px;">
+            <select id="admTipoMenu" class="select-3d">
+                <option value="classico">🥃 Menu Clássico</option>
+                <option value="premium">👑 Menu Premium</option>
+                <option value="misto">🌟 Clássico + Premium (Misto)</option>
+            </select>
+            
+            <select id="admTamanhoLista" class="select-3d">
+                <option value="reduzida">Reduzida (<30)</option>
+                <option value="30-35">30 a 35 pessoas</option>
+                <option value="40-60">40 a 60 pessoas</option>
+                <option value="70-100">70 a 100 pessoas</option>
+                <option value="150-200">150 a 200 pessoas</option>
+                <option value="250-300">250 a 300 pessoas</option>
+            </select>
+        </div>
+
+        <button class="btn-action btn-import" onclick="importarLista()">📥 Importar Lista de Materiais</button>
+        
+        <textarea id="admDetalhes" class="textarea-3d" placeholder="A lista aparecerá aqui..."></textarea>
+        
+        <button class="btn-action btn-save" onclick="salvarEvento()">💾 SALVAR AGENDAMENTO</button>
+
+
+        <h2>📅 Minha Agenda</h2>
+        
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="mudarAba('pendentes')">⏳ PENDENTES</button>
+            <button class="tab-btn" onclick="mudarAba('confirmados')">✅ CONFIRMADOS</button>
+            <button class="tab-btn" onclick="mudarAba('concluidos')">🏁 CONCLUÍDOS</button>
+        </div>
+
+        <div id="tabPendentes" class="tab-content active"></div>
+        <div id="tabConfirmados" class="tab-content"></div>
+        <div id="tabConcluidos" class="tab-content"></div>
+
+        <h2>🛠 Ferramentas</h2>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-action btn-import" onclick="gerarHistorico()">🎲 Gerar Histórico</button>
+            <button class="btn-action btn-import" onclick="gerarFeriados()">📅 Add Feriados</button>
+        </div>
+
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
@@ -58,58 +125,135 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const SENHA_MESTRA = "9859";
 
-        // Carregar Fila em Tempo Real
-        db.collection("fila_bar").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-            const lista = document.getElementById("listaPedidos");
-            lista.innerHTML = "";
-            let prep = 0;
-            let ready = 0;
+        // BANCO DE DADOS DAS LISTAS (COPIADO E ATUALIZADO)
+        const LISTAS = {
+            'classico': {
+                'reduzida': `*Lista Reduzida (<30) - Clássico*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás\n📍02 pct morango\n📍02 cx uva\n📍01L acerola\n📍20kg Gelo\n📍1-2L Vodka\n📍1-2L Aguardente`,
+                '30-35': `*Lista 30-35 - Clássico*\n📍04 abacaxis\n📍15 tangerinas\n📍15 limões taiti\n📍15 kiwi\n📍10 maracujás\n📍03 pct morango\n📍02 cx uva\n📍2L acerola\n📍20kg Gelo\n📍2-3L Vodka\n📍2-3L Aguardente`,
+                '40-60': `*Lista 40-60 - Clássico*\n📍07 abacaxis\n📍20 tangerinas\n📍20 limões\n📍15 kiwi\n📍15 maracujás\n📍04 pct morango\n📍03 cx uva\n📍3L acerola\n📍30kg Gelo\n📍3-4L Vodka\n📍3-4L Aguardente`,
+                '70-100': `*Lista 70-100 - Clássico*\n📍10-15 abacaxis\n📍25-35 tangerinas\n📍30-40 limões\n📍20-30 kiwi\n📍20-30 maracujás\n📍05-07 pct morango\n📍05-07 cx uva\n📍05-07L acerola\n📍40-70kg Gelo\n📍7-10L Vodka\n📍5-7L Aguardente`,
+                '150-200': `*Lista 150-200 - Clássico*\n📍15-20 abacaxis\n📍30-45 tangerinas\n📍35-50 limões\n📍30-45 kiwi\n📍30-40 maracujás\n📍10-15 pct morango\n📍07-10 cx uva\n📍10-15L acerola\n📍50-70kg Gelo\n📍10-15L Vodka\n📍7-10L Aguardente`,
+                '250-300': `*Lista 250-300 - Clássico*\n📍20-25 abacaxis\n📍35-50 tangerinas\n📍40-55 limões\n📍35-50 kiwi\n📍35-50 maracujás\n📍15-20 pct morango\n📍10-15 cx uva\n📍15-20L acerola\n📍60-70kg Gelo\n📍15-17L Vodka\n📍10-15L Aguardente`
+            },
+            'premium': {
+                'reduzida': `*Lista Reduzida (<30) - PREMIUM*\n📍8 Laranjas\n📍3 Abacaxis\n📍4 Limões Siciliano\n📍10 Limões Taiti\n📍20kg Gelo CUBO\n📍1L Gin\n📍1L Aperol\n📍1L Rum\n📍2L Água Gás\n📍2L Tônica\n📍Hortelã, Alecrim`,
+                '30-35': `*Lista 30-35 - PREMIUM*\n📍10 Laranjas\n📍4 Abacaxis\n📍5 Limões Siciliano\n📍15 Limões Taiti\n📍30kg Gelo CUBO\n📍2L Gin\n📍2L Aperol\n📍2L Rum\n📍3L Água Gás\n📍3L Tônica`,
+                '40-60': `*Lista 40-60 - PREMIUM*\n📍15 Laranjas\n📍7 Abacaxis\n📍12 Limões Siciliano\n📍30 Limões Taiti\n📍50kg Gelo CUBO\n📍5L Gin\n📍5L Aperol\n📍5L Rum\n📍5L Água Gás\n📍5L Tônica`,
+                '70-100': `*Lista 70-100 - PREMIUM*\n📍15-18 Laranjas\n📍7-10 Abacaxis\n📍12-15 Limões Siciliano\n📍30-35 Limões Taiti\n📍60kg Gelo CUBO\n📍7L Gin\n📍7L Aperol\n📍7L Rum\n📍7L Água Gás\n📍7L Tônica`,
+                '150-200': `*Lista 150-200 - PREMIUM*\n📍18-25 Laranjas\n📍10-13 Abacaxis\n📍15-20 Limões Siciliano\n📍35-40 Limões Taiti\n📍70kg Gelo CUBO\n📍8L Gin\n📍8L Aperol\n📍8L Rum\n📍10L Água Gás\n📍10L Tônica`,
+                '250-300': `*Lista 250-300 - PREMIUM*\n📍25-30 Laranjas\n📍13-15 Abacaxis\n📍20-30 Limões Siciliano\n📍40-50 Limões Taiti\n📍80kg Gelo CUBO\n📍10L Gin\n📍10L Aperol\n📍10L Rum\n📍12L Água Gás\n📍12L Tônica`
+            },
+            'misto': {
+                'reduzida': `*Lista Reduzida (<30) - MISTO*\n📍05 abacaxis\n📍10 tangerinas\n📍15 taiti\n📍10 kiwi\n📍07 maracujás\n📍8 Laranjas\n📍4 Siciliano\n📍10kg Gelo Escama\n📍10kg Gelo Cubo\n📍1-2L Vodka\n📍1-2L Aguardente\n📍1L Gin\n📍1L Aperol\n📍1L Rum`,
+                '30-35': `*Lista 30-35 - MISTO*\n📍06 abacaxis\n📍15 tangerinas\n📍20 taiti\n📍15 kiwi\n📍10 maracujás\n📍10 Laranjas\n📍5 Siciliano\n📍15kg Gelo Escama\n📍15kg Gelo Cubo\n📍2-3L Vodka\n📍2-3L Aguardente\n📍2L Gin\n📍2L Aperol\n📍2L Rum`,
+                '40-60': `*Lista 40-60 - MISTO*\n📍10 abacaxis\n📍20 tangerinas\n📍35 taiti\n📍15 kiwi\n📍15 maracujás\n📍15 Laranjas\n📍12 Siciliano\n📍20kg Gelo Escama\n📍30kg Gelo Cubo\n📍3-4L Vodka\n📍3-4L Aguardente\n📍3L Gin\n📍3L Aperol\n📍3L Rum`,
+                '70-100': `*Lista 70-100 - MISTO*\n📍12-15 abacaxis\n📍25-35 tangerinas\n📍35-50 taiti\n📍20-30 kiwi\n📍20-30 maracujás\n📍15-18 Laranjas\n📍12-15 Siciliano\n📍30-50kg Gelo Escama\n📍30kg Gelo Cubo\n📍7L Vodka\n📍5L Aguardente\n📍5L Gin\n📍5L Aperol\n📍5L Rum`,
+                '150-200': `*Lista 150-200 - MISTO*\n📍20-25 abacaxis\n📍30-45 tangerinas\n📍50-70 taiti\n📍30-45 kiwi\n📍30-40 maracujás\n📍18-25 Laranjas\n📍5-20 Siciliano\n📍30-50kg Gelo Escama\n📍30kg Gelo Cubo\n📍10L Vodka\n📍7L Aguardente\n📍5L Gin\n📍5L Aperol\n📍5L Rum`,
+                '250-300': `*Lista 250-300 - MISTO*\n📍30-45 abacaxis\n📍35-50 tangerinas\n📍50-80 taiti\n📍35-50 kiwi\n📍35-50 maracujás\n📍25-30 Laranjas\n📍20-30 Siciliano\n📍50-60kg Gelo Escama\n📍30kg Gelo Cubo\n📍15L Vodka\n📍10L Aguardente\n📍8L Gin\n📍8L Aperol\n📍8L Rum`
+            }
+        };
 
-            snapshot.forEach(doc => {
-                const p = doc.data();
-                const id = doc.id;
+        function logar() {
+            if(document.getElementById('senhaInput').value === SENHA_MESTRA) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('painelPrincipal').style.display = 'block';
+                carregarEventos();
+            } else alert("Senha incorreta");
+        }
+
+        function importarLista() {
+            const tipo = document.getElementById('admTipoMenu').value;
+            const tamanho = document.getElementById('admTamanhoLista').value;
+            
+            if(LISTAS[tipo] && LISTAS[tipo][tamanho]) {
+                document.getElementById('admDetalhes').value = LISTAS[tipo][tamanho];
+            } else {
+                alert("Lista não encontrada para essa combinação.");
+            }
+        }
+
+        function salvarEvento() {
+            const cliente = document.getElementById('admCliente').value;
+            const data = document.getElementById('admData').value;
+            const hora = document.getElementById('admHora').value;
+            const detalhes = document.getElementById('admDetalhes').value;
+            const tipo = document.getElementById('admTipoMenu').value;
+
+            if(!cliente || !data) return alert("Preencha Nome e Data!");
+
+            db.collection("agendamentos").add({
+                cliente, data_evento: data, hora_inicio: hora, 
+                detalhes, tipo_pacote: tipo, status: 'pendente'
+            }).then(() => {
+                alert("Evento Salvo!");
+                document.getElementById('admCliente').value = "";
+                document.getElementById('admDetalhes').value = "";
+            });
+        }
+
+        function carregarEventos() {
+            db.collection("agendamentos").orderBy("data_evento").onSnapshot(snapshot => {
+                const pendentes = document.getElementById('tabPendentes');
+                const confirmados = document.getElementById('tabConfirmados');
+                const concluidos = document.getElementById('tabConcluidos');
                 
-                if(p.status === 'preparando') prep++;
-                if(p.status === 'pronto') ready++;
+                pendentes.innerHTML = ""; confirmados.innerHTML = ""; concluidos.innerHTML = "";
+                
+                const hoje = new Date().toISOString().split('T')[0];
 
-                const btnAction = p.status === 'preparando' 
-                    ? `<button class="btn-icon btn-check" onclick="mudarStatus('${id}', 'pronto')">✅</button>`
-                    : `<button class="btn-icon btn-trash" onclick="deletarPedido('${id}')">✖</button>`;
+                snapshot.forEach(doc => {
+                    const e = doc.data();
+                    const id = doc.id;
+                    const dataFormatada = e.data_evento.split('-').reverse().join('/');
+                    const isPast = e.data_evento < hoje;
 
-                lista.innerHTML += `
-                    <div class="order-card ${p.status}">
-                        <div>
-                            <div class="order-name">${p.nome}</div>
-                            <div class="order-time">${p.status === 'preparando' ? '⏳ Preparando...' : '✨ Pronto!'}</div>
-                        </div>
-                        <div>${btnAction}</div>
-                    </div>
-                `;
+                    let html = `
+                        <div class="event-list-item ${isPast ? 'past' : e.status}">
+                            <div>
+                                <strong style="color:${isPast ? '#777' : '#FF9500'}">${dataFormatada}</strong> - ${e.cliente}<br>
+                                <span style="font-size:0.8em; color:#aaa;">${e.tipo_pacote ? e.tipo_pacote.toUpperCase() : 'PERSONALIZADO'}</span>
+                            </div>
+                            <div style="display:flex;">
+                                ${!isPast && e.status !== 'confirmado' ? `<button onclick="mudarStatus('${id}','confirmado')" class="btn-icon btn-check">✅</button>` : ''}
+                                <button onclick="deletarEvento('${id}')" class="btn-icon btn-trash">✖</button>
+                            </div>
+                        </div>`;
+
+                    if (isPast) concluidos.innerHTML += html;
+                    else if (e.status === 'confirmado') confirmados.innerHTML += html;
+                    else pendentes.innerHTML += html;
+                });
             });
-
-            document.getElementById("countPrep").innerText = prep;
-            document.getElementById("countReady").innerText = ready;
-        });
-
-        function adicionarFila() {
-            const nome = document.getElementById("nomeCliente").value;
-            if(!nome) return;
-            db.collection("fila_bar").add({
-                nome: nome,
-                status: 'preparando',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            document.getElementById("nomeCliente").value = "";
-            document.getElementById("nomeCliente").focus();
         }
 
-        function mudarStatus(id, status) {
-            db.collection("fila_bar").doc(id).update({ status: status });
+        function mudarAba(aba) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Lógica simples para ativar a aba correta
+            if(aba === 'pendentes') { document.querySelectorAll('.tab-btn')[0].classList.add('active'); document.getElementById('tabPendentes').classList.add('active'); }
+            if(aba === 'confirmados') { document.querySelectorAll('.tab-btn')[1].classList.add('active'); document.getElementById('tabConfirmados').classList.add('active'); }
+            if(aba === 'concluidos') { document.querySelectorAll('.tab-btn')[2].classList.add('active'); document.getElementById('tabConcluidos').classList.add('active'); }
         }
 
-        function deletarPedido(id) {
-            db.collection("fila_bar").doc(id).delete();
+        function mudarStatus(id, status) { db.collection("agendamentos").doc(id).update({status: status}); }
+        function deletarEvento(id) { if(confirm("Deletar?")) db.collection("agendamentos").doc(id).delete(); }
+        
+        function gerarHistorico() {
+            if(!confirm("Gerar 5 eventos passados?")) return;
+            const nomes = ["Casamento Ana", "15 Anos Bia", "Formatura Direito"];
+            for(let i=0; i<5; i++) {
+                let d = new Date(); d.setDate(new Date().getDate() - (i*10) - 10);
+                db.collection("agendamentos").add({cliente: nomes[i%3], data_evento: d.toISOString().split('T')[0], status: 'confirmado', tipo_pacote: 'classico'});
+            }
+        }
+        
+        function gerarFeriados() {
+            const feriados = [{d:'2025-12-25', n:'Natal'}, {d:'2025-12-31', n:'Réveillon'}];
+            feriados.forEach(f => db.collection("agendamentos").add({cliente: f.n + " (Bloqueado)", data_evento: f.d, status: 'confirmado', tipo_pacote: 'bloqueio'}));
+            alert("Feriados adicionados!");
         }
     </script>
 </body>
