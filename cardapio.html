@@ -60,12 +60,13 @@
     .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
     .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; background: #111; padding: 10px; border-radius: 5px; text-align: center; }
     .disclaimer { text-align: center; color: #666; font-size: 0.7em; text-transform: uppercase; margin-top: 30px; letter-spacing: 1px; opacity: 0.7; }
+    
     .combo-banner { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
     .btn-combo { background: linear-gradient(135deg, #6A1B9A, #9C27B0); color: white; padding: 15px 10px; border-radius: 12px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3); transition: 0.2s; }
     .btn-combo:active { transform: scale(0.95); }
     .combo-title { font-weight: 800; font-size: 1.1em; display: block; margin-bottom: 5px; }
     .combo-desc { font-size: 0.8em; opacity: 0.9; }
-    .combo-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border: 1px solid #333; }
+    .combo-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border: 1px solid #333; transition: 0.2s; }
     .combo-item-row.selected { border-color: #4CAF50; background: #1a2e1a; }
     .chk-combo { transform: scale(1.5); accent-color: #4CAF50; }
     #totalComboDisplay { font-size: 1.5em; color: #4CAF50; font-weight: bold; margin: 15px 0; display: block; }
@@ -308,29 +309,135 @@
   }
 
   function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
-  function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
-  let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
-  function abrirConfirmacao(nome, tipo, preco, categoria) {
-    let tipoFinal = tipo; let precoFinal = preco;
-    if(tipo === 'pacote') {
-        const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
-        let estourou = false; if(DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) estourou = true;
-        if(DADOS_EVENTO.tipo_servico === 'misto') { if(categoria === 'classico' && DADOS_EVENTO.consumido_classico >= DADOS_EVENTO.limite_classico) estourou = true; if(categoria === 'premium' && DADOS_EVENTO.consumido_premium >= DADOS_EVENTO.limite_premium) estourou = true; }
-        if(estourou) { alert("⚠️ O pacote acabou de esgotar! Você será redirecionado para compra."); tipoFinal = 'extra'; const drinkData = DADOS_EVENTO.cardapio.find(d => d.nome === nome); precoFinal = drinkData ? (DADOS_EVENTO.modo_preco==='prevenda' ? drinkData.preco_prevenda : drinkData.preco) : 10; }
-    }
-    ITEM_ATUAL = { nome, tipo: tipoFinal, preco: precoFinal, categoria: categoria };
-    document.getElementById('inputObservacao').value = ''; const div = document.getElementById('conteudoConfirmacao');
-    if(tipoFinal === 'extra') { div.innerHTML = `<p style="color:#ddd; margin-bottom:15px;">Você pediu: <strong>${nome}</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Valor a pagar:</span><strong style="font-size:1.8em; color:#4CAF50;">R$ ${precoFinal},00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "75992011008"}</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button><div style="margin-top:15px; text-align:left; background:#111; padding:10px; border-radius:5px; border:1px solid #333;"><p style="margin:0; color:#888; font-size:0.8em;">Nome: <strong style="color:#fff;">Gilvan Xavier Borges</strong></p><p style="margin:5px 0 0 0; color:#888; font-size:0.8em;">Banco: <strong style="color:#fff;">Inter</strong></p></div></div><div style="background:rgba(255, 68, 68, 0.1); border:1px solid #FF4444; padding:10px; border-radius:8px; margin-top:10px; font-size:0.85em; color:#FF8888; text-align:left;">⚠️ <strong>IMPORTANTE:</strong> Confira os dados acima antes de confirmar. Transferências para contas erradas <u>não serão preparadas</u>.</div>`; document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI / ENVIAR"; } else { div.innerHTML = `<div style="font-size:3em; margin-bottom:10px;">🍹</div><p style="color:#fff; font-size:1.1em;">Pedir <strong>${nome}</strong>?</p><p style="color:#aaa; font-size:0.9em;">(Do seu pacote - Grátis)</p>`; document.getElementById('btnFinalizar').innerText = "CONFIRMAR PEDIDO"; }
-    document.getElementById('modalConfirm').style.display = 'flex';
-  }
-  document.getElementById('btnFinalizar').onclick = function() {
-    const btn = this; btn.innerText = "..."; btn.disabled = true; const obs = document.getElementById('inputObservacao').value; let statusInicial = ITEM_ATUAL.tipo === 'extra' ? 'aguardando_pagamento' : 'pendente';
-    db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: ITEM_ATUAL.nome, categoria_drink: ITEM_ATUAL.categoria || 'classico', tipo: ITEM_ATUAL.tipo, preco: ITEM_ATUAL.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: obs, status: statusInicial, sinalizou_pagamento: false, data: new Date() }).then((docRef) => {
-      document.getElementById('modalConfirm').style.display = 'none'; btn.disabled = false; btn.innerText = "CONFIRMAR";
-      if(ITEM_ATUAL.tipo === 'pacote') { salvarTimer(); const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (ITEM_ATUAL.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) { updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); } else { updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } } db.collection("eventos").doc(EVENTO_ID).update(updateData); }
-      MEUS_PEDIDOS_IDS.push(docRef.id); localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); rastrearPedidos(); setTimeout(abrirMeusPedidos, 500);
+  
+  // *** CANCELAR CLIENTE (AGORA DECREMENTA) ***
+  function cancelarPedidoCliente(id) { 
+    if(!confirm("Cancelar?")) return;
+    
+    // Busca o pedido primeiro para saber se era pacote
+    db.collection("pedidos").doc(id).get().then(doc => {
+        if(doc.exists) {
+            const p = doc.data();
+            db.collection("pedidos").doc(id).update({ status: 'cancelado' });
+
+            if(p.tipo === 'pacote') {
+                const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) };
+                if (DADOS_EVENTO.tipo_servico === 'misto') {
+                    // Tenta usar a categoria salva, se não tiver, assume clássico como fallback seguro
+                    let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
+                    // Limpeza de segurança
+                    cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "");
+                    
+                    if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1);
+                    else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1);
+                }
+                db.collection("eventos").doc(EVENTO_ID).update(updateData);
+            }
+        }
     });
   }
+
+  let pedidosNotificados = []; 
+  function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
+    
+  function abrirConfirmacao(nome, tipo, preco, categoria) {
+    // RE-VERIFICAÇÃO DE SEGURANÇA NA HORA DO CLIQUE
+    let tipoFinal = tipo;
+    let precoFinal = preco;
+    
+    if(tipo === 'pacote') {
+        const restante = getTempoRestante(); 
+        if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
+        
+        // Verifica se estourou o limite AGORA
+        let estourou = false;
+        if(DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) estourou = true;
+        if(DADOS_EVENTO.tipo_servico === 'misto') {
+            if(categoria === 'classico' && DADOS_EVENTO.consumido_classico >= DADOS_EVENTO.limite_classico) estourou = true;
+            if(categoria === 'premium' && DADOS_EVENTO.consumido_premium >= DADOS_EVENTO.limite_premium) estourou = true;
+        }
+        
+        if(estourou) {
+            alert("⚠️ O pacote acabou de esgotar! Você será redirecionado para compra.");
+            tipoFinal = 'extra';
+            // Tenta achar o preço do drink
+            const drinkData = DADOS_EVENTO.cardapio.find(d => d.nome === nome);
+            precoFinal = drinkData ? (DADOS_EVENTO.modo_preco==='prevenda' ? drinkData.preco_prevenda : drinkData.preco) : 10;
+        }
+    }
+
+    ITEM_ATUAL = { nome, tipo: tipoFinal, preco: precoFinal, categoria: categoria };
+    document.getElementById('inputObservacao').value = '';
+    const div = document.getElementById('conteudoConfirmacao');
+    
+    if(tipoFinal === 'extra') {
+      div.innerHTML = `
+        <p style="color:#ddd; margin-bottom:15px;">Você pediu: <strong>${nome}</strong></p>
+        <div class="pix-area">
+          <span style="display:block; color:#aaa; font-size:0.8em;">Valor a pagar:</span>
+          <strong style="font-size:1.8em; color:#4CAF50;">R$ ${precoFinal},00</strong>
+          <hr style="border-color:#444; margin:10px 0;">
+          <span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span>
+          <span class="pix-key" id="chavePixTexto">${DADOS_EVENTO.chave_pix || "75992011008"}</span>
+          <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button>
+          <div style="margin-top:15px; text-align:left; background:#111; padding:10px; border-radius:5px; border:1px solid #333;"><p style="margin:0; color:#888; font-size:0.8em;">Nome: <strong style="color:#fff;">Gilvan Xavier Borges</strong></p><p style="margin:5px 0 0 0; color:#888; font-size:0.8em;">Banco: <strong style="color:#fff;">Inter</strong></p></div>
+        </div>
+        <div style="background:rgba(255, 68, 68, 0.1); border:1px solid #FF4444; padding:10px; border-radius:8px; margin-top:10px; font-size:0.85em; color:#FF8888; text-align:left;">⚠️ <strong>IMPORTANTE:</strong> Confira os dados acima antes de confirmar. Transferências para contas erradas <u>não serão preparadas</u>.</div>`;
+      document.getElementById('btnFinalizar').innerText = "JÁ PAGUEI / ENVIAR";
+    } else {
+      div.innerHTML = `<div style="font-size:3em; margin-bottom:10px;">🍹</div><p style="color:#fff; font-size:1.1em;">Pedir <strong>${nome}</strong>?</p><p style="color:#aaa; font-size:0.9em;">(Do seu pacote - Grátis)</p>`;
+      document.getElementById('btnFinalizar').innerText = "CONFIRMAR PEDIDO";
+    }
+    document.getElementById('modalConfirm').style.display = 'flex';
+  }
+
+  // --- A MÁGICA ACONTECE AQUI (BOTÃO ENVIAR) ---
+  document.getElementById('btnFinalizar').onclick = function() {
+    const btn = this; btn.innerText = "..."; btn.disabled = true;
+    const obs = document.getElementById('inputObservacao').value;
+    let statusInicial = ITEM_ATUAL.tipo === 'extra' ? 'aguardando_pagamento' : 'pendente';
+    
+    db.collection("pedidos").add({ 
+        evento_id: EVENTO_ID, 
+        drink: ITEM_ATUAL.nome, 
+        // SALVA A CATEGORIA NO PEDIDO PARA FACILITAR O CANCELAMENTO DEPOIS
+        categoria_drink: ITEM_ATUAL.categoria || 'classico', 
+        tipo: ITEM_ATUAL.tipo, 
+        preco: ITEM_ATUAL.preco, 
+        nome_convidado: NOME_CONVIDADO || "Anônimo", 
+        observacao: obs, 
+        status: statusInicial, 
+        sinalizou_pagamento: false, 
+        data: new Date() 
+    }).then((docRef) => {
+      document.getElementById('modalConfirm').style.display = 'none'; btn.disabled = false; btn.innerText = "CONFIRMAR";
+      
+      // *** INCREMENTA O CONTADOR IMEDIATAMENTE (CORREÇÃO PEDIDA) ***
+      if(ITEM_ATUAL.tipo === 'pacote') {
+          salvarTimer();
+          
+          const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
+          
+          if (DADOS_EVENTO.tipo_servico === 'misto') {
+              // Limpeza e normalização da categoria para evitar erros
+              let cat = (ITEM_ATUAL.categoria || 'classico').toLowerCase().trim();
+              cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "");
+
+              if (cat.includes('premium')) {
+                   updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
+              } else {
+                   updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
+              }
+          }
+          
+          db.collection("eventos").doc(EVENTO_ID).update(updateData);
+      }
+      
+      MEUS_PEDIDOS_IDS.push(docRef.id); localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); rastrearPedidos();
+      setTimeout(abrirMeusPedidos, 500);
+    });
+  }
+
   function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
   
   // *** FUNÇÃO DE SALVAR NOME COM ENVIO AUTOMÁTICO PRO CHAT ***
