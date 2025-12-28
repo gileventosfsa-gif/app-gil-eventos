@@ -114,7 +114,7 @@
 <div class="modal-overlay" id="modalCombo"><div class="modal-box" style="height: 600px;"><h2 style="color:#FFD580; margin:0 0 5px 0;">Montar Combo</h2><p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">Selecione <span id="maxComboQtd" style="color:#fff; font-weight:bold;">3</span> drinks:</p><div id="listaSelecaoCombo" style="flex-grow:1; overflow-y:auto; text-align:left;"></div><div style="border-top:1px solid #333; padding-top:10px;"><span id="totalComboDisplay">R$ 0,00</span><button class="btn-confirm" id="btnFinalizarCombo" onclick="finalizarCombo()">CONFIRMAR COMBO</button><button onclick="document.getElementById('modalCombo').style.display='none'" style="background:none; border:none; color:#888; margin-top:10px;">Cancelar</button></div></div></div>
 <div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Como devemos te chamar?</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
 
-<div class="modal-overlay" id="modalPagamentoMassa"><div class="modal-box"><h2 style="color:#4CAF50; margin:0;">Finalizar Pedido</h2><p style="color:#ddd;">Você está pagando por <strong><span id="qtdItensMassa">0</span> itens</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Total a pagar:</span><strong style="font-size:2.2em; color:#4CAF50;" id="valorTotalMassa">R$ 0,00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTextoMassa">75992011008</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button></div><button class="btn-confirm" onclick="confirmarEnvioMassa()">✅ JÁ PAGUEI / ENVIAR TUDO</button><button onclick="document.getElementById('modalPagamentoMassa').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Voltar</button></div></div>
+<div class="modal-overlay" id="modalPagamentoMassa"><div class="modal-box"><h2 style="color:#4CAF50; margin:0;">Finalizar Pedido</h2><p style="color:#ddd;">Você está pagando por <strong><span id="qtdItensMassa">0</span> itens</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Total a pagar:</span><strong style="font-size:2.2em; color:#4CAF50;" id="valorTotalMassa">R$ 0,00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTextoMassa">75992011008</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button></div><button class="btn-confirm" onclick="confirmarEnvioMassa()">✅ JÁ PAGUEI / ENVIAR TUDO</button><button onclick="document.getElementById('modalPagamentoMassa').style.display='none'; document.getElementById('modalListaPedidos').style.display='flex';" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Voltar ao Carrinho</button></div></div>
 
 <div class="modal-overlay" id="modalListaPedidos"><div class="modal-box" style="height: 650px; max-height:90vh;"><div class="modal-tabs"><button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Pedidos</button><button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button></div>
     <div id="tab-pedidos" class="tab-content active">
@@ -241,11 +241,13 @@
 
  function abrirPagamentoMassa() {
     const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0);
-    // SE NÃO TIVER NADA PAGO, ENVIA DIRETO
+    
+    // CORREÇÃO: FECHAR O MODAL DE PEDIDOS ANTES DE ABRIR O DE PAGAMENTO
     if (total === 0) {
         if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa();
     } else {
-        document.getElementById('modalPagamentoMassa').style.display = 'flex';
+        document.getElementById('modalListaPedidos').style.display = 'none'; // Fecha carrinho
+        document.getElementById('modalPagamentoMassa').style.display = 'flex'; // Abre PIX
     }
  }
 
@@ -289,6 +291,9 @@
         CARRINHO_LOCAL = []; 
         salvarCarrinhoLocal();
         mostrarNotificacao("🚀 Pedidos enviados com sucesso!");
+        
+        // CORREÇÃO: REABRE O MODAL DE PEDIDOS PARA MOSTRAR ELES LÁ
+        document.getElementById('modalListaPedidos').style.display = 'flex';
         rastrearPedidos();
     }).catch(err => alert("Erro ao enviar: " + err));
  }
