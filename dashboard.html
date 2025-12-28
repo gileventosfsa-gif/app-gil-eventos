@@ -173,22 +173,21 @@
         let wakeLock = null;
         let SELECTED_CHAT_USER = null;
         let CHAT_UNREAD_COUNT = 0;
-        let PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
+        
+        // --- FUNÇÃO LIMPAR STRING (ESSENCIAL) ---
+        function limparString(str) {
+            if(!str) return "";
+            return str.toLowerCase()
+                      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                      .replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "")
+                      .trim();
+        }
 
         if(sessionStorage.getItem(`logado_${EVENTO_ID}`)) document.getElementById('loginOverlay').style.display = 'none';
         if(EVENTO_ID) iniciarTorreControle();
 
         async function requestWakeLock() { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
         document.addEventListener('visibilitychange', async () => { if (wakeLock !== null && document.visibilityState === 'visible') requestWakeLock(); });
-
-        // FUNÇÃO DE LIMPEZA DE STRING (A MÁGICA)
-        function limparString(str) {
-            if(!str) return "";
-            return str.toLowerCase()
-                      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Tira acentos
-                      .replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "") // Tira emojis
-                      .trim();
-        }
 
         function iniciarTorreControle() {
             requestWakeLock();
@@ -207,29 +206,7 @@
                 lista.innerHTML = snapshot.empty ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
                 
                 let pedidos = [];
-                PENDING_COUNTS = { classico: 0, premium: 0, total: 0 };
-
-                snapshot.forEach(doc => {
-                    const p = {id: doc.id, ...doc.data()};
-                    pedidos.push(p);
-                    
-                    if (p.status === 'pendente' && p.tipo === 'pacote') {
-                        PENDING_COUNTS.total++;
-                        // AQUI TAMBÉM PRECISA DE BLINDAGEM NO CÁLCULO DA FILA
-                        let cat = 'classico';
-                        if(DADOS_EVENTO && DADOS_EVENTO.cardapio) {
-                            const itemReal = DADOS_EVENTO.cardapio.find(d => limparString(d.nome) === limparString(p.drink));
-                            if(itemReal) cat = itemReal.categoria;
-                        }
-                        
-                        if (limparString(cat) === 'premium') {
-                            PENDING_COUNTS.premium++;
-                        } else {
-                            PENDING_COUNTS.classico++;
-                        }
-                    }
-                });
-                
+                snapshot.forEach(doc => { pedidos.push({id: doc.id, ...doc.data()}); });
                 pedidos.sort((a, b) => { return a.data - b.data; });
 
                 pedidos.forEach(p => {
@@ -264,6 +241,7 @@
             monitorarChat();
         }
 
+        // --- LANÇAR MANUAL (INCREMENTA NA HORA) ---
         function lancarManual(item) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
@@ -272,34 +250,21 @@
             let precoFinal = item.preco || 0;
             if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
 
-            // IDENTIFICAÇÃO CORRETA DA CATEGORIA
-            const categoriaNorm = limparString(item.categoria); // Usa a função de limpeza
+            const categoriaNorm = limparString(item.categoria); 
 
+            // Checagem se DEVE ser cobrado (limite estourado ou item pago)
             if(item.tipo_cobranca === 'pago') {
                 tipo = 'extra';
             } 
             else if (DADOS_EVENTO.tipo_servico === 'misto') {
                 if (categoriaNorm === 'premium') {
-                    const consumido = Number(DADOS_EVENTO.consumido_premium || 0);
-                    const naFila = Number(PENDING_COUNTS.premium || 0);
-                    const limite = Number(DADOS_EVENTO.limite_premium || 0);
-                    // DEBUG NO CONSOLE
-                    console.log(`Premium check: Consumido(${consumido}) + Fila(${naFila}) >= Limite(${limite})?`);
-                    if ((consumido + naFila) >= limite) tipo = 'extra';
+                    if ((DADOS_EVENTO.consumido_premium || 0) >= (DADOS_EVENTO.limite_premium || 0)) tipo = 'extra';
                 } else {
-                    const consumido = Number(DADOS_EVENTO.consumido_classico || 0);
-                    const naFila = Number(PENDING_COUNTS.classico || 0);
-                    const limite = Number(DADOS_EVENTO.limite_classico || 0);
-                    // DEBUG NO CONSOLE
-                    console.log(`Classico check: Consumido(${consumido}) + Fila(${naFila}) >= Limite(${limite})?`);
-                    if ((consumido + naFila) >= limite) tipo = 'extra';
+                    if ((DADOS_EVENTO.consumido_classico || 0) >= (DADOS_EVENTO.limite_classico || 0)) tipo = 'extra';
                 }
             } 
             else if (DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') {
-                const consumidoGeral = Number(DADOS_EVENTO.total_consumido || 0);
-                const naFilaGeral = Number(PENDING_COUNTS.total || 0);
-                const limiteGeral = Number(DADOS_EVENTO.total_contratado || 0);
-                if((consumidoGeral + naFilaGeral) >= limiteGeral) tipo = 'extra';
+                if((DADOS_EVENTO.total_consumido || 0) >= (DADOS_EVENTO.total_contratado || 0)) tipo = 'extra';
             }
             
             let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
@@ -307,14 +272,24 @@
             db.collection("pedidos").add({ 
                 evento_id: EVENTO_ID, 
                 drink: item.nome, 
-                categoria_drink: item.categoria, // Salva a categoria original do item
+                categoria_drink: item.categoria, 
                 tipo: tipo, 
                 preco: precoFinal,
                 nome_convidado: nome || "Balcão", 
                 status: statusInicial, 
                 sinalizou_pagamento: false, 
                 data: new Date() 
-            }); 
+            }).then(() => {
+                // INCREMENTA SE FOR PACOTE
+                if(tipo === 'pacote') {
+                    const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
+                    if (DADOS_EVENTO.tipo_servico === 'misto') {
+                        if (categoriaNorm === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
+                        else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
+                    }
+                    db.collection("eventos").doc(EVENTO_ID).update(updateData);
+                }
+            });
         }
 
         function gerarBotoes(menu) { 
@@ -336,41 +311,44 @@
             }); 
         }
 
-        // --- MUDAR STATUS (CORRIGIDO E BLINDADO) ---
+        // --- MUDAR STATUS (APENAS VISUAL) ---
         function mudarStatus(id, novoStatus, tipo, nomeDrink) { 
             if(!confirm("Entregar pedido?")) return; 
             db.collection("pedidos").doc(id).update({ status: novoStatus }); 
-            
-            if(novoStatus === 'servido' && tipo === 'pacote') {
-                const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
-                
-                if (DADOS_EVENTO.tipo_servico === 'misto') {
-                    // BLINDAGEM TOTAL: Busca a categoria no cardápio OFICIAL ignorando emojis e case
-                    let catReal = 'classico'; 
-                    
-                    if(DADOS_EVENTO.cardapio) {
-                        const nomePedidoLimpo = limparString(nomeDrink);
-                        const itemEncontrado = DADOS_EVENTO.cardapio.find(d => limparString(d.nome) === nomePedidoLimpo);
-                        
-                        if(itemEncontrado) {
-                            catReal = itemEncontrado.categoria;
-                        } else {
-                            // Se não achar (muito raro), tenta deduzir
-                            console.log("Drink não achado no cardápio oficial, usando padrão Clássico: " + nomeDrink);
-                        }
-                    }
+        }
 
-                    if (limparString(catReal) === 'premium') {
-                        updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
-                    } else {
-                        updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
+        // --- CANCELAR (DECREMENTA) ---
+        function cancelarPedido(id) { 
+            if(!confirm("Cancelar? O drink voltará para o pacote (se aplicável).")) return; 
+            
+            // Primeiro busca o pedido para saber se era pacote e qual categoria
+            db.collection("pedidos").doc(id).get().then(doc => {
+                if(doc.exists) {
+                    const p = doc.data();
+                    
+                    db.collection("pedidos").doc(id).update({ status: 'cancelado' });
+
+                    if(p.tipo === 'pacote') {
+                        const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) };
+                        
+                        if (DADOS_EVENTO.tipo_servico === 'misto') {
+                            // Tenta categoria do pedido ou busca no oficial
+                            let catReal = 'classico';
+                            if(DADOS_EVENTO.cardapio) {
+                                const itemReal = DADOS_EVENTO.cardapio.find(d => limparString(d.nome) === limparString(p.drink));
+                                if(itemReal) catReal = itemReal.categoria;
+                            }
+                            
+                            if (limparString(catReal) === 'premium') updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1);
+                            else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1);
+                        }
+                        
+                        db.collection("eventos").doc(EVENTO_ID).update(updateData);
                     }
                 }
-                
-                db.collection("eventos").doc(EVENTO_ID).update(updateData); 
-            } 
+            });
         }
-        
+
         function monitorarChat() {
             db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 let novasMensagens = 0;
@@ -386,7 +364,7 @@
         function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
         function confirmarPagamento(id, preco) { if(!confirm("Confirmar pagamento?")) return; db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); }
         function recusarPagamento(id) { if(!confirm("Tem certeza que NÃO consta?")) return; db.collection("pedidos").doc(id).update({ status: 'pagamento_rejeitado', sinalizou_pagamento: false }); }
-        function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }); }
+        
         function abrirEstoque() { document.getElementById('stockOverlay').style.display = 'flex'; }
         function gerarListaEstoque(menu) { const div = document.getElementById('listaEstoque'); div.innerHTML = ''; menu.forEach((item, index) => { const checked = item.disponivel !== false ? 'checked' : ''; div.innerHTML += `<div class="stock-item"><span>${item.nome}</span><label class="toggle-switch"><input type="checkbox" ${checked} onchange="toggleDisponibilidade(${index})"><span class="slider"></span></label></div>`; }); }
         function toggleDisponibilidade(index) { let cardapio = DADOS_EVENTO.cardapio; cardapio[index].disponivel = !(cardapio[index].disponivel !== false); db.collection("eventos").doc(EVENTO_ID).update({ cardapio: cardapio }); }
