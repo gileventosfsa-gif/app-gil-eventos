@@ -3,300 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - Gil Eventos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>Configurar Evento - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; padding-bottom: 80px; }
-        .container { max-width: 800px; margin: auto; }
+        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; padding: 20px; }
+        .container { max-width: 900px; margin: auto; }
+        h1 { color: #FFD580; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        .card { background: #1E1E1E; padding: 25px; border-radius: 15px; border: 1px solid #333; margin-bottom: 20px; }
+        label { display: block; margin-top: 15px; color: #FFD580; font-size: 0.9em; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; background: #2A2A2A; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: white; font-weight: bold; border-radius: 8px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
         
-        h2 { color: #FF9500; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 30px; font-size: 1.2em; text-transform: uppercase; }
-        
-        /* FORMULÁRIOS */
-        .input-3d, .select-3d, .textarea-3d {
-            padding: 12px; border-radius: 10px; border: 1px solid #333;
-            background: #1E1E1E; color: #fff; width: 100%; font-size: 1em;
-            margin-bottom: 10px; box-sizing: border-box; font-family: 'Poppins', sans-serif;
-        }
-        .textarea-3d { min-height: 120px; resize: vertical; white-space: pre-wrap; }
-
-        /* BOTÕES */
-        .btn-action { width: 100%; padding: 15px; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; margin-top: 5px; font-size: 1em; transition: 0.2s; }
-        .btn-save { background: linear-gradient(90deg, #FF9500, #FF6F00); color: #000; }
-        .btn-import { background: #333; color: #FF9500; border: 1px solid #FF9500; margin-bottom: 15px; }
-        .btn-close { background: #444; color: #aaa; margin-top: 10px; }
-        .btn-action:active { transform: scale(0.98); }
-
-        /* LISTAS DE EVENTOS */
-        .event-list-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px; background: #222; margin-bottom: 10px; border-radius: 10px; 
-            border-left: 5px solid #777; 
-        }
-        .event-list-item.confirmed { border-left-color: #00E676; background: rgba(0, 230, 118, 0.05); }
-        .event-list-item.pending { border-left-color: #FF9500; }
-        .event-list-item.past { border-left-color: #555; opacity: 0.6; }
-        
-        .btn-icon { width: 35px; height: 35px; border-radius: 50%; border: none; cursor: pointer; margin-left: 5px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
-        .btn-check { background: #00E676; color: #000; }
-        .btn-edit { background: #2196F3; color: #fff; }
-        .btn-trash { background: #F44336; color: #fff; }
-
-        /* ABAS */
-        .admin-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 10px; background: #222; border: none; color: #777; cursor: pointer; font-weight: bold; border-radius: 8px 8px 0 0; }
-        .tab-btn.active { background: #FF9500; color: #000; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* MODAIS */
-        #loginOverlay, #editModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #editModalOverlay { display: none; } 
-        
-        .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
-        .modal-label { display: block; text-align: left; color: #aaa; margin: 10px 0 5px 0; font-size: 0.9em; }
+        .drink-item { background: #252525; border: 1px solid #444; padding: 15px; border-radius: 10px; margin-bottom: 10px; position: relative; }
+        .drink-header { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .input-nome { flex: 2; font-weight: bold; color: #FFD580; }
+        .configs-row { display: flex; gap: 10px; margin-top: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px; flex-wrap: wrap; }
+        .config-group { flex: 1; min-width: 120px; }
+        .config-label { font-size: 0.75em; color: #888; margin-bottom: 3px; display: block; }
+        .select-mini { width: 100%; padding: 8px; font-size: 0.9em; border: 1px solid #555; }
+        .btn-add { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        .row { display: flex; gap: 10px; } .col { flex: 1; }
     </style>
 </head>
 <body>
-
-    <div id="loginOverlay">
-        <h2 style="color:#FF9500; margin-top:0; border:none;">ACESSO RESTRITO</h2>
-        <input type="password" id="senhaInput" class="input-3d" style="max-width:200px; text-align:center;" placeholder="Senha">
-        <button type="button" class="btn-action btn-save" style="max-width:200px;" onclick="logar()">ENTRAR</button>
-    </div>
-
-    <div id="editModalOverlay">
-        <div class="modal-box">
-            <h3 style="color:#FF9500; margin-top:0;">📝 Editar Evento</h3>
-            <input type="hidden" id="editId">
-            
-            <span class="modal-label">Cliente:</span>
-            <input type="text" id="editCliente" class="input-3d">
-            
-            <div style="display:flex; gap:10px;">
-                <div style="flex:1"><span class="modal-label">Data:</span><input type="date" id="editData" class="input-3d"></div>
-                <div style="flex:1"><span class="modal-label">Hora:</span><input type="time" id="editHora" class="input-3d"></div>
-            </div>
-
-            <span class="modal-label">Detalhes / Materiais:</span>
-            <textarea id="editDetalhes" class="textarea-3d"></textarea>
-
-            <button type="button" class="btn-action btn-save" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
-            <button type="button" class="btn-action btn-close" onclick="fecharEdicao()">CANCELAR</button>
-        </div>
-    </div>
-
-    <div class="container" id="painelPrincipal" style="display:none;">
+<div class="container">
+    <h1 id="tituloPagina">Novo Evento ⚙️</h1>
+    <div class="card">
+        <label>Nome do Evento</label>
+        <input type="text" id="nomeEvento" placeholder="Ex: Casamento Ana">
         
-        <h1 style="text-align:center; color:#FF9500;">PAINEL DE GESTÃO</h1>
-
-        <h2>➕ Novo Agendamento</h2>
-        <div style="background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid #333;">
-            <input type="text" id="admCliente" class="input-3d" placeholder="Nome do Cliente / Evento">
-            
-            <div style="display:flex; gap:10px;">
-                <input type="date" id="admData" class="input-3d">
-                <input type="time" id="admHora" class="input-3d">
-            </div>
-
-            <div style="display:flex; gap:10px;">
-                <select id="admTipoMenu" class="select-3d">
-                    <option value="classico">🥃 Menu Clássico</option>
-                    <option value="premium">👑 Menu Premium</option>
-                    <option value="misto">🌟 Misto (Clássico + Premium)</option>
-                </select>
-                
-                <select id="admTamanhoLista" class="select-3d">
-                    <option value="reduzida">Reduzida (<30)</option>
-                    <option value="30-35">30 a 35 pessoas</option>
-                    <option value="40-60">40 a 60 pessoas</option>
-                    <option value="70-100">70 a 100 pessoas</option>
-                    <option value="150-200">150 a 200 pessoas</option>
-                    <option value="250-300">250 a 300 pessoas</option>
+        <div class="row">
+            <div class="col">
+                <label>Modelo do Contrato</label>
+                <select id="tipoServico" onchange="togglePacote()">
+                    <option value="pacote">📦 Pacote Fechado</option>
+                    <option value="tradicional">🍹 Tradicional (Open)</option>
                 </select>
             </div>
-
-            <button type="button" class="btn-action btn-import" onclick="importarLista()">📥 Importar Lista Automática</button>
-            <textarea id="admDetalhes" class="textarea-3d" placeholder="A lista de materiais aparecerá aqui..."></textarea>
-            
-            <button type="button" class="btn-action btn-save" onclick="salvarEvento()">💾 CADASTRAR EVENTO</button>
+            <div class="col" id="boxQuantidade">
+                <label>Limite Total (Drinks)</label>
+                <input type="number" id="qtdPacote" placeholder="Ex: 300">
+            </div>
         </div>
 
-        <h2>📅 Agenda de Eventos</h2>
-        <div class="admin-tabs">
-            <button type="button" class="tab-btn active" onclick="mudarAba('pendentes')">⏳ PENDENTES</button>
-            <button type="button" class="tab-btn" onclick="mudarAba('confirmados')">✅ CONFIRMADOS</button>
-            <button type="button" class="tab-btn" onclick="mudarAba('concluidos')">🏁 CONCLUÍDOS</button>
-        </div>
+        <label>Chave PIX (Para vendas)</label>
+        <input type="text" id="chavePix" placeholder="E-mail ou CPF">
 
-        <div id="tabPendentes" class="tab-content active"></div>
-        <div id="tabConfirmados" class="tab-content"></div>
-        <div id="tabConcluidos" class="tab-content"></div>
+        <label style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Cardápio Oficial & Preços</label>
+        <div id="listaDrinksEditor"></div>
+        <button class="btn-add" onclick="adicionarNovoDrink()">+ ADICIONAR NOVO DRINK</button>
 
-        <h2>🛠 Ferramentas</h2>
-        <div style="display:flex; gap:10px;">
-            <button type="button" class="btn-action btn-import" onclick="gerarHistorico()">🎲 Gerar Histórico</button>
-            <button type="button" class="btn-action btn-import" onclick="gerarFeriados()">📅 Importar Feriados</button>
-        </div>
+        <label>Timer de Bloqueio (minutos)</label>
+        <input type="number" id="timerBloqueio" value="15">
 
+        <label>Senha Admin</label>
+        <input type="text" id="senhaAdmin" placeholder="Senha mestre">
+
+        <button class="btn" id="btnSalvar" onclick="salvarEvento()">CRIAR EVENTO</button>
     </div>
+</div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk", authDomain: "gil-eventos-app-911fe.firebaseapp.com", projectId: "gil-eventos-app-911fe", storageBucket: "gil-eventos-app-911fe.firebasestorage.app", messagingSenderId: "503025880352", appId: "1:503025880352:web:694b7f2889cff501c7db45" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const SENHA_MESTRA = "9859";
-        let eventsCache = [];
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk",
+        authDomain: "gil-eventos-app-911fe.firebaseapp.com",
+        projectId: "gil-eventos-app-911fe",
+        storageBucket: "gil-eventos-app-911fe.firebasestorage.app",
+        messagingSenderId: "503025880352",
+        appId: "1:503025880352:web:694b7f2889cff501c7db45",
+        measurementId: "G-3DZ1P5C0M3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        // BANCO DE DADOS DAS LISTAS (COMPLETO)
-        const LISTAS = {
-            'classico': {
-                'reduzida': `*Lista Reduzida (<30) - Clássico*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás\n📍02 pct morango\n📍02 cx uva\n📍01L acerola\n📍20kg Gelo\n📍1-2L Vodka\n📍1-2L Aguardente`,
-                '30-35': `*Lista 30-35 - Clássico*\n📍04 abacaxis\n📍15 tangerinas\n📍15 limões taiti\n📍15 kiwi\n📍10 maracujás\n📍03 pct morango\n📍02 cx uva\n📍2L acerola\n📍20kg Gelo\n📍2-3L Vodka\n📍2-3L Aguardente`,
-                '40-60': `*Lista 40-60 - Clássico*\n📍07 abacaxis\n📍20 tangerinas\n📍20 limões\n📍15 kiwi\n📍15 maracujás\n📍04 pct morango\n📍03 cx uva\n📍3L acerola\n📍30kg Gelo\n📍3-4L Vodka\n📍3-4L Aguardente`,
-                '70-100': `*Lista 70-100 - Clássico*\n📍10-15 abacaxis\n📍25-35 tangerinas\n📍30-40 limões\n📍20-30 kiwi\n📍20-30 maracujás\n📍05-07 pct morango\n📍05-07 cx uva\n📍05-07L acerola\n📍40-70kg Gelo\n📍7-10L Vodka\n📍5-7L Aguardente`,
-                '150-200': `*Lista 150-200 - Clássico*\n📍15-20 abacaxis\n📍30-45 tangerinas\n📍35-50 limões\n📍30-45 kiwi\n📍30-40 maracujás\n📍10-15 pct morango\n📍07-10 cx uva\n📍10-15L acerola\n📍50-70kg Gelo\n📍10-15L Vodka\n📍7-10L Aguardente`,
-                '250-300': `*Lista 250-300 - Clássico*\n📍20-25 abacaxis\n📍35-50 tangerinas\n📍40-55 limões\n📍35-50 kiwi\n📍35-50 maracujás\n📍15-20 pct morango\n📍10-15 cx uva\n📍15-20L acerola\n📍60-70kg Gelo\n📍15-17L Vodka\n📍10-15L Aguardente`
-            },
-            'premium': {
-                'reduzida': `*Lista Reduzida (<30) - PREMIUM*\n📍8 Laranjas\n📍3 Abacaxis\n📍4 Limões Siciliano\n📍10 Limões Taiti\n📍20kg Gelo CUBO\n📍1L Gin\n📍1L Aperol\n📍1L Rum\n📍2L Água Gás\n📍2L Tônica\n📍Hortelã, Alecrim`,
-                '30-35': `*Lista 30-35 - PREMIUM*\n📍10 Laranjas\n📍4 Abacaxis\n📍5 Limões Siciliano\n📍15 Limões Taiti\n📍30kg Gelo CUBO\n📍2L Gin\n📍2L Aperol\n📍2L Rum\n📍3L Água Gás\n📍3L Tônica`,
-                '40-60': `*Lista 40-60 - PREMIUM*\n📍15 Laranjas\n📍7 Abacaxis\n📍12 Limões Siciliano\n📍30 Limões Taiti\n📍50kg Gelo CUBO\n📍5L Gin\n📍5L Aperol\n📍5L Rum\n📍5L Água Gás\n📍5L Tônica`,
-                '70-100': `*Lista 70-100 - PREMIUM*\n📍15-18 Laranjas\n📍7-10 Abacaxis\n📍12-15 Limões Siciliano\n📍30-35 Limões Taiti\n📍60kg Gelo CUBO\n📍7L Gin\n📍7L Aperol\n📍7L Rum\n📍7L Água Gás\n📍7L Tônica`,
-                '150-200': `*Lista 150-200 - PREMIUM*\n📍18-25 Laranjas\n📍10-13 Abacaxis\n📍15-20 Limões Siciliano\n📍35-40 Limões Taiti\n📍70kg Gelo CUBO\n📍8L Gin\n📍8L Aperol\n📍8L Rum\n📍10L Água Gás\n📍10L Tônica`,
-                '250-300': `*Lista 250-300 - PREMIUM*\n📍25-30 Laranjas\n📍13-15 Abacaxis\n📍20-30 Limões Siciliano\n📍40-50 Limões Taiti\n📍80kg Gelo CUBO\n📍10L Gin\n📍10L Aperol\n📍10L Rum\n📍12L Água Gás\n📍12L Tônica`
-            },
-            'misto': {
-                'reduzida': `*Lista Reduzida (<30) - MISTO*\n📍05 abacaxis\n📍10 tangerinas\n📍15 taiti\n📍10 kiwi\n📍07 maracujás\n📍8 Laranjas\n📍4 Siciliano\n📍10kg Gelo Escama\n📍10kg Gelo Cubo\n📍1-2L Vodka\n📍1-2L Aguardente\n📍1L Gin\n📍1L Aperol\n📍1L Rum`,
-                '30-35': `*Lista 30-35 - MISTO*\n📍06 abacaxis\n📍15 tangerinas\n📍20 taiti\n📍15 kiwi\n📍10 maracujás\n📍10 Laranjas\n📍5 Siciliano\n📍15kg Gelo Escama\n📍15kg Gelo Cubo\n📍2-3L Vodka\n📍2-3L Aguardente\n📍2L Gin\n📍2L Aperol\n📍2L Rum`,
-                '40-60': `*Lista 40-60 - MISTO*\n📍10 abacaxis\n📍20 tangerinas\n📍35 taiti\n📍15 kiwi\n📍15 maracujás\n📍15 Laranjas\n📍12 Siciliano\n📍20kg Gelo Escama\n📍30kg Gelo Cubo\n📍3-4L Vodka\n📍3-4L Aguardente\n📍3L Gin\n📍3L Aperol\n📍3L Rum`,
-                '70-100': `*Lista 70-100 - MISTO*\n📍12-15 abacaxis\n📍25-35 tangerinas\n📍35-50 taiti\n📍20-30 kiwi\n📍20-30 maracujás\n📍15-18 Laranjas\n📍12-15 Siciliano\n📍30-50kg Gelo Escama\n📍30kg Gelo Cubo\n📍7L Vodka\n📍5L Aguardente\n📍5L Gin\n📍5L Aperol\n📍5L Rum`,
-                '150-200': `*Lista 150-200 - MISTO*\n📍20-25 abacaxis\n📍30-45 tangerinas\n📍50-70 taiti\n📍30-45 kiwi\n📍30-40 maracujás\n📍18-25 Laranjas\n📍5-20 Siciliano\n📍30-50kg Gelo Escama\n📍30kg Gelo Cubo\n📍10L Vodka\n📍7L Aguardente\n📍5L Gin\n📍5L Aperol\n📍5L Rum`,
-                '250-300': `*Lista 250-300 - MISTO*\n📍30-45 abacaxis\n📍35-50 tangerinas\n📍50-80 taiti\n📍35-50 kiwi\n📍35-50 maracujás\n📍25-30 Laranjas\n📍20-30 Siciliano\n📍50-60kg Gelo Escama\n📍30kg Gelo Cubo\n📍15L Vodka\n📍10L Aguardente\n📍8L Gin\n📍8L Aperol\n📍8L Rum`
+    const params = new URLSearchParams(window.location.search);
+    const EVENTO_ID = params.get('evento');
+
+    // --- MENU OFICIAL COM EMOJIS ---
+    let cardapioAtual = [
+        { nome: "⚡ Elixir do Sol – Roska Energia", desc: "Abacaxi, hortelã, toque cítrico e especiarias suaves.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "❤️ Desejo Proibido – Roska das Paixões", desc: "Frutas vermelhas intensas, cítrico, hortelã e vodka.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "💜 Encanto Noturno – Roska do Encanto", desc: "Uva roxa, toque cítrico e manjericão fresco.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "🌴 Tropical Mix – Roska do Paraíso", desc: "Tangerina, Kiwi e Abacaxi, toque cítrico e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
+        { nome: "🌿 Brisa Verde – Roska Azedinha Fresh", desc: "Limão fresco, gengibre, manjericão e açúcar de cana.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "💥 Fúria Rubi – Roska Explosão", desc: "Morango, tangerina, maracujá e manjericão.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
+        { nome: "🍋 Caipirinha Premium", desc: "Limão taiti e aguardente. Refrescante e autêntica.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
+        { nome: "🍹 Segredo da Casa", desc: "Criação autoral e envolvente com frutas tropicais.", categoria: "classico", tipo_cobranca: "pacote", preco: 17, preco_prevenda: 15 },
+        
+        { nome: "🍓 Coquetel Kids", desc: "Mix cremoso de frutas vermelhas. Pode ser preparado com ou sem álcool.", categoria: "classico", tipo_cobranca: "pacote", preco: 15, preco_prevenda: 12 },
+        { nome: "🍍 Coquetel Personalizado", desc: "O cliente escolhe as frutas e combinações. Pode ser com ou sem álcool.", categoria: "classico", tipo_cobranca: "pacote", preco: 15, preco_prevenda: 12 },
+
+        { nome: "🧡 Aperol Sunset", desc: "Aperol, espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 },
+        { nome: "🌴 Gin Tropical", desc: "Gin, abacaxi grelhado, limão siciliano e hortelã.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 },
+        { nome: "🍃 Mojito da Ilha", desc: "Rum, hortelã, limão e água com gás.", categoria: "premium", tipo_cobranca: "pago", preco: 25, preco_prevenda: 20 }
+    ];
+
+    if(EVENTO_ID) {
+        document.getElementById('tituloPagina').innerText = "Editar Evento ✏️";
+        document.getElementById('btnSalvar').innerText = "SALVAR ALTERAÇÕES";
+        carregarDadosEdicao();
+    } else {
+        renderizarEditor();
+    }
+
+    function carregarDadosEdicao() {
+        db.collection("eventos").doc(EVENTO_ID).get().then((doc) => {
+            if(doc.exists) {
+                const dados = doc.data();
+                document.getElementById('nomeEvento').value = dados.nome;
+                document.getElementById('tipoServico').value = dados.tipo_servico;
+                document.getElementById('qtdPacote').value = dados.total_contratado;
+                document.getElementById('chavePix').value = dados.chave_pix || "";
+                document.getElementById('timerBloqueio').value = dados.timer_minutos;
+                document.getElementById('senhaAdmin').value = dados.senha_admin;
+                cardapioAtual = dados.cardapio || [];
+                togglePacote();
+                renderizarEditor();
             }
-        };
+        });
+    }
 
-        function logar() {
-            if(document.getElementById('senhaInput').value === SENHA_MESTRA) {
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('painelPrincipal').style.display = 'block';
-                carregarEventos();
-            } else alert("Senha incorreta");
-        }
+    function renderizarEditor() {
+        const container = document.getElementById('listaDrinksEditor');
+        container.innerHTML = '';
+        cardapioAtual.forEach((drink, index) => {
+            const div = document.createElement('div');
+            div.className = 'drink-item';
+            const pPrev = drink.preco_prevenda || drink.preco || 0;
 
-        function importarLista() {
-            const tipo = document.getElementById('admTipoMenu').value;
-            const tamanho = document.getElementById('admTamanhoLista').value;
-            
-            if(LISTAS[tipo] && LISTAS[tipo][tamanho]) {
-                document.getElementById('admDetalhes').value = LISTAS[tipo][tamanho];
-            } else {
-                alert("Lista não encontrada para essa combinação.");
-            }
-        }
+            div.innerHTML = `
+                <div class="drink-header">
+                    <input type="text" value="${drink.nome}" class="input-nome" placeholder="Nome">
+                    <button style="background:#ff4444; border:none; color:white; border-radius:5px; padding:5px 10px; cursor:pointer;" onclick="removerDrink(${index})">🗑️</button>
+                </div>
+                <textarea rows="2" class="input-desc" placeholder="Descrição">${drink.desc}</textarea>
+                <div class="configs-row">
+                    <div class="config-group">
+                        <span class="config-label">CATEGORIA</span>
+                        <select class="select-mini input-cat">
+                            <option value="classico" ${drink.categoria==='classico'?'selected':''}>🥃 Clássico</option>
+                            <option value="premium" ${drink.categoria==='premium'?'selected':''}>💎 Premium</option>
+                        </select>
+                    </div>
+                    <div class="config-group">
+                        <span class="config-label">CONTRATO</span>
+                        <select class="select-mini input-cob">
+                            <option value="pacote" ${drink.tipo_cobranca==='pacote'?'selected':''}>🆓 Pacote</option>
+                            <option value="pago" ${drink.tipo_cobranca==='pago'?'selected':''}>💲 Pago</option>
+                        </select>
+                    </div>
+                    <div class="config-group"><span class="config-label">R$ PRÉ-VENDA</span><input type="number" value="${pPrev}" class="input-preco-prevenda select-mini"></div>
+                    <div class="config-group"><span class="config-label">R$ NO DIA</span><input type="number" value="${drink.preco}" class="input-preco select-mini"></div>
+                </div>`;
+            container.appendChild(div);
+        });
+    }
 
-        function salvarEvento() {
-            const cliente = document.getElementById('admCliente').value;
-            const data = document.getElementById('admData').value;
-            const hora = document.getElementById('admHora').value;
-            const detalhes = document.getElementById('admDetalhes').value;
-            const tipo = document.getElementById('admTipoMenu').value;
+    function adicionarNovoDrink() { cardapioAtual.push({ nome: "", desc: "", categoria: "classico", tipo_cobranca: "pacote", preco: 0, preco_prevenda: 0 }); renderizarEditor(); }
+    function removerDrink(index) { cardapioAtual.splice(index, 1); renderizarEditor(); }
+    function togglePacote() { const t=document.getElementById('tipoServico').value; document.getElementById('boxQuantidade').style.display = (t==='tradicional')?'none':'block'; if(t==='tradicional')document.getElementById('qtdPacote').value=999999; }
 
-            if(!cliente || !data) return alert("Preencha Nome e Data!");
-
-            db.collection("agendamentos").add({
-                cliente, data_evento: data, hora_inicio: hora, 
-                detalhes, tipo_pacote: tipo, status: 'pendente'
-            }).then(() => {
-                alert("Evento Salvo!");
-                document.getElementById('admCliente').value = "";
-                document.getElementById('admData').value = "";
-                document.getElementById('admHora').value = "";
-                document.getElementById('admDetalhes').value = "";
+    function salvarEvento() {
+        const nome = document.getElementById('nomeEvento').value;
+        const tipo = document.getElementById('tipoServico').value;
+        const qtd = parseInt(document.getElementById('qtdPacote').value) || 0;
+        const pix = document.getElementById('chavePix').value || "Não informada";
+        const timer = parseInt(document.getElementById('timerBloqueio').value);
+        const senha = document.getElementById('senhaAdmin').value;
+        
+        let cardapioFinal = [];
+        document.querySelectorAll('.drink-item').forEach(item => {
+            cardapioFinal.push({
+                nome: item.querySelector('.input-nome').value,
+                desc: item.querySelector('.input-desc').value,
+                categoria: item.querySelector('.input-cat').value,
+                tipo_cobranca: item.querySelector('.input-cob').value,
+                preco: parseFloat(item.querySelector('.input-preco').value) || 0,
+                preco_prevenda: parseFloat(item.querySelector('.input-preco-prevenda').value) || 0,
+                disponivel: true 
             });
+        });
+
+        if(!nome || !senha) return alert("Preencha campos obrigatórios!");
+        const btn = document.getElementById('btnSalvar'); btn.innerText = "Salvando..."; btn.disabled = true;
+
+        const dados = { nome: nome, tipo_servico: tipo, total_contratado: qtd, chave_pix: pix, timer_minutos: timer, senha_admin: senha, cardapio: cardapioFinal };
+
+        if(EVENTO_ID) {
+            db.collection("eventos").doc(EVENTO_ID).update(dados).then(() => { alert("Atualizado!"); window.location.href = `dashboard.html?evento=${EVENTO_ID}`; });
+        } else {
+            dados.total_consumido = 0; dados.total_vendas_extra = 0; dados.total_faturamento = 0; dados.ativo = true; dados.data_criacao = new Date(); dados.modo_preco = 'normal';
+            db.collection("eventos").add(dados).then((docRef) => { window.location.href = `dashboard.html?evento=${docRef.id}`; });
         }
-
-        function carregarEventos() {
-            db.collection("agendamentos").orderBy("data_evento").onSnapshot(snapshot => {
-                const pendentes = document.getElementById('tabPendentes');
-                const confirmados = document.getElementById('tabConfirmados');
-                const concluidos = document.getElementById('tabConcluidos');
-                
-                pendentes.innerHTML = ""; confirmados.innerHTML = ""; concluidos.innerHTML = "";
-                eventsCache = [];
-                const hoje = new Date().toISOString().split('T')[0];
-
-                snapshot.forEach(doc => {
-                    const e = doc.data();
-                    const id = doc.id;
-                    eventsCache.push({id, ...e}); // Salva no cache para edição
-                    
-                    const dataDisplay = e.data_evento.split('-').reverse().join('/');
-                    const isPast = e.data_evento < hoje;
-
-                    let html = `
-                        <div class="event-list-item ${isPast ? 'past' : e.status}">
-                            <div style="flex-grow:1;">
-                                <strong style="color:${isPast ? '#777' : '#FF9500'}">${dataDisplay}</strong> - ${e.cliente}<br>
-                                <span style="font-size:0.8em; color:#aaa;">${e.tipo_pacote ? e.tipo_pacote.toUpperCase() : 'PERSONALIZADO'}</span>
-                            </div>
-                            <div style="display:flex;">
-                                ${!isPast && e.status !== 'confirmado' ? `<button type="button" onclick="mudarStatus('${id}','confirmado')" class="btn-icon btn-check">✅</button>` : ''}
-                                <button type="button" onclick="abrirEdicao('${id}')" class="btn-icon btn-edit">📄</button>
-                                <button type="button" onclick="deletarEvento('${id}')" class="btn-icon btn-trash">✖</button>
-                            </div>
-                        </div>`;
-
-                    if (isPast) concluidos.innerHTML += html;
-                    else if (e.status === 'confirmado') confirmados.innerHTML += html;
-                    else pendentes.innerHTML += html;
-                });
-            });
-        }
-
-        function mudarAba(aba) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            if(aba === 'pendentes') { document.querySelectorAll('.tab-btn')[0].classList.add('active'); document.getElementById('tabPendentes').classList.add('active'); }
-            if(aba === 'confirmados') { document.querySelectorAll('.tab-btn')[1].classList.add('active'); document.getElementById('tabConfirmados').classList.add('active'); }
-            if(aba === 'concluidos') { document.querySelectorAll('.tab-btn')[2].classList.add('active'); document.getElementById('tabConcluidos').classList.add('active'); }
-        }
-
-        // --- FUNÇÕES DE EDIÇÃO ---
-        function abrirEdicao(id) {
-            const ev = eventsCache.find(e => e.id === id);
-            if(!ev) return;
-
-            document.getElementById('editId').value = ev.id;
-            document.getElementById('editCliente').value = ev.cliente;
-            document.getElementById('editData').value = ev.data_evento;
-            document.getElementById('editHora').value = ev.hora_inicio || '';
-            document.getElementById('editDetalhes').value = ev.detalhes || '';
-
-            document.getElementById('editModalOverlay').style.display = 'flex';
-        }
-
-        function salvarEdicao() {
-            const id = document.getElementById('editId').value;
-            const dados = {
-                cliente: document.getElementById('editCliente').value,
-                data_evento: document.getElementById('editData').value,
-                hora_inicio: document.getElementById('editHora').value,
-                detalhes: document.getElementById('editDetalhes').value
-            };
-            db.collection("agendamentos").doc(id).update(dados).then(() => {
-                alert("Atualizado!");
-                fecharEdicao();
-            });
-        }
-
-        function fecharEdicao() { document.getElementById('editModalOverlay').style.display = 'none'; }
-        function mudarStatus(id, s) { db.collection("agendamentos").doc(id).update({status: s}); }
-        function deletarEvento(id) { if(confirm("Deletar?")) db.collection("agendamentos").doc(id).delete(); }
-        function gerarHistorico() { if(confirm("Gerar?")) for(let i=0;i<3;i++) db.collection("agendamentos").add({cliente:"Teste", data_evento:"2024-01-01", status:'confirmado'}); }
-        function gerarFeriados() { if(confirm("Add Natal?")) db.collection("agendamentos").add({cliente:"Natal", data_evento:"2025-12-25", status:'confirmado'}); }
-    </script>
+    }
+    togglePacote();
+</script>
 </body>
 </html>
+
+
