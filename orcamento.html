@@ -79,7 +79,8 @@
         }
         .result-card.highlight { border: 2px solid var(--orange); background: radial-gradient(circle at top left, rgba(60,40,20,0.9), rgba(20,20,20,0.95)); transform: scale(1.02); }
         .result-card h2 { font-size: 1.4em; margin-bottom: 10px; }
-        .price-display { font-size: 2em; color: var(--gold); font-weight: 800; margin: 15px 0 25px 0; }
+        .price-display { font-size: 2em; color: var(--gold); font-weight: 800; margin: 15px 0; }
+        .price-per-drink { font-size: 0.8em; color: #aaa; display: block; margin-top: -10px; margin-bottom: 20px; }
         .package-details { text-align: left; font-size: 0.9em; color: #ddd; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
         .lista-compras { display:none; text-align:left; margin-top:15px; padding:15px; background: rgba(0,0,0,0.5); border-radius:12px; font-size:0.85em; color:#ddd; white-space: pre-wrap; border: 1px solid #333; }
         .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
@@ -187,7 +188,7 @@
     </div>
 
     <script>
-        // DADOS DAS LISTAS (INCLUINDO AS DE 100+ AGORA)
+        // DADOS DAS LISTAS
         const BANCO_DE_LISTAS = {
             'reduzida': `*Lista Reduzida - Menos que 30 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás(GRANDES)\n\n*Frutas Vermelhas:*\n📍02 pacote de morango congelado\n📍02 caixinhas de uva preta sem caroço\n📍01 litros de acerola\n\n*Descartáveis Diversos:*\n📍20 kg de gelo ESCAMAS\n📍Escolher opção: 12 Schweppes lata OU 2 garrafas 1,5L OU 3L água de coco\n📍1 a 2L vodka\n📍1 a 2L aguardente\n📍01 pct canudo\n📍01 pct copo 400ml\n📍01 kg açúcar\n\n*Folhas:*\n📍Manjericão, Hortelã, Alecrim, Gengibre\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍12 Polpas\n📍01L H2O\n📍03 Leite Cond.\n📍03 Creme Leite\n📍01 Calda`,
             
@@ -197,7 +198,7 @@
             
             '70-100': `*Lista 70 a 100 convidados*\n@_gileventos\n\n*Frutas:*\n📍10 a 15 abacaxis\n📍25 a 35 tangerinas\n📍30 a 40 limões taiti\n📍20 a 30 kiwi\n📍20 a 30 maracujás\n\n*Frutas Vermelhas:*\n📍05 a 07 pct morango\n📍05 a 07 cx uva preta\n📍05 a 07L acerola\n\n*Descartáveis:*\n📍40 a 70kg Gelo Escama\n📍7 a 10L Vodka\n📍5 a 7L Aguardente\n📍3 a 5 pct canudo\n📍4 a 6 pct copo\n📍2 a 4kg açúcar\n\n*Para Coquetel (Add):*\n📍02 leite ninho gde\n📍02 Nes Quick gde\n📍24 a 40 Polpas\n📍7 a 10L H2O\n📍7 a 10 Leite Cond.\n📍7 a 10 Creme Leite`,
             
-            '150-200': `*Lista 150 a 200 convidados*\n@_gileventos\n\n*Frutas:*\n📍15 a 20 abacaxis\n📍30 a 45 tangerinas\n📍35 a 50 limões taiti\n📍30 a 45 kiwi\n📍30 a 40 maracujás\n\n*Frutas Vermelhas:*\n📍10 a 15 pct morango\n📍07 a 10 cx uva preta\n📍10 a 15 L acerola\n\n*Descartáveis:*\n📍50kg a 70kg Gelo Escama\n📍10 a 15L Vodka\n📍7 a 10L Aguardente\n📍5 a 8 pct canudos\n📍7 a 10 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍28 a 40 Polpas\n📍10 a 15L H2O\n📍10 a 15 Leite Condensado\n📍10 a 15 Creme Leite`,
+            '150-200': `*Lista 150 a 200 convidados*\n@_gileventos\n\n*Frutas:*\n📍15 a 20 abacaxis\n📍30 a 45 tangerinas\n📍35 a 50 limões taiti\n📍30 a 45 kiwi\n📍30 a 40 maracujás\n\n*Frutas Vermelhas:*\n📍10 a 15 pct morango\n📍07 a 10 cx uva preta\n📍10 a 15 L acerola\n\n*Descartáveis:*\n📍50kg a 70kg Gelo Escama\n📍10 a 15L Vodka\n📍7 a 10L Aguardente\n📍5 a 8 pct canudos\n📍7 a 10 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍28 a 40 Polpas\n📍10 a 15L H2O\n📍10 a 15 Leite Condensado\n📍10 a 15 Creme de Leite`,
             
             '250-300': `*Lista 250 a 300 convidados*\n@_gileventos\n\n*Frutas:*\n📍20 a 25 abacaxis\n📍35 a 50 tangerinas\n📍40 a 55 limões taiti\n📍35 a 50 kiwi\n📍35 a 50 maracujás\n\n*Frutas Vermelhas:*\n📍15 a 20 pct morango\n📍10 a 15 cx uva preta\n📍15 a 20 L acerola\n\n*Descartáveis:*\n📍60kg a 70kg Gelo Escama\n📍15 a 17L Vodka\n📍10 a 15L Aguardente\n📍6 a 8 pct canudos\n📍10 a 13 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍32 a 52 Polpas\n📍13 a 15L H2O\n📍13 a 17 Leite Condensado\n📍15 a 20 Creme de Leite`
         };
@@ -262,7 +263,7 @@
             resultado.innerHTML = "";
             resultadoExtra.innerHTML = "";
 
-            // Lógica de Faixa para Lista de Materiais (Mesmo para eventos grandes)
+            // Lógica de Faixa para Lista de Materiais
             let faixa = '70-100'; 
             if(convidados < 30) faixa = 'reduzida';
             else if(convidados <= 39) faixa = '30-35';
@@ -272,7 +273,7 @@
             else faixa = '250-300';
 
             const drinksEstimados = convidados * 3;
-            const maoDeObra = 350; // Ajuste se necessário para eventos grandes
+            const maoDeObra = 350; // Ajuste se necessário
             
             const pClassico = getPacote(pacotesClassicos, drinksEstimados);
             const pMisto = getPacote(pacotesMistos, drinksEstimados);
@@ -297,6 +298,7 @@
                     <p style="font-size:0.9em; margin-bottom:15px;">Bar completo com drinks Clássicos.</p>
                     <div class="package-details">🍹 <strong>${pClassico.drinks} Drinks</strong><br>Insumos e Estrutura inclusos.</div>
                     <div class="price-display">R$ ${pClassico.price.toFixed(2)}</div>
+                    <span class="price-per-drink">R$ ${(pClassico.price/pClassico.drinks).toFixed(2)} / drink</span>
                     <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Clássico%20de%20${pClassico.drinks}%20drinks" target="_blank" class="btn-gradient">Contratar</a>
                 </div>
 
@@ -305,6 +307,7 @@
                     <p style="font-size:0.9em; margin-bottom:15px;">O melhor dos dois mundos.</p>
                     <div class="package-details" style="background:rgba(255,149,0,0.2);">🍹 <strong>${pMisto.drinks} Drinks Total</strong><br>${pMisto.desc}</div>
                     <div class="price-display">R$ ${pMisto.price.toFixed(2)}</div>
+                    <span class="price-per-drink">R$ ${(pMisto.price/pMisto.drinks).toFixed(2)} / drink</span>
                     <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Combo%20Misto%20de%20${pMisto.drinks}%20drinks" target="_blank" class="btn-gradient">Eu Quero Esse!</a>
                 </div>
 
@@ -313,6 +316,7 @@
                     <p style="font-size:0.9em; margin-bottom:15px;">Experiência de alto luxo com Gin, Aperol e Mojito.</p>
                     <div class="package-details">🍸 <strong>${pPremium.drinks} Drinks Premium</strong><br>Bar completo de luxo.</div>
                     <div class="price-display">R$ ${pPremium.price.toFixed(2)}</div>
+                    <span class="price-per-drink">R$ ${(pPremium.price/pPremium.drinks).toFixed(2)} / drink</span>
                     <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Premium%20de%20${pPremium.drinks}%20drinks" target="_blank" class="btn-gradient" style="background:#333; border:1px solid #777;">Contratar Premium</a>
                 </div>
             `;
