@@ -1,757 +1,819 @@
 <!DOCTYPE html>
+
 <html lang="pt-br">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simulador Gil Eventos</title>
-    <style>
-        :root {
-            --primary-color: #d4af37; /* Dourado */
-            --bg-color: #1a1a1a;
-            --text-color: #f5f5f5;
-            --container-bg: #2c2c2c;
-        }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 10px; /* Reduzido para mobile */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+  <meta charset="UTF-8">
 
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 1.5rem; /* Fonte menor para não quebrar no celular */
-            margin-bottom: 10px;
-        }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .container {
-            background-color: var(--container-bg);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            max-width: 600px;
-            width: 100%;
-            border: 1px solid #444;
-            box-sizing: border-box; /* Importante para o padding não estourar a largura */
-        }
+  <title>Orçamento Online - Gil Eventos</title>
 
-        .input-group {
-            display: flex;
-            flex-direction: column; /* Em mobile, um embaixo do outro é melhor */
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-        label {
-            font-size: 0.9rem;
-            color: #ccc;
-            margin-bottom: 5px;
-            display: block;
-        }
+  <style>
 
-        select, input[type="number"] {
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid var(--primary-color);
-            background: #333;
-            color: white;
-            font-size: 16px; /* Tamanho 16px evita zoom automático no iPhone */
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-        }
+    /* ESTILOS GERAIS */
 
-        button {
-            padding: 15px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            width: 100%;
-            transition: background 0.2s;
-        }
+    * { box-sizing: border-box; }
 
-        .btn-gerar {
-            background-color: var(--primary-color);
-            color: #000;
-            margin-top: 10px;
-        }
+    html { scroll-behavior: smooth; }
 
-        .btn-gerar:active {
-            background-color: #b5952f;
-        }
+    body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; overflow-x: hidden; }
 
-        .btn-copiar {
-            background-color: #28a745;
-            color: white;
-            margin-top: 20px;
-            display: none;
-        }
+     
 
-        /* Área do Resultado */
-        #resultado {
-            margin-top: 20px;
-            padding: 15px;
-            background: #252525;
-            border-radius: 10px;
-            line-height: 1.5;
-            font-size: 0.95rem;
-        }
+    :root {
 
-        #resultado h2 {
-            color: var(--primary-color);
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-            font-size: 1.2rem;
-        }
+      --gold: #FFD580;
 
-        #resultado h3 { /* Títulos das seções (Frutas, etc) */
-            background-color: #444;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 1rem;
-            margin-top: 20px;
-        }
+      --orange: #FF9500;
 
-        #resultado ul {
-            list-style: none;
-            padding-left: 0;
-        }
+      --dark: #121212;
 
-        #resultado li {
-            margin-bottom: 8px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 4px;
-        }
+      --card-bg: #1E1E1E;
 
-        #resultado a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
+    }
 
-        .warning-box {
-            background: #3a2e00;
-            border-left: 4px solid var(--primary-color);
-            padding: 10px;
-            margin-top: 15px;
-            font-size: 0.85em;
-        }
 
-        footer {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #777;
-            text-align: center;
-        }
-    </style>
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    @keyframes growLine { from { width: 0; opacity: 0; } to { width: 80px; opacity: 1; } }
+
+    @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);} 40% {transform: translateX(-50%) translateY(-10px);} 60% {transform: translateX(-50%) translateY(-5px);} }
+
+     
+
+    /* BOTÕES */
+
+    .btn-gold {
+
+      background: transparent; border: 2px solid var(--gold); color: var(--gold);
+
+      padding: 12px 35px; font-size: 1em; font-weight: 600; text-transform: uppercase;
+
+      letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; border-radius: 5px;
+
+      text-decoration: none; display: inline-block;
+
+    }
+
+    .btn-gold:hover { background: var(--gold); color: var(--dark); box-shadow: 0 0 20px rgba(255, 213, 128, 0.4); }
+
+
+
+    .btn-gradient {
+
+      background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: #fff;
+
+      padding: 14px 28px; border-radius: 12px; font-weight: bold; cursor: pointer;
+
+      font-size: 1em; transition: all 0.3s ease; box-shadow: 0 0 15px rgba(255,149,0,0.3);
+
+      text-decoration: none; display: inline-block; width: 100%; text-align: center;
+
+    }
+
+    .btn-gradient:hover { transform: scale(1.02); box-shadow: 0 0 25px rgba(255,149,0,0.5); }
+
+
+
+    /* HERO & VIDEO YOUTUBE (TÉCNICA DE LIMPEZA) */
+
+    .hero-section { position:relative; height:100vh; height:100dvh; overflow:hidden; border-bottom:4px solid var(--gold); }
+
+     
+
+    .video-background {
+
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+
+      pointer-events: none; /* Impede clicar no vídeo */
+
+      overflow: hidden;
+
+    }
+
+     
+
+    /* Estica o vídeo para esconder a barra do YouTube fora da tela */
+
+    .video-background iframe {
+
+      position: absolute;
+
+      top: 50%; left: 50%;
+
+      width: 300vw; height: 300vh; /* Tamanho gigante para esconder controles */
+
+      transform: translate(-50%, -50%);
+
+      pointer-events: none;
+
+    }
+
+
+
+    .hero-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(18,18,18,0.9) 100%); z-index:2; }
+
+    .hero-content { position:relative; z-index:3; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; text-align:center; padding: 0 20px; }
+
+
+
+    /* MENU GRID */
+
+    .menu-section { background-color:#121212; background-image: radial-gradient(circle at top right, #1f1f1f, #121212); padding:60px 20px; }
+
+    .gil-category { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 60px 0 30px; }
+
+    .gil-category h2 { color: #FFB84D; font-size: 1.8em; text-transform: uppercase; letter-spacing: 1.5px; margin: 0; text-align: center; }
+
+    .gil-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, transparent, #FFB84D, transparent); max-width: 100px; }
+
+    .gil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+     
+
+    .gil-card {
+
+      background: var(--card-bg); border: 1px solid rgba(255, 213, 128, 0.1); border-radius: 16px;
+
+      overflow: hidden; transition: all 0.4s ease; position: relative;
+
+      display: flex; flex-direction: column;
+
+    }
+
+    .gil-card:hover { transform: translateY(-7px); border-color: rgba(255, 149, 0, 0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+
+
+    /* ÁREA DA FOTO */
+
+    .drink-img-box { width: 100%; height: 320px; position: relative; overflow: hidden; background: #000; }
+
+    .blur-bg {
+
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+
+      background-size: cover; background-position: center;
+
+      filter: blur(15px) brightness(0.5); transform: scale(1.1); z-index: 1;
+
+    }
+
+    .drink-img {
+
+      width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 2;
+
+      transition: transform 0.6s ease; drop-shadow: 0 5px 15px rgba(0,0,0,0.6);
+
+    }
+
+    .gil-card:hover .drink-img { transform: scale(1.05); }
+
+    .img-overlay {
+
+      position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
+
+      background: linear-gradient(to top, #1E1E1E, transparent); z-index: 3;
+
+    }
+
+
+
+    .card-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; position: relative; z-index: 4; }
+
+    .gil-card h3 { font-size: 1.3em; color: var(--gold); margin: 0 0 8px 0; font-weight: 700; }
+
+    .gil-card p { font-size: 0.9em; line-height: 1.5; color: #ccc; margin: 0; flex-grow: 1; }
+
+
+
+    .badge { 
+
+      position: absolute; top: 15px; right: 15px; z-index: 5;
+
+      font-size: 0.7em; padding: 5px 12px; border-radius: 20px; 
+
+      font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
+
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+
+    }
+
+    .badge-pop { background: #FF9500; color: #000; }
+
+    .badge-fresh { background: #00E676; color: #000; }
+
+    .badge-sweet { background: #FF4081; color: #fff; }
+
+    .badge-premium { background: linear-gradient(45deg, #FFD700, #FFAA00); color: #000; }
+
+
+
+    /* SIMULADOR */
+
+    .calc-container { max-width: 950px; margin: auto; padding: 50px 20px; text-align: center; }
+
+    label { display: block; margin-top: 25px; color: var(--gold); font-weight: 500; text-align: left; width: 90%; margin-left: auto; margin-right: auto; }
+
+    select, input { width: 90%; padding: 12px; border-radius: 10px; border: none; margin-top: 8px; background: rgba(36,36,36,0.9); color: #EAEAEA; font-size: 1em; }
+
+     
+
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+
+    .result-card { 
+
+      border: 1px solid rgba(255,213,128,0.25); border-radius: 18px; padding: 25px 30px; 
+
+      background: radial-gradient(circle at top left, rgba(40,40,40,0.85), rgba(18,18,18,0.9)); 
+
+      text-align: center; opacity: 0; animation: fadeUp 0.8s forwards ease-out; display: flex; flex-direction: column; justify-content: space-between;
+
+    }
+
+    .result-card.highlight { border: 2px solid var(--orange); background: radial-gradient(circle at top left, rgba(60,40,20,0.9), rgba(20,20,20,0.95)); transform: scale(1.02); }
+
+    .result-card h2 { font-size: 1.4em; margin-bottom: 10px; }
+
+    .price-display { font-size: 2em; color: var(--gold); font-weight: 800; margin: 15px 0 25px 0; }
+
+     
+
+    .package-details { text-align: left; font-size: 0.9em; color: #ddd; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; }
+
+    .lista-compras { display:none; text-align:left; margin-top:15px; padding:15px; background: rgba(0,0,0,0.5); border-radius:12px; font-size:0.85em; color:#ddd; white-space: pre-wrap; border: 1px solid #333; }
+
+    .btn-small { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; margin-top: 10px; }
+
+
+
+    /* AVISO DE LOCALIZAÇÃO */
+
+    .location-warning {
+
+      color: var(--gold); font-size: 0.95em; margin-top: 20px; margin-bottom: 10px;
+
+      font-weight: 600; background: rgba(255, 213, 128, 0.1); padding: 12px;
+
+      border-radius: 8px; border: 1px solid rgba(255, 213, 128, 0.3); display: inline-block;
+
+    }
+
+  </style>
+
 </head>
+
 <body>
 
-    <div class="container">
-        <h1>🍸 Gil Eventos</h1>
-        <p style="text-align: center; color: #ccc; font-size: 0.9rem;">Simulador de Orçamento</p>
-        
-        <div class="input-group">
-            <div>
-                <label>Escolha o Menu:</label>
-                <select id="tipoMenu">
-                    <option value="classico">1. Cardápio Clássico</option>
-                    <option value="premium">2. Drinks Premium (Apenas)</option>
-                    <option value="completo">3. Completo (Clássico + Premium)</option>
-                </select>
-            </div>
 
-            <div>
-                <label>Nº de Convidados:</label>
-                <input type="number" id="convidados" placeholder="Ex: 50" inputmode="numeric">
-            </div>
 
-            <button class="btn-gerar" onclick="gerarLista()">GERAR LISTA</button>
-        </div>
+  <div class="hero-section">
 
-        <div id="resultado"></div>
-        
-        <button id="btnCopiar" class="btn-copiar" onclick="copiarLista()">📋 Copiar para WhatsApp</button>
+    <div class="video-background">
+
+      <iframe 
+
+        src="https://www.youtube.com/embed/SYIByr8BKoQ?autoplay=1&mute=1&controls=0&loop=1&playlist=SYIByr8BKoQ&showinfo=0&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1" 
+
+        frameborder="0" 
+
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+
+        allowfullscreen>
+
+      </iframe>
+
     </div>
 
-    <footer>
-        Gil Eventos - Todos os direitos reservados
-    </footer>
+     
 
-    <script>
-        function gerarLista() {
-            const tipoMenu = document.getElementById('tipoMenu').value;
-            const convidados = parseInt(document.getElementById('convidados').value);
-            const resultadoDiv = document.getElementById('resultado');
-            const btnCopiar = document.getElementById('btnCopiar');
-            
-            let html = '';
+    <div class="hero-overlay"></div>
 
-            if (isNaN(convidados) || convidados <= 0) {
-                alert("Por favor, digite um número de convidados.");
-                return;
-            }
+     
 
-            // Cabeçalho Padrão
-            let header = `
-                <p><strong>@_gileventos</strong><br>
-                <a href="https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==">Siga no Instagram</a></p>
-            `;
+    <div class="hero-content">
 
-            // LÓGICA PRINCIPAL: MENU CLÁSSICO
-            if (tipoMenu === 'classico') {
-                html += `<h2>🍸 MENU CLÁSSICO (${convidados} Pessoas)</h2>` + header;
+      <h1 style="font-size: clamp(3em, 8vw, 5em); font-weight:800; text-transform:uppercase; margin:0; line-height:1.1; background: linear-gradient(45deg, #FFD580, #FFAE00, #FFF5D0, #FFAE00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 20px rgba(255, 174, 0, 0.3)); opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 0.2s;">
 
-                if (convidados <= 30) {
-                    html += `
-                    <h3>MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL</h3>
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 03 abacaxis</li>
-                        <li>📍 10 tangerinas</li>
-                        <li>📍 10 limões taiti</li>
-                        <li>📍 10 kiwi</li>
-                        <li>📍 07 maracujás (GRANDES)</li>
-                    </ul>
-                    <p><strong>Frutas Vermelhas:</strong></p>
-                    <ul>
-                        <li>📍 02 pacote de morango congelado (preferencialmente congelados)</li>
-                        <li>📍 02 caixinhas de uva preta sem caroço</li>
-                        <li>📍 01 litro de acerola</li>
-                        <li>⚠️ Outras frutas opcionais do cliente</li>
-                        <li>⚠️ No mínimo 3 opções de frutas vermelhas (Morangos e uvas indispensáveis)</li>
-                    </ul>
-                    <p><strong>Descartáveis Diversos:</strong></p>
-                    <ul>
-                        <li>📍 20 kg de gelo ESCAMAS (preferencial, não obrigatório)</li>
-                        <li>📍 <strong>Escolher uma opção:</strong> 12 Schweppes citrus (lata) OU 2 garrafas (1,5L) OU 3 litros de água de coco</li>
-                        <li>📍 1 a 2 litros de vodka (se beberem muito, comprar 5)</li>
-                        <li>📍 1 a 2 litros de aguardente (Ypioca preferencialmente)</li>
-                        <li>📍 01 pacote canudo pra drinks com paletas (o mais largo)</li>
-                        <li>📍 01 pacote de copo 400 ml</li>
-                        <li>📍 01 kg de açúcar</li>
-                    </ul>
-                    <p><strong>Folhas indispensáveis:</strong></p>
-                    <ul>
-                        <li>📍 01 môio de manjericão</li>
-                        <li>📍 01 môio de hortelã</li>
-                        <li>📍 01 môio de alecrim</li>
-                        <li>📍 01 pedaço de gengibre</li>
-                        <li>📍 Especiarias (opcional)</li>
-                    </ul>
-                    ${getObsClassico(1)}`; // Passando multiplicador 1 (base)
-                } 
-                else if (convidados <= 39) { // Lista até 35
-                    html += `
-                    <h3>MENU CLÁSSICOS DA CASA</h3>
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 04 abacaxis</li>
-                        <li>📍 15 tangerinas</li>
-                        <li>📍 15 limões taiti</li>
-                        <li>📍 15 kiwi</li>
-                        <li>📍 10 maracujás</li>
-                    </ul>
-                    <p><strong>Frutas Vermelhas:</strong></p>
-                    <ul>
-                        <li>📍 03 pacotes de morango congelado</li>
-                        <li>📍 02 caixinhas de uva preta sem caroço</li>
-                        <li>📍 2 litros de acerola</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 20 kg de gelo ESCAMAS</li>
-                        <li>📍 Opção Misturador: 18 latas Schweppes OU 3 garrafas 1.5L OU 4L água de coco</li>
-                        <li>📍 2 a 3 litros de vodka</li>
-                        <li>📍 2 a 3 litros de aguardente</li>
-                        <li>📍 02 pacotes canudo com paletas</li>
-                        <li>📍 02 pacotes de copo 400 ml</li>
-                        <li>📍 01 kg de açúcar</li>
-                    </ul>
-                    <p><strong>Folhas:</strong></p>
-                    <ul><li>📍 1 môio de cada (manjericão, hortelã, alecrim) + Gengibre</li></ul>
-                    ${getObsClassico('35')}`;
-                }
-                else if (convidados <= 69) { // Lista 40 a 60
-                    html += `
-                    <h3>MENU CLÁSSICOS DA CASA</h3>
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 07 abacaxis</li>
-                        <li>📍 20 tangerinas</li>
-                        <li>📍 20 limões taiti</li>
-                        <li>📍 15 kiwi</li>
-                        <li>📍 15 maracujás</li>
-                    </ul>
-                    <p><strong>Frutas Vermelhas:</strong></p>
-                    <ul>
-                        <li>📍 04 pacotes de morango congelado</li>
-                        <li>📍 03 caixinhas de uva preta sem caroço</li>
-                        <li>📍 03 litros de acerola</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 30 kg de gelo ESCAMAS</li>
-                        <li>📍 Opção Misturador: 24 latas Schweppes OU 4 garrafas 1.5L OU 5L água de coco</li>
-                        <li>📍 3 a 4 litros de vodka</li>
-                        <li>📍 3 a 4 litros de aguardente</li>
-                        <li>📍 03 pacotes canudo com paletas</li>
-                        <li>📍 03 pacotes de copo 400 ml</li>
-                        <li>📍 02 kg de açúcar</li>
-                    </ul>
-                    <p><strong>Folhas:</strong></p>
-                    <ul><li>📍 1 môio de cada (manjericão, hortelã, alecrim) + Gengibre</li></ul>
-                    ${getObsClassico('40-60')}`;
-                }
-                else if (convidados <= 149) { // Lista 70 a 100 (Esticando até 149)
-                    html += `
-                    <h3>MENU CLÁSSICOS DA CASA</h3>
-                    <p><strong>Frutas (Faixa 70 a 100):</strong></p>
-                    <ul>
-                        <li>📍 10 a 15 abacaxis</li>
-                        <li>📍 25 a 35 tangerinas</li>
-                        <li>📍 30 a 40 limões taiti</li>
-                        <li>📍 20 a 30 kiwi</li>
-                        <li>📍 20 a 30 maracujás</li>
-                    </ul>
-                    <p><strong>Frutas Vermelhas:</strong></p>
-                    <ul>
-                        <li>📍 05 a 07 pacotes de morango congelado</li>
-                        <li>📍 05 a 07 caixinhas de uva preta</li>
-                        <li>📍 05 a 07 litros de acerola</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 40kg a 70kg de Gelo ESCAMAS</li>
-                        <li>📍 Misturador: 3 a 5 cx Schweppes (lata) OU 7 a 10 garrafas (1.5L) OU 7 a 10L água coco</li>
-                        <li>📍 7 a 10 litros de vodka</li>
-                        <li>📍 5 a 7 litros de aguardente</li>
-                        <li>📍 3 a 5 pacotes canudo com paletas</li>
-                        <li>📍 4 a 6 pacotes de copo 400 ml</li>
-                        <li>📍 2 a 4 kg de açúcar</li>
-                    </ul>
-                    <p><strong>Folhas:</strong></p>
-                    <ul><li>📍 1 môio de cada + Gengibre</li></ul>
-                    ${getObsClassico('70-100')}`;
-                }
-                else if (convidados <= 249) { // Lista 150 a 200
-                    html += `
-                    <h3>MENU CLÁSSICOS DA CASA</h3>
-                    <p><strong>Frutas (Faixa 150 a 200):</strong></p>
-                    <ul>
-                        <li>📍 15 a 20 abacaxis</li>
-                        <li>📍 30 a 45 tangerinas</li>
-                        <li>📍 35 a 50 limões taiti</li>
-                        <li>📍 30 a 45 kiwi</li>
-                        <li>📍 30 a 40 maracujás</li>
-                    </ul>
-                    <p><strong>Frutas Vermelhas:</strong></p>
-                    <ul>
-                        <li>📍 10 a 15 pacotes de morango</li>
-                        <li>📍 07 a 10 caixinhas de uva preta</li>
-                        <li>📍 10 a 15 litros de acerola</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 50kg a 70kg de Gelo ESCAMAS</li>
-                        <li>📍 Misturador: 5 a 7 cx Schweppes (lata) OU 10 a 15 garrafas (1.5L) OU 10 a 15L água coco</li>
-                        <li>📍 10 a 15 litros de vodka</li>
-                        <li>📍 7 a 10 litros de aguardente</li>
-                        <li>📍 5 a 8 pacotes canudo com paletas</li>
-                        <li>📍 7 a 10 pacotes de copo 400 ml</li>
-                        <li>📍 5 a 8 kg de açúcar</li>
-                    </ul>
-                    <p><strong>Folhas:</strong></p>
-                    <ul><li>📍 02 môios de cada + 02 gengibres</li></ul>
-                    ${getObsClassico('150-200')}`;
-                }
-                else { // 250 a 300
-                    html += `
-                    <h3>MENU CLÁSSICOS DA CASA</h3>
-                    <p><strong>Frutas (Faixa 250 a 300):</strong></p>
-                    <ul>
-                        <li>📍 20 a 25 abacaxis</li>
-                        <li>📍 35 a 50 tangerinas</li>
-                        <li>📍 40 a 55 limões taiti</li>
-                        <li>📍 35 a 50 kiwi</li>
-                        <li>📍 35 a 50 maracujás</li>
-                    </ul>
-                    <p><strong>Frutas Vermelhas:</strong></p>
-                    <ul>
-                        <li>📍 15 a 20 pacotes de morango</li>
-                        <li>📍 10 a 15 caixinhas de uva preta</li>
-                        <li>📍 15 a 20 litros de acerola</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 60kg a 70kg de Gelo ESCAMAS</li>
-                        <li>📍 Misturador: 8 a 10 cx Schweppes (lata) OU 13 a 18 garrafas (1.5L) OU 13 a 18L água coco</li>
-                        <li>📍 15 a 17 litros de vodka</li>
-                        <li>📍 10 a 15 litros de aguardente</li>
-                        <li>📍 6 a 8 pacotes canudos com paletas</li>
-                        <li>📍 10 a 13 pacotes de copo 400 ml</li>
-                        <li>📍 5 a 8 kg de açúcar</li>
-                    </ul>
-                    <p><strong>Folhas:</strong></p>
-                    <ul><li>📍 03 môios de cada + 03 gengibres</li></ul>
-                    ${getObsClassico('250-300')}`;
-                }
-            }
+        Gil Eventos
 
-            // LÓGICA: MENU PREMIUM (APENAS)
-            else if (tipoMenu === 'premium') {
-                html += `<h2>🥃 MENU PREMIUM (${convidados} Pessoas)</h2>` + header;
-                html += `<div class="warning-box">ATENÇÃO: TODOS OS DRINKS PREMIUM SÃO COM ÁLCOOL! GELOS ESCAMAS NÃO SERVEM.</div>`;
+      </h1>
 
-                if (convidados <= 30) {
-                    html += `
-                    <ul>
-                        <li>📍 8 Laranjas</li>
-                        <li>📍 03 Abacaxis</li>
-                        <li>📍 04 Limões Siciliano</li>
-                        <li>📍 10 Limões Taiti</li>
-                        <li>📍 20 kg de gelo em CUBOS</li>
-                        <li>📍 01 pacote canudo com paletas</li>
-                        <li>📍 01 pacote de copo 400 ml</li>
-                        <li>📍 01 kg de açúcar demerara</li>
-                        <li>📍 01 Litro de Gin</li>
-                        <li>📍 01 Litro de Aperol</li>
-                        <li>📍 01 Litro de Rum Branco</li>
-                        <li>📍 02 Litros de Água com Gás</li>
-                        <li>📍 02 Litros de Água Tônica</li>
-                        <li>📍 01 môio hortelã e alecrim</li>
-                    </ul>`;
-                }
-                else if (convidados <= 39) {
-                     html += `
-                    <ul>
-                        <li>📍 10 Laranjas</li>
-                        <li>📍 04 Abacaxis</li>
-                        <li>📍 05 Limões Siciliano</li>
-                        <li>📍 15 Limões Taiti</li>
-                        <li>📍 30 kg de gelo em CUBOS</li>
-                        <li>📍 02 pacotes canudo e copo</li>
-                        <li>📍 01 kg de açúcar demerara</li>
-                        <li>📍 02 Litros de Gin, Aperol e Rum</li>
-                        <li>📍 03 Litros de Água com Gás e Tônica</li>
-                        <li>📍 01 môio hortelã e alecrim</li>
-                    </ul>`;
-                }
-                else if (convidados <= 69) {
-                     html += `
-                    <ul>
-                        <li>📍 15 Laranjas</li>
-                        <li>📍 07 Abacaxis</li>
-                        <li>📍 12 Limões Siciliano</li>
-                        <li>📍 30 Limões Taiti</li>
-                        <li>📍 50 kg de gelo em CUBOS</li>
-                        <li>📍 04 pacotes canudo e copo</li>
-                        <li>📍 03 kg de açúcar demerara</li>
-                        <li>📍 05 Litros de Gin, Aperol e Rum</li>
-                        <li>📍 05 Litros de Água com Gás e Tônica</li>
-                        <li>📍 03 môios hortelã e alecrim</li>
-                    </ul>`;
-                }
-                else if (convidados <= 149) { // 70-100
-                     html += `
-                    <ul>
-                        <li>📍 15 a 18 Laranjas</li>
-                        <li>📍 07 a 10 Abacaxis</li>
-                        <li>📍 12 a 15 Limões Siciliano</li>
-                        <li>📍 30 a 35 Limões Taiti</li>
-                        <li>📍 60 kg de gelo em CUBOS</li>
-                        <li>📍 05 pacotes canudo e copo</li>
-                        <li>📍 04 kg de açúcar demerara</li>
-                        <li>📍 07 Litros de Gin, Aperol e Rum</li>
-                        <li>📍 07 Litros de Água com Gás e Tônica</li>
-                        <li>📍 03 môios hortelã e alecrim</li>
-                    </ul>`;
-                }
-                else if (convidados <= 249) { // 150-200
-                     html += `
-                    <ul>
-                        <li>📍 18 a 25 Laranjas</li>
-                        <li>📍 10 a 13 Abacaxis</li>
-                        <li>📍 15 a 20 Limões Siciliano</li>
-                        <li>📍 35 a 40 Limões Taiti</li>
-                        <li>📍 70 kg de gelo em CUBOS</li>
-                        <li>📍 06 pacotes canudo e copo</li>
-                        <li>📍 05 kg de açúcar demerara</li>
-                        <li>📍 08 Litros de Gin, Aperol e Rum</li>
-                        <li>📍 10 Litros de Água com Gás e Tônica</li>
-                        <li>📍 03 môios hortelã e alecrim</li>
-                    </ul>`;
-                }
-                else { // 250-300
-                     html += `
-                    <ul>
-                        <li>📍 25 a 30 Laranjas</li>
-                        <li>📍 13 a 15 Abacaxis</li>
-                        <li>📍 20 a 30 Limões Siciliano</li>
-                        <li>📍 40 a 50 Limões Taiti</li>
-                        <li>📍 80 kg de gelo em CUBOS</li>
-                        <li>📍 07 pacotes canudo e copo</li>
-                        <li>📍 06 kg de açúcar demerara</li>
-                        <li>📍 10 Litros de Gin, Aperol e Rum</li>
-                        <li>📍 12 Litros de Água com Gás e Tônica</li>
-                        <li>📍 05 môios hortelã e alecrim</li>
-                    </ul>`;
-                }
-            }
+      <h2 style="font-size: clamp(1.2em, 4vw, 2em); color:#fff; margin-top:15px; font-weight:300; letter-spacing:1px; opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 0.5s;">
 
-            // LÓGICA: COMPLETO (CLÁSSICO + PREMIUM)
-            else if (tipoMenu === 'completo') {
-                html += `<h2>💎 MENU COMPLETO (${convidados} Pessoas)</h2>` + header;
-                html += `<p><em>Clássicos (C/ ou S/ Álcool) + Premium (C/ Álcool)</em></p>`;
+        Bar Premium & Coquetelaria
 
-                if (convidados <= 30) {
-                    html += `
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 05 abacaxis</li>
-                        <li>📍 10 tangerinas</li>
-                        <li>📍 15 limões taiti</li>
-                        <li>📍 10 kiwi</li>
-                        <li>📍 07 maracujás (GRANDES)</li>
-                        <li>📍 08 Laranjas</li>
-                        <li>📍 04 Limões Sicilianos</li>
-                    </ul>
-                    <p><strong>Frutas Vermelhas:</strong></p>
-                    <ul>
-                        <li>📍 02 pacotes de morango</li>
-                        <li>📍 02 cx uva preta</li>
-                        <li>📍 01 litro acerola</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 10 kg Gelo ESCAMAS + 10 kg Gelo CUBOS</li>
-                        <li>📍 Misturador: 12 latas Schweppes OU 2 garrafas 1.5L OU 3L água coco</li>
-                        <li>📍 1 a 2L Vodka + 1 a 2L Aguardente</li>
-                        <li>📍 1 pc canudo + 1 pc copo</li>
-                        <li>📍 1 kg Açúcar comum + 1 kg Demerara</li>
-                    </ul>
-                    <p><strong>Bebidas Premium:</strong></p>
-                    <ul>
-                        <li>📍 1L Gin + 1L Aperol + 1L Rum</li>
-                        <li>📍 2L Água com Gás + 2L Tônica</li>
-                    </ul>
-                    ${getObsClassico(1)}`;
-                }
-                else if (convidados <= 39) {
-                     html += `
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 06 abacaxis</li>
-                        <li>📍 15 tangerinas</li>
-                        <li>📍 20 limões taiti</li>
-                        <li>📍 15 kiwi</li>
-                        <li>📍 10 maracujás</li>
-                        <li>📍 10 Laranjas</li>
-                        <li>📍 05 Limões Sicilianos</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 15 kg Gelo ESCAMAS + 15 kg Gelo CUBOS</li>
-                        <li>📍 2 a 3L Vodka + 2 a 3L Aguardente</li>
-                        <li>📍 2 pc canudo + 2 pc copo</li>
-                        <li>📍 1 kg Açúcar comum + 1 kg Demerara</li>
-                    </ul>
-                    <p><strong>Bebidas Premium:</strong></p>
-                    <ul>
-                        <li>📍 2L Gin + 2L Aperol + 2L Rum</li>
-                        <li>📍 3L Água com Gás + 3L Tônica</li>
-                    </ul>
-                    ${getObsClassico('35')}`;
-                }
-                else if (convidados <= 69) {
-                     html += `
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 10 abacaxis</li>
-                        <li>📍 20 tangerinas</li>
-                        <li>📍 35 limões taiti</li>
-                        <li>📍 15 kiwi</li>
-                        <li>📍 15 maracujás</li>
-                        <li>📍 15 Laranjas</li>
-                        <li>📍 12 Limões Sicilianos</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 20 kg Gelo ESCAMAS + 30 kg Gelo CUBOS</li>
-                        <li>📍 3 a 4L Vodka + 3 a 4L Aguardente</li>
-                        <li>📍 3 pc canudo + 3 pc copo</li>
-                        <li>📍 2 kg Açúcar comum + 2 kg Demerara</li>
-                    </ul>
-                    <p><strong>Bebidas Premium:</strong></p>
-                    <ul>
-                        <li>📍 3L Gin + 3L Aperol + 3L Rum</li>
-                        <li>📍 5L Água com Gás + 5L Tônica</li>
-                    </ul>
-                    ${getObsClassico('40-60')}`;
-                }
-                else if (convidados <= 149) { // 70-100
-                     html += `
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 12 a 15 abacaxis</li>
-                        <li>📍 25 a 35 tangerinas</li>
-                        <li>📍 35 a 50 limões taiti</li>
-                        <li>📍 20 a 30 kiwi</li>
-                        <li>📍 20 a 30 maracujás</li>
-                        <li>📍 15 a 18 Laranjas</li>
-                        <li>📍 12 a 15 Limões Sicilianos</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 30 a 50 kg Gelo ESCAMAS + 30 kg Gelo CUBOS</li>
-                        <li>📍 7 a 10L Vodka + 5 a 7L Aguardente</li>
-                        <li>📍 3 a 5 pc canudo + 4 a 6 pc copo</li>
-                        <li>📍 2 a 3 kg Açúcar comum + 2 kg Demerara</li>
-                    </ul>
-                    <p><strong>Bebidas Premium:</strong></p>
-                    <ul>
-                        <li>📍 5L Gin + 5L Aperol + 5L Rum</li>
-                        <li>📍 7L Água com Gás + 7L Tônica</li>
-                    </ul>
-                    ${getObsClassico('70-100')}`;
-                }
-                else if (convidados <= 249) { // 150-200
-                     html += `
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 20 a 25 abacaxis</li>
-                        <li>📍 30 a 45 tangerinas</li>
-                        <li>📍 50 a 70 limões taiti</li>
-                        <li>📍 30 a 45 kiwi</li>
-                        <li>📍 30 a 40 maracujás</li>
-                        <li>📍 18 a 25 Laranjas</li>
-                        <li>📍 15 a 20 Limões Sicilianos</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 30 a 50 kg Gelo ESCAMAS + 30 kg Gelo CUBOS</li>
-                        <li>📍 10 a 15L Vodka + 7 a 10L Aguardente</li>
-                        <li>📍 5 a 8 pc canudo + 7 a 10 pc copo</li>
-                        <li>📍 4 a 5 kg Açúcar comum + 3 a 5 kg Demerara</li>
-                    </ul>
-                    <p><strong>Bebidas Premium:</strong></p>
-                    <ul>
-                        <li>📍 5L Gin + 5L Aperol + 5L Rum</li>
-                        <li>📍 10L Água com Gás + 10L Tônica</li>
-                    </ul>
-                    ${getObsClassico('150-200')}`;
-                }
-                else { // 250-300
-                     html += `
-                    <p><strong>Frutas:</strong></p>
-                    <ul>
-                        <li>📍 30 a 45 abacaxis</li>
-                        <li>📍 35 a 50 tangerinas</li>
-                        <li>📍 50 a 80 limões taiti</li>
-                        <li>📍 35 a 50 kiwi</li>
-                        <li>📍 35 a 50 maracujás</li>
-                        <li>📍 25 a 30 Laranjas</li>
-                        <li>📍 20 a 30 Limões Sicilianos</li>
-                    </ul>
-                    <p><strong>Descartáveis e Bebidas:</strong></p>
-                    <ul>
-                        <li>📍 50 a 60 kg Gelo ESCAMAS + 30 kg Gelo CUBOS</li>
-                        <li>📍 15 a 17L Vodka + 10 a 15L Aguardente</li>
-                        <li>📍 6 a 8 pc canudo + 10 a 13 pc copo</li>
-                        <li>📍 5 kg Açúcar comum + 5 kg Demerara</li>
-                    </ul>
-                    <p><strong>Bebidas Premium:</strong></p>
-                    <ul>
-                        <li>📍 8L Gin + 8L Aperol + 8L Rum</li>
-                        <li>📍 12L Água com Gás + 12L Tônica</li>
-                    </ul>
-                    ${getObsClassico('250-300')}`;
-                }
-            }
+      </h2>
 
-            // Rodapé fixo das OBS
-            html += `
-            <div class="warning-box">
-                ⚠️ EVENTOS SEM ÁLCOOL: Basta retirar o álcool da lista.<br>
-                ⚠️ LOCAIS DE COMPRA: Frutas na feira, Descartáveis em lojas de embalagem, Bebidas em atacadão, Gelo em postos.
-            </div>
-            `;
+      <div style="width: 80px; height: 3px; background: #FF9500; margin: 20px 0; opacity:0; animation: growLine 1s ease-out forwards; animation-delay: 0.8s;"></div>
 
-            resultadoDiv.innerHTML = html;
-            btnCopiar.style.display = 'block';
-            resultadoDiv.scrollIntoView({ behavior: 'smooth' });
-        }
+      <p style="margin-top:0; color:#ddd; font-size: clamp(1em, 2.5vw, 1.2em); max-width: 600px; opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 1s;">
 
-        // Função Auxiliar para gerar o texto repetitivo das observações do Clássico e Completo
-        function getObsClassico(tipo) {
-            let qtdNinho, qtdNesquick, qtdPolpas, qtdH2o, qtdLeiteCond, qtdCreme, qtdCalda;
+        Transformando celebrações em memórias inesquecíveis com drinks autorais e serviço de excelência.
 
-            // Definindo as quantidades baseadas na lista
-            if(tipo === 1) { // Menos de 30
-                qtdNinho = "01 pct pequeno"; qtdNesquick = "01 pct pequeno"; qtdPolpas = "12 und"; 
-                qtdH2o = "01 L"; qtdLeiteCond = "03 cx"; qtdCreme = "03 cx"; qtdCalda = "01 peq";
-            } else if (tipo === '35') {
-                qtdNinho = "01 pct peq"; qtdNesquick = "01 pct peq"; qtdPolpas = "20 und"; 
-                qtdH2o = "02 L"; qtdLeiteCond = "05 cx"; qtdCreme = "05 cx"; qtdCalda = "01 und";
-            } else if (tipo === '40-60') {
-                qtdNinho = "01 pct grande"; qtdNesquick = "01 pct grande"; qtdPolpas = "24 und"; 
-                qtdH2o = "05 L"; qtdLeiteCond = "06 cx"; qtdCreme = "06 cx"; qtdCalda = "01 und";
-            } else if (tipo === '70-100') {
-                qtdNinho = "02 pct grande"; qtdNesquick = "02 pct grande"; qtdPolpas = "24 a 40 und"; 
-                qtdH2o = "07 a 10 L"; qtdLeiteCond = "07 a 10 cx"; qtdCreme = "07 a 10 cx"; qtdCalda = "01 und";
-            } else if (tipo === '150-200') {
-                qtdNinho = "03 pct grande"; qtdNesquick = "03 pct grande"; qtdPolpas = "28 a 40 und"; 
-                qtdH2o = "10 a 15 L"; qtdLeiteCond = "10 a 15 cx"; qtdCreme = "10 a 15 cx"; qtdCalda = "03 und";
-            } else if (tipo === '250-300') {
-                qtdNinho = "03 pct grande"; qtdNesquick = "03 pct grande"; qtdPolpas = "32 a 52 und"; 
-                qtdH2o = "13 a 15 L"; qtdLeiteCond = "13 a 17 cx"; qtdCreme = "15 a 20 cx"; qtdCalda = "03 und";
-            }
+      </p>
 
-            return `
-            <div style="background-color: #333; padding: 10px; border-radius: 5px; margin-top: 10px;">
-                <p><strong>🍹 OPCIONAL: Coquetel de Frutas e Montado</strong><br>
-                Acrescentar:</p>
-                <ul>
-                    <li>📍 ${qtdNinho} Leite Ninho</li>
-                    <li>📍 ${qtdNesquick} Nesquik</li>
-                    <li>📍 ${qtdPolpas} Polpas de frutas</li>
-                    <li>📍 ${qtdH2o} H2O</li>
-                    <li>📍 ${qtdLeiteCond} Leite Condensado</li>
-                    <li>📍 ${qtdCreme} Creme de Leite</li>
-                    <li>📍 ${qtdCalda} Calda de morango</li>
-                </ul>
-            </div>`;
-        }
+      <div style="margin-top: 35px; opacity:0; animation: fadeUp 1s ease-out forwards; animation-delay: 1.3s;">
 
-        function copiarLista() {
-            const resultadoDiv = document.getElementById('resultado');
-            const textoParaCopiar = resultadoDiv.innerText;
+        <button onclick="document.getElementById('simulador').scrollIntoView({behavior: 'smooth'})" class="btn-gold">
 
-            navigator.clipboard.writeText(textoParaCopiar).then(() => {
-                const btn = document.getElementById('btnCopiar');
-                const textoOriginal = btn.innerHTML;
-                
-                btn.innerHTML = '✅ Lista Copiada!';
-                btn.style.backgroundColor = '#155724';
-                
-                setTimeout(() => {
-                    btn.innerHTML = textoOriginal;
-                    btn.style.backgroundColor = '#28a745';
-                }, 3000);
-            }).catch(err => {
-                alert('Erro ao copiar.');
-            });
-        }
-    </script>
+          Fazer Orçamento Agora
+
+        </button>
+
+      </div>
+
+    </div>
+
+     
+
+    <div style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); z-index:3; animation: bounce 2s infinite;">
+
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFD580" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="menu-section">
+
+    <div style="text-align:center; max-width:800px; margin:0 auto 60px;">
+
+      <span style="color:#FF9500; font-size:0.9em; letter-spacing:3px; text-transform:uppercase; font-weight:600;">Gil Eventos</span>
+
+      <h1 style="color:#FFD580; font-size:2.5em; margin:10px 0 15px; text-transform:uppercase; letter-spacing:1px; line-height:1.2;">Carta de Drinks Oficial</h1>
+
+      <div style="width:60px; height:3px; background:#FF9500; margin:0 auto 20px;"></div>
+
+      <p style="color:#bbb; font-size:1.1em; line-height:1.6;">Uma seleção de experiências líquidas. Do clássico ao autoral.</p>
+
+    </div>
+
+
+
+    <div class="gil-category"><span class="gil-line"></span><h2>Clássicos da Casa</h2><span class="gil-line"></span></div>
+
+    <div class="gil-grid">
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg');"></div><img src="https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg" class="drink-img"><span class="badge badge-pop">Mais Pedido</span><div class="img-overlay"></div></div><div class="card-content"><h3>Elixir do Sol</h3><p><strong>Roska Energia:</strong> Abacaxi, hortelã, toque cítrico e especiarias.</p></div></div>
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg');"></div><img src="https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg" class="drink-img"><span class="badge badge-sweet">Doce</span><div class="img-overlay"></div></div><div class="card-content"><h3>Desejo Proibido</h3><p><strong>Roska das Paixões:</strong> Frutas vermelhas intensas, cítrico e hortelã.</p></div></div>
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg');"></div><img src="https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Encanto Noturno</h3><p><strong>Roska do Encanto:</strong> Uva roxa, cítrico e manjericão fresco.</p></div></div>
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg');"></div><img src="https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Tropical Mix</h3><p><strong>Roska do Paraíso:</strong> Tangerina, kiwi, abacaxi e ervas frescas.</p></div></div>
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg');"></div><img src="https://i.pinimg.com/1200x/6a/45/0b/6a450b13320e9269009a387e69bca14f.jpg" class="drink-img"><span class="badge badge-fresh">Refrescante</span><div class="img-overlay"></div></div><div class="card-content"><h3>Brisa Verde</h3><p><strong>Roska Fresh:</strong> Limão, gengibre, manjericão e açúcar de cana.</p></div></div>
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg');"></div><img src="https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Fúria Rubi</h3><p><strong>Roska Explosão:</strong> Morango, tangerina e maracujá.</p></div></div>
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg');"></div><img src="https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg" class="drink-img"><span class="badge badge-pop">Clássico</span><div class="img-overlay"></div></div><div class="card-content"><h3>Caipirinha Premium</h3><p>Limão tahiti, açúcar na medida e aguardente de qualidade.</p></div></div>
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg');"></div><img src="https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Segredo da Casa</h3><p>Criação autoral com toque secreto do barman.</p></div></div>
+
+    </div>
+
+
+
+    <div class="gil-category"><span class="gil-line"></span><h2>Drinks Premium</h2><span class="gil-line"></span></div>
+
+    <div class="gil-grid">
+
+      <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg');"></div><img src="https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Aperol Sunset</h3><p>Aperol com espumante e laranja caramelizada.</p></div></div>
+
+      <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg');"></div><img src="https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Gin Tropical</h3><p>Gin, abacaxi grelhado, especiarias e limão siciliano.</p></div></div>
+
+      <div class="gil-card" style="border-color: rgba(255, 215, 0, 0.3);"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg');"></div><img src="https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg" class="drink-img"><span class="badge badge-premium">Premium</span><div class="img-overlay"></div></div><div class="card-content"><h3>Mojito da Ilha</h3><p>Rum branco, hortelã fresca e limão tahiti.</p></div></div>
+
+    </div>
+
+
+
+    <div class="gil-category"><span class="gil-line"></span><h2>Coquetéis</h2><span class="gil-line"></span></div>
+
+    <div class="gil-grid">
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg');"></div><img src="https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Coquetel Kids</h3><p>Mix cremoso de frutas vermelhas. Delicioso, colorido e perfeito para festas infantis.</p></div></div>
+
+      <div class="gil-card"><div class="drink-img-box"><div class="blur-bg" style="background-image: url('https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg');"></div><img src="https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg" class="drink-img"><div class="img-overlay"></div></div><div class="card-content"><h3>Personalizado</h3><p>O cliente escolhe as frutas e combinações na hora.</p></div></div>
+
+    </div>
+
+  </div>
+
+
+
+  <section style="background-color:#111; color:#f5f5f5; padding:80px 20px; text-align:center;">
+
+    <h2 style="font-size:2.8em; color:var(--gold); margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">💼 Como Funcionam Nossos Serviços</h2>
+
+    <p style="color:#ccc; font-size:1.1em; margin-bottom:50px; max-width:800px; margin:auto;">Escolha a melhor forma de levar a experiência Gil Eventos para sua festa.</p>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:35px;">
+
+      <div style="background:linear-gradient(145deg,#1b1b1b,#0c0c0c); border:2px solid var(--gold); border-radius:20px; width:330px; padding:35px; text-align:left;">
+
+        <h3 style="color:var(--gold); font-size:1.5em; margin-bottom:10px;">🥃 Serviço Tradicional</h3>
+
+        <p style="color:#ffedc0;"><em>Mão de obra profissional. Insumos por conta do cliente.</em></p>
+
+        <ul style="color:#e0e0e0; padding-left:20px; line-height:1.6;"><li>Lista completa de compras.</li><li>Consultoria via WhatsApp.</li><li>Preparo e serviço no dia.</li></ul>
+
+      </div>
+
+      <div style="background:linear-gradient(145deg,#232323,#0a0a0a); border:2px solid var(--orange); border-radius:20px; width:330px; padding:35px; text-align:left;">
+
+        <h3 style="color:var(--orange); font-size:1.5em; margin-bottom:10px;">💎 Pacotes Completos</h3>
+
+        <p style="color:#ffdca1;"><em>Bar completo. Zero preocupação.</em></p>
+
+        <ul style="color:#e0e0e0; padding-left:20px; line-height:1.6;"><li>Bebidas, frutas, copos e gelo inclusos.</li><li>Opções Clássicas e Premium.</li><li>Estrutura completa.</li></ul>
+
+      </div>
+
+      <div style="background:linear-gradient(145deg,#1b1b1b,#0a0a0a); border:2px solid #888; border-radius:20px; width:330px; padding:35px; text-align:left;">
+
+        <h3 style="color:#ccc; font-size:1.5em; margin-bottom:10px;">🤝 Parceria Pré-venda</h3>
+
+        <p style="color:#ddd;"><em>Para grandes eventos (100+).</em></p>
+
+        <ul style="color:#e0e0e0; padding-left:20px; line-height:1.6;"><li>Sem custo antecipado.</li><li>Venda direta aos convidados.</li><li>Estrutura por nossa conta.</li></ul>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <div class="calc-container" id="simulador">
+
+    <h1 style="color:var(--gold); font-size:2.4em; text-transform:uppercase;">🍸 Simulador de Orçamento</h1>
+
+    <p>Descubra o formato ideal e valores em segundos.</p>
+
+    <label for="tipo">Tipo de Evento</label>
+
+    <select id="tipo"><option value="Casamento">Casamento</option><option value="Aniversário">Aniversário</option><option value="Corporativo">Corporativo</option><option value="Infantil">Infantil</option></select>
+
+    <label for="convidados">Número de Convidados</label>
+
+    <input type="number" id="convidados" min="1" placeholder="Ex: 80">
+
+    <br><br>
+
+    <button class="btn-gradient" onclick="calcular()">Calcular Opções</button>
+
+     
+
+    <br>
+
+    <p class="location-warning">⚠️ Valores válidos apenas para Feira de Santana - Bahia</p>
+
+
+
+    <div id="resultado" class="results-grid"></div>
+
+    <div id="resultadoExtra" class="results-grid" style="grid-template-columns: 1fr;"></div>
+
+  </div>
+
+
+
+  <div style="text-align:center; background:#111; padding:60px 20px; color:var(--gold); border-top:2px solid #FFD58033;">
+
+    <h2 style="font-size:2em;">✨ Faça seu evento brilhar com Gil Eventos ✨</h2>
+
+    <a href="https://wa.me/5575998649927" target="_blank" class="btn-gradient" style="max-width:300px;">Falar no WhatsApp</a>
+
+    <p style="margin-top:30px; font-size:0.8em; color:#555;">&copy; 2025 Gil Eventos.</p>
+
+  </div>
+
+
+
+  <script>
+
+    // DADOS DAS LISTAS (INCLUINDO AS DE 100+ AGORA)
+
+    const BANCO_DE_LISTAS = {
+
+      'reduzida': `*Lista Reduzida - Menos que 30 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás(GRANDES)\n\n*Frutas Vermelhas:*\n📍02 pacote de morango congelado\n📍02 caixinhas de uva preta sem caroço\n📍01 litros de acerola\n\n*Descartáveis Diversos:*\n📍20 kg de gelo ESCAMAS\n📍Escolher opção: 12 Schweppes lata OU 2 garrafas 1,5L OU 3L água de coco\n📍1 a 2L vodka\n📍1 a 2L aguardente\n📍01 pct canudo\n📍01 pct copo 400ml\n📍01 kg açúcar\n\n*Folhas:*\n📍Manjericão, Hortelã, Alecrim, Gengibre\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍12 Polpas\n📍01L H2O\n📍03 Leite Cond.\n📍03 Creme Leite\n📍01 Calda`,
+
+       
+
+      '30-35': `*Lista até 35 convidados*\n@_gileventos\n\n*Frutas:*\n📍04 abacaxis\n📍15 tangerinas\n📍15 limões taiti\n📍15 kiwi\n📍10 maracujás\n\n*Frutas Vermelhas:*\n📍03 pct morango\n📍02 cx uva preta\n📍2L acerola\n\n*Descartáveis:*\n📍20kg gelo escama\n📍18 Schweppes lata OU 3 garrafas 1,5L\n📍2 a 3L vodka\n📍2 a 3L aguardente\n📍02 pct canudo\n📍02 pct copo\n📍01kg açúcar\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍20 Polpas\n📍02L H2O\n📍05 Leite Cond.\n📍05 Creme Leite`,
+
+       
+
+      '40-60': `*Lista 40 a 60 convidados*\n@_gileventos\n\n*Frutas:*\n📍07 abacaxis\n📍20 tangerinas\n📍20 limões taiti\n📍15 kiwi\n📍15 maracujás\n\n*Frutas Vermelhas:*\n📍04 pct morango\n📍03 cx uva preta\n📍03L acerola\n\n*Descartáveis:*\n📍30kg gelo escama\n📍24 Schweppes lata OU 4 garrafas 1,5L\n📍3 a 4L vodka\n📍3 a 4L aguardente\n📍03 pct canudo\n📍03 pct copo\n📍02kg açúcar\n\n*Para Coquetel (Add):*\n📍01 leite ninho gde\n📍01 Nes Quick gde\n📍24 Polpas\n📍05L H2O\n📍06 Leite Cond.\n📍06 Creme Leite`,
+
+       
+
+      '70-100': `*Lista 70 a 100 convidados*\n@_gileventos\n\n*Frutas:*\n📍10 a 15 abacaxis\n📍25 a 35 tangerinas\n📍30 a 40 limões taiti\n📍20 a 30 kiwi\n📍20 a 30 maracujás\n\n*Frutas Vermelhas:*\n📍05 a 07 pct morango\n📍05 a 07 cx uva preta\n📍05 a 07L acerola\n\n*Descartáveis:*\n📍40 a 70kg Gelo Escama\n📍7 a 10L Vodka\n📍5 a 7L Aguardente\n📍3 a 5 pct canudo\n📍4 a 6 pct copo\n📍2 a 4kg açúcar\n\n*Para Coquetel (Add):*\n📍02 leite ninho gde\n📍02 Nes Quick gde\n📍24 a 40 Polpas\n📍7 a 10L H2O\n📍7 a 10 Leite Cond.\n📍7 a 10 Creme Leite`,
+
+       
+
+      '150-200': `*Lista 150 a 200 convidados*\n@_gileventos\n\n*Frutas:*\n📍15 a 20 abacaxis\n📍30 a 45 tangerinas\n📍35 a 50 limões taiti\n📍30 a 45 kiwi\n📍30 a 40 maracujás\n\n*Frutas Vermelhas:*\n📍10 a 15 pct morango\n📍07 a 10 cx uva preta\n📍10 a 15 L acerola\n\n*Descartáveis:*\n📍50kg a 70kg Gelo Escama\n📍10 a 15L Vodka\n📍7 a 10L Aguardente\n📍5 a 8 pct canudos\n📍7 a 10 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍28 a 40 Polpas\n📍10 a 15L H2O\n📍10 a 15 Leite Condensado\n📍10 a 15 Creme de Leite`,
+
+       
+
+      '250-300': `*Lista 250 a 300 convidados*\n@_gileventos\n\n*Frutas:*\n📍20 a 25 abacaxis\n📍35 a 50 tangerinas\n📍40 a 55 limões taiti\n📍35 a 50 kiwi\n📍35 a 50 maracujás\n\n*Frutas Vermelhas:*\n📍15 a 20 pct morango\n📍10 a 15 cx uva preta\n📍15 a 20 L acerola\n\n*Descartáveis:*\n📍60kg a 70kg Gelo Escama\n📍15 a 17L Vodka\n📍10 a 15L Aguardente\n📍6 a 8 pct canudos\n📍10 a 13 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍32 a 52 Polpas\n📍13 a 15L H2O\n📍13 a 17 Leite Condensado\n📍15 a 20 Creme de Leite`
+
+    };
+
+
+
+    const pacotesClassicos = [
+
+      {drinks:100, price:750}, {drinks:150, price:950}, {drinks:200, price:1150}, {drinks:250, price:1350}, 
+
+      {drinks:300, price:1450}, {drinks:400, price:1850}, {drinks:500, price:2250}, {drinks:600, price:2650}, 
+
+      {drinks:750, price:3250}, {drinks:900, price:3850}
+
+    ];
+
+
+
+    const pacotesPremium = [
+
+      {drinks:100, price:1450}, {drinks:150, price:1750}, {drinks:200, price:2050}, {drinks:250, price:2350}, 
+
+      {drinks:300, price:2650}, {drinks:400, price:2950}, {drinks:500, price:3250}, {drinks:600, price:3550}, 
+
+      {drinks:750, price:3850}, {drinks:900, price:4150}
+
+    ];
+
+
+
+    const pacotesMistos = [
+
+      {drinks:100, price:1050, desc:"70 Clássicos + 30 Premium"},
+
+      {drinks:150, price:1350, desc:"100 Clássicos + 50 Premium"},
+
+      {drinks:200, price:1650, desc:"140 Clássicos + 60 Premium"},
+
+      {drinks:250, price:1950, desc:"170 Clássicos + 80 Premium"},
+
+      {drinks:300, price:2250, desc:"200 Clássicos + 100 Premium"},
+
+      {drinks:400, price:2550, desc:"300 Clássicos + 100 Premium"},
+
+      {drinks:500, price:2850, desc:"400 Clássicos + 100 Premium"},
+
+      {drinks:600, price:3150, desc:"500 Clássicos + 100 Premium"},
+
+      {drinks:750, price:3450, desc:"600 Clássicos + 150 Premium"},
+
+      {drinks:900, price:3750, desc:"700 Clássicos + 200 Premium"}
+
+    ];
+
+
+
+    function getPacote(array, drinksNeeded) {
+
+      for(let i=0; i<array.length; i++){
+
+        if(array[i].drinks >= drinksNeeded) return array[i];
+
+      }
+
+      return array[array.length-1];
+
+    }
+
+
+
+    function toggleLista(btn){
+
+      const lista = btn.nextElementSibling;
+
+      lista.style.display = lista.style.display === 'none' || lista.style.display === '' ? 'block' : 'none';
+
+    }
+
+
+
+    function copiarLista(chave){
+
+      const texto = BANCO_DE_LISTAS[chave];
+
+      if(!texto) return alert("Lista não encontrada para essa quantidade.");
+
+      navigator.clipboard.writeText(texto).then(() => alert("✅ Lista copiada!")).catch(() => alert("Erro ao copiar"));
+
+    }
+
+
+
+    function mostrarPacotesExtras() {
+
+      const container = document.getElementById('pacotesExtras');
+
+      container.style.display = 'grid';
+
+      container.scrollIntoView({behavior: 'smooth'});
+
+    }
+
+
+
+    function calcular(){
+
+      const convidados = parseInt(document.getElementById('convidados').value);
+
+      const tipo = document.getElementById('tipo').value;
+
+      const resultado = document.getElementById('resultado');
+
+      const resultadoExtra = document.getElementById('resultadoExtra');
+
+       
+
+      if(!convidados || convidados < 1) return alert("Digite o número de convidados");
+
+
+
+      resultado.innerHTML = "";
+
+      resultadoExtra.innerHTML = "";
+
+
+
+      // Lógica de Faixa para Lista de Materiais (Mesmo para eventos grandes)
+
+      let faixa = '70-100'; 
+
+      if(convidados < 30) faixa = 'reduzida';
+
+      else if(convidados <= 39) faixa = '30-35';
+
+      else if(convidados <= 69) faixa = '40-60';
+
+      else if(convidados <= 149) faixa = '70-100';
+
+      else if(convidados <= 249) faixa = '150-200';
+
+      else faixa = '250-300';
+
+
+
+      const drinksEstimados = convidados * 3;
+
+      const maoDeObra = 350; // Ajuste se necessário para eventos grandes
+
+       
+
+      const pClassico = getPacote(pacotesClassicos, drinksEstimados);
+
+      const pMisto = getPacote(pacotesMistos, drinksEstimados);
+
+      const pPremium = getPacote(pacotesPremium, drinksEstimados);
+
+
+
+      // GERAÇÃO DOS CARDS PADRÃO
+
+      const cardsPadrao = `
+
+        <div class="result-card">
+
+          <h2 style="color:var(--gold);">🥃 Serviço Tradicional</h2>
+
+          <p style="font-size:0.9em; margin-bottom:15px;">Mão de obra profissional. Insumos por sua conta.</p>
+
+          <div class="price-display">R$ ${maoDeObra.toFixed(2)}</div>
+
+          <button class="btn-small" onclick="toggleLista(this)">📋 Ver Lista de Compras</button>
+
+          <div class="lista-compras">${BANCO_DE_LISTAS[faixa]}</div>
+
+          <br><br>
+
+          <button class="btn-gold" onclick="copiarLista('${faixa}')">Copiar Lista</button>
+
+          <br><br>
+
+          <a href="https://wa.me/5575998649927?text=Gostaria%20de%20contratar%20Mão%20de%20Obra%20para%20${convidados}%20pessoas" target="_blank" class="btn-gradient" style="margin-top:15px;">Solicitar</a>
+
+        </div>
+
+
+
+        <div class="result-card">
+
+          <h2 style="color:var(--gold);">💎 Pacote Clássico</h2>
+
+          <p style="font-size:0.9em; margin-bottom:15px;">Bar completo com drinks Clássicos.</p>
+
+          <div class="package-details">🍹 <strong>${pClassico.drinks} Drinks</strong><br>Insumos e Estrutura inclusos.</div>
+
+          <div class="price-display">R$ ${pClassico.price.toFixed(2)}</div>
+
+          <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Clássico%20de%20${pClassico.drinks}%20drinks" target="_blank" class="btn-gradient">Contratar</a>
+
+        </div>
+
+
+
+        <div class="result-card highlight">
+
+          <h2 style="color:var(--orange);">🌟 Combo Misto (Gold)</h2>
+
+          <p style="font-size:0.9em; margin-bottom:15px;">O melhor dos dois mundos.</p>
+
+          <div class="package-details" style="background:rgba(255,149,0,0.2);">🍹 <strong>${pMisto.drinks} Drinks Total</strong><br>${pMisto.desc}</div>
+
+          <div class="price-display">R$ ${pMisto.price.toFixed(2)}</div>
+
+          <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Combo%20Misto%20de%20${pMisto.drinks}%20drinks" target="_blank" class="btn-gradient">Eu Quero Esse!</a>
+
+        </div>
+
+
+
+        <div class="result-card">
+
+          <h2 style="color:#E0E0E0;">👑 Pacote Premium</h2>
+
+          <p style="font-size:0.9em; margin-bottom:15px;">Experiência de alto luxo com Gin, Aperol e Mojito.</p>
+
+          <div class="package-details">🍸 <strong>${pPremium.drinks} Drinks Premium</strong><br>Bar completo de luxo.</div>
+
+          <div class="price-display">R$ ${pPremium.price.toFixed(2)}</div>
+
+          <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Premium%20de%20${pPremium.drinks}%20drinks" target="_blank" class="btn-gradient" style="background:#333; border:1px solid #777;">Contratar Premium</a>
+
+        </div>
+
+      `;
+
+
+
+      if(convidados < 100){
+
+        // MENOS DE 100: MOSTRA TUDO DIRETO
+
+        resultado.innerHTML = cardsPadrao;
+
+      } else {
+
+        // MAIS DE 100: ESTRATÉGIA DE ANCORAGEM (Parceria primeiro)
+
+        resultado.innerHTML = `
+
+        <div class="result-card" style="grid-column: 1 / -1; border-color:#fff;">
+
+          <h2 style="color:#ccc;">🤝 Opção Recomendada: Parceria Pré-venda</h2>
+
+          <p>Para grandes eventos (100+ pessoas). <strong>Você não paga nada adiantado!</strong></p>
+
+          <p>Nós montamos a estrutura e vendemos os drinks diretamente aos convidados.</p>
+
+          <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Quero essa Parceria (Sem Custo)</a>
+
+        </div>
+
+         
+
+        <div style="grid-column: 1 / -1; text-align:center; margin-top:30px;">
+
+          <p style="color:#888; margin-bottom:10px;">Ou se preferir pagar pelos drinks:</p>
+
+          <button class="btn-gold" onclick="mostrarPacotesExtras()">⬇️ Prefiro contratar um Pacote (Ver Preços)</button>
+
+        </div>
+
+
+
+        <div id="pacotesExtras" class="results-grid" style="display:none; grid-column: 1 / -1;">
+
+          ${cardsPadrao}
+
+        </div>`;
+
+      }
+
+       
+
+      setTimeout(() => { document.getElementById('resultado').scrollIntoView({behavior: 'smooth'}); }, 300);
+
+    }
+
+  </script>
+
 </body>
+
 </html>
