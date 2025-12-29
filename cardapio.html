@@ -88,6 +88,10 @@
   .cart-item-info { text-align: left; }
   .btn-remove-cart { color: #FF4444; background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 0 10px; }
   .cart-total-area { margin-top: 15px; padding-top: 10px; border-top: 1px solid #555; text-align: right; }
+  
+  /* NOVO: AVISO PAGAMENTO CHAMATIVO */
+  .cart-warning { background: rgba(255, 149, 0, 0.15); border: 1px solid #FF9500; color: #FF9500; font-size: 0.85em; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: bold; display: none; animation: pulseWarning 2s infinite; }
+  @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0); } }
  </style>
 </head>
 <body>
@@ -121,6 +125,11 @@
         <div id="areaCarrinho" class="cart-section" style="display:none;">
             <div class="cart-title">🛒 No Carrinho (A Enviar) <span style="font-size:0.8em; color:#fff;" id="countCarrinho"></span></div>
             <div id="listaCarrinhoHTML"></div>
+            
+            <div id="msgAvisoPagamento" class="cart-warning">
+                ⚠️ <strong>ATENÇÃO:</strong> Drinks pagos só entram na fila de preparo após a <u>confirmação do PIX</u>!
+            </div>
+
             <div class="cart-total-area">
                 <div style="font-size:1.2em; color:#fff; margin-bottom:10px;">Total: <strong style="color:#4CAF50;" id="totalCarrinhoDisplay">R$ 0,00</strong></div>
                 <button class="btn-confirm" id="btnCheckoutCart" style="background:#4CAF50; color:#fff;" onclick="abrirPagamentoMassa()">ENVIAR TUDO 🚀</button>
@@ -223,15 +232,19 @@
 
     document.getElementById('totalCarrinhoDisplay').innerText = `R$ ${total.toFixed(2)}`;
     
-    // LÓGICA DO BOTÃO INTELIGENTE
+    // LÓGICA DO BOTÃO E AVISO
+    const avisoPagamento = document.getElementById('msgAvisoPagamento');
+    
     if(total > 0) {
         btnCheckout.innerText = `PAGAR R$ ${total.toFixed(2)} E ENVIAR 🚀`;
         btnCheckout.style.background = "#4CAF50"; 
         btnCheckout.style.color = "#fff";
+        avisoPagamento.style.display = "block"; // MOSTRA O AVISO SE TIVER PAGAMENTO
     } else {
         btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀";
         btnCheckout.style.background = "#FFD580"; 
         btnCheckout.style.color = "#000";
+        avisoPagamento.style.display = "none"; // ESCONDE O AVISO SE FOR TUDO GRATIS
     }
 
     document.getElementById('valorTotalMassa').innerText = `R$ ${total.toFixed(2)}`;
