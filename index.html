@@ -140,12 +140,835 @@
 
     <script>
         const BANCO_DE_LISTAS = {
-            'classico_reduzida': `*Lista Reduzida - Menos que 30 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*\n\n*Frutas:*\n📍03 abacaxis\n📍10 tangerinas\n📍10 limões taiti\n📍10 kiwi\n📍07 maracujás(GRANDES)\n\n*Frutas Vermelhas:*\n📍02 pacote de morango congelado\n📍02 caixinhas de uva preta sem caroço\n📍01 litros de acerola\n⚠️Outras frutas opcionais do cliente\n\n*Descartáveis:*\n📍20 kg de gelo ESCAMAS\n📍Escolher opção: 12 Schweppes lata OU 2 garrafas 1,5L OU 3L água de coco\n📍1 a 2L vodka\n📍1 a 2L aguardente\n📍01 pct canudo\n📍01 pct copo 400ml\n📍01 kg açúcar\n\n*Folhas:*\n📍Manjericão, Hortelã, Alecrim, Gengibre\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍12 Polpas\n📍01L H2O\n📍03 Leite Cond.\n📍03 Creme Leite\n📍01 Calda`,
-            'classico_30-35': `*Lista até 35 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍04 abacaxis\n📍15 tangerinas\n📍15 limões taiti\n📍15 kiwi\n📍10 maracujás\n\n*Frutas Vermelhas:*\n📍03 pct morango\n📍02 cx uva preta\n📍2L acerola\n\n*Descartáveis:*\n📍20kg gelo escama\n📍18 Schweppes lata OU 3 garrafas 1,5L\n📍2 a 3L vodka\n📍2 a 3L aguardente\n📍02 pct canudo\n📍02 pct copo\n📍01kg açúcar\n\n*Para Coquetel (Add):*\n📍01 leite ninho peq\n📍01 Nes Quick peq\n📍20 Polpas\n📍02L H2O\n📍05 Leite Cond.\n📍05 Creme Leite`,
-            'classico_40-60': `*Lista 40 a 60 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍07 abacaxis\n📍20 tangerinas\n📍20 limões taiti\n📍15 kiwi\n📍15 maracujás\n\n*Frutas Vermelhas:*\n📍04 pct morango\n📍03 cx uva preta\n📍03L acerola\n\n*Descartáveis:*\n📍30kg gelo escama\n📍24 Schweppes lata OU 4 garrafas 1,5L\n📍3 a 4L vodka\n📍3 a 4L aguardente\n📍03 pct canudo\n📍03 pct copo\n📍02kg açúcar\n\n*Para Coquetel (Add):*\n📍01 leite ninho gde\n📍01 Nes Quick gde\n📍24 Polpas\n📍05L H2O\n📍06 Leite Cond.\n📍06 Creme Leite`,
-            'classico_70-100': `*Lista 70 a 100 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍10 a 15 abacaxis\n📍25 a 35 tangerinas\n📍30 a 40 limões taiti\n📍20 a 30 kiwi\n📍20 a 30 maracujás\n\n*Frutas Vermelhas:*\n📍05 a 07 pct morango\n📍05 a 07 cx uva preta\n📍05 a 07L acerola\n\n*Descartáveis:*\n📍40 a 70kg Gelo Escama\n📍7 a 10L Vodka\n📍5 a 7L Aguardente\n📍3 a 5 pct canudo\n📍4 a 6 pct copo\n📍2 a 4kg açúcar\n\n*Para Coquetel (Add):*\n📍02 leite ninho gde\n📍02 Nes Quick gde\n📍24 a 40 Polpas\n📍7 a 10L H2O\n📍7 a 10 Leite Cond.\n📍7 a 10 Creme Leite`,
-            'classico_150-200': `*Lista 150 a 200 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍15 a 20 abacaxis\n📍30 a 45 tangerinas\n📍35 a 50 limões taiti\n📍30 a 45 kiwi\n📍30 a 40 maracujás\n\n*Frutas Vermelhas:*\n📍10 a 15 pct morango\n📍07 a 10 cx uva preta\n📍10 a 15 L acerola\n\n*Descartáveis:*\n📍50kg a 70kg Gelo Escama\n📍10 a 15L Vodka\n📍7 a 10L Aguardente\n📍5 a 8 pct canudos\n📍7 a 10 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍28 a 40 Polpas\n📍10 a 15L H2O\n📍10 a 15 Leite Condensado\n📍10 a 15 Creme Leite`,
-            'classico_250-300': `*Lista 250 a 300 convidados*\n@_gileventos\n\n*MENU CLÁSSICOS DA CASA*\n\n*Frutas:*\n📍20 a 25 abacaxis\n📍35 a 50 tangerinas\n📍40 a 55 limões taiti\n📍35 a 50 kiwi\n📍35 a 50 maracujás\n\n*Frutas Vermelhas:*\n📍15 a 20 pct morango\n📍10 a 15 cx uva preta\n📍15 a 20 L acerola\n\n*Descartáveis:*\n📍60kg a 70kg Gelo Escama\n📍15 a 17L Vodka\n📍10 a 15L Aguardente\n📍6 a 8 pct canudos\n📍10 a 13 pct copos\n📍5 a 8kg açúcar\n\n*Para Coquetel (Add):*\n📍03 leite ninho gde\n📍03 Nes Quick gde\n📍32 a 52 Polpas\n📍13 a 15L H2O\n📍13 a 17 Leite Condensado\n📍15 a 20 Creme de Leite`
+            // ==================== LISTAS CLÁSSICAS ====================
+            'classico_reduzida': `*Lista Reduzida- Menos que 30 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*
+*Frutas:*
+📍03 abacaxis 
+📍10 tangerinas
+📍10 limões taiti
+📍10 kiwi
+📍07 maracujás(GRANDES)
+*Frutas Vermelhas:*
+📍02 pacote de morango congelado (preferencialmente congelados)  
+📍02 caixinhas de uva preta sem caroço 
+📍01 litros de acerola
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍20 kg de gelo ESCAMAS(preferencialmente gelo escamas, porém não é obrigatório)
+📍Escolher uma opção: 12 unidades de Schweppes citrus lata(sai mais caro) ou 2 garrafas de 1,5L(sai mais em conta) ou 3 litros de água de coco
+📍1 a 2 litros de vodka(se os convidados beber muito pode comprar 5)
+📍1 a 2 litros de aguardente - Ypioca (preferencialmente) se não quer servir Drinks com álcool basta retirar as vodkas e aguardente da lista de compras
+📍01 pacotes canudo pra drinks com paletas(o mais largo)
+📍01 pacotes de copo 400 ml 
+📍01 kg de açúcar
+*Folhas indispensáveis*
+📍01 môio de manjericão 
+📍01 môio de hortelã
+📍01 môio de alecrim
+📍01 pedaço de gengibre
+📍Especiarias(opcional do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍01 pacote de leite ninho pequeno
+📍01 pacote de Nes Quick pequeno
+📍12 unidades de Polpas de frutas, 3 unidades de cada sabor, 4 sabores  
+📍01 litros de H2O
+📍03 caixinhas de leite condensado
+📍03 caixinhas de creme de leite
+📍01 calda de morango ou outro sabor(DO PEQUENO)
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR*`,
+
+            'classico_30-35': `*Lista até 35 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*
+*Frutas:*
+📍04 abacaxis 
+📍15 tangerinas
+📍15 limões taiti
+📍15 kiwi
+📍10 maracujás
+*Frutas Vermelhas:*
+📍03 pacote de morango congelado (preferencialmente congelados)  
+📍02 caixinhas de uva preta sem caroço 
+📍2 litros de acerola
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍20 kg de gelo ESCAMAS(preferencialmente gelo escamas, porém não é obrigatório)
+📍Escolher uma opção: 18 unidades de Schweppes citrus lata(sai mais caro) ou 3 garrafas de 1,5L(sai mais em conta) ou 4 litros de água de coco
+📍2 a 3 litros de vodka(se os convidados beber muito pode comprar 5)
+📍2 a 3 litros de aguardente - Ypioca (preferencialmente) se não quer servir Drinks com álcool basta retirar as vodkas e aguardente da lista de compras
+📍02 pacotes canudo pra drinks com paletas(o mais largo)
+📍02 pacotes de copo 400 ml 
+📍01 kg de açúcar
+*Folhas indispensáveis*
+📍01 môio de manjericão 
+📍01 môio de hortelã
+📍01 môio de alecrim
+📍01 pedaço de gengibre
+📍Especiarias(opcional do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍01 pacote de leite ninho pequeno
+📍01 pacote de Nes Quick pequeno
+📍20 unidades de Polpas de frutas, 5 unidades de cada sabor, 4 sabores  
+📍02 litros de H2O
+📍05 caixinhas de leite condensado
+📍05 caixinhas de creme de leite
+📍01 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR*`,
+
+            'classico_40-60': `*Lista 40 a 60 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*
+*Frutas:*
+📍07 abacaxis 
+📍20 tangerinas
+📍20 limões taiti
+📍15 kiwi
+📍15 maracujás
+*Frutas Vermelhas:*
+📍04 pacote de morango congelado (preferencialmente congelados)  
+📍03 caixinhas de uva preta sem caroço 
+📍03 litros de acerola
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍30 kg de gelo ESCAMAS(preferencialmente gelo escamas, porém não é obrigatório)
+📍Escolher uma opção: 24 unidades de Schweppes citrus lata(sai mais caro) ou 4 garrafas de 1,5L(sai mais em conta) ou 5 litros de água de coco
+📍3 a 4 litros de vodka(se os convidados beber muito pode comprar 5)
+📍3 a 4 litros de aguardente - Ypioca (preferencialmente) se não quer servir Drinks com álcool basta retirar as vodkas e aguardente da lista de compras
+📍03 pacotes de canudo pra drinks com paletas(o mais largo)
+📍03 pacotes de copo 400 ml 
+📍02 kg de açúcar
+*Folhas indispensáveis*
+📍01 môio de manjericão 
+📍01 môio de hortelã
+📍01 môio de alecrim
+📍01 pedaço de gengibre
+📍Especiarias(opcional do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍01 pacote de leite ninho grande
+📍01 pacote de Nes Quick grande
+📍24 unidades de Polpas de frutas, 6 unidades de cada sabor, 4 sabores
+📍05 litros de H2O
+📍06 caixinhas de leite condensado
+📍06 caixinhas de creme de leite
+📍01 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR*`,
+
+            'classico_70-100': `*Lista 70 a 100 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*
+*Frutas:*
+📍10 abacaxis (70 convidados) - 15 abacaxis (100 convidados)
+📍25 tangerinas (70 convidados) - 35 tangerinas (100 convidados)
+📍30 limões taiti  (70 convidados) - 40 limões taiti (100 convidados)
+📍20 kiwi (70 convidados) - 30 kiwi (100 convidados)
+📍20 maracujás (70 convidados) -  30 maracujás (100 convidados)
+*Frutas Vermelhas:*
+📍Morangos congelados: 05 pacotes (70 convidados) - 07 pacotes (100 convidados) *(preferencialmente congelados)*
+📍05 caixinhas de uva preta sem caroço (70 convidados) - 07 caixinhas (100 convidados) 
+📍05 litros de acerola (70 convidados) - 07 litros de acerola (100 convidados) 
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍40kg de Gelo (70 convidados) - 70kg de Gelo (100 convidados) *Gelo ESCAMAS: (preferencialmente gelo escamas, porém não é obrigatório)*
+📍*Escolher uma opção:* 70 convidados: 3 caixinhas Schweppes citrus lata com 12 unidades cada(sai mais caro) ou 7 garrafas de 1,5L(sai mais em conta) ou 7 litros de água de coco - 
+100 convidados: 5 caixinhas de Schweppes citrus lata com 12 unidades cada ou 10 garrafas de 1,5L caixinhas de Schweppes citrus ou 10 litros de água de coco 
+📍Vodkas: 70 convidados: 7 litros de vodkas. 100 convidados: 10 litros de vodka
+📍Aguardente - Ypioca (preferencialmente). 5 litros: 70 convidados - 7 litros:100 convidados
+📍70 convidados: 03 pacotes de canudo pra drinks com paletas(o mais largo) - 100 convidados: 05 pacotes de canudo pra drinks com paletas
+📍70 convidados: 04 pacotes de copo 400 ml  - 100 convidados: 06 pacotes de copo 400 ml
+📍70 convidados: 02 kg de açúcar - 100 convidados: 04 kg de açúcar
+*Folhas indispensáveis*
+📍01 môio de manjericão 
+📍01 môio de hortelã
+📍01 môio de alecrim
+📍01 pedaço de gengibre
+📍Especiarias(opcional do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍02 pacote de leite ninho grande
+📍02 pacote de Nes Quick grande
+📍70 convidados: 24 unidades de Polpas de frutas, 6 unidades de cada sabor, 4 sabores - 100 convidados: 40 unidades de Polpas de frutas, 10 unidades de cada sabor, 4 sabores
+📍70 convidados: 07 litros de H2O - 100 convidados: 10 litros de H2O
+📍70 convidados: 07 caixinhas de leite condensado - 100 convidados: 10 caixinhas de leite condensado
+📍70 convidados: 07 caixinhas de creme de leite - 100 convidados: 10 caixinhas de creme de leite
+📍01 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR*`,
+
+            'classico_150-200': `*Lista 150 a 200 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*
+*Frutas:*
+📍15 abacaxis (150 convidados) -  20 abacaxis (200 convidados)
+📍30 tangerinas (150 convidados) - 45 tangerinas (200 convidados)
+📍35 limões taiti  (150 convidados) - 50 limões taiti (200 convidados)
+📍30 kiwi (150 convidados) - 45 kiwi (200 convidados)
+📍30 maracujás (150 convidados) -  40 maracujás (200 convidados)
+*Frutas Vermelhas:*
+📍Morangos congelados: 10 pacotes (150 convidados) - 15 pacotes (200 convidados) *(preferencialmente congelados)*
+📍07 caixinhas de uva preta sem caroço (150 convidados) - 10 caixinhas (200 convidados) 
+📍10 litros de acerola (150 convidados) - 15 litros de acerola (200 convidados) 
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍50kg de Gelo (150 convidados) - 70kg de Gelo (200 convidados) *Gelo ESCAMAS: (preferencialmente gelo escamas, porém não é obrigatório)*
+📍*Escolher uma opção:* 150 convidados: 5 caixinhas Schweppes citrus lata com 12 unidades cada(sai mais caro) ou 10 garrafas de 1,5L(sai mais em conta) ou 10  litros de água de coco - 
+200 convidados: 7 caixinhas de Schweppes citrus lata com 12 unidades cada ou 15 garrafas de 1,5L caixinhas de Schweppes citrus ou 15 litros de água de coco 
+📍Vodkas: 150 convidados: 10  litros de vodkas. 200 convidados: 15 litros de vodka
+📍Aguardente - Ypioca (preferencialmente). 7 litros: 150 convidados - 10 litros: 200  convidados
+📍150 convidados: 05 pacotes de canudos pra drinks com paletas(o mais largo) - 200 convidados: 08 pacotes de canudos pra drinks com paletas
+📍150 convidados: 07 pacotes de copo 400 ml  - 200 convidados: 10 pacotes de copo 400 ml
+📍150 convidados: 05 kg de açúcar - 200 convidados: 08 kg de açúcar
+*Folhas indispensáveis*
+📍02 môio de manjericão 
+📍02 môio de hortelã
+📍02 môio de alecrim
+📍02 pedaços de gengibre
+📍Especiarias(A escolha do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍03 pacote de leite ninho grande
+📍03 pacote de Nes Quick grande
+📍150 convidados: 28 unidades de Polpas de frutas, 7 unidades de cada sabor, 4 sabores - 200 convidados: 40 unidades de Polpas de frutas, 10 unidades de cada sabor, 4 sabores
+📍150 convidados: 10  litros de H2O - 200 convidados: 15 litros de H2O
+📍150 convidados: 10 caixinhas de leite condensado - 200 convidados: 15 caixinhas de leite condensado
+📍150 convidados: 10  caixinhas de creme de leite - 200 convidados: 15 caixinhas de creme de leite
+📍03 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR*`,
+
+            'classico_250-300': `*Lista 250 a 300 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL*
+*Frutas:*
+📍20 abacaxis (250 convidados) -  25 abacaxis (300 convidados)
+📍35 tangerinas (250 convidados) - 50 tangerinas (300 convidados)
+📍40 limões taiti  (250 convidados) - 55 limões taiti (300 convidados)
+📍35 kiwi (250 convidados) - 50 kiwi (300 convidados)
+📍35 maracujás (250 convidados) -  50 maracujás (300 convidados)
+*Frutas Vermelhas:*
+📍15 a 20 pct morango
+📍10 a 15 cx uva preta
+📍15 a 20 L acerola
+*Descartáveis:*
+📍60kg a 70kg Gelo Escama
+📍15 a 17L Vodka
+📍10 a 15L Aguardente
+📍6 a 8 pct canudos
+📍10 a 13 pct copos
+📍5 a 8kg açúcar
+*Para Coquetel (Add):*
+📍03 leite ninho gde
+📍03 Nes Quick gde
+📍32 a 52 Polpas
+📍13 a 15L H2O
+📍13 a 17 Leite Condensado
+📍15 a 20 Creme de Leite`,
+
+            // ==================== LISTAS PREMIUM ====================
+            'premium_reduzida': `*Lista reduzida menos que 30 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU DRINKS PREMIUMS - COM ÁLCOOL*
+*Frutas:*
+-8 Laranjas
+-03 Abacaxis
+-04 Limões Siciliano
+-10 Limões Taiti
+*Descartáveis Diversos:*
+-20 kg de gelo em CUBOS (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+-01 pacotes canudo pra drinks com paletas
+-01 pacotes de copo 400 ml 
+-01 kg de açúcar demerara
+*Bebidas*
+-01 Litros de Gin
+-01 Litros de Aperol
+-01 Litros de Rum Branco
+-02 Litros de Água com Gás
+-02 Litros de Água Tônica 
+*Folhas indispensáveis*
+-01 môio de hortelã
+-01 môio de alecrim
+-Especiarias(a escolha do cliente)
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*`,
+
+            'premium_30-35': `*Lista até 35 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU DRINKS PREMIUMS - COM ÁLCOOL*
+*Frutas:*
+-10 Laranjas
+-04 Abacaxis
+-05 Limões Siciliano
+-15 Limões Taiti
+*Descartáveis Diversos:*
+-30 kg de gelo em CUBOS (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+-02 pacotes canudo pra drinks com paletas
+-02 pacotes de copo 400 ml 
+-01 kg de açúcar demerara
+*Bebidas*
+-02 Litros de Gin
+-02 Litros de Aperol
+-02 Litros de Rum Branco
+-03 Litros de Água com Gás
+-03 Litros de Água Tônica 
+*Folhas indispensáveis*
+-01 môio de hortelã
+-01 môio de alecrim
+-Especiarias(a escolha do cliente)
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*`,
+
+            'premium_40-60': `*Lista 40 a 60 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU DRINKS PREMIUMS - COM ÁLCOOL*
+*Frutas:*
+-15 Laranjas 
+-07 Abacaxis
+-12 Limões Siciliano
+-30 Limões Taiti
+*Descartáveis Diversos:*
+-50 kg de gelo em CUBOS (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+-04 pacotes canudo pra drinks com paletas
+-04 pacotes de copo 400 ml 
+-03 kg de açúcar demerara
+*Bebidas*
+-05 Litros de Gin
+-05 Litros de Aperol
+-05 Litros de Rum Branco
+-05 Litros de Água com Gás
+-05 Litros de Água Tônica 
+*Folhas indispensáveis*
+-03 môio de hortelã
+-03 môio de alecrim
+-Especiarias(a escolha do cliente)
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*`,
+
+            'premium_70-100': `*Lista 70 a 100 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU DRINKS PREMIUMS - COM ÁLCOOL*
+*Frutas:*
+-15 Laranjas para 70 convidado 18 Laranjas para 100 convidados
+-07 Abacaxis para 70 convidados 10 Abacaxis 100 convidados
+-12 Limões Siciliano para 70 convidados 15 Abacaxis 100 convidados
+-30 Limões Taiti para 70 convidados 35 Limões Taiti 100 convidados
+*Descartáveis Diversos:*
+-60 kg de gelo em CUBOS (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+-05 pacotes canudo pra drinks com paletas
+-05 pacotes de copo 400 ml 
+-04 kg de açúcar demerara
+*Bebidas*
+-07 Litros de Gin
+-07 Litros de Aperol
+-07 Litros de Rum Branco
+-07 Litros de Água com Gás
+-07 Litros de Água Tônica 
+*Folhas indispensáveis*
+-03 môio de hortelã
+-03 môio de alecrim
+-Especiarias(a escolha do cliente)
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*`,
+
+            'premium_150-200': `*Lista 150 a 200 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU DRINKS PREMIUMS - COM ÁLCOOL*
+*Frutas:*
+-18 Laranjas para 150 convidado 25 Laranjas para 200 convidados
+-10  Abacaxis para 150 convidados 13 Abacaxis 200 convidados
+-15 Limões Siciliano para 150 convidados 20 Limões Siciliano 200 convidados
+-35 Limões Taiti para 150 convidados 40 Limões Taiti 200 convidados
+*Descartáveis Diversos:*
+-70 kg de gelo em CUBOS (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+-06 pacotes canudo pra drinks com paletas
+-06 pacotes de copo 400 ml 
+-05 kg de açúcar demerara
+*Bebidas*
+-8 Litros de Gin
+-8 Litros de Aperol
+-8 Litros de Rum Branco
+-10 Litros de Água com Gás
+-10 Litros de Água Tônica 
+*Folhas indispensáveis*
+-03 môio de hortelã
+-03 môio de alecrim
+-Especiarias(a escolha do cliente)
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*`,
+
+            'premium_250-300': `*Lista 250 a 300 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU DRINKS PREMIUMS - COM ÁLCOOL*
+*Frutas:*
+-25 Laranjas para 250 convidado 30 Laranjas para 300 convidados
+-13 Abacaxis para 250 convidados 15 Abacaxis 300 convidados
+-20 Limões Siciliano para 250 convidados 30 Limões Siciliano 300 convidados
+-40 Limões Taiti para 250 convidados 50 Limões Taiti 300 convidados
+*Descartáveis Diversos:*
+-80 kg de gelo em CUBOS (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+-07 pacotes canudo pra drinks com paletas
+-07 pacotes de copo 400 ml 
+-06 kg de açúcar demerara
+*Bebidas*
+-10 Litros de Gin
+-10 Litros de Aperol
+-10 Litros de Rum Branco
+-12 Litros de Água com Gás
+-12 Litros de Água Tônica 
+*Folhas indispensáveis*
+-05 môio de hortelã
+-05 môio de alecrim
+-Especiarias(a escolha do cliente)
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*`,
+
+            // ==================== LISTAS MISTAS / COMPLETAS ====================
+            'misto_reduzida': `*Lista Reduzida- Menos que 30 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL + MENU PREMIUM COM ÁLCOOL*
+*Frutas:*
+📍05 abacaxis 
+📍10 tangerinas
+📍15 limões taiti
+📍10 kiwi
+📍07 maracujás(GRANDES)
+📍8 Laranjas
+📍04 Limões Siciliano
+*Frutas Vermelhas:*
+📍02 pacote de morango congelado (preferencialmente congelados)  
+📍02 caixinhas de uva preta sem caroço 
+📍01 litros de acerola
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍10 kg de gelo ESCAMAS(preferencialmente gelo escamas, porém não é obrigatório)
+📍10 kg de gelo em CUBOS para o Menu PREMIUM (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+📍Escolher uma opção: 12 unidades de Schweppes citrus lata(sai mais caro) ou 2 garrafas de 1,5L(sai mais em conta) ou 3 litros de água de coco
+📍1 a 2 litros de vodka(se os convidados beber muito pode comprar 5)
+📍1 a 2 litros de aguardente - Ypioca (preferencialmente) se não quer servir Drinks com álcool basta retirar as vodkas e aguardente da lista de compras
+📍01 pacotes canudo pra drinks com paletas(o mais largo)
+📍01 pacotes de copo 400 ml 
+📍01 kg de açúcar
+📍01 kg de açúcar demerara - INDISPENSÁVEL PARA O MENU PREMIUM
+*Bebidas Menu PREMIUM*
+📍01 Litros de Gin
+📍01 Litros de Aperol
+📍01 Litros de Rum Branco
+📍02 Litros de Água com Gás
+📍02 Litros de Água Tônica 
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*
+*Folhas indispensáveis*
+📍01 môio de manjericão 
+📍01 môio de hortelã
+📍01 môio de alecrim
+📍01 pedaço de gengibre
+📍Especiarias(opcional do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍01 pacote de leite ninho pequeno
+📍01 pacote de Nes Quick pequeno
+📍12 unidades de Polpas de frutas, 3 unidades de cada sabor, 4 sabores  
+📍01 litros de H2O
+📍03 caixinhas de leite condensado
+📍03 caixinhas de creme de leite
+📍01 calda de morango ou outro sabor(DO PEQUENO)
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL, EXCETO OS PREMIUMS*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR, EXCETO AS FRUTAS PARA OS DRINKS PREMIUMS( Laranja, Abacaxi, Limões Siciliano, E Limões Taiti**`,
+
+            'misto_30-35': `*Lista até 35 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL + MENU DRINKS PREMIUMS - COM ÁLCOOL*
+*Frutas:*
+📍06 abacaxis 
+📍15 tangerinas
+📍20 limões taiti
+📍15 kiwi
+📍10 maracujás
+📍05 Limões Siciliano
+📍10 Laranjas
+*Frutas Vermelhas:*
+📍03 pacote de morango congelado (preferencialmente congelados)  
+📍02 caixinhas de uva preta sem caroço 
+📍2 litros de acerola
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍15 kg de gelo ESCAMAS(preferencialmente gelo escamas, porém não é obrigatório)
+📍15kg de gelo em CUBOS para os Drinks PREMIUMS (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+📍Escolher uma opção: 18 unidades de Schweppes citrus lata(sai mais caro) ou 3 garrafas de 1,5L(sai mais em conta) ou 4 litros de água de coco
+📍2 a 3 litros de vodka(se os convidados beber muito pode comprar 5)
+📍2 a 3 litros de aguardente - Ypioca (preferencialmente) se não quer servir Drinks Clássicos com álcool basta retirar as vodkas e aguardente da lista de compras
+*Bebidas Para os Drinks PREMIUMS *
+📍02 Litros de Gin
+📍02 Litros de Aperol
+📍02 Litros de Rum Branco
+📍03 Litros de Água com Gás
+📍03 Litros de Água Tônica 
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*
+📍02 pacotes canudo pra drinks com paletas(o mais largo)
+📍02 pacotes de copo 400 ml 
+📍01 kg de açúcar
+📍01 kg de açúcar demerara(INDISPENSÁVEL PARA DRINK PREMIUM)
+*Folhas indispensáveis*
+📍01 môio de manjericão 
+📍01 môio de hortelã
+📍01 môio de alecrim
+📍01 pedaço de gengibre
+📍Especiarias(opcional do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍01 pacote de leite ninho pequeno
+📍01 pacote de Nes Quick pequeno
+📍20 unidades de Polpas de frutas, 5 unidades de cada sabor, 4 sabores  
+📍02 litros de H2O
+📍05 caixinhas de leite condensado
+📍05 caixinhas de creme de leite
+📍01 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL EXCETO OS PREMIUMS*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR, EXCETO AS FRUTAS PARA OS DRINKS PREMIUMS( Laranja, Abacaxi, Limões Siciliano, E Limões Taiti*`,
+
+            'misto_40-60': `*Lista 40 a 60 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL + MENU PREMIUM COM ÁLCOOL*
+*Frutas:*
+📍10 abacaxis 
+📍20 tangerinas
+📍35 limões taiti
+📍15 kiwi
+📍15 maracujás
+📍15 Laranjas 
+📍12 Limões Siciliano
+*Frutas Vermelhas:*
+📍04 pacote de morango congelado (preferencialmente congelados)  
+📍03 caixinhas de uva preta sem caroço 
+📍03 litros de acerola
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍20 kg de gelo ESCAMAS(preferencialmente gelo escamas, porém não é obrigatório)
+📍30 kg de gelo em CUBOS para os Menu PREMIUM (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+📍Escolher uma opção: 24 unidades de Schweppes citrus lata(sai mais caro) ou 4 garrafas de 1,5L(sai mais em conta) ou 5 litros de água de coco
+📍3 a 4 litros de vodka(se os convidados beber muito pode comprar 5)
+📍3 a 4 litros de aguardente - Ypioca (preferencialmente) se não quer servir Drinks com álcool basta retirar as vodkas e aguardente da lista de compras
+📍03 pacotes de canudo pra drinks com paletas(o mais largo)
+📍03 pacotes de copo 400 ml 
+📍02 kg de açúcar
+📍02 kg de açúcar demerara - INDISPENSÁVEL PARA O MENU PREMIUM
+*Bebidas MENU PREMIUM*
+📍03 Litros de Gin
+📍03 Litros de Aperol
+📍03 Litros de Rum Branco
+📍05 Litros de Água com Gás
+📍05 Litros de Água Tônica 
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*
+*Folhas indispensáveis*
+📍01 môio de manjericão 
+📍01 môio de hortelã
+📍01 môio de alecrim
+📍01 pedaço de gengibre
+📍Especiarias(opcional do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍01 pacote de leite ninho grande
+📍01 pacote de Nes Quick grande
+📍24 unidades de Polpas de frutas, 6 unidades de cada sabor, 4 sabores
+📍05 litros de H2O
+📍06 caixinhas de leite condensado
+📍06 caixinhas de creme de leite
+📍01 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL EXCETO OS PREMIUMS*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR, EXCETO AS FRUTAS PARA OS DRINKS PREMIUMS( Laranja, Abacaxi, Limões Siciliano, E Limões Taiti**`,
+
+            'misto_70-100': `*Lista 70 a 100 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL + MENU PREMIUM COM ÁLCOOL*
+*Frutas:*
+📍12 abacaxis (70 convidados) - 15 abacaxis (100 convidados)
+📍25 tangerinas (70 convidados) - 35 tangerinas (100 convidados)
+📍35 limões taiti  (70 convidados) - 50 limões taiti (100 convidados)
+📍20 kiwi (70 convidados) - 30 kiwi (100 convidados)
+📍20 maracujás (70 convidados) -  30 maracujás (100 convidados)
+📍15 Laranjas para 70 convidado 18 Laranjas para 100 convidados
+📍12 Limões Siciliano para 70 convidados 15 Abacaxis 100 convidados
+*Frutas Vermelhas:*
+📍Morangos congelados: 05 pacotes (70 convidados) - 07 pacotes (100 convidados) *(preferencialmente congelados)*
+📍05 caixinhas de uva preta sem caroço (70 convidados) - 07 caixinhas (100 convidados) 
+📍05 litros de acerola (70 convidados) - 07 litros de acerola (100 convidados) 
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍30 kg de Gelo (70 convidados) - 50kg de Gelo (100 convidados) *Gelo ESCAMAS: (preferencialmente gelo escamas, porém não é obrigatório)*
+📍30 kg de gelo em CUBOS para o Menu PREMIUM(GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+📍*Escolher uma opção:* 70 convidados: 3 caixinhas Schweppes citrus lata com 12 unidades cada(sai mais caro) ou 7 garrafas de 1,5L(sai mais em conta) ou 7 litros de água de coco - 
+100 convidados: 5 caixinhas de Schweppes citrus lata com 12 unidades cada ou 10 garrafas de 1,5L caixinhas de Schweppes citrus ou 10 litros de água de coco 
+📍Vodkas: 70 convidados: 7 litros de vodkas. 100 convidados: 10 litros de vodka
+📍Aguardente - Ypioca (preferencialmente). 5 litros: 70 convidados - 7 litros:100 convidados
+📍70 convidados: 03 pacotes de canudo pra drinks com paletas(o mais largo) - 100 convidados: 05 pacotes de canudo pra drinks com paletas
+📍70 convidados: 04 pacotes de copo 400 ml  - 100 convidados: 06 pacotes de copo 400 ml
+📍70 convidados: 02 kg de açúcar - 100 convidados: 03 kg de açúcar
+📍70 convidados: 02 kg de açúcar DEMERARA - 100 convidados: 02 kg de açúcar DEMERARA - INDISPENSÁVEL PARA O MENU PREMIUM
+*Bebidas Menu PREMIUM*
+📍05 Litros de Gin
+📍05 Litros de Aperol
+📍05 Litros de Rum Branco
+📍07 Litros de Água com Gás
+📍07 Litros de Água Tônica 
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*
+*Folhas indispensáveis*
+📍01 môio de manjericão 
+📍01 môio de hortelã
+📍01 môio de alecrim
+📍01 pedaço de gengibre
+📍Especiarias(opcional do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍02 pacote de leite ninho grande
+📍02 pacote de Nes Quick grande
+📍70 convidados: 24 unidades de Polpas de frutas, 6 unidades de cada sabor, 4 sabores - 100 convidados: 40 unidades de Polpas de frutas, 10 unidades de cada sabor, 4 sabores
+📍70 convidados: 07 litros de H2O - 100 convidados: 10 litros de H2O
+📍70 convidados: 07 caixinhas de leite condensado - 100 convidados: 10 caixinhas de leite condensado
+📍70 convidados: 07 caixinhas de creme de leite - 100 convidados: 10 caixinhas de creme de leite
+📍01 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL EXCETO OS PREMIUMS*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR, EXCETO AS FRUTAS PARA OS DRINKS PREMIUMS( Laranja, Abacaxi, Limões Siciliano, E Limões Taiti**`,
+
+            'misto_150-200': `*Lista 150 a 200 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL + MENU PREMIUM COM ÁLCOOL*
+*Frutas:*
+📍20 abacaxis (150 convidados) -  25 abacaxis (200 convidados)
+📍30 tangerinas (150 convidados) - 45 tangerinas (200 convidados)
+📍50 limões taiti  (150 convidados) - 70 limões taiti (200 convidados)
+📍30 kiwi (150 convidados) - 45 kiwi (200 convidados)
+📍30 maracujás (150 convidados) -  40 maracujás (200 convidados)
+📍18 Laranjas para 150 convidado 25 Laranjas para 200 convidados
+📍5 Limões Siciliano para 150 convidados 20 Limões Siciliano 200 convidados
+*Frutas Vermelhas:*
+📍Morangos congelados: 10 pacotes (150 convidados) - 15 pacotes (200 convidados) *(preferencialmente congelados)*
+📍07 caixinhas de uva preta sem caroço (150 convidados) - 10 caixinhas (200 convidados) 
+📍10 litros de acerola (150 convidados) - 15 litros de acerola (200 convidados) 
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍30kg de Gelo (150 convidados) - 50kg de Gelo (200 convidados) *Gelo ESCAMAS: (preferencialmente gelo escamas, porém não é obrigatório)*
+📍30 kg de gelo em CUBOS para o Menu PREMIUM (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+📍*Escolher uma opção:* 150 convidados: 5 caixinhas Schweppes citrus lata com 12 unidades cada(sai mais caro) ou 10 garrafas de 1,5L(sai mais em conta) ou 10  litros de água de coco - 
+200 convidados: 7 caixinhas de Schweppes citrus lata com 12 unidades cada ou 15 garrafas de 1,5L caixinhas de Schweppes citrus ou 15 litros de água de coco 
+📍Vodkas: 150 convidados: 10  litros de vodkas. 200 convidados: 15 litros de vodka
+📍Aguardente - Ypioca (preferencialmente). 7 litros: 150 convidados - 10 litros: 200  convidados
+📍150 convidados: 05 pacotes de canudos pra drinks com paletas(o mais largo) - 200 convidados: 08 pacotes de canudos pra drinks com paletas
+📍150 convidados: 07 pacotes de copo 400 ml  - 200 convidados: 10 pacotes de copo 400 ml
+📍150 convidados: 04 kg de açúcar - 200 convidados: 05 kg de açúcar
+📍150 convidados: 03 kg de açúcar DEMERARA - 200 convidados: 05 kg de açúcar DEMERARA - INDISPENSÁVEL PARA O MENU PREMIUM
+*Bebidas Menu PREMIUM*
+📍5 Litros de Gin
+📍5 Litros de Aperol
+📍5 Litros de Rum Branco
+📍10 Litros de Água com Gás
+📍10 Litros de Água Tônica 
+*Folhas indispensáveis*
+📍02 môio de manjericão 
+📍02 môio de hortelã
+📍02 môio de alecrim
+📍02 pedaços de gengibre
+📍Especiarias(A escolha do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍03 pacote de leite ninho grande
+📍03 pacote de Nes Quick grande
+📍150 convidados: 28 unidades de Polpas de frutas, 7 unidades de cada sabor, 4 sabores - 200 convidados: 40 unidades de Polpas de frutas, 10 unidades de cada sabor, 4 sabores
+📍150 convidados: 10  litros de H2O - 200 convidados: 15 litros de H2O
+📍150 convidados: 10 caixinhas de leite condensado - 200 convidados: 15 caixinhas de leite condensado
+📍150 convidados: 10  caixinhas de creme de leite - 200 convidados: 15 caixinhas de creme de leite
+📍03 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL EXCETO OS PREMIUMS*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR, EXCETO AS FRUTAS PARA OS DRINKS PREMIUMS( Laranja, Abacaxi, Limões Siciliano, E Limões Taiti**`,
+
+            'misto_250-300': `*Lista 250 a 300 convidados*
+@_gileventos
+https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
+*MENU CLÁSSICOS DA CASA COM OU SEM ÁLCOOL + MENU PREMIUM COM ÁLCOOL*
+*Frutas:*
+📍30 abacaxis (250 convidados) -  45 abacaxis (300 convidados)
+📍35 tangerinas (250 convidados) - 50 tangerinas (300 convidados)
+📍50 limões taiti  (250 convidados) - 80 limões taiti (300 convidados)
+📍35 kiwi (250 convidados) - 50 kiwi (300 convidados)
+📍35 maracujás (250 convidados) -  50 maracujás (300 convidados)
+📍25 Laranjas para 250 convidado 30 Laranjas para 300 convidados
+📍20 Limões Siciliano para 250 convidados 30 Limões Siciliano 300 convidados
+*Frutas Vermelhas:*
+📍Morangos congelados: 15 pacotes (250 convidados) - 20 pacotes (300 convidados) *(preferencialmente congelados)*
+📍10 caixinhas de uva preta sem caroço (250 convidados) - 15 caixinhas (300 convidados) 
+📍15 litros de acerola (250 convidados) - 20 litros de acerola (300 convidados) 
+⚠️Outras frutas opcionais do cliente
+⚠️ No mínimo 3 opções de frutas vermelhas(Os morangos e as uvas são indispensáveis)
+*Descartáveis Diversos:*
+📍50 kg de Gelo (250 convidados) - 60kg de Gelo (300 convidados) *Gelo ESCAMAS: (preferencialmente gelo escamas, porém não é obrigatório)*
+📍30 kg de gelo em CUBOS para o Menu PREMIUM (GELOS ESCAMAS NÃO SERVEM PARA ESSES DRINKS)
+📍*Escolher uma opção:* 250 convidados: 8 caixinhas Schweppes citrus lata com 15 unidades cada(sai mais caro) ou 13 garrafas de 1,5L(sai mais em conta) ou 13  litros de água de coco - 
+300 convidados: 10 caixinhas de Schweppes citrus lata com 15 unidades cada ou 18 garrafas de 1,5L caixinhas de Schweppes citrus ou 18 litros de água de coco 
+📍Vodkas: 250 convidados: 15  litros de vodkas. 300 convidados: 17 litros de vodka
+📍Aguardente - Ypioca (preferencialmente). 10 litros: 250 convidados - 15 litros: 300  convidados
+📍250 convidados: 06 pacotes de canudos pra drinks com paletas(o mais largo) - 300 convidados: 8 pacotes de canudos pra drinks com paletas
+📍250 convidados: 10 pacotes de copo 400 ml  - 300 convidados: 13 pacotes de copo 400 ml
+📍250 convidados: 05 kg de açúcar - 300 convidados: 05 kg de açúcar
+📍05 kg de açúcar demerara - INDISPENSÁVEL PARA O MENU PREMIUM
+*Bebidas*
+📍8 Litros de Gin
+📍8 Litros de Aperol
+📍8 Litros de Rum Branco
+📍12 Litros de Água com Gás
+📍12 Litros de Água Tônica 
+*ATENÇÃO: TODOS OS DRINKS PREMIUMS SÃO COM ÁLCOOL!*
+*Folhas indispensáveis*
+📍03 môio de manjericão 
+📍03 môio de hortelã
+📍03 môio de alecrim
+📍03 pedaços de gengibre
+📍Especiarias(A escolha do cliente)
+*OBSERVAÇÕES(POR GENTILEZA LEIA COM ATENÇÃO, É IMPORTANTE)*
+*Para oferecer coquetel de frutas vermelhas e coquetel montado acrescenta:*
+📍03 pacote de leite ninho grande
+📍03 pacote de Nes Quick grande
+📍250 convidados: 32 unidades de Polpas de frutas, 8 unidades de cada sabor, 4 sabores - 300 convidados: 52 unidades de Polpas de frutas, 13 unidades de cada sabor, 4 sabores
+📍250 convidados: 13  litros de H2O - 300 convidados: 15 litros de H2O
+📍250 convidados: 13 caixinhas de leite condensado - 300 convidados: 17 caixinhas de leite condensado
+📍250 convidados: 15  caixinhas de creme de leite - 300 convidados: 20 caixinhas de creme de leite
+📍03 calda de morango ou outro sabor
+*Para oferecer apenas o coquetel montado acrescenta apenas as mesmas quantidades de:*
+📍Leite condensado
+📍Creme de leite
+📍Calda de morango ou outro sabor
+⚠️ *PARA EVENTOS SEM ÁLCOOL BASTA RETIRAR O ÁLCOOL DA LISTA*
+⚠️ *TODOS OS DRINKS DESSE CARDÁPIO SERVEM COM OU SEM ÁLCOOL EXCETO OS PREMIUMS*
+⚠️ *OS COQUETÉIS SÃO OPCIONAIS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DAS FRUTAS: NAS FEIRINHAS LIVRES*
+⚠️ *MELHORES LOCAIS DE COMPRAS DOS DESCARTÁVEIS: NAS LOJAS DE EMBALAGENS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE BEBIDAS: NOS ATACADÃO E DISTRIBUIDORAS*
+⚠️ *MELHORES LOCAIS DE COMPRAS DE GELO: NOS POSTOS DE COMBUSTÍVEIS, DEPÓSITOS DE BEBIDAS E NAS PRÓPRIAS DISTRIBUIDORAS DE GELO*
+⚠️*ESSAS FRUTAS DO CARDÁPIO SÃO FRUTAS ESCOLHIDAS A DEDO PARA FACILITAR A COMPRA DO CLIENTE, SÃO FRUTAS QUE ENCONTRAM FACILMENTE EM QUALQUER ÉPOCA DO ANO, MAS VOCÊ PODE COMPRAR MAIS SABORES SE PREFERIR, EXCETO AS FRUTAS PARA OS DRINKS PREMIUMS( Laranja, Abacaxi, Limões Siciliano, E Limões Taiti**`
         };
 
         const pacotesClassicos = [
@@ -173,6 +996,7 @@
             resultado.innerHTML = ""; 
             resultadoExtra.innerHTML = "";
             
+            // Define a faixa de convidados
             let faixa = '70-100'; 
             if(convidados < 30) faixa = 'reduzida'; 
             else if(convidados <= 39) faixa = '30-35'; 
@@ -181,6 +1005,11 @@
             else if(convidados <= 249) faixa = '150-200'; 
             else faixa = '250-300';
             
+            // Chaves das listas correspondentes
+            const chaveClassico = `classico_${faixa}`;
+            const chavePremium = `premium_${faixa}`;
+            const chaveMisto = `misto_${faixa}`;
+
             // LÓGICA DE BARMANS (NOVAS FAIXAS 1-150, 151-250, 251-400)
             let qtdBarmans = 1;
             let avisoBarman = "";
@@ -212,8 +1041,6 @@
             const pMisto = getPacote(pacotesMistos, drinksEstimados);
             const pPremium = getPacote(pacotesPremium, drinksEstimados);
 
-            const chaveClassico = `classico_${faixa}`;
-
             const cardsPadrao = `
                 <div class="result-card">
                     <h2 style="color:var(--gold);">🥃 Serviço Tradicional</h2>
@@ -244,16 +1071,52 @@
                     <br><a href="https://wa.me/5575998649927?text=Gostaria%20de%20contratar%20Mão%20de%20Obra%20para%20${convidados}%20pessoas%20(${qtdBarmans}%20Barmans)" target="_blank" class="btn-gradient" style="margin-top:15px;">Solicitar Mão de Obra</a>
                 </div>
 
-                <div class="result-card"><h2 style="color:var(--gold);">💎 Pacote Clássico</h2><p style="font-size:0.9em; margin-bottom:15px;">Bar completo com drinks Clássicos.</p><div class="package-details">🍹 <strong>${pClassico.drinks} Drinks</strong><br>Insumos e Estrutura inclusos.</div><div class="price-display">R$ ${pClassico.price.toFixed(2)}</div><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Clássico%20de%20${pClassico.drinks}%20drinks" target="_blank" class="btn-gradient">Contratar</a></div>
-                
-                <div class="result-card highlight"><h2 style="color:var(--orange);">🌟 Combo Misto (Gold)</h2><p style="font-size:0.9em; margin-bottom:15px;">O melhor dos dois mundos.</p><div class="package-details" style="background:rgba(255,149,0,0.2);">🍹 <strong>${pMisto.drinks} Drinks Total</strong><br>${pMisto.desc}</div><div class="price-display">R$ ${pMisto.price.toFixed(2)}</div><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Combo%20Misto%20de%20${pMisto.drinks}%20drinks" target="_blank" class="btn-gradient">Eu Quero Esse!</a></div>
-                
-                <div class="result-card"><h2 style="color:#E0E0E0;">👑 Pacote Premium</h2><p style="font-size:0.9em; margin-bottom:15px;">Experiência de alto luxo com Gin, Aperol e Mojito.</p><div class="package-details">🍸 <strong>${pPremium.drinks} Drinks Premium</strong><br>Bar completo de luxo.</div><div class="price-display">R$ ${pPremium.price.toFixed(2)}</div><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Premium%20de%20${pPremium.drinks}%20drinks" target="_blank" class="btn-gradient" style="background:#333; border:1px solid #777;">Contratar Premium</a></div>`;
+                <div class="result-card">
+                    <h2 style="color:var(--gold);">💎 Pacote Clássico</h2>
+                    <p style="font-size:0.9em; margin-bottom:15px;">Bar completo com drinks Clássicos.</p>
+                    <div class="package-details">🍹 <strong>${pClassico.drinks} Drinks</strong><br>Insumos e Estrutura inclusos.</div>
+                    <div class="price-display">R$ ${pClassico.price.toFixed(2)}</div>
+                    
+                    <div style="text-align:left; margin-top:10px;">
+                        <button class="btn-small" onclick="toggleLista(this)">📋 Ver Lista Completa</button>
+                        <div class="lista-compras">${BANCO_DE_LISTAS[chaveClassico]}</div>
+                    </div>
 
-            if(convidados < 100) { 
+                    <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Clássico%20de%20${pClassico.drinks}%20drinks" target="_blank" class="btn-gradient" style="margin-top:10px;">Contratar</a>
+                </div>
+                
+                <div class="result-card highlight">
+                    <h2 style="color:var(--orange);">🌟 Combo Misto (Gold)</h2>
+                    <p style="font-size:0.9em; margin-bottom:15px;">O melhor dos dois mundos.</p>
+                    <div class="package-details" style="background:rgba(255,149,0,0.2);">🍹 <strong>${pMisto.drinks} Drinks Total</strong><br>${pMisto.desc}</div>
+                    <div class="price-display">R$ ${pMisto.price.toFixed(2)}</div>
+
+                    <div style="text-align:left; margin-top:10px;">
+                        <button class="btn-small" onclick="toggleLista(this)">📋 Ver Lista Completa</button>
+                        <div class="lista-compras">${BANCO_DE_LISTAS[chaveMisto]}</div>
+                    </div>
+
+                    <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Combo%20Misto%20de%20${pMisto.drinks}%20drinks" target="_blank" class="btn-gradient" style="margin-top:10px;">Eu Quero Esse!</a>
+                </div>
+                
+                <div class="result-card">
+                    <h2 style="color:#E0E0E0;">👑 Pacote Premium</h2>
+                    <p style="font-size:0.9em; margin-bottom:15px;">Experiência de alto luxo com Gin, Aperol e Mojito.</p>
+                    <div class="package-details">🍸 <strong>${pPremium.drinks} Drinks Premium</strong><br>Bar completo de luxo.</div>
+                    <div class="price-display">R$ ${pPremium.price.toFixed(2)}</div>
+
+                    <div style="text-align:left; margin-top:10px;">
+                        <button class="btn-small" onclick="toggleLista(this)">📋 Ver Lista Premium</button>
+                        <div class="lista-compras">${BANCO_DE_LISTAS[chavePremium]}</div>
+                    </div>
+
+                    <a href="https://wa.me/5575998649927?text=Tenho%20interesse%20no%20Pacote%20Premium%20de%20${pPremium.drinks}%20drinks" target="_blank" class="btn-gradient" style="background:#333; border:1px solid #777; margin-top:10px;">Contratar Premium</a>
+                </div>`;
+
+            if(convidados <= 400) { 
                 resultado.innerHTML = cardsPadrao; 
             } else { 
-                resultado.innerHTML = `<div class="result-card" style="grid-column: 1 / -1; border-color:#fff;"><h2 style="color:#ccc;">🤝 Opção Recomendada: Parceria Pré-venda</h2><p>Para grandes eventos (100+ pessoas). <strong>Você não paga nada adiantado!</strong></p><p>Nós montamos a estrutura e vendemos os drinks diretamente aos convidados.</p><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Quero essa Parceria (Sem Custo)</a></div><div style="grid-column: 1 / -1; text-align:center; margin-top:30px;"><p style="color:#888; margin-bottom:10px;">Ou se preferir pagar pelos drinks:</p><button class="btn-gold" onclick="mostrarPacotesExtras()">⬇️ Prefiro contratar um Pacote (Ver Preços)</button></div><div id="pacotesExtras" class="results-grid" style="display:none; grid-column: 1 / -1;">${cardsPadrao}</div>`; 
+                resultado.innerHTML = `<div class="result-card" style="grid-column: 1 / -1; border-color:#fff;"><h2 style="color:#ccc;">🤝 Opção Recomendada: Parceria Pré-venda</h2><p>Para grandes eventos. <strong>Você não paga nada adiantado!</strong></p><p>Nós montamos a estrutura e vendemos os drinks diretamente aos convidados.</p><a href="https://wa.me/5575998649927?text=Tenho%20interesse%20na%20Parceria%20Pre-venda" target="_blank" class="btn-gradient">Quero essa Parceria (Sem Custo)</a></div><div style="grid-column: 1 / -1; text-align:center; margin-top:30px;"><p style="color:#888; margin-bottom:10px;">Ou se preferir pagar pelos drinks:</p><button class="btn-gold" onclick="mostrarPacotesExtras()">⬇️ Prefiro contratar um Pacote (Ver Preços)</button></div><div id="pacotesExtras" class="results-grid" style="display:none; grid-column: 1 / -1;">${cardsPadrao}</div>`; 
             }
             setTimeout(() => { document.getElementById('resultado').scrollIntoView({behavior: 'smooth'}); }, 300);
         }
