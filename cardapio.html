@@ -7,7 +7,7 @@
  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
  <style>
-  body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; padding-bottom: 90px; }
+  body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; padding-bottom: 120px; /* Aumentei o padding para caber os botões novos */ }
   .container { max-width: 600px; margin: auto; }
   .header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
   .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 5px; font-weight: 300; }
@@ -118,6 +118,11 @@
   /* ESTRELAS INTERATIVAS */
   .star-select { cursor: pointer; opacity: 0.3; transition: 0.2s; }
   .star-select.active { opacity: 1; transform: scale(1.2); }
+
+  /* BOTÕES SOCIAIS E CONTRIBUIÇÃO */
+  .social-grid { display: flex; gap: 10px; margin-top: 15px; }
+  .btn-social-footer { flex: 1; padding: 12px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s; }
+  .btn-social-footer:active { transform: scale(0.95); }
  </style>
 </head>
 <body>
@@ -147,15 +152,25 @@
  <div id="listaCardapio"></div>
  <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
 
- <div style="margin-top: 40px; margin-bottom: 20px; padding: 20px; background: rgba(255, 213, 128, 0.05); border: 1px dashed #FFD580; border-radius: 12px; text-align: center;">
+ <div style="margin-top: 40px; margin-bottom: 30px; padding: 20px; background: rgba(255, 213, 128, 0.05); border: 1px dashed #FFD580; border-radius: 12px; text-align: center;">
      <h3 style="color: #FFD580; margin: 0 0 10px 0;">Curtiu a experiência? 🥂</h3>
-     <p style="font-size: 0.85em; color: #ccc; line-height: 1.5; margin-bottom: 15px;">
+     <p style="font-size: 0.85em; color: #ccc; line-height: 1.5; margin-bottom: 20px;">
          Se quiser apoiar a <strong>Gil Eventos</strong> a criar momentos ainda mais incríveis, você pode fazer uma contribuição voluntária. <br><br>
-         É totalmente opcional, mas recebida com muito carinho e revertida em melhorias para os próximos eventos!
+         É totalmente opcional, mas recebida com muito carinho!
      </p>
-     <a href="https://bbpay.apps.bb.com.br/m/#/cm49eyJvcHIiOiJDQ0siLCJzb2xpY2l0YXRpb25OdW1iZXIiOiI1ODk3MTc3NSJ9" target="_blank" style="background: linear-gradient(45deg, #FFD580, #FFAB00); color: #000; text-decoration: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(255, 171, 0, 0.3);">
-         🤝 Fazer Contribuição Voluntária
+     
+     <a href="https://bbpay.apps.bb.com.br/m/#/cm49eyJvcHIiOiJDQ0siLCJzb2xpY2l0YXRpb25OdW1iZXIiOiI1ODk3MTc3NSJ9" target="_blank" style="background: linear-gradient(45deg, #FFD580, #FFAB00); color: #000; text-decoration: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(255, 171, 0, 0.3); width: 80%;">
+         🤝 Contribuição Voluntária
      </a>
+
+     <div class="social-grid">
+        <a href="https://wa.me/5575998649927" target="_blank" class="btn-social-footer" style="background:#25D366;">
+            <span style="font-size:1.4em;">💬</span> Falar com Gil
+        </a>
+        <a href="https://www.instagram.com/_gileventos?igsh=MWNvbWNiZ214NTllNw==" target="_blank" class="btn-social-footer" style="background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">
+            <span style="font-size:1.4em;">📸</span> Seguir no Insta
+        </a>
+     </div>
  </div>
 
 </div>
