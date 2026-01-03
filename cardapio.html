@@ -95,13 +95,17 @@
   @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0); } }
   .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 2px 6px; border-radius: 6px; margin-left: 5px; font-weight: bold; vertical-align: middle; display:inline-block;}
   .queue-pos.first { background: linear-gradient(45deg, #00C853, #64DD17); color: #000; animation: pulse 1s infinite; }
-
-  /* TELA DE BLOQUEIO / STATUS DO EVENTO */
   .status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(10px); padding: 20px; box-sizing: border-box; }
   .status-icon { font-size: 5em; margin-bottom: 20px; animation: bounce 2s infinite; }
   .status-title { font-size: 2em; color: #FFD580; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
   .status-msg { font-size: 1.1em; color: #ccc; max-width: 400px; line-height: 1.5; }
   @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
+
+  /* MURAL DA FAMA */
+  .mural-btn { position: absolute; top: 20px; right: 20px; background: rgba(255, 213, 128, 0.1); border: 1px solid #FFD580; color: #FFD580; padding: 5px 12px; border-radius: 20px; font-size: 0.8em; cursor: pointer; }
+  .review-card { background: #222; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 3px solid #FFD580; text-align: left; }
+  .stars { color: #FFD580; font-size: 1.1em; }
+  .review-meta { font-size: 0.7em; color: #777; margin-top: 8px; display: block; border-top: 1px solid #333; padding-top: 5px; }
  </style>
 </head>
 <body>
@@ -113,7 +117,12 @@
 </div>
 
 <div class="container">
- <div class="header"><span class="brand-subtitle">GIL EVENTOS</span><div class="event-name" id="nomeEvento">Carregando...</div><div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div></div>
+ <div class="header">
+     <span class="brand-subtitle">GIL EVENTOS</span>
+     <div class="event-name" id="nomeEvento">Carregando...</div>
+     <div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div>
+     <button class="mural-btn" onclick="abrirMural()">⭐ Mural da Fama</button>
+ </div>
  <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
   
  <div id="areaCombos" class="combo-banner" style="display:none;">
@@ -159,6 +168,12 @@
     </div>
     <div id="tab-chat" class="tab-content"><div class="chat-container"><div class="chat-messages" id="chatMessages"><p style="text-align:center; color:#555; font-size:0.8em; margin-top:20px;">Fale diretamente com o barman aqui.</p></div><div class="chat-input-area"><input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem..."><button class="chat-send" onclick="enviarMensagem()">➤</button></div></div></div><button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:15px; background:#333; color:#fff;">FECHAR</button></div></div>
 
+<div class="modal-overlay" id="modalMural"><div class="modal-box" style="max-height:80vh; overflow-y:auto;"><h2 style="color:#FFD580; margin-bottom:5px;">⭐ Mural da Fama</h2><p style="color:#aaa; font-size:0.8em; margin-bottom:20px;">O que a galera está falando dos drinks!</p><div id="listaMuralHTML">Carregando...</div><button class="btn-confirm" style="margin-top:15px; background:#333;" onclick="document.getElementById('modalMural').style.display='none'">FECHAR</button></div></div>
+
+<div class="modal-overlay" id="modalAvaliar"><div class="modal-box"><h2 style="color:#fff;">O que achou?</h2><p id="nomeDrinkAvaliar" style="color:#FFD580; font-weight:bold;"></p><div style="font-size:2em; margin:15px 0;">
+    <span onclick="setEstrelas(1)">⭐</span><span onclick="setEstrelas(2)">⭐</span><span onclick="setEstrelas(3)">⭐</span><span onclick="setEstrelas(4)">⭐</span><span onclick="setEstrelas(5)">⭐</span>
+</div><input type="hidden" id="notaEstrela" value="5"><textarea id="textoAvaliacao" class="input-obs" placeholder="Deixe um comentário..."></textarea><button class="btn-confirm" onclick="enviarAvaliacao()">ENVIAR AVALIAÇÃO</button><button onclick="document.getElementById('modalAvaliar').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button></div></div>
+
 <div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">🎉</div><h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2><p style="color:#fff;">Pode buscar no balcão.</p><button class="btn-confirm" style="background:#4CAF50;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
 <div id="notification"></div>
 
@@ -175,8 +190,11 @@
  let TIMER_MINUTOS = 15;
  let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
  let CARRINHO_LOCAL = JSON.parse(localStorage.getItem(`carrinho_${EVENTO_ID}`) || "[]");
+ let PEDIDOS_AVALIADOS = JSON.parse(localStorage.getItem(`avaliados_${EVENTO_ID}`) || "[]");
  let COMBO_QTD_ALVO = 0;
  let ITENS_COMBO_SELECIONADOS = [];
+ let DRINK_AVALIANDO_ID = null;
+ let DRINK_AVALIANDO_NOME = null;
 
  function limparString(str) { if(!str) return ""; return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); }
  if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
@@ -187,10 +205,7 @@
    if(doc.exists) { 
        DADOS_EVENTO = doc.data(); 
        if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; 
-       
-       // VERIFICAÇÃO DE STATUS DO EVENTO (NOVA LÓGICA)
        verificarStatusEvento(DADOS_EVENTO.status);
-
        renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); iniciarMonitoramentoFila(); 
    }
   });
@@ -199,35 +214,16 @@
   renderizarCarrinho();
  }
 
- // --- FUNÇÃO NOVA: CONTROLE DE STATUS DO EVENTO ---
  function verificarStatusEvento(status) {
     const overlay = document.getElementById('telaBloqueio');
     const icon = document.getElementById('iconStatus');
     const title = document.getElementById('tituloStatus');
     const msg = document.getElementById('msgStatus');
-
-    // Se não tiver status ou for 'aberto', esconde o bloqueio
-    if (!status || status === 'aberto') {
-        overlay.style.display = 'none';
-        return;
-    }
-
-    // Mostra o bloqueio e configura a mensagem
+    if (!status || status === 'aberto') { overlay.style.display = 'none'; return; }
     overlay.style.display = 'flex';
-    
-    if (status === 'aguardando') {
-        icon.innerText = '⏳';
-        title.innerText = 'EM BREVE';
-        msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂';
-    } else if (status === 'pausado') {
-        icon.innerText = '✋';
-        title.innerText = 'BAR PAUSADO';
-        msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!';
-    } else if (status === 'encerrado') {
-        icon.innerText = '🏁';
-        title.innerText = 'EVENTO ENCERRADO';
-        msg.innerText = 'Obrigado pela presença! O bar foi finalizado.';
-    }
+    if (status === 'aguardando') { icon.innerText = '⏳'; title.innerText = 'EM BREVE'; msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂'; } 
+    else if (status === 'pausado') { icon.innerText = '✋'; title.innerText = 'BAR PAUSADO'; msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!'; } 
+    else if (status === 'encerrado') { icon.innerText = '🏁'; title.innerText = 'EVENTO ENCERRADO'; msg.innerText = 'Obrigado pela presença! O bar foi finalizado.'; }
  }
 
  function rastrearFilaGlobal() {
@@ -236,58 +232,40 @@
       .onSnapshot((snapshot) => { 
         const listaHTML = document.getElementById('listaMeusPedidosHTML'); 
         listaHTML.innerHTML = ''; 
-        
         let pedidos = [];
         snapshot.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
-
         pedidos.sort((a, b) => {
             let dateA = a.data ? a.data.toDate() : new Date();
             let dateB = b.data ? b.data.toDate() : new Date();
             return dateA - dateB;
         });
-
         if(pedidos.length === 0) {
             listaHTML.innerHTML = '<p style="color:#555; text-align:center; padding:10px;">Fila vazia! Peça o primeiro drink. 🍹</p>';
             document.getElementById('badgeMeusPedidos').innerText = CARRINHO_LOCAL.length;
             return;
         }
-
         let contagemFilaPreparacao = 0;
         let meusPedidosAtivosCount = 0;
-
         pedidos.forEach(p => { 
             if(p.status === 'cancelado') return;
-
             let isMine = (p.nome_convidado === NOME_CONVIDADO);
             if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
-
             let statusText = "Fila", cor = "#888", extraHTML = ""; 
             let nomeDisplay = isMine ? `<span class="guest-name mine">(VOCÊ)</span>` : `<span class="guest-name">(${p.nome_convidado})</span>`;
             let divClass = isMine ? "my-order-item is-mine" : "my-order-item";
             let posicaoTexto = "";
-
             if(p.status === 'pendente') { 
-                statusText = "🟡 Preparando"; 
-                cor = "#FFD580"; 
-                contagemFilaPreparacao++; 
-                
+                statusText = "🟡 Preparando"; cor = "#FFD580"; contagemFilaPreparacao++; 
                 let destaqueClass = "";
                 let textoPos = `#${contagemFilaPreparacao} da fila`;
-
                 if (contagemFilaPreparacao === 1) {
                     destaqueClass = "first"; 
-                    if (isMine) {
-                        textoPos = "É A SUA VEZ! 🍸";
-                    } else {
-                        textoPos = "PREPARANDO AGORA";
-                    }
+                    if (isMine) textoPos = "É A SUA VEZ! 🍸"; else textoPos = "PREPARANDO AGORA";
                 }
-                
                 posicaoTexto = `<span class="queue-pos ${destaqueClass}">${textoPos}</span>`;
             } 
             else if(p.status === 'aguardando_pagamento') { 
-                statusText = "🔴 Aguardando Pagto"; 
-                cor = "#FF4444"; 
+                statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; 
                 if(isMine) {
                     if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; 
                     else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`;
@@ -299,34 +277,78 @@
             } 
             else if(p.status === 'servido') { 
                 statusText = "🟢 Pronto!"; cor = "#4CAF50"; 
-                if(isMine) verificarAlertaPronto(p.id, p.status); 
+                if(isMine) {
+                    verificarAlertaPronto(p.id, p.status);
+                    // BOTÃO DE AVALIAR
+                    if(!PEDIDOS_AVALIADOS.includes(p.id)) {
+                        extraHTML += `<button class="btn-client-action" style="background:transparent; border:1px solid #FFD580; color:#FFD580;" onclick="abrirAvaliacao('${p.id}', '${p.drink}')">⭐ Avaliar Drink</button>`;
+                    }
+                }
             } 
-
-            if(isMine && p.status !== 'servido') {
-                extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
-            }
-
-            listaHTML.innerHTML += `
-                <div class="${divClass}" style="border-left-color:${cor}">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div>
-                            <strong>${p.drink}</strong> ${nomeDisplay}<br>
-                            ${posicaoTexto}
-                        </div>
-                        <span style="color:${cor}; font-weight:bold; font-size:0.8em; white-space:nowrap; margin-left:5px;">${statusText}</span>
-                    </div>
-                    <small style="color:#aaa; display:block; margin-top:5px;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>
-                    ${extraHTML}
-                </div>`; 
+            if(isMine && p.status !== 'servido') extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
+            listaHTML.innerHTML += `<div class="${divClass}" style="border-left-color:${cor}"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><strong>${p.drink}</strong> ${nomeDisplay}<br>${posicaoTexto}</div><span style="color:${cor}; font-weight:bold; font-size:0.8em; white-space:nowrap; margin-left:5px;">${statusText}</span></div><small style="color:#aaa; display:block; margin-top:5px;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; 
         }); 
-        
         const totalBadge = CARRINHO_LOCAL.length + meusPedidosAtivosCount;
         document.getElementById('badgeMeusPedidos').innerText = totalBadge;
     }); 
  }
 
- function iniciarMonitoramentoFila() { }
+ // --- FUNÇÕES DE AVALIAÇÃO ---
+ function abrirAvaliacao(id, nome) {
+     DRINK_AVALIANDO_ID = id;
+     DRINK_AVALIANDO_NOME = nome;
+     document.getElementById('nomeDrinkAvaliar').innerText = nome;
+     document.getElementById('modalAvaliar').style.display = 'flex';
+ }
+ function setEstrelas(n) { document.getElementById('notaEstrela').value = n; alert(`Você selecionou ${n} estrelas!`); } // Simples alert visual, ideal seria mudar cor
+ function enviarAvaliacao() {
+     const nota = document.getElementById('notaEstrela').value;
+     const coment = document.getElementById('textoAvaliacao').value;
+     db.collection("avaliacoes").add({
+         evento_id: EVENTO_ID,
+         nome_evento: DADOS_EVENTO.nome, // HISTÓRICO
+         data_evento: new Date(),
+         drink: DRINK_AVALIANDO_NOME,
+         cliente: NOME_CONVIDADO,
+         nota: parseInt(nota),
+         comentario: coment,
+         status: 'pendente'
+     }).then(() => {
+         alert("Obrigado! Sua avaliação foi enviada.");
+         document.getElementById('modalAvaliar').style.display = 'none';
+         PEDIDOS_AVALIADOS.push(DRINK_AVALIANDO_ID);
+         localStorage.setItem(`avaliados_${EVENTO_ID}`, JSON.stringify(PEDIDOS_AVALIADOS));
+         rastrearFilaGlobal(); // Atualiza pra sumir o botão
+     });
+ }
+ function abrirMural() {
+     document.getElementById('modalMural').style.display = 'flex';
+     const lista = document.getElementById('listaMuralHTML');
+     lista.innerHTML = 'Carregando...';
+     // BUSCA GLOBAL DE AVALIAÇÕES APROVADAS
+     db.collection("avaliacoes").where("status", "==", "aprovado").orderBy("data_evento", "desc").limit(20).get().then(snap => {
+         if(snap.empty) { lista.innerHTML = "<p style='color:#777; text-align:center;'>Ainda sem avaliações.</p>"; return; }
+         lista.innerHTML = "";
+         snap.forEach(doc => {
+             const r = doc.data();
+             const estrelas = "⭐".repeat(r.nota);
+             const dataStr = r.data_evento.toDate().toLocaleDateString();
+             lista.innerHTML += `
+                <div class="review-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong style="color:#fff;">${r.cliente}</strong>
+                        <span class="stars">${estrelas}</span>
+                    </div>
+                    <div style="color:#aaa; font-size:0.85em; margin-bottom:5px;">Bebeu: ${r.drink}</div>
+                    <div style="color:#ddd; font-style:italic;">"${r.comentario}"</div>
+                    <span class="review-meta">Evento: ${r.nome_evento} • ${dataStr}</span>
+                </div>
+             `;
+         });
+     });
+ }
 
+ function iniciarMonitoramentoFila() { }
  function adicionarAoCarrinho(nome, tipo, preco, categoria) {
     if(tipo === 'pacote') {
         const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
@@ -341,128 +363,33 @@
     atualizarUIBadge();
     if(tipo === 'pacote') salvarTimer();
  }
-
- function salvarCarrinhoLocal() {
-    localStorage.setItem(`carrinho_${EVENTO_ID}`, JSON.stringify(CARRINHO_LOCAL));
-    renderizarCarrinho();
- }
-
- function removerDoCarrinho(idTemp) {
-    CARRINHO_LOCAL = CARRINHO_LOCAL.filter(i => i.idTemp !== idTemp);
-    salvarCarrinhoLocal();
- }
-
+ function salvarCarrinhoLocal() { localStorage.setItem(`carrinho_${EVENTO_ID}`, JSON.stringify(CARRINHO_LOCAL)); renderizarCarrinho(); }
+ function removerDoCarrinho(idTemp) { CARRINHO_LOCAL = CARRINHO_LOCAL.filter(i => i.idTemp !== idTemp); salvarCarrinhoLocal(); }
  function renderizarCarrinho() {
     const div = document.getElementById('listaCarrinhoHTML');
     const area = document.getElementById('areaCarrinho');
     const btnCheckout = document.getElementById('btnCheckoutCart');
-    div.innerHTML = '';
-    let total = 0;
-
-    if (CARRINHO_LOCAL.length === 0) {
-        area.style.display = 'none';
-        return;
-    }
+    div.innerHTML = ''; let total = 0;
+    if (CARRINHO_LOCAL.length === 0) { area.style.display = 'none'; return; }
     area.style.display = 'block';
     document.getElementById('countCarrinho').innerText = `(${CARRINHO_LOCAL.length})`;
-
     CARRINHO_LOCAL.forEach(item => {
         let precoTexto = item.tipo === 'pacote' ? 'Grátis (Pacote)' : `R$ ${item.preco},00`;
         let corPreco = item.tipo === 'pacote' ? '#aaa' : '#4CAF50';
         if(item.tipo !== 'pacote') total += item.preco;
-
-        div.innerHTML += `
-            <div class="cart-item-row">
-                <div class="cart-item-info">
-                    <strong style="color:#fff;">${item.nome}</strong><br>
-                    <small style="color:${corPreco};">${precoTexto}</small>
-                </div>
-                <button class="btn-remove-cart" onclick="removerDoCarrinho(${item.idTemp})">🗑️</button>
-            </div>
-        `;
+        div.innerHTML += `<div class="cart-item-row"><div class="cart-item-info"><strong style="color:#fff;">${item.nome}</strong><br><small style="color:${corPreco};">${precoTexto}</small></div><button class="btn-remove-cart" onclick="removerDoCarrinho(${item.idTemp})">🗑️</button></div>`;
     });
-
     document.getElementById('totalCarrinhoDisplay').innerText = `R$ ${total.toFixed(2)}`;
     const avisoPagamento = document.getElementById('msgAvisoPagamento');
-    
-    if(total > 0) {
-        btnCheckout.innerText = `PAGAR R$ ${total.toFixed(2)} E ENVIAR 🚀`;
-        btnCheckout.style.background = "#4CAF50"; 
-        btnCheckout.style.color = "#fff";
-        avisoPagamento.style.display = "block"; 
-    } else {
-        btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀";
-        btnCheckout.style.background = "#FFD580"; 
-        btnCheckout.style.color = "#000";
-        avisoPagamento.style.display = "none";
-    }
-
+    if(total > 0) { btnCheckout.innerText = `PAGAR R$ ${total.toFixed(2)} E ENVIAR 🚀`; btnCheckout.style.background = "#4CAF50"; btnCheckout.style.color = "#fff"; avisoPagamento.style.display = "block"; } 
+    else { btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀"; btnCheckout.style.background = "#FFD580"; btnCheckout.style.color = "#000"; avisoPagamento.style.display = "none"; }
     document.getElementById('valorTotalMassa').innerText = `R$ ${total.toFixed(2)}`;
     document.getElementById('qtdItensMassa').innerText = CARRINHO_LOCAL.length;
     if(DADOS_EVENTO && DADOS_EVENTO.chave_pix) document.getElementById('chavePixTextoMassa').innerText = DADOS_EVENTO.chave_pix;
  }
-
- function abrirPagamentoMassa() {
-    const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0);
-    if (total === 0) {
-        if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa();
-    } else {
-        document.getElementById('modalListaPedidos').style.display = 'none'; 
-        document.getElementById('modalPagamentoMassa').style.display = 'flex'; 
-    }
- }
-
- function confirmarEnvioMassa() {
-    document.getElementById('modalPagamentoMassa').style.display = 'none';
-    const batch = db.batch();
-    
-    CARRINHO_LOCAL.forEach(item => {
-        const ref = db.collection("pedidos").doc();
-        let statusInicial = item.tipo === 'extra' ? 'aguardando_pagamento' : 'pendente';
-        let sinalizou = item.tipo === 'extra' ? true : false;
-
-        batch.set(ref, {
-            evento_id: EVENTO_ID,
-            drink: item.nome,
-            categoria_drink: item.categoria || 'classico',
-            tipo: item.tipo,
-            preco: item.preco,
-            nome_convidado: NOME_CONVIDADO || "Anônimo",
-            observacao: "Pedido em Grupo/Carrinho",
-            status: statusInicial,
-            sinalizou_pagamento: sinalizou,
-            data: new Date()
-        });
-        MEUS_PEDIDOS_IDS.push(ref.id);
-        
-        if(item.tipo === 'pacote') {
-             const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) };
-             if (DADOS_EVENTO.tipo_servico === 'misto') {
-                 let cat = (item.categoria || 'classico').toLowerCase().trim();
-                 cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "");
-                 if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1);
-                 else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1);
-             }
-             db.collection("eventos").doc(EVENTO_ID).update(updateData);
-        }
-    });
-
-    batch.commit().then(() => {
-        localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS));
-        CARRINHO_LOCAL = []; 
-        salvarCarrinhoLocal();
-        mostrarNotificacao("🚀 Pedidos enviados com sucesso!");
-        document.getElementById('modalListaPedidos').style.display = 'flex';
-        rastrearFilaGlobal();
-    }).catch(err => alert("Erro ao enviar: " + err));
- }
-
- function atualizarUIBadge() {
-    const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length;
-    const btn = document.getElementById('btnMeusPedidos');
-    if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex';
- }
-
+ function abrirPagamentoMassa() { const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); if (total === 0) { if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa(); } else { document.getElementById('modalListaPedidos').style.display = 'none'; document.getElementById('modalPagamentoMassa').style.display = 'flex'; } }
+ function confirmarEnvioMassa() { document.getElementById('modalPagamentoMassa').style.display = 'none'; const batch = db.batch(); CARRINHO_LOCAL.forEach(item => { const ref = db.collection("pedidos").doc(); let statusInicial = item.tipo === 'extra' ? 'aguardando_pagamento' : 'pendente'; let sinalizou = item.tipo === 'extra' ? true : false; batch.set(ref, { evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria || 'classico', tipo: item.tipo, preco: item.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: "Pedido em Grupo/Carrinho", status: statusInicial, sinalizou_pagamento: sinalizou, data: new Date() }); MEUS_PEDIDOS_IDS.push(ref.id); if(item.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (item.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } }); batch.commit().then(() => { localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); CARRINHO_LOCAL = []; salvarCarrinhoLocal(); mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); document.getElementById('modalListaPedidos').style.display = 'flex'; rastrearFilaGlobal(); }).catch(err => alert("Erro ao enviar: " + err)); }
+ function atualizarUIBadge() { const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length; const btn = document.getElementById('btnMeusPedidos'); if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex'; }
  function verificarCombosAtivos() { let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago'); let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado; let ehMisto = DADOS_EVENTO.tipo_servico === 'misto'; if(temPagos || pacoteEsgotado || ehMisto) { document.getElementById('areaCombos').style.display = 'grid'; } else { document.getElementById('areaCombos').style.display = 'none'; } }
  function abrirMontadorCombo(qtd) { COMBO_QTD_ALVO = qtd; ITENS_COMBO_SELECIONADOS = []; document.getElementById('maxComboQtd').innerText = qtd; const lista = document.getElementById('listaSelecaoCombo'); lista.innerHTML = ''; let itensPagos = []; DADOS_EVENTO.cardapio.forEach(item => { let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) || (DADOS_EVENTO.tipo_servico === 'misto'); if(isPaid && item.disponivel !== false) { itensPagos.push(item); } }); if(itensPagos.length === 0) return alert("Não há drinks disponíveis para combo."); itensPagos.forEach((item, index) => { let precoReal = item.preco; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda; const div = document.createElement('div'); div.className = 'combo-item-row'; div.id = `row_combo_${index}`; div.innerHTML = `<div style="flex:1; text-align:left;"><strong style="color:#fff;">${item.nome}</strong><br><span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span></div><div class="qtd-control"><button class="btn-qtd btn-minus" onclick="alterarQtdCombo(${index}, -1, ${precoReal}, '${item.nome}')">-</button><span class="qtd-display" id="qtd_combo_${index}">0</span><button class="btn-qtd btn-plus" onclick="alterarQtdCombo(${index}, 1, ${precoReal}, '${item.nome}')">+</button></div>`; lista.appendChild(div); }); atualizarTotalCombo(); document.getElementById('modalCombo').style.display = 'flex'; }
  function alterarQtdCombo(index, delta, preco, nome) { const spanQtd = document.getElementById(`qtd_combo_${index}`); let currentQtd = parseInt(spanQtd.innerText); const row = document.getElementById(`row_combo_${index}`); if (delta === 1) { if (ITENS_COMBO_SELECIONADOS.length >= COMBO_QTD_ALVO) return alert(`Máximo de ${COMBO_QTD_ALVO} drinks!`); ITENS_COMBO_SELECIONADOS.push({nome: nome, preco: preco}); currentQtd++; } else { if (currentQtd > 0) { currentQtd--; const idxToRemove = ITENS_COMBO_SELECIONADOS.findIndex(i => i.nome === nome); if (idxToRemove > -1) ITENS_COMBO_SELECIONADOS.splice(idxToRemove, 1); } } spanQtd.innerText = currentQtd; if(currentQtd > 0) row.classList.add('selected'); else row.classList.remove('selected'); atualizarTotalCombo(); }
