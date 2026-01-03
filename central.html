@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Comando - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; }
+        
+        /* HEADER E NAV */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .logo { font-size: 1.5em; font-weight: 800; color: #FFD580; text-transform: uppercase; letter-spacing: 2px; }
+        .nav-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        .btn-nav { padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; color: #fff; font-size: 0.9em; transition: transform 0.2s; }
+        .btn-nav:hover { transform: translateY(-2px); }
+        .btn-novo { background: #00E676; color: #000; }
+        .btn-agenda { background: #9C27B0; }
+        .btn-site { background: #FFD580; color: #000; }
+
+        /* BARRA DE PESQUISA */
+        .search-container { margin-bottom: 30px; position: relative; }
+        .search-input { width: 100%; padding: 15px; background: #1E1E1E; border: 1px solid #333; color: #fff; border-radius: 10px; font-size: 1.1em; outline: none; }
+        .search-input:focus { border-color: #FFD580; }
+
+        /* LISTA DE EVENTOS */
+        .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        .event-card { background: #1E1E1E; border: 1px solid #333; border-radius: 12px; padding: 20px; position: relative; transition: all 0.3s; }
+        .event-card:hover { border-color: #FFD580; transform: translateY(-3px); }
+        
+        /* STATUS INDICATOR */
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .status-aberto { background: #00E676; box-shadow: 0 0 8px #00E676; }
+        .status-pausado { background: #FFD600; }
+        .status-encerrado { background: #FF1744; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .event-title { font-size: 1.2em; font-weight: 700; color: #fff; margin: 0; }
+        .event-date { font-size: 0.85em; color: #aaa; display: block; margin-top: 5px; }
+        .event-type { background: #333; font-size: 0.7em; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: #ccc; }
+
+        /* CARD STATS */
+        .card-stats { display: flex; gap: 15px; margin-bottom: 20px; font-size: 0.85em; color: #888; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 10px 0; }
+        .stat-item strong { color: #FFD580; }
+
+        /* ACTIONS */
+        .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-card { padding: 10px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.2s; }
+        .btn-torre { background: #2196F3; color: white; grid-column: 1 / -1; } /* Botão grande */
+        .btn-edit { background: #444; color: #ccc; }
+        .btn-copy { background: #444; color: #ccc; }
+        .btn-delete { background: transparent; border: 1px solid #FF1744; color: #FF1744; margin-top: 10px; width: 100%; font-size: 0.8em; }
+
+        /* LOGIN */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { text-align: center; width: 90%; max-width: 300px; }
+        
+        /* RESPONSIVO */
+        @media (max-width: 600px) {
+            .header { flex-direction: column; align-items: flex-start; }
+            .nav-buttons { width: 100%; justify-content: space-between; }
+            .btn-nav { flex: 1; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h1 class="logo">CENTRAL GIL</h1>
+            <p style="color:#aaa;">Digite sua senha mestra</p>
+            <input type="password" id="senhaMestra" style="width:100%; padding:15px; border-radius:8px; border:none; margin-bottom:15px; text-align:center;" placeholder="Senha">
+            <button onclick="fazerLogin()" style="width:100%; padding:15px; background:#FFD580; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">ENTRAR</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="logo">🦅 CENTRAL DE COMANDO</div>
+        <div class="nav-buttons">
+            <a href="admin.html" class="btn-nav btn-novo" target="_blank">➕ Novo Evento</a>
+            <a href="agenda.html" class="btn-nav btn-agenda" target="_blank">📅 Agenda</a>
+            <a href="index.html" class="btn-nav btn-site" target="_blank">💰 Simulador</a>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar evento por nome, data ou tipo..." onkeyup="filtrarEventos()">
+    </div>
+
+    <h3 style="color:#aaa; margin-top:0;">SEUS EVENTOS (<span id="totalEventos">0</span>)</h3>
+    <div id="gridEventos" class="events-grid">
+        <p style="color:#666;">Carregando eventos...</p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk", authDomain: "gil-eventos-app-911fe.firebaseapp.com", projectId: "gil-eventos-app-911fe", storageBucket: "gil-eventos-app-911fe.firebasestorage.app", messagingSenderId: "503025880352", appId: "1:503025880352:web:694b7f2889cff501c7db45", measurementId: "G-3DZ1P5C0M3" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // --- SENHA MESTRA SIMPLES (VOCÊ PODE MUDAR AQUI) ---
+        const SENHA_DEFINIDA = "gil102030"; 
+
+        function fazerLogin() {
+            const s = document.getElementById('senhaMestra').value;
+            if(s === SENHA_DEFINIDA) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                sessionStorage.setItem('central_gil_logado', 'true');
+                carregarEventos();
+            } else {
+                alert("Senha Incorreta!");
+            }
+        }
+
+        // Verifica se já logou na sessão
+        if(sessionStorage.getItem('central_gil_logado')) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            carregarEventos();
+        }
+
+        let listaEventosCache = [];
+
+        function carregarEventos() {
+            // Pega todos os eventos ordenados pela criação (mais recentes primeiro)
+            db.collection("eventos").orderBy("data_criacao", "desc").onSnapshot(snapshot => {
+                const grid = document.getElementById('gridEventos');
+                grid.innerHTML = "";
+                listaEventosCache = [];
+
+                if(snapshot.empty) {
+                    grid.innerHTML = "<p>Nenhum evento encontrado.</p>";
+                    return;
+                }
+
+                document.getElementById('totalEventos').innerText = snapshot.size;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    const evento = { id, ...data };
+                    listaEventosCache.push(evento);
+                    grid.innerHTML += criarCardEvento(evento);
+                });
+            });
+        }
+
+        function criarCardEvento(e) {
+            // Tratamento de Status
+            let statusClass = 'status-aberto';
+            let statusText = 'Aberto';
+            if(e.status === 'pausado') { statusClass = 'status-pausado'; statusText = 'Pausado'; }
+            if(e.status === 'encerrado') { statusClass = 'status-encerrado'; statusText = 'Encerrado'; }
+
+            // Tratamento de Data
+            let dataFormatada = "Data não def.";
+            if(e.data_evento) {
+                // Tenta converter se for timestamp ou string
+                try {
+                    // Se for string YYYY-MM-DD
+                    const partes = e.data_evento.split('-');
+                    if(partes.length === 3) dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                    else dataFormatada = e.data_evento;
+                } catch(err) { dataFormatada = e.data_evento }
+            }
+
+            return `
+            <div class="event-card">
+                <div class="card-header">
+                    <div>
+                        <div style="display:flex; align-items:center; margin-bottom:5px;">
+                            <span class="status-dot ${statusClass}"></span>
+                            <span style="font-size:0.8em; color:#aaa; text-transform:uppercase;">${statusText}</span>
+                        </div>
+                        <h3 class="event-title">${e.nome}</h3>
+                        <span class="event-date">📅 ${dataFormatada}</span>
+                    </div>
+                    <span class="event-type">${e.tipo_servico || 'Padrão'}</span>
+                </div>
+
+                <div class="card-stats">
+                    <span class="stat-item">Consumo: <strong>${e.total_consumido || 0}</strong></span>
+                    <span class="stat-item">Faturamento: <strong>R$ ${(e.total_faturamento || 0).toFixed(2)}</strong></span>
+                </div>
+
+                <div class="card-actions">
+                    <button class="btn-card btn-torre" onclick="window.open('dashboard.html?evento=${e.id}', '_blank')">🚀 TORRE DE CONTROLE</button>
+                    <button class="btn-card btn-edit" onclick="window.open('admin.html?evento=${e.id}', '_blank')">✏️ Editar</button>
+                    <button class="btn-card btn-copy" onclick="copiarLinkEvento('${e.id}')">🔗 Link Cardápio</button>
+                </div>
+                
+                <button class="btn-card btn-delete" onclick="excluirEvento('${e.id}', '${e.nome}')">🗑️ Excluir Evento</button>
+            </div>
+            `;
+        }
+
+        function filtrarEventos() {
+            const termo = document.getElementById('searchInput').value.toLowerCase();
+            const grid = document.getElementById('gridEventos');
+            grid.innerHTML = "";
+
+            const filtrados = listaEventosCache.filter(e => {
+                return (e.nome && e.nome.toLowerCase().includes(termo)) || 
+                       (e.data_evento && e.data_evento.includes(termo)) ||
+                       (e.tipo_servico && e.tipo_servico.toLowerCase().includes(termo));
+            });
+
+            if(filtrados.length === 0) {
+                grid.innerHTML = "<p>Nenhum evento encontrado com esse nome.</p>";
+            } else {
+                filtrados.forEach(e => {
+                    grid.innerHTML += criarCardEvento(e);
+                });
+            }
+        }
+
+        function copiarLinkEvento(id) {
+            const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const link = `${urlBase}/cardapio.html?evento=${id}`;
+            navigator.clipboard.writeText(link).then(() => alert("✅ Link do CARDÁPIO copiado!"));
+        }
+
+        function excluirEvento(id, nome) {
+            if(confirm(`⚠️ PERIGO!\n\nTem certeza que deseja apagar o evento "${nome}"?\n\nIsso apagará todos os pedidos e dados dele. Não tem volta.`)) {
+                const senha = prompt("Digite a senha mestra para confirmar a exclusão:");
+                if(senha === SENHA_DEFINIDA) {
+                    db.collection("eventos").doc(id).delete()
+                    .then(() => alert("Evento excluído com sucesso."))
+                    .catch(err => alert("Erro: " + err));
+                } else {
+                    alert("Senha incorreta. Exclusão cancelada.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
