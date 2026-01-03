@@ -89,9 +89,13 @@
   .btn-remove-cart { color: #FF4444; background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 0 10px; }
   .cart-total-area { margin-top: 15px; padding-top: 10px; border-top: 1px solid #555; text-align: right; }
   
-  /* NOVO: AVISO PAGAMENTO CHAMATIVO */
+  /* AVISO PAGAMENTO */
   .cart-warning { background: rgba(255, 149, 0, 0.15); border: 1px solid #FF9500; color: #FF9500; font-size: 0.85em; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: bold; display: none; animation: pulseWarning 2s infinite; }
   @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0); } }
+
+  /* NOVA CLASSE PARA FILA */
+  .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 3px 8px; border-radius: 8px; margin-left: 8px; font-weight: bold; vertical-align: middle; box-shadow: 0 2px 5px rgba(33, 150, 243, 0.4); display:inline-block; margin-bottom: 3px;}
+  .queue-pos.first { background: linear-gradient(45deg, #00C853, #64DD17); color: #000; animation: pulse 1s infinite; }
  </style>
 </head>
 <body>
@@ -125,17 +129,14 @@
         <div id="areaCarrinho" class="cart-section" style="display:none;">
             <div class="cart-title">🛒 No Carrinho (A Enviar) <span style="font-size:0.8em; color:#fff;" id="countCarrinho"></span></div>
             <div id="listaCarrinhoHTML"></div>
-            
             <div id="msgAvisoPagamento" class="cart-warning">
-                ⚠️ <strong>ATENÇÃO:</strong> Drinks pagos só entram na fila de preparo após a <u>confirmação do PAGAMENTO</u>!
+                ⚠️ <strong>ATENÇÃO:</strong> Drinks pagos só entram na fila de preparo após a <u>confirmação do PIX</u>!
             </div>
-
             <div class="cart-total-area">
                 <div style="font-size:1.2em; color:#fff; margin-bottom:10px;">Total: <strong style="color:#4CAF50;" id="totalCarrinhoDisplay">R$ 0,00</strong></div>
                 <button class="btn-confirm" id="btnCheckoutCart" style="background:#4CAF50; color:#fff;" onclick="abrirPagamentoMassa()">ENVIAR TUDO 🚀</button>
             </div>
         </div>
-
         <div id="areaHistorico">
             <h4 style="color:#aaa; text-align:left; border-bottom:1px solid #333; margin-bottom:10px;">✅ Enviados / Histórico</h4>
             <div id="listaMeusPedidosHTML"></div>
@@ -161,6 +162,7 @@
  let CARRINHO_LOCAL = JSON.parse(localStorage.getItem(`carrinho_${EVENTO_ID}`) || "[]");
  let COMBO_QTD_ALVO = 0;
  let ITENS_COMBO_SELECIONADOS = [];
+ let FILA_GLOBAL_IDS = []; // ARMAZENA IDs DA FILA EM TEMPO REAL
 
  function limparString(str) { if(!str) return ""; return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); }
  if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
@@ -168,11 +170,25 @@
 
  function iniciarApp() {
   db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
-   if(doc.exists) { DADOS_EVENTO = doc.data(); if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); }
+   if(doc.exists) { DADOS_EVENTO = doc.data(); if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); iniciarMonitoramentoFila(); }
   });
   if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
   if(NOME_CONVIDADO) carregarChat(); 
   renderizarCarrinho();
+ }
+
+ // --- NOVA FUNÇÃO: MONITORAR FILA GLOBAL (TODOS OS PEDIDOS PENDENTES DO EVENTO) ---
+ function iniciarMonitoramentoFila() {
+    // Escuta TODOS os pedidos pendentes do evento, ordenados por data
+    db.collection("pedidos")
+      .where("evento_id", "==", EVENTO_ID)
+      .where("status", "==", "pendente") // A fila "real" é de quem já pagou ou é pacote (pendente)
+      .orderBy("data", "asc")
+      .onSnapshot(snapshot => {
+          FILA_GLOBAL_IDS = snapshot.docs.map(doc => doc.id);
+          // Se o usuário tem pedidos ativos, re-renderiza a lista para atualizar a posição
+          if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
+      });
  }
 
  function adicionarAoCarrinho(nome, tipo, preco, categoria) {
@@ -231,20 +247,18 @@
     });
 
     document.getElementById('totalCarrinhoDisplay').innerText = `R$ ${total.toFixed(2)}`;
-    
-    // LÓGICA DO BOTÃO E AVISO
     const avisoPagamento = document.getElementById('msgAvisoPagamento');
     
     if(total > 0) {
         btnCheckout.innerText = `PAGAR R$ ${total.toFixed(2)} E ENVIAR 🚀`;
         btnCheckout.style.background = "#4CAF50"; 
         btnCheckout.style.color = "#fff";
-        avisoPagamento.style.display = "block"; // MOSTRA O AVISO SE TIVER PAGAMENTO
+        avisoPagamento.style.display = "block"; 
     } else {
         btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀";
         btnCheckout.style.background = "#FFD580"; 
         btnCheckout.style.color = "#000";
-        avisoPagamento.style.display = "none"; // ESCONDE O AVISO SE FOR TUDO GRATIS
+        avisoPagamento.style.display = "none";
     }
 
     document.getElementById('valorTotalMassa').innerText = `R$ ${total.toFixed(2)}`;
@@ -254,13 +268,11 @@
 
  function abrirPagamentoMassa() {
     const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0);
-    
-    // CORREÇÃO: FECHAR O MODAL DE PEDIDOS ANTES DE ABRIR O DE PAGAMENTO
     if (total === 0) {
         if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa();
     } else {
-        document.getElementById('modalListaPedidos').style.display = 'none'; // Fecha carrinho
-        document.getElementById('modalPagamentoMassa').style.display = 'flex'; // Abre PIX
+        document.getElementById('modalListaPedidos').style.display = 'none'; 
+        document.getElementById('modalPagamentoMassa').style.display = 'flex'; 
     }
  }
 
@@ -304,8 +316,6 @@
         CARRINHO_LOCAL = []; 
         salvarCarrinhoLocal();
         mostrarNotificacao("🚀 Pedidos enviados com sucesso!");
-        
-        // CORREÇÃO: REABRE O MODAL DE PEDIDOS PARA MOSTRAR ELES LÁ
         document.getElementById('modalListaPedidos').style.display = 'flex';
         rastrearPedidos();
     }).catch(err => alert("Erro ao enviar: " + err));
@@ -330,7 +340,7 @@
  function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
  function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
  function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
- function rastrearPedidos() { if(MEUS_PEDIDOS_IDS.length === 0) { document.getElementById('listaMeusPedidosHTML').innerHTML = '<p style="color:#555; text-align:center;">Nenhum pedido enviado ainda.</p>'; return; } db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0; let pedidos = []; snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()})); pedidos.sort((a,b) => b.data - a.data); pedidos.forEach(p => { let statusText = "Fila", cor = "#888", extraHTML = ""; let podeCancelar = true; if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; } else if(p.status === 'aguardando_pagamento') { statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; contagemAtivos++; if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`; } else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; } else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; } else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; } if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`; listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong><span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; }); const totalBadge = CARRINHO_LOCAL.length + contagemAtivos; document.getElementById('badgeMeusPedidos').innerText = totalBadge; }); }
+ function rastrearPedidos() { if(MEUS_PEDIDOS_IDS.length === 0) { document.getElementById('listaMeusPedidosHTML').innerHTML = '<p style="color:#555; text-align:center;">Nenhum pedido enviado ainda.</p>'; return; } db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0; let pedidos = []; snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()})); pedidos.sort((a,b) => b.data - a.data); pedidos.forEach(p => { let statusText = "Fila", cor = "#888", extraHTML = ""; let podeCancelar = true; let posicaoTexto = ""; if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; const index = FILA_GLOBAL_IDS.indexOf(p.id); if (index !== -1) { const pos = index + 1; const destaqueClass = pos === 1 ? "first" : ""; posicaoTexto = `<span class="queue-pos ${destaqueClass}">#${pos} da fila</span>`; } } else if(p.status === 'aguardando_pagamento') { statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; contagemAtivos++; if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`; } else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; } else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; } else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; } if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`; listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong> ${posicaoTexto}<span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; }); const totalBadge = CARRINHO_LOCAL.length + contagemAtivos; document.getElementById('badgeMeusPedidos').innerText = totalBadge; }); }
  function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
  function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
  let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
