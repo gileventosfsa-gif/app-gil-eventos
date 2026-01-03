@@ -85,16 +85,24 @@
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
   .alcohol-note { background: rgba(33, 150, 243, 0.15); border: 1px solid #2196F3; color: #90CAF9; padding: 12px; border-radius: 10px; text-align: center; font-size: 0.85em; margin-bottom: 25px; line-height: 1.5; }
   .alcohol-note strong { color: #fff; }
+  
+  /* CARRINHO ESTILO */
   .cart-section { border: 1px solid #FFD580; background: rgba(255, 213, 128, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
   .cart-title { color: #FFD580; font-weight: bold; text-transform: uppercase; border-bottom: 1px dashed #FFD580; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center;}
   .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #333; }
   .cart-item-info { text-align: left; }
   .btn-remove-cart { color: #FF4444; background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 0 10px; }
   .cart-total-area { margin-top: 15px; padding-top: 10px; border-top: 1px solid #555; text-align: right; }
+  
+  /* AVISO PAGAMENTO */
   .cart-warning { background: rgba(255, 149, 0, 0.15); border: 1px solid #FF9500; color: #FF9500; font-size: 0.85em; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: bold; display: none; animation: pulseWarning 2s infinite; }
   @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0); } }
+
+  /* FILA GLOBAL */
   .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 2px 6px; border-radius: 6px; margin-left: 5px; font-weight: bold; vertical-align: middle; display:inline-block;}
   .queue-pos.first { background: linear-gradient(45deg, #00C853, #64DD17); color: #000; animation: pulse 1s infinite; }
+  
+  /* TELA DE BLOQUEIO */
   .status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(10px); padding: 20px; box-sizing: border-box; }
   .status-icon { font-size: 5em; margin-bottom: 20px; animation: bounce 2s infinite; }
   .status-title { font-size: 2em; color: #FFD580; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
@@ -138,6 +146,18 @@
 
  <div id="listaCardapio"></div>
  <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
+
+ <div style="margin-top: 40px; margin-bottom: 20px; padding: 20px; background: rgba(255, 213, 128, 0.05); border: 1px dashed #FFD580; border-radius: 12px; text-align: center;">
+     <h3 style="color: #FFD580; margin: 0 0 10px 0;">Curtiu a experiência? 🥂</h3>
+     <p style="font-size: 0.85em; color: #ccc; line-height: 1.5; margin-bottom: 15px;">
+         Se quiser apoiar a <strong>Gil Eventos</strong> a criar momentos ainda mais incríveis, você pode fazer uma contribuição voluntária. <br><br>
+         É totalmente opcional, mas recebida com muito carinho e revertida em melhorias para os próximos eventos!
+     </p>
+     <a href="https://bbpay.apps.bb.com.br/m/#/cm49eyJvcHIiOiJDQ0siLCJzb2xpY2l0YXRpb25OdW1iZXIiOiI1ODk3MTc3NSJ9" target="_blank" style="background: linear-gradient(45deg, #FFD580, #FFAB00); color: #000; text-decoration: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(255, 171, 0, 0.3);">
+         🤝 Fazer Contribuição Voluntária
+     </a>
+ </div>
+
 </div>
 
 <div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()" style="display: flex;">
