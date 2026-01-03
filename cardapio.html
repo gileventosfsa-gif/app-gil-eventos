@@ -50,7 +50,13 @@
   .msg-mine { background: #2E7D32; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
   .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
   .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
-  .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; position: relative;}
+  
+  /* ESTILO DO ITEM DA FILA */
+  .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; position: relative; }
+  .my-order-item.is-mine { border: 1px solid rgba(76, 175, 80, 0.3); background: rgba(76, 175, 80, 0.05); } /* Destaque para meu pedido */
+  .guest-name { font-size: 0.8em; color: #aaa; font-style: italic; }
+  .guest-name.mine { color: #4CAF50; font-weight: bold; font-style: normal; }
+
   .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: 500; }
   .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
   .btn-i-paid { background: #4CAF50; color: white; }
@@ -124,7 +130,7 @@
 
 <div class="modal-overlay" id="modalPagamentoMassa"><div class="modal-box"><h2 style="color:#4CAF50; margin:0;">Finalizar Pedido</h2><p style="color:#ddd;">Você está pagando por <strong><span id="qtdItensMassa">0</span> itens</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Total a pagar:</span><strong style="font-size:2.2em; color:#4CAF50;" id="valorTotalMassa">R$ 0,00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTextoMassa">75992011008</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button></div><button class="btn-confirm" onclick="confirmarEnvioMassa()">✅ JÁ PAGUEI / ENVIAR TUDO</button><button onclick="document.getElementById('modalPagamentoMassa').style.display='none'; document.getElementById('modalListaPedidos').style.display='flex';" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Voltar ao Carrinho</button></div></div>
 
-<div class="modal-overlay" id="modalListaPedidos"><div class="modal-box" style="height: 650px; max-height:90vh;"><div class="modal-tabs"><button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Pedidos</button><button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button></div>
+<div class="modal-overlay" id="modalListaPedidos"><div class="modal-box" style="height: 650px; max-height:90vh;"><div class="modal-tabs"><button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Fila de Pedidos</button><button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button></div>
     <div id="tab-pedidos" class="tab-content active">
         <div id="areaCarrinho" class="cart-section" style="display:none;">
             <div class="cart-title">🛒 No Carrinho (A Enviar) <span style="font-size:0.8em; color:#fff;" id="countCarrinho"></span></div>
@@ -138,7 +144,7 @@
             </div>
         </div>
         <div id="areaHistorico">
-            <h4 style="color:#aaa; text-align:left; border-bottom:1px solid #333; margin-bottom:10px;">✅ Enviados / Histórico</h4>
+            <h4 style="color:#aaa; text-align:left; border-bottom:1px solid #333; margin-bottom:10px;">📋 Fila de Preparação (Todos)</h4>
             <div id="listaMeusPedidosHTML"></div>
         </div>
     </div>
@@ -162,7 +168,7 @@
  let CARRINHO_LOCAL = JSON.parse(localStorage.getItem(`carrinho_${EVENTO_ID}`) || "[]");
  let COMBO_QTD_ALVO = 0;
  let ITENS_COMBO_SELECIONADOS = [];
- let FILA_GLOBAL_IDS = []; // ARMAZENA IDs DA FILA EM TEMPO REAL
+ // FILA GLOBAL IDS nao precisamos mais separar, vamos usar o snapshot direto
 
  function limparString(str) { if(!str) return ""; return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); }
  if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
@@ -170,25 +176,93 @@
 
  function iniciarApp() {
   db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
-   if(doc.exists) { DADOS_EVENTO = doc.data(); if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); iniciarMonitoramentoFila(); }
+   if(doc.exists) { DADOS_EVENTO = doc.data(); if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); }
   });
-  if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
+  // RASTREAR PEDIDOS AGORA RASTREIA TUDO (FILA GLOBAL)
+  rastrearFilaGlobal();
   if(NOME_CONVIDADO) carregarChat(); 
   renderizarCarrinho();
  }
 
- // --- NOVA FUNÇÃO: MONITORAR FILA GLOBAL (TODOS OS PEDIDOS PENDENTES DO EVENTO) ---
- function iniciarMonitoramentoFila() {
-    // Escuta TODOS os pedidos pendentes do evento, ordenados por data
+ // --- FUNÇÃO PRINCIPAL: FILA GLOBAL COMPARTILHADA ---
+ function rastrearFilaGlobal() {
+    // Busca TODOS os pedidos do evento (exceto cancelados)
+    // Ordena por data Crescente (Antigos primeiro = Fila Indiana)
     db.collection("pedidos")
       .where("evento_id", "==", EVENTO_ID)
-      .where("status", "==", "pendente") // A fila "real" é de quem já pagou ou é pacote (pendente)
       .orderBy("data", "asc")
-      .onSnapshot(snapshot => {
-          FILA_GLOBAL_IDS = snapshot.docs.map(doc => doc.id);
-          // Se o usuário tem pedidos ativos, re-renderiza a lista para atualizar a posição
-          if(MEUS_PEDIDOS_IDS.length > 0) rastrearPedidos();
-      });
+      .onSnapshot((snapshot) => { 
+        const listaHTML = document.getElementById('listaMeusPedidosHTML'); 
+        listaHTML.innerHTML = ''; 
+        
+        let contagemFilaPreparacao = 0;
+        let meusPedidosAtivosCount = 0;
+
+        if(snapshot.empty) {
+            listaHTML.innerHTML = '<p style="color:#555; text-align:center;">Fila vazia! Peça o primeiro drink. 🍹</p>';
+            document.getElementById('badgeMeusPedidos').innerText = CARRINHO_LOCAL.length;
+            return;
+        }
+
+        snapshot.forEach(doc => { 
+            const p = {id: doc.id, ...doc.data()};
+            
+            // Filtra cancelados da visualização para não poluir
+            if(p.status === 'cancelado') return;
+
+            let isMine = (p.nome_convidado === NOME_CONVIDADO);
+            if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
+
+            let statusText = "Fila", cor = "#888", extraHTML = ""; 
+            let nomeDisplay = isMine ? `<span class="guest-name mine">(VOCÊ)</span>` : `<span class="guest-name">(${p.nome_convidado})</span>`;
+            let divClass = isMine ? "my-order-item is-mine" : "my-order-item";
+            let posicaoTexto = "";
+
+            // Lógica de Status e Fila
+            if(p.status === 'pendente') { 
+                statusText = "🟡 Preparando"; 
+                cor = "#FFD580"; 
+                contagemFilaPreparacao++; 
+                // Mostra posição apenas para status pendente
+                const destaqueClass = contagemFilaPreparacao === 1 ? "first" : "";
+                const textoPos = contagemFilaPreparacao === 1 ? "É A SUA VEZ!" : `#${contagemFilaPreparacao} da fila`;
+                posicaoTexto = `<span class="queue-pos ${destaqueClass}">${textoPos}</span>`;
+            } 
+            else if(p.status === 'aguardando_pagamento') { 
+                statusText = "🔴 Aguardando Pagto"; 
+                cor = "#FF4444"; 
+                if(isMine) {
+                    if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; 
+                    else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`;
+                }
+            } 
+            else if(p.status === 'pagamento_rejeitado') { 
+                statusText = "❌ Pix Não Achado"; cor = "#FF4444"; 
+                if(isMine) extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; 
+            } 
+            else if(p.status === 'servido') { 
+                statusText = "🟢 Pronto!"; cor = "#4CAF50"; 
+                if(isMine) verificarAlertaPronto(p.id, p.status); 
+            } 
+
+            // Botão Cancelar (Só se for meu e não estiver pronto)
+            if(isMine && p.status !== 'servido') {
+                extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
+            }
+
+            listaHTML.innerHTML += `
+                <div class="${divClass}" style="border-left-color:${cor}">
+                    <strong>${p.drink}</strong> ${nomeDisplay} ${posicaoTexto}
+                    <span style="float:right; color:${cor}; font-weight:bold; font-size:0.8em;">${statusText}</span>
+                    <br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>
+                    ${extraHTML}
+                </div>`; 
+        }); 
+        
+        // Atualiza Badge Geral (Carrinho + Meus Ativos na Fila)
+        const totalBadge = CARRINHO_LOCAL.length + meusPedidosAtivosCount;
+        document.getElementById('badgeMeusPedidos').innerText = totalBadge;
+    }); 
  }
 
  function adicionarAoCarrinho(nome, tipo, preco, categoria) {
@@ -317,14 +391,15 @@
         salvarCarrinhoLocal();
         mostrarNotificacao("🚀 Pedidos enviados com sucesso!");
         document.getElementById('modalListaPedidos').style.display = 'flex';
-        rastrearPedidos();
+        // A função rastrearFilaGlobal já vai atualizar sozinha pois ouve o banco
     }).catch(err => alert("Erro ao enviar: " + err));
  }
 
  function atualizarUIBadge() {
-    const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length;
+    // Badge mostra: Itens no Carrinho + Meus Pedidos Ativos na Fila (calculado no snapshot)
+    // O valor exato é atualizado dentro do snapshot do rastrearFilaGlobal
     const btn = document.getElementById('btnMeusPedidos');
-    if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex';
+    btn.style.display = 'flex';
  }
 
  function verificarCombosAtivos() { let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago'); let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado; let ehMisto = DADOS_EVENTO.tipo_servico === 'misto'; if(temPagos || pacoteEsgotado || ehMisto) { document.getElementById('areaCombos').style.display = 'grid'; } else { document.getElementById('areaCombos').style.display = 'none'; } }
@@ -340,12 +415,14 @@
  function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
  function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
  function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
- function rastrearPedidos() { if(MEUS_PEDIDOS_IDS.length === 0) { document.getElementById('listaMeusPedidosHTML').innerHTML = '<p style="color:#555; text-align:center;">Nenhum pedido enviado ainda.</p>'; return; } db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("nome_convidado", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let contagemAtivos = 0; let pedidos = []; snapshot.forEach(doc => pedidos.push({id:doc.id, ...doc.data()})); pedidos.sort((a,b) => b.data - a.data); pedidos.forEach(p => { let statusText = "Fila", cor = "#888", extraHTML = ""; let podeCancelar = true; let posicaoTexto = ""; if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemAtivos++; podeCancelar = false; const index = FILA_GLOBAL_IDS.indexOf(p.id); if (index !== -1) { const pos = index + 1; const destaqueClass = pos === 1 ? "first" : ""; posicaoTexto = `<span class="queue-pos ${destaqueClass}">#${pos} da fila</span>`; } } else if(p.status === 'aguardando_pagamento') { statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; contagemAtivos++; if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`; } else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; } else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; verificarAlertaPronto(p.id, p.status); podeCancelar = false; } else if(p.status === 'cancelado') { statusText = "❌ Cancelado"; cor = "#555"; podeCancelar = false; } if(podeCancelar) extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`; listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:${cor}"><strong>${p.drink}</strong> ${posicaoTexto}<span style="float:right; color:${cor}; font-weight:bold;">${statusText}</span><br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; }); const totalBadge = CARRINHO_LOCAL.length + contagemAtivos; document.getElementById('badgeMeusPedidos').innerText = totalBadge; }); }
  function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
  function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
  let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
  function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
- function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "🔔 Entrou no cardápio.", remetente: 'sistema', data: new Date() }); rastrearPedidos(); carregarChat(); }
+ function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "🔔 Entrou no cardápio.", remetente: 'sistema', data: new Date() }); 
+ // RECARREGA TUDO COM O NOVO NOME
+ location.reload();
+ }
  function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTextoMassa').innerText); alert("Copiado!"); }
  function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
  function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
