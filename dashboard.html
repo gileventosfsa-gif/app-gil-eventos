@@ -58,6 +58,7 @@
         input:checked + .slider:before { transform: translateX(26px); }
         .obs-tag { background: #FFD580; color: black; padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 0.8em; display: block; margin-top: 5px; }
         
+        /* CHAT STYLES */
         .chat-layout { display: flex; height: 400px; gap: 10px; }
         .chat-users { width: 30%; background: #111; border-right: 1px solid #333; overflow-y: auto; }
         .chat-area { width: 70%; display: flex; flex-direction: column; }
@@ -71,7 +72,7 @@
         .chat-controls { display: flex; gap: 5px; }
         .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
 
-        /* NOVOS BOTÕES DE CONTROLE DE STATUS */
+        /* STATUS CONTROLS */
         .status-controls { display: flex; gap: 5px; margin-top: 5px; }
         .status-btn { border: none; padding: 5px 10px; font-size: 0.75em; border-radius: 4px; cursor: pointer; opacity: 0.4; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
         .status-btn.active { opacity: 1; transform: scale(1.05); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
@@ -79,6 +80,14 @@
         .btn-aberto { background: #00E676; color: #000; }
         .btn-pausado { background: #FFD600; color: #000; }
         .btn-encerrado { background: #FF1744; color: #fff; }
+
+        /* AVALIAÇÕES */
+        .review-pending { background: #2a1a00; border: 1px solid #FFD580; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .review-stars { color: #FFD580; font-size: 1.2em; }
+        .review-text { font-style: italic; color: #ddd; font-size: 0.9em; margin: 5px 0; }
+        .review-actions { display: flex; gap: 5px; }
+        .btn-approve { background: #4CAF50; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; flex: 1;}
+        .btn-reject { background: #FF4444; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; flex: 1;}
 
         #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { display: none; }
@@ -121,7 +130,6 @@
         <div>
             <span id="nomeEvento" style="font-weight:bold; font-size:1.2em;">Carregando...</span>
             <span class="badge-event" id="tipoEvento">...</span> 
-            
             <div class="status-controls">
                 <button class="status-btn btn-aberto" id="btnStatusAberto" onclick="mudarStatusEvento('aberto')">🟢 Aberto</button>
                 <button class="status-btn btn-pausado" id="btnStatusPausado" onclick="mudarStatusEvento('pausado')">✋ Pausar</button>
@@ -147,13 +155,18 @@
     <div class="grid-layout">
         <div class="col-commands">
             <div class="card-box">
+                <div class="label">⭐ Moderação de Avaliações <span id="qtdReviews" style="color:#FFD580;">(0)</span></div>
+                <div id="listaReviews" style="max-height:200px; overflow-y:auto; margin-top:10px;">
+                    <p style="color:#555; font-size:0.8em; text-align:center;">Nenhuma avaliação pendente.</p>
+                </div>
+            </div>
+
+            <div class="card-box">
                 <div class="label">Consumo Pacote</div>
-                
                 <div id="boxConsumoSimples">
                     <div class="big-stat"><span id="consumido">0</span> <span style="font-size:0.5em; color:#666;">/ <span id="total">∞</span></span></div>
                     <div style="height:5px; background:#333; margin-top:5px;"><div id="progressoBar" style="height:100%; width:0%; background:#4CAF50;"></div></div>
                 </div>
-
                 <div id="boxConsumoMisto" style="display:none;">
                     <div class="bars-container">
                         <div class="sub-bar" title="Clássico"><div id="barClassico" class="sub-bar-fill" style="background:#4CAF50; width:0%"></div></div>
@@ -215,7 +228,7 @@
                     atualizarInterface(DADOS_EVENTO); 
                     gerarBotoes(DADOS_EVENTO.cardapio);
                     gerarListaEstoque(DADOS_EVENTO.cardapio);
-                    atualizarBotoesStatus(DADOS_EVENTO.status || 'aberto'); // Atualiza a cor dos botões de controle
+                    atualizarBotoesStatus(DADOS_EVENTO.status || 'aberto');
                 }
             });
             db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["pendente", "aguardando_pagamento", "pagamento_rejeitado"]).onSnapshot((snapshot) => {
@@ -258,8 +271,48 @@
                 s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); 
             });
             monitorarChat();
+            
+            // --- MONITORAR AVALIAÇÕES PENDENTES ---
+            db.collection("avaliacoes").where("status", "==", "pendente").onSnapshot(snapshot => {
+                const lista = document.getElementById('listaReviews');
+                document.getElementById('qtdReviews').innerText = `(${snapshot.size})`;
+                
+                if(snapshot.empty) {
+                    lista.innerHTML = '<p style="color:#555; font-size:0.8em; text-align:center;">Nenhuma avaliação pendente.</p>';
+                    return;
+                }
+                
+                lista.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const r = doc.data();
+                    const estrelas = "⭐".repeat(r.nota);
+                    lista.innerHTML += `
+                        <div class="review-pending">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong style="color:#fff; font-size:0.9em;">${r.cliente}</strong>
+                                <span class="review-stars">${estrelas}</span>
+                            </div>
+                            <div style="font-size:0.8em; color:#aaa;">Drink: ${r.drink}</div>
+                            <div class="review-text">"${r.comentario}"</div>
+                            <div class="review-actions">
+                                <button class="btn-approve" onclick="moderarReview('${doc.id}', true)">✅ Aprovar</button>
+                                <button class="btn-reject" onclick="moderarReview('${doc.id}', false)">❌ Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
         }
         
+        // --- FUNÇÕES DE MODERAÇÃO ---
+        function moderarReview(id, aprovado) {
+            if(aprovado) {
+                db.collection("avaliacoes").doc(id).update({ status: 'aprovado' });
+            } else {
+                if(confirm("Excluir avaliação?")) db.collection("avaliacoes").doc(id).delete();
+            }
+        }
+
         function sincronizarContadores() {
             db.collection("pedidos")
               .where("evento_id", "==", EVENTO_ID)
@@ -462,10 +515,7 @@
         }
 
         function atualizarBotoesStatus(status) {
-            // Remove classe 'active' de todos
             document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // Adiciona na atual
             if(status === 'aberto') document.getElementById('btnStatusAberto').classList.add('active');
             else if(status === 'pausado') document.getElementById('btnStatusPausado').classList.add('active');
             else if(status === 'encerrado') document.getElementById('btnStatusEncerrado').classList.add('active');
