@@ -51,7 +51,6 @@
   .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
   .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
   
-  /* ESTILO DO ITEM DA FILA GLOBAL */
   .my-order-item { background: #222; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #555; position: relative; }
   .my-order-item.is-mine { border: 1px solid rgba(76, 175, 80, 0.5); background: rgba(76, 175, 80, 0.08); } 
   .guest-name { font-size: 0.8em; color: #888; font-style: italic; margin-left: 5px;}
@@ -86,25 +85,33 @@
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
   .alcohol-note { background: rgba(33, 150, 243, 0.15); border: 1px solid #2196F3; color: #90CAF9; padding: 12px; border-radius: 10px; text-align: center; font-size: 0.85em; margin-bottom: 25px; line-height: 1.5; }
   .alcohol-note strong { color: #fff; }
-  
-  /* CARRINHO ESTILO */
   .cart-section { border: 1px solid #FFD580; background: rgba(255, 213, 128, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
   .cart-title { color: #FFD580; font-weight: bold; text-transform: uppercase; border-bottom: 1px dashed #FFD580; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center;}
   .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #333; }
   .cart-item-info { text-align: left; }
   .btn-remove-cart { color: #FF4444; background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 0 10px; }
   .cart-total-area { margin-top: 15px; padding-top: 10px; border-top: 1px solid #555; text-align: right; }
-  
-  /* AVISO PAGAMENTO */
   .cart-warning { background: rgba(255, 149, 0, 0.15); border: 1px solid #FF9500; color: #FF9500; font-size: 0.85em; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: bold; display: none; animation: pulseWarning 2s infinite; }
   @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0); } }
-
-  /* FILA GLOBAL */
   .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 2px 6px; border-radius: 6px; margin-left: 5px; font-weight: bold; vertical-align: middle; display:inline-block;}
   .queue-pos.first { background: linear-gradient(45deg, #00C853, #64DD17); color: #000; animation: pulse 1s infinite; }
+
+  /* TELA DE BLOQUEIO / STATUS DO EVENTO */
+  .status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(10px); padding: 20px; box-sizing: border-box; }
+  .status-icon { font-size: 5em; margin-bottom: 20px; animation: bounce 2s infinite; }
+  .status-title { font-size: 2em; color: #FFD580; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
+  .status-msg { font-size: 1.1em; color: #ccc; max-width: 400px; line-height: 1.5; }
+  @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
  </style>
 </head>
 <body>
+
+<div id="telaBloqueio" class="status-overlay">
+    <div class="status-icon" id="iconStatus">🔒</div>
+    <div class="status-title" id="tituloStatus">BAR FECHADO</div>
+    <div class="status-msg" id="msgStatus">O evento ainda não começou ou o bar está encerrado no momento.</div>
+</div>
+
 <div class="container">
  <div class="header"><span class="brand-subtitle">GIL EVENTOS</span><div class="event-name" id="nomeEvento">Carregando...</div><div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div></div>
  <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
@@ -177,14 +184,52 @@
 
  function iniciarApp() {
   db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
-   if(doc.exists) { DADOS_EVENTO = doc.data(); if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); iniciarMonitoramentoFila(); }
+   if(doc.exists) { 
+       DADOS_EVENTO = doc.data(); 
+       if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; 
+       
+       // VERIFICAÇÃO DE STATUS DO EVENTO (NOVA LÓGICA)
+       verificarStatusEvento(DADOS_EVENTO.status);
+
+       renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); iniciarMonitoramentoFila(); 
+   }
   });
   rastrearFilaGlobal();
   if(NOME_CONVIDADO) carregarChat(); 
   renderizarCarrinho();
  }
 
- // --- FUNÇÃO CORRIGIDA: LÓGICA DE EXIBIÇÃO DE VEZ ---
+ // --- FUNÇÃO NOVA: CONTROLE DE STATUS DO EVENTO ---
+ function verificarStatusEvento(status) {
+    const overlay = document.getElementById('telaBloqueio');
+    const icon = document.getElementById('iconStatus');
+    const title = document.getElementById('tituloStatus');
+    const msg = document.getElementById('msgStatus');
+
+    // Se não tiver status ou for 'aberto', esconde o bloqueio
+    if (!status || status === 'aberto') {
+        overlay.style.display = 'none';
+        return;
+    }
+
+    // Mostra o bloqueio e configura a mensagem
+    overlay.style.display = 'flex';
+    
+    if (status === 'aguardando') {
+        icon.innerText = '⏳';
+        title.innerText = 'EM BREVE';
+        msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂';
+    } else if (status === 'pausado') {
+        icon.innerText = '✋';
+        title.innerText = 'BAR PAUSADO';
+        msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!';
+    } else if (status === 'encerrado') {
+        icon.innerText = '🏁';
+        title.innerText = 'EVENTO ENCERRADO';
+        msg.innerText = 'Obrigado pela presença! O bar foi finalizado.';
+    }
+ }
+
  function rastrearFilaGlobal() {
     db.collection("pedidos")
       .where("evento_id", "==", EVENTO_ID)
@@ -226,12 +271,11 @@
                 cor = "#FFD580"; 
                 contagemFilaPreparacao++; 
                 
-                // LÓGICA CORRIGIDA AQUI:
                 let destaqueClass = "";
                 let textoPos = `#${contagemFilaPreparacao} da fila`;
 
                 if (contagemFilaPreparacao === 1) {
-                    destaqueClass = "first"; // Fundo verde
+                    destaqueClass = "first"; 
                     if (isMine) {
                         textoPos = "É A SUA VEZ! 🍸";
                     } else {
@@ -409,7 +453,7 @@
         salvarCarrinhoLocal();
         mostrarNotificacao("🚀 Pedidos enviados com sucesso!");
         document.getElementById('modalListaPedidos').style.display = 'flex';
-        // A função rastrearFilaGlobal já vai atualizar sozinha pois ouve o banco
+        rastrearFilaGlobal();
     }).catch(err => alert("Erro ao enviar: " + err));
  }
 
