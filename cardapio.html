@@ -184,7 +184,7 @@
   renderizarCarrinho();
  }
 
- // --- FUNÇÃO CORRIGIDA: FILA GLOBAL COM ORDENAÇÃO LOCAL ---
+ // --- FUNÇÃO CORRIGIDA: LÓGICA DE EXIBIÇÃO DE VEZ ---
  function rastrearFilaGlobal() {
     db.collection("pedidos")
       .where("evento_id", "==", EVENTO_ID)
@@ -195,7 +195,6 @@
         let pedidos = [];
         snapshot.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
 
-        // Ordena por data (Antigos primeiro)
         pedidos.sort((a, b) => {
             let dateA = a.data ? a.data.toDate() : new Date();
             let dateB = b.data ? b.data.toDate() : new Date();
@@ -212,7 +211,6 @@
         let meusPedidosAtivosCount = 0;
 
         pedidos.forEach(p => { 
-            // Ignora cancelados
             if(p.status === 'cancelado') return;
 
             let isMine = (p.nome_convidado === NOME_CONVIDADO);
@@ -227,8 +225,20 @@
                 statusText = "🟡 Preparando"; 
                 cor = "#FFD580"; 
                 contagemFilaPreparacao++; 
-                const destaqueClass = contagemFilaPreparacao === 1 ? "first" : "";
-                const textoPos = contagemFilaPreparacao === 1 ? "É A SUA VEZ!" : `#${contagemFilaPreparacao} da fila`;
+                
+                // LÓGICA CORRIGIDA AQUI:
+                let destaqueClass = "";
+                let textoPos = `#${contagemFilaPreparacao} da fila`;
+
+                if (contagemFilaPreparacao === 1) {
+                    destaqueClass = "first"; // Fundo verde
+                    if (isMine) {
+                        textoPos = "É A SUA VEZ! 🍸";
+                    } else {
+                        textoPos = "PREPARANDO AGORA";
+                    }
+                }
+                
                 posicaoTexto = `<span class="queue-pos ${destaqueClass}">${textoPos}</span>`;
             } 
             else if(p.status === 'aguardando_pagamento') { 
@@ -248,7 +258,6 @@
                 if(isMine) verificarAlertaPronto(p.id, p.status); 
             } 
 
-            // Botão Cancelar (Só se for meu e não estiver pronto)
             if(isMine && p.status !== 'servido') {
                 extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
             }
@@ -267,15 +276,12 @@
                 </div>`; 
         }); 
         
-        // Atualiza Badge Geral
         const totalBadge = CARRINHO_LOCAL.length + meusPedidosAtivosCount;
         document.getElementById('badgeMeusPedidos').innerText = totalBadge;
     }); 
  }
 
- function iniciarMonitoramentoFila() {
-    // Função auxiliar vazia, pois rastrearFilaGlobal já faz o trabalho completo
- }
+ function iniciarMonitoramentoFila() { }
 
  function adicionarAoCarrinho(nome, tipo, preco, categoria) {
     if(tipo === 'pacote') {
@@ -408,10 +414,9 @@
  }
 
  function atualizarUIBadge() {
-    // Badge mostra: Itens no Carrinho + Meus Pedidos Ativos na Fila (calculado no snapshot)
-    // O valor exato é atualizado dentro do snapshot do rastrearFilaGlobal
+    const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length;
     const btn = document.getElementById('btnMeusPedidos');
-    btn.style.display = 'flex';
+    if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex';
  }
 
  function verificarCombosAtivos() { let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago'); let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado; let ehMisto = DADOS_EVENTO.tipo_servico === 'misto'; if(temPagos || pacoteEsgotado || ehMisto) { document.getElementById('areaCombos').style.display = 'grid'; } else { document.getElementById('areaCombos').style.display = 'none'; } }
