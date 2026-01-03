@@ -331,17 +331,17 @@
             const dataFormatada = data.split('-').reverse().join('/');
             
             if (status === "OCUPADO") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Vi que dia ${dataFormatada} as ${hora} ta ocupado, tem jeito de encaixar?`;
+                const linkZap = `https://wa.me/5575998649927?text=Ola Gil! Vi que dia ${dataFormatada} as ${hora} ta ocupado, tem jeito de encaixar?`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-busy';
                 resultDiv.innerHTML = `<h3 style="margin:0;">❌ OCUPADO</h3><p>${conflictMsg}</p><a href="${linkZap}" class="btn-whatsapp orange">TENTAR ENCAIXE ➔</a>`;
             } 
             else if (status === "NEGOCIAR") {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} tem intervalo bom. Podemos fechar?`;
+                const linkZap = `https://wa.me/5575998649927?text=Ola Gil! Dia ${dataFormatada} tem evento mas meu horario ${hora} tem intervalo bom. Podemos fechar?`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-negotiate';
                 resultDiv.innerHTML = `<h3 style="margin:0;">⚠️ SOB CONSULTA</h3><p>Tenho evento no dia, mas seu horário permite encaixe!</p><a href="${linkZap}" class="btn-whatsapp orange">COMBINAR HORÁRIO ➔</a>`;
             } 
             else {
-                const linkZap = `https://wa.me/5575992011008?text=Ola Gil! Quero reservar dia ${dataFormatada} as ${hora}.`;
+                const linkZap = `https://wa.me/5575998649927?text=Ola Gil! Quero reservar dia ${dataFormatada} as ${hora}.`;
                 resultDiv.style.display = 'block'; resultDiv.className = 'status-available';
                 resultDiv.innerHTML = `<h3 style="margin:0;">✅ DISPONÍVEL!</h3><p>Horário livre.</p><a href="${linkZap}" class="btn-whatsapp green">RESERVAR AGORA ➔</a>`;
             }
