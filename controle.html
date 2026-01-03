@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Remoto - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #121212; color: #fff; font-family: 'Poppins', sans-serif; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; }
+        h1 { color: #FFD580; margin-bottom: 30px; }
+        
+        select { width: 100%; padding: 15px; border-radius: 10px; background: #222; color: #fff; border: 1px solid #444; font-size: 1.1em; margin-bottom: 30px; }
+        
+        .status-display { padding: 20px; background: #1E1E1E; border-radius: 15px; margin-bottom: 30px; border: 1px solid #333; }
+        .status-label { font-size: 0.9em; color: #aaa; }
+        .status-value { font-size: 2em; font-weight: 800; margin-top: 5px; display: block; }
+        
+        .grid-btn { display: flex; flex-direction: column; gap: 15px; }
+        
+        .btn { padding: 20px; font-size: 1.2em; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; color: #000; transition: transform 0.2s; text-transform: uppercase; }
+        .btn:active { transform: scale(0.95); }
+        
+        .btn-abrir { background: #00E676; box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); }
+        .btn-pausar { background: #FFD600; box-shadow: 0 0 15px rgba(255, 214, 0, 0.4); }
+        .btn-encerrar { background: #FF1744; color: #fff; box-shadow: 0 0 15px rgba(255, 23, 68, 0.4); }
+
+        .loading { color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎛️ Controle do Evento</h1>
+
+        <label style="display:block; text-align:left; margin-bottom:5px; color:#aaa;">Selecione o Evento:</label>
+        <select id="selectEvento" onchange="monitorarEvento()">
+            <option value="">Carregando eventos...</option>
+        </select>
+
+        <div class="status-display">
+            <span class="status-label">STATUS ATUAL:</span>
+            <span id="displayStatus" class="status-value">...</span>
+        </div>
+
+        <div class="grid-btn">
+            <button class="btn btn-abrir" onclick="mudarStatus('aberto')">🟢 ABRIR BAR</button>
+            <button class="btn btn-pausar" onclick="mudarStatus('pausado')">✋ PAUSAR PEDIDOS</button>
+            <button class="btn btn-encerrar" onclick="mudarStatus('encerrado')">🏁 ENCERRAR EVENTO</button>
+        </div>
+        
+        <p style="margin-top:30px; color:#555; font-size:0.8em;">
+            As alterações refletem instantaneamente no cardápio de todos os convidados.
+        </p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk", authDomain: "gil-eventos-app-911fe.firebaseapp.com", projectId: "gil-eventos-app-911fe", storageBucket: "gil-eventos-app-911fe.firebasestorage.app", messagingSenderId: "503025880352", appId: "1:503025880352:web:694b7f2889cff501c7db45", measurementId: "G-3DZ1P5C0M3" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let eventoAtualID = "";
+
+        // 1. Carregar lista de eventos ativos
+        db.collection("eventos").orderBy("data_criacao", "desc").get().then((snapshot) => {
+            const select = document.getElementById("selectEvento");
+            select.innerHTML = '<option value="">Selecione um evento...</option>';
+            
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const option = document.createElement("option");
+                option.value = doc.id;
+                option.text = `${data.nome} (${data.status || 'sem status'})`;
+                select.appendChild(option);
+            });
+        });
+
+        // 2. Monitorar o evento selecionado
+        function monitorarEvento() {
+            const id = document.getElementById("selectEvento").value;
+            if(!id) return;
+            eventoAtualID = id;
+
+            db.collection("eventos").doc(id).onSnapshot((doc) => {
+                if(doc.exists) {
+                    const data = doc.data();
+                    const status = data.status || "aberto"; // padrão é aberto
+                    
+                    const display = document.getElementById("displayStatus");
+                    display.innerText = status.toUpperCase();
+
+                    // Muda a cor do texto conforme status
+                    if(status === 'aberto') display.style.color = "#00E676";
+                    else if(status === 'pausado') display.style.color = "#FFD600";
+                    else display.style.color = "#FF1744";
+                }
+            });
+        }
+
+        // 3. Função para alterar o status no banco
+        function mudarStatus(novoStatus) {
+            if(!eventoAtualID) return alert("Selecione um evento primeiro!");
+            
+            if(novoStatus === 'encerrado') {
+                if(!confirm("Tem certeza que deseja ENCERRAR o evento? Os convidados não poderão mais acessar o cardápio.")) return;
+            }
+
+            db.collection("eventos").doc(eventoAtualID).update({
+                status: novoStatus
+            }).then(() => {
+                // Feedback visual rápido (opcional, pois o onSnapshot já atualiza)
+                // alert("Status alterado para " + novoStatus);
+            }).catch((error) => {
+                alert("Erro ao atualizar: " + error);
+            });
+        }
+    </script>
+</body>
+</html>
