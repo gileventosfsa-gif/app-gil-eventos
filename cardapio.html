@@ -106,6 +106,10 @@
   .review-card { background: #222; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 3px solid #FFD580; text-align: left; }
   .stars { color: #FFD580; font-size: 1.1em; }
   .review-meta { font-size: 0.7em; color: #777; margin-top: 8px; display: block; border-top: 1px solid #333; padding-top: 5px; }
+  
+  /* ESTRELAS INTERATIVAS */
+  .star-select { cursor: pointer; opacity: 0.3; transition: 0.2s; }
+  .star-select.active { opacity: 1; transform: scale(1.2); }
  </style>
 </head>
 <body>
@@ -170,8 +174,12 @@
 
 <div class="modal-overlay" id="modalMural"><div class="modal-box" style="max-height:80vh; overflow-y:auto;"><h2 style="color:#FFD580; margin-bottom:5px;">⭐ Mural da Fama</h2><p style="color:#aaa; font-size:0.8em; margin-bottom:20px;">O que a galera está falando dos drinks!</p><div id="listaMuralHTML">Carregando...</div><button class="btn-confirm" style="margin-top:15px; background:#333;" onclick="document.getElementById('modalMural').style.display='none'">FECHAR</button></div></div>
 
-<div class="modal-overlay" id="modalAvaliar"><div class="modal-box"><h2 style="color:#fff;">O que achou?</h2><p id="nomeDrinkAvaliar" style="color:#FFD580; font-weight:bold;"></p><div style="font-size:2em; margin:15px 0;">
-    <span onclick="setEstrelas(1)">⭐</span><span onclick="setEstrelas(2)">⭐</span><span onclick="setEstrelas(3)">⭐</span><span onclick="setEstrelas(4)">⭐</span><span onclick="setEstrelas(5)">⭐</span>
+<div class="modal-overlay" id="modalAvaliar"><div class="modal-box"><h2 style="color:#fff;">O que achou?</h2><p id="nomeDrinkAvaliar" style="color:#FFD580; font-weight:bold;"></p><div style="font-size:2em; margin:15px 0; display:flex; justify-content:center; gap:5px;">
+    <span class="star-select active" onclick="setEstrelas(1)" id="star1">⭐</span>
+    <span class="star-select active" onclick="setEstrelas(2)" id="star2">⭐</span>
+    <span class="star-select active" onclick="setEstrelas(3)" id="star3">⭐</span>
+    <span class="star-select active" onclick="setEstrelas(4)" id="star4">⭐</span>
+    <span class="star-select active" onclick="setEstrelas(5)" id="star5">⭐</span>
 </div><input type="hidden" id="notaEstrela" value="5"><textarea id="textoAvaliacao" class="input-obs" placeholder="Deixe um comentário..."></textarea><button class="btn-confirm" onclick="enviarAvaliacao()">ENVIAR AVALIAÇÃO</button><button onclick="document.getElementById('modalAvaliar').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button></div></div>
 
 <div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">🎉</div><h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2><p style="color:#fff;">Pode buscar no balcão.</p><button class="btn-confirm" style="background:#4CAF50;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
@@ -279,7 +287,6 @@
                 statusText = "🟢 Pronto!"; cor = "#4CAF50"; 
                 if(isMine) {
                     verificarAlertaPronto(p.id, p.status);
-                    // BOTÃO DE AVALIAR
                     if(!PEDIDOS_AVALIADOS.includes(p.id)) {
                         extraHTML += `<button class="btn-client-action" style="background:transparent; border:1px solid #FFD580; color:#FFD580;" onclick="abrirAvaliacao('${p.id}', '${p.drink}')">⭐ Avaliar Drink</button>`;
                     }
@@ -299,11 +306,27 @@
      DRINK_AVALIANDO_NOME = nome;
      document.getElementById('nomeDrinkAvaliar').innerText = nome;
      document.getElementById('modalAvaliar').style.display = 'flex';
+     setEstrelas(5); // Reset para 5 estrelas
  }
- function setEstrelas(n) { document.getElementById('notaEstrela').value = n; alert(`Você selecionou ${n} estrelas!`); } // Simples alert visual, ideal seria mudar cor
+ 
+ function setEstrelas(n) { 
+     document.getElementById('notaEstrela').value = n; 
+     for(let i=1; i<=5; i++) {
+         const star = document.getElementById('star'+i);
+         if(i <= n) star.classList.add('active');
+         else star.classList.remove('active');
+     }
+ }
+ 
  function enviarAvaliacao() {
      const nota = document.getElementById('notaEstrela').value;
      const coment = document.getElementById('textoAvaliacao').value;
+     
+     // TRAVA DE COMENTÁRIO OBRIGATÓRIO
+     if(!coment || coment.trim() === "") {
+         return alert("Por favor, escreva um comentário para enviar sua avaliação!");
+     }
+
      db.collection("avaliacoes").add({
          evento_id: EVENTO_ID,
          nome_evento: DADOS_EVENTO.nome, // HISTÓRICO
@@ -318,19 +341,31 @@
          document.getElementById('modalAvaliar').style.display = 'none';
          PEDIDOS_AVALIADOS.push(DRINK_AVALIANDO_ID);
          localStorage.setItem(`avaliados_${EVENTO_ID}`, JSON.stringify(PEDIDOS_AVALIADOS));
-         rastrearFilaGlobal(); // Atualiza pra sumir o botão
+         rastrearFilaGlobal();
+         document.getElementById('textoAvaliacao').value = ""; // Limpa campo
      });
  }
+ 
  function abrirMural() {
      document.getElementById('modalMural').style.display = 'flex';
      const lista = document.getElementById('listaMuralHTML');
-     lista.innerHTML = 'Carregando...';
-     // BUSCA GLOBAL DE AVALIAÇÕES APROVADAS
-     db.collection("avaliacoes").where("status", "==", "aprovado").orderBy("data_evento", "desc").limit(20).get().then(snap => {
+     lista.innerHTML = '<p style="text-align:center; color:#888;">Carregando...</p>';
+     
+     // BUSCA GLOBAL COM ORDENAÇÃO LOCAL (CLIENT-SIDE SORT) PARA CORRIGIR O ERRO DE CARREGAMENTO
+     db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snap => {
          if(snap.empty) { lista.innerHTML = "<p style='color:#777; text-align:center;'>Ainda sem avaliações.</p>"; return; }
+         
+         let reviews = [];
+         snap.forEach(doc => reviews.push(doc.data()));
+         
+         // Ordena por data (mais recente primeiro) no Javascript
+         reviews.sort((a,b) => b.data_evento.toDate() - a.data_evento.toDate());
+         
+         // Pega apenas os 20 últimos
+         reviews = reviews.slice(0, 20);
+
          lista.innerHTML = "";
-         snap.forEach(doc => {
-             const r = doc.data();
+         reviews.forEach(r => {
              const estrelas = "⭐".repeat(r.nota);
              const dataStr = r.data_evento.toDate().toLocaleDateString();
              lista.innerHTML += `
