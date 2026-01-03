@@ -18,6 +18,7 @@
         .btn-novo { background: #00E676; color: #000; }
         .btn-agenda { background: #9C27B0; }
         .btn-site { background: #FFD580; color: #000; }
+        .btn-reviews { background: #2196F3; }
 
         /* BARRA DE PESQUISA */
         .search-container { margin-bottom: 30px; position: relative; }
@@ -48,15 +49,34 @@
         /* ACTIONS */
         .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-card { padding: 10px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.2s; }
-        .btn-torre { background: #2196F3; color: white; grid-column: 1 / -1; } /* Botão grande */
+        .btn-torre { background: #2196F3; color: white; grid-column: 1 / -1; } 
         .btn-edit { background: #444; color: #ccc; }
         .btn-copy { background: #444; color: #ccc; }
         .btn-delete { background: transparent; border: 1px solid #FF1744; color: #FF1744; margin-top: 10px; width: 100%; font-size: 0.8em; }
 
-        /* LOGIN */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-box { text-align: center; width: 90%; max-width: 300px; }
+        /* MODAL GERAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { text-align: center; width: 90%; max-width: 300px; background: #222; padding: 30px; border-radius: 15px; border: 1px solid #444; }
+        .modal-box-large { background: #1E1E1E; padding: 25px; border-radius: 15px; width: 90%; max-width: 700px; height: 85vh; display: flex; flex-direction: column; border: 1px solid #333; }
+
+        /* TABS AVALIAÇÕES */
+        .tabs-header { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
+        .tab-link { flex: 1; padding: 15px; background: none; border: none; color: #777; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-link.active { color: #FFD580; border-bottom-color: #FFD580; }
+        .review-list-global { flex: 1; overflow-y: auto; text-align: left; }
         
+        .review-item-global { background: #222; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 3px solid #555; }
+        .review-item-global.pendente { border-left-color: #FFD580; background: rgba(255, 213, 128, 0.05); }
+        .review-item-global.aprovado { border-left-color: #4CAF50; }
+        
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; }
+        .event-tag { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; text-transform: uppercase; color: #aaa; margin-left: 10px; }
+        
+        .review-actions { display: flex; gap: 10px; margin-top: 10px; justify-content: flex-end; }
+        .btn-mini { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.8em; color: white; }
+        .btn-mini.approve { background: #4CAF50; }
+        .btn-mini.delete { background: #FF1744; }
+
         /* RESPONSIVO */
         @media (max-width: 600px) {
             .header { flex-direction: column; align-items: flex-start; }
@@ -76,10 +96,29 @@
         </div>
     </div>
 
+    <div id="modalAvaliacoes" class="modal-overlay">
+        <div class="modal-box-large">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h2 style="margin:0; color:#FFD580;">⭐ Gestão Global de Avaliações</h2>
+                <button onclick="document.getElementById('modalAvaliacoes').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5em; cursor:pointer;">&times;</button>
+            </div>
+            
+            <div class="tabs-header">
+                <button class="tab-link active" onclick="mudarAbaReviews('pendente')">⏳ Pendentes (Moderar)</button>
+                <button class="tab-link" onclick="mudarAbaReviews('aprovado')">✅ Aprovadas (Histórico)</button>
+            </div>
+
+            <div id="listaReviewsGlobal" class="review-list-global">
+                <p style="text-align:center; color:#666; margin-top:20px;">Carregando...</p>
+            </div>
+        </div>
+    </div>
+
     <div class="header">
         <div class="logo">🦅 CENTRAL DE COMANDO</div>
         <div class="nav-buttons">
             <a href="admin.html" class="btn-nav btn-novo" target="_blank">➕ Novo Evento</a>
+            <button onclick="abrirCentralAvaliacoes()" class="btn-nav btn-reviews">⭐ Avaliações</button>
             <a href="agenda.html" class="btn-nav btn-agenda" target="_blank">📅 Agenda</a>
             <a href="index.html" class="btn-nav btn-site" target="_blank">💰 Simulador</a>
         </div>
@@ -101,8 +140,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- SENHA MESTRA SIMPLES (VOCÊ PODE MUDAR AQUI) ---
-        const SENHA_DEFINIDA = "9859"; 
+        // --- SENHA MESTRA ---
+        const SENHA_DEFINIDA = "gil102030"; 
 
         function fazerLogin() {
             const s = document.getElementById('senhaMestra').value;
@@ -115,7 +154,6 @@
             }
         }
 
-        // Verifica se já logou na sessão
         if(sessionStorage.getItem('central_gil_logado')) {
             document.getElementById('loginOverlay').style.display = 'none';
             carregarEventos();
@@ -124,7 +162,6 @@
         let listaEventosCache = [];
 
         function carregarEventos() {
-            // Pega todos os eventos ordenados pela criação (mais recentes primeiro)
             db.collection("eventos").orderBy("data_criacao", "desc").onSnapshot(snapshot => {
                 const grid = document.getElementById('gridEventos');
                 grid.innerHTML = "";
@@ -148,18 +185,14 @@
         }
 
         function criarCardEvento(e) {
-            // Tratamento de Status
             let statusClass = 'status-aberto';
             let statusText = 'Aberto';
             if(e.status === 'pausado') { statusClass = 'status-pausado'; statusText = 'Pausado'; }
             if(e.status === 'encerrado') { statusClass = 'status-encerrado'; statusText = 'Encerrado'; }
 
-            // Tratamento de Data
             let dataFormatada = "Data não def.";
             if(e.data_evento) {
-                // Tenta converter se for timestamp ou string
                 try {
-                    // Se for string YYYY-MM-DD
                     const partes = e.data_evento.split('-');
                     if(partes.length === 3) dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
                     else dataFormatada = e.data_evento;
@@ -234,6 +267,92 @@
                 }
             }
         }
+
+        // --- GESTÃO GLOBAL DE AVALIAÇÕES ---
+        let abaAtualReviews = 'pendente';
+
+        function abrirCentralAvaliacoes() {
+            document.getElementById('modalAvaliacoes').style.display = 'flex';
+            mudarAbaReviews('pendente');
+        }
+
+        function mudarAbaReviews(aba) {
+            abaAtualReviews = aba;
+            document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+            // Gambiarra para pegar o indice do botão
+            const btns = document.querySelectorAll('.tab-link');
+            if(aba === 'pendente') btns[0].classList.add('active');
+            else btns[1].classList.add('active');
+
+            carregarAvaliacoesGlobal();
+        }
+
+        function carregarAvaliacoesGlobal() {
+            const lista = document.getElementById('listaReviewsGlobal');
+            lista.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">Carregando...</p>';
+
+            // Busca TODAS as avaliações com o status selecionado
+            db.collection("avaliacoes").where("status", "==", abaAtualReviews).get().then(snapshot => {
+                if(snapshot.empty) {
+                    lista.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">Nenhuma avaliação encontrada nesta aba.</p>';
+                    return;
+                }
+
+                let reviews = [];
+                snapshot.forEach(doc => reviews.push({ id: doc.id, ...doc.data() }));
+
+                // Ordena no cliente para evitar criar indice no firebase agora
+                reviews.sort((a,b) => b.data_evento.toDate() - a.data_evento.toDate());
+
+                lista.innerHTML = "";
+                reviews.forEach(r => {
+                    const dataStr = r.data_evento.toDate().toLocaleDateString();
+                    const estrelas = "⭐".repeat(r.nota);
+                    
+                    let botoesHtml = "";
+                    if(abaAtualReviews === 'pendente') {
+                        botoesHtml = `
+                            <button class="btn-mini approve" onclick="moderarGlobal('${r.id}', true)">✅ Aprovar</button>
+                            <button class="btn-mini delete" onclick="moderarGlobal('${r.id}', false)">🗑️ Excluir</button>
+                        `;
+                    } else {
+                        botoesHtml = `
+                            <button class="btn-mini delete" onclick="moderarGlobal('${r.id}', false)">🗑️ Excluir do Mural</button>
+                        `;
+                    }
+
+                    lista.innerHTML += `
+                        <div class="review-item-global ${abaAtualReviews}">
+                            <div class="review-header">
+                                <div>
+                                    <strong style="color:#fff;">${r.cliente}</strong>
+                                    <span class="event-tag">${r.nome_evento || 'Evento'}</span>
+                                </div>
+                                <span style="color:#FFD580;">${estrelas}</span>
+                            </div>
+                            <div style="font-size:0.85em; color:#aaa; margin-bottom:5px;">${r.drink} • ${dataStr}</div>
+                            <div style="font-style:italic; color:#ddd;">"${r.comentario}"</div>
+                            <div class="review-actions">
+                                ${botoesHtml}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function moderarGlobal(id, aprovar) {
+            if(aprovar) {
+                db.collection("avaliacoes").doc(id).update({ status: 'aprovado' })
+                .then(() => carregarAvaliacoesGlobal());
+            } else {
+                if(confirm("Tem certeza que deseja EXCLUIR esta avaliação?")) {
+                    db.collection("avaliacoes").doc(id).delete()
+                    .then(() => carregarAvaliacoesGlobal());
+                }
+            }
+        }
+
     </script>
 </body>
 </html>
