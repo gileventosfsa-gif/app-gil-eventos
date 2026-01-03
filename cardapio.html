@@ -138,7 +138,10 @@
      <span class="brand-subtitle">GIL EVENTOS</span>
      <div class="event-name" id="nomeEvento">Carregando...</div>
      <div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div>
-     <div id="displaySaldo" style="color: #4CAF50; font-weight: bold; font-size: 0.9em; margin-top: 5px; display: none;">💰 Saldo: R$ 0,00</div>
+     <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-top:5px;">
+         <div id="displaySaldo" style="color: #4CAF50; font-weight: bold; font-size: 0.9em; display: none;">💰 Saldo: R$ 0,00</div>
+         <button onclick="abrirModalRecarga()" style="background:#2196F3; border:none; color:white; border-radius:50%; width:25px; height:25px; cursor:pointer; font-weight:bold; font-size:1.1em; display:flex; align-items:center; justify-content:center;">+</button>
+     </div>
      <button class="mural-btn" onclick="abrirMural()">⭐ Mural da Fama</button>
  </div>
  <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
@@ -187,6 +190,22 @@
 
 <div class="modal-overlay" id="modalCombo"><div class="modal-box" style="height: 600px;"><h2 style="color:#FFD580; margin:0 0 5px 0;">Montar Combo</h2><p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">Selecione <span id="maxComboQtd" style="color:#fff; font-weight:bold;">3</span> drinks:</p><div id="listaSelecaoCombo" style="flex-grow:1; overflow-y:auto; text-align:left;"></div><div style="border-top:1px solid #333; padding-top:10px;"><span id="totalComboDisplay">R$ 0,00</span><button class="btn-confirm" id="btnFinalizarCombo" onclick="finalizarCombo()">CONFIRMAR COMBO</button><button onclick="document.getElementById('modalCombo').style.display='none'" style="background:none; border:none; color:#888; margin-top:10px;">Cancelar</button></div></div></div>
 <div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Como devemos te chamar?</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
+
+<div class="modal-overlay" id="modalRecarga"><div class="modal-box">
+    <h2 style="color:#4CAF50;">💰 Adicionar Saldo</h2>
+    <p style="color:#aaa; font-size:0.9em;">Adicione créditos para pedir sem fila!</p>
+    <input type="number" id="valorRecarga" placeholder="Valor (ex: 50)" class="input-nome" style="font-size:1.5em; text-align:center;">
+    
+    <div class="pix-area" style="display:none;" id="areaPixRecarga">
+        <span class="pix-key" id="chavePixRecarga">...</span>
+        <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:5px;" onclick="copiarPixRecarga()">📋 COPIAR CHAVE PIX</button>
+    </div>
+
+    <button class="btn-confirm" id="btnSolicitarRecarga" onclick="mostrarPixRecarga()">CONTINUAR</button>
+    <button class="btn-confirm" id="btnConfirmarRecarga" onclick="confirmarSolicitacaoRecarga()" style="display:none; background:#4CAF50; margin-top:10px;">✅ JÁ PAGUEI / ENVIAR</button>
+    
+    <button onclick="fecharModalRecarga()" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button>
+</div></div>
 
 <div class="modal-overlay" id="modalPagamentoMassa"><div class="modal-box"><h2 style="color:#4CAF50; margin:0;">Finalizar Pedido</h2><p style="color:#ddd;">Você está pagando por <strong><span id="qtdItensMassa">0</span> itens</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Total a pagar:</span><strong style="font-size:2.2em; color:#4CAF50;" id="valorTotalMassa">R$ 0,00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTextoMassa">75992011008</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button></div><button class="btn-confirm" onclick="confirmarEnvioMassa()">✅ JÁ PAGUEI / ENVIAR TUDO</button><button onclick="document.getElementById('modalPagamentoMassa').style.display='none'; document.getElementById('modalListaPedidos').style.display='flex';" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Voltar ao Carrinho</button></div></div>
 
@@ -264,7 +283,6 @@
   renderizarCarrinho();
  }
 
- // --- FUNÇÃO NOVA: MONITORAR SALDO ---
  function monitorarSaldo() {
      if(!NOME_CONVIDADO) return;
      const id = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`;
@@ -276,6 +294,57 @@
              display.style.display = 'block';
              renderizarCarrinho(); // Atualiza botão do carrinho se tiver saldo
          }
+     });
+ }
+
+ // --- FUNÇÕES DE RECARGA MANUAL PELO CLIENTE ---
+ function abrirModalRecarga() {
+     document.getElementById('modalRecarga').style.display = 'flex';
+     document.getElementById('valorRecarga').value = '';
+     document.getElementById('areaPixRecarga').style.display = 'none';
+     document.getElementById('btnSolicitarRecarga').style.display = 'block';
+     document.getElementById('btnConfirmarRecarga').style.display = 'none';
+ }
+
+ function fecharModalRecarga() {
+     document.getElementById('modalRecarga').style.display = 'none';
+ }
+
+ function mostrarPixRecarga() {
+     const valor = document.getElementById('valorRecarga').value;
+     if(!valor || valor <= 0) return alert("Digite um valor válido!");
+     
+     const chave = DADOS_EVENTO.chave_pix || "75998649927";
+     document.getElementById('chavePixRecarga').innerText = chave;
+     document.getElementById('areaPixRecarga').style.display = 'block';
+     document.getElementById('btnSolicitarRecarga').style.display = 'none';
+     document.getElementById('btnConfirmarRecarga').style.display = 'block';
+ }
+
+ function copiarPixRecarga() {
+     const chave = document.getElementById('chavePixRecarga').innerText;
+     navigator.clipboard.writeText(chave).then(() => alert("Chave copiada!"));
+ }
+
+ function confirmarSolicitacaoRecarga() {
+     const valor = parseFloat(document.getElementById('valorRecarga').value);
+     if(!valor) return;
+
+     // Envia a solicitação para a fila principal como um 'drink' especial
+     db.collection("pedidos").add({
+         evento_id: EVENTO_ID,
+         drink: `CRÉDITO R$ ${valor.toFixed(2)}`,
+         categoria_drink: 'recarga', // Marcador especial
+         tipo: 'recarga', // Marcador especial
+         preco: valor,
+         nome_convidado: NOME_CONVIDADO,
+         status: 'aguardando_pagamento',
+         sinalizou_pagamento: true, // Já avisa que pagou
+         data: new Date()
+     }).then(() => {
+         fecharModalRecarga();
+         mostrarNotificacao("Solicitação enviada! Aguarde a confirmação.");
+         abrirMeusPedidos(); // Abre a fila para ele ver a solicitação lá
      });
  }
 
@@ -312,9 +381,25 @@
         let contagemFilaPreparacao = 0;
         let meusPedidosAtivosCount = 0;
         pedidos.forEach(p => { 
-            if(p.status === 'cancelado') return;
+            // Mostra recargas também na lista do próprio cliente
+            if(p.status === 'cancelado' || p.status === 'concluido') return; // Oculta concluídos/cancelados da fila visual
+
             let isMine = (p.nome_convidado === NOME_CONVIDADO);
             if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
+            
+            // Se for recarga, mostra diferente
+            if(p.tipo === 'recarga') {
+                if(isMine) {
+                    let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado';
+                    listaHTML.innerHTML += `
+                        <div class="my-order-item" style="border-left-color:#2196F3; background:rgba(33, 150, 243, 0.1);">
+                            <strong>${p.drink}</strong> <br>
+                            <small>${statusTxt}</small>
+                        </div>`;
+                }
+                return; // Não mostra recarga dos outros na fila pública
+            }
+
             let statusText = "Fila", cor = "#888", extraHTML = ""; 
             let nomeDisplay = isMine ? `<span class="guest-name mine">(VOCÊ)</span>` : `<span class="guest-name">(${p.nome_convidado})</span>`;
             let divClass = isMine ? "my-order-item is-mine" : "my-order-item";
@@ -511,15 +596,15 @@
     CARRINHO_LOCAL.forEach(item => { 
         const ref = db.collection("pedidos").doc(); 
         
-        let statusInicial = 'pendente'; // Padrão
+        let statusInicial = 'pendente'; 
         let sinalizou = false;
 
         if (item.tipo === 'extra') {
             if (usouSaldo) {
-                statusInicial = 'pendente'; // Já tá pago com saldo
-                sinalizou = true; // Marca como pago
+                statusInicial = 'pendente'; 
+                sinalizou = true; 
             } else {
-                statusInicial = 'aguardando_pagamento'; // Precisa pagar Pix
+                statusInicial = 'aguardando_pagamento'; 
             }
         }
 
@@ -554,7 +639,6 @@
         const idSaldo = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`;
         const saldoRef = db.collection("clientes_saldo").doc(idSaldo);
         batch.update(saldoRef, { saldo: firebase.firestore.FieldValue.increment(-totalPedido) });
-        // Também soma no faturamento do evento (venda realizada)
         const eventoRef = db.collection("eventos").doc(EVENTO_ID);
         batch.update(eventoRef, { 
             total_vendas_extra: firebase.firestore.FieldValue.increment(CARRINHO_LOCAL.length),
