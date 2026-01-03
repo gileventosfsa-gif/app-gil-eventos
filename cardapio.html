@@ -123,6 +123,12 @@
   .social-grid { display: flex; gap: 10px; margin-top: 15px; }
   .btn-social-footer { flex: 1; padding: 12px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s; }
   .btn-social-footer:active { transform: scale(0.95); }
+
+  /* BOTÕES DE RECARGA NO MODAL */
+  .grid-recarga { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .btn-recarga-option { background: #222; border: 1px solid #444; padding: 15px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+  .btn-recarga-option:hover { background: #333; border-color: #FFD580; }
+  .btn-recarga-option.selected { background: #1a2e1a; border-color: #4CAF50; color: #4CAF50; }
  </style>
 </head>
 <body>
@@ -193,16 +199,35 @@
 
 <div class="modal-overlay" id="modalRecarga"><div class="modal-box">
     <h2 style="color:#4CAF50;">💰 Adicionar Saldo</h2>
-    <p style="color:#aaa; font-size:0.9em;">Adicione créditos para pedir sem fila!</p>
-    <input type="number" id="valorRecarga" placeholder="Valor (ex: 50)" class="input-nome" style="font-size:1.5em; text-align:center;">
+    <p style="color:#aaa; font-size:0.9em;">Escolha um pacote para pedir sem fila!</p>
+    
+    <div class="grid-recarga">
+        <div class="btn-recarga-option" onclick="selecionarPacote(30)">
+            💳 R$ 30,00
+        </div>
+        <div class="btn-recarga-option" onclick="selecionarPacote(50)">
+            💳 R$ 50,00
+        </div>
+        <div class="btn-recarga-option" onclick="selecionarPacote(100)">
+            💳 R$ 100,00
+        </div>
+        <div class="btn-recarga-option" onclick="selecionarPacote(0)">
+            ✏️ Outro Valor
+        </div>
+    </div>
+
+    <div id="areaValorManual" style="display:none; margin-top:15px;">
+        <p style="margin:0; color:#aaa; font-size:0.8em;">Digite o valor que vai pagar:</p>
+        <input type="number" id="valorRecarga" placeholder="0,00" class="input-nome" style="font-size:1.5em; text-align:center;">
+    </div>
     
     <div class="pix-area" style="display:none;" id="areaPixRecarga">
         <span class="pix-key" id="chavePixRecarga">...</span>
         <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:5px;" onclick="copiarPixRecarga()">📋 COPIAR CHAVE PIX</button>
     </div>
 
-    <button class="btn-confirm" id="btnSolicitarRecarga" onclick="mostrarPixRecarga()">CONTINUAR</button>
-    <button class="btn-confirm" id="btnConfirmarRecarga" onclick="confirmarSolicitacaoRecarga()" style="display:none; background:#4CAF50; margin-top:10px;">✅ JÁ PAGUEI / ENVIAR</button>
+    <button class="btn-confirm" id="btnOpcaoPix" onclick="mostrarPixRecarga()" style="background:#4CAF50; margin-top:15px; display:none;">💠 PAGAR COM PIX</button>
+    <button class="btn-confirm" id="btnConfirmarRecarga" onclick="confirmarSolicitacaoRecarga()" style="display:none; background:#2196F3; margin-top:10px;">✅ JÁ PAGUEI / ENVIAR</button>
     
     <button onclick="fecharModalRecarga()" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button>
 </div></div>
@@ -262,7 +287,14 @@
  let ITENS_COMBO_SELECIONADOS = [];
  let DRINK_AVALIANDO_ID = null;
  let DRINK_AVALIANDO_NOME = null;
- let MEU_SALDO = 0; // Variável nova de Saldo
+ let MEU_SALDO = 0; 
+ 
+ // --- LINKS DE PAGAMENTO CONFIGURADOS ---
+ const LINKS_PAGAMENTO = {
+     30: "https://pay.infinitepay.io/gileventosdrinks/VC1DLTAtUg-2KwuM0f69D-30,00",
+     50: "https://pay.infinitepay.io/gileventosdrinks/VC1DLTAtUg-70qhjUMDcH-50,00",
+     100: "https://pay.infinitepay.io/gileventosdrinks/VC1DLTAtUg-mJdWLLbXp-100,00"
+ };
 
  function limparString(str) { if(!str) return ""; return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); }
  if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
@@ -275,7 +307,7 @@
        if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; 
        verificarStatusEvento(DADOS_EVENTO.status);
        renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); iniciarMonitoramentoFila();
-       monitorarSaldo(); // Inicia monitoramento de saldo 
+       monitorarSaldo(); 
    }
   });
   rastrearFilaGlobal();
@@ -292,33 +324,56 @@
              const display = document.getElementById('displaySaldo');
              display.innerText = `💰 Saldo: R$ ${MEU_SALDO.toFixed(2)}`;
              display.style.display = 'block';
-             renderizarCarrinho(); // Atualiza botão do carrinho se tiver saldo
+             renderizarCarrinho(); 
          }
      });
  }
 
- // --- FUNÇÕES DE RECARGA MANUAL PELO CLIENTE ---
+ // --- FUNÇÕES DE RECARGA ---
  function abrirModalRecarga() {
      document.getElementById('modalRecarga').style.display = 'flex';
      document.getElementById('valorRecarga').value = '';
      document.getElementById('areaPixRecarga').style.display = 'none';
-     document.getElementById('btnSolicitarRecarga').style.display = 'block';
+     document.getElementById('areaValorManual').style.display = 'none';
+     document.getElementById('btnOpcaoPix').style.display = 'none';
      document.getElementById('btnConfirmarRecarga').style.display = 'none';
+     
+     // Reseta seleção
+     document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected'));
  }
 
- function fecharModalRecarga() {
-     document.getElementById('modalRecarga').style.display = 'none';
+ function fecharModalRecarga() { document.getElementById('modalRecarga').style.display = 'none'; }
+
+ function selecionarPacote(valor) {
+     document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected'));
+     // Marca o clicado (gambiarra visual simples)
+     if(valor === 0) {
+         document.getElementById('areaValorManual').style.display = 'block';
+         document.getElementById('valorRecarga').value = '';
+     } else {
+         document.getElementById('areaValorManual').style.display = 'none';
+         document.getElementById('valorRecarga').value = valor;
+         
+         // Abre link de pagamento se existir
+         if(LINKS_PAGAMENTO[valor]) {
+             window.open(LINKS_PAGAMENTO[valor], '_blank');
+         } else {
+             alert("Pagamento manual: use o PIX.");
+         }
+     }
+     
+     // Mostra botões de confirmação
+     document.getElementById('btnOpcaoPix').style.display = 'block';
+     document.getElementById('btnConfirmarRecarga').style.display = 'block';
  }
 
  function mostrarPixRecarga() {
      const valor = document.getElementById('valorRecarga').value;
-     if(!valor || valor <= 0) return alert("Digite um valor válido!");
+     if(!valor || valor <= 0) return alert("Escolha um pacote ou digite o valor!");
      
      const chave = DADOS_EVENTO.chave_pix || "75998649927";
      document.getElementById('chavePixRecarga').innerText = chave;
      document.getElementById('areaPixRecarga').style.display = 'block';
-     document.getElementById('btnSolicitarRecarga').style.display = 'none';
-     document.getElementById('btnConfirmarRecarga').style.display = 'block';
  }
 
  function copiarPixRecarga() {
@@ -328,23 +383,22 @@
 
  function confirmarSolicitacaoRecarga() {
      const valor = parseFloat(document.getElementById('valorRecarga').value);
-     if(!valor) return;
+     if(!valor) return alert("Selecione um pacote!");
 
-     // Envia a solicitação para a fila principal como um 'drink' especial
      db.collection("pedidos").add({
          evento_id: EVENTO_ID,
          drink: `CRÉDITO R$ ${valor.toFixed(2)}`,
-         categoria_drink: 'recarga', // Marcador especial
-         tipo: 'recarga', // Marcador especial
+         categoria_drink: 'recarga', 
+         tipo: 'recarga', 
          preco: valor,
          nome_convidado: NOME_CONVIDADO,
          status: 'aguardando_pagamento',
-         sinalizou_pagamento: true, // Já avisa que pagou
+         sinalizou_pagamento: true, 
          data: new Date()
      }).then(() => {
          fecharModalRecarga();
          mostrarNotificacao("Solicitação enviada! Aguarde a confirmação.");
-         abrirMeusPedidos(); // Abre a fila para ele ver a solicitação lá
+         abrirMeusPedidos(); 
      });
  }
 
@@ -381,13 +435,11 @@
         let contagemFilaPreparacao = 0;
         let meusPedidosAtivosCount = 0;
         pedidos.forEach(p => { 
-            // Mostra recargas também na lista do próprio cliente
-            if(p.status === 'cancelado' || p.status === 'concluido') return; // Oculta concluídos/cancelados da fila visual
+            if(p.status === 'cancelado' || p.status === 'concluido') return; 
 
             let isMine = (p.nome_convidado === NOME_CONVIDADO);
             if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
             
-            // Se for recarga, mostra diferente
             if(p.tipo === 'recarga') {
                 if(isMine) {
                     let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado';
@@ -397,7 +449,7 @@
                             <small>${statusTxt}</small>
                         </div>`;
                 }
-                return; // Não mostra recarga dos outros na fila pública
+                return; 
             }
 
             let statusText = "Fila", cor = "#888", extraHTML = ""; 
@@ -520,7 +572,6 @@
  }
  function salvarCarrinhoLocal() { localStorage.setItem(`carrinho_${EVENTO_ID}`, JSON.stringify(CARRINHO_LOCAL)); renderizarCarrinho(); }
  function removerDoCarrinho(idTemp) { CARRINHO_LOCAL = CARRINHO_LOCAL.filter(i => i.idTemp !== idTemp); salvarCarrinhoLocal(); }
- 
  function renderizarCarrinho() {
     const div = document.getElementById('listaCarrinhoHTML');
     const area = document.getElementById('areaCarrinho');
@@ -537,125 +588,30 @@
     });
     document.getElementById('totalCarrinhoDisplay').innerText = `R$ ${total.toFixed(2)}`;
     const avisoPagamento = document.getElementById('msgAvisoPagamento');
-    
-    // LÓGICA HÍBRIDA (PIX OU SALDO)
     if(total > 0) { 
         if(MEU_SALDO >= total) {
-            btnCheckout.innerText = `USAR SALDO (R$ ${total.toFixed(2)}) 🚀`; 
-            btnCheckout.style.background = "#2196F3"; 
+            btnCheckout.innerText = `USAR SALDO (R$ ${total.toFixed(2)}) 🚀`; btnCheckout.style.background = "#2196F3"; 
             avisoPagamento.innerHTML = `✅ Você tem saldo suficiente! O pedido será enviado direto para o bar.`;
-            avisoPagamento.style.color = "#4CAF50";
-            avisoPagamento.style.borderColor = "#4CAF50";
-            avisoPagamento.style.background = "rgba(76, 175, 80, 0.1)";
+            avisoPagamento.style.color = "#4CAF50"; avisoPagamento.style.borderColor = "#4CAF50"; avisoPagamento.style.background = "rgba(76, 175, 80, 0.1)";
         } else {
-            btnCheckout.innerText = `PAGAR R$ ${total.toFixed(2)} E ENVIAR 🚀`; 
-            btnCheckout.style.background = "#4CAF50"; 
+            btnCheckout.innerText = `PAGAR R$ ${total.toFixed(2)} E ENVIAR 🚀`; btnCheckout.style.background = "#4CAF50"; 
             avisoPagamento.innerHTML = `⚠️ <strong>ATENÇÃO:</strong> Drinks pagos só entram na fila de preparo após a <u>confirmação do PIX</u>!`;
-            avisoPagamento.style.color = "#FF9500";
-            avisoPagamento.style.borderColor = "#FF9500";
-            avisoPagamento.style.background = "rgba(255, 149, 0, 0.15)";
+            avisoPagamento.style.color = "#FF9500"; avisoPagamento.style.borderColor = "#FF9500"; avisoPagamento.style.background = "rgba(255, 149, 0, 0.15)";
         }
-        btnCheckout.style.color = "#fff"; 
-        avisoPagamento.style.display = "block"; 
+        btnCheckout.style.color = "#fff"; avisoPagamento.style.display = "block"; 
     } 
-    else { 
-        btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀"; 
-        btnCheckout.style.background = "#FFD580"; 
-        btnCheckout.style.color = "#000"; 
-        avisoPagamento.style.display = "none"; 
-    }
+    else { btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀"; btnCheckout.style.background = "#FFD580"; btnCheckout.style.color = "#000"; avisoPagamento.style.display = "none"; }
     document.getElementById('valorTotalMassa').innerText = `R$ ${total.toFixed(2)}`;
     document.getElementById('qtdItensMassa').innerText = CARRINHO_LOCAL.length;
     if(DADOS_EVENTO && DADOS_EVENTO.chave_pix) document.getElementById('chavePixTextoMassa').innerText = DADOS_EVENTO.chave_pix;
  }
-
- function abrirPagamentoMassa() { 
-    const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); 
-    
-    // Se for gratis OU se tiver saldo suficiente, envia direto
-    if (total === 0 || (total > 0 && MEU_SALDO >= total)) { 
-        if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa(); 
-    } else { 
-        // Se precisar pagar Pix
-        document.getElementById('modalListaPedidos').style.display = 'none'; 
-        document.getElementById('modalPagamentoMassa').style.display = 'flex'; 
-    } 
- }
-
- function confirmarEnvioMassa() { 
-    document.getElementById('modalPagamentoMassa').style.display = 'none'; 
-    const batch = db.batch(); 
-    const totalPedido = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0);
-    
-    // Verifica se vai usar saldo
-    let usouSaldo = false;
-    if (totalPedido > 0 && MEU_SALDO >= totalPedido) {
-        usouSaldo = true;
-    }
-
-    CARRINHO_LOCAL.forEach(item => { 
-        const ref = db.collection("pedidos").doc(); 
-        
-        let statusInicial = 'pendente'; 
-        let sinalizou = false;
-
-        if (item.tipo === 'extra') {
-            if (usouSaldo) {
-                statusInicial = 'pendente'; 
-                sinalizou = true; 
-            } else {
-                statusInicial = 'aguardando_pagamento'; 
-            }
-        }
-
-        batch.set(ref, { 
-            evento_id: EVENTO_ID, 
-            drink: item.nome, 
-            categoria_drink: item.categoria || 'classico', 
-            tipo: item.tipo, 
-            preco: item.preco, 
-            nome_convidado: NOME_CONVIDADO || "Anônimo", 
-            observacao: "Pedido em Grupo/Carrinho", 
-            status: statusInicial, 
-            sinalizou_pagamento: sinalizou, 
-            data: new Date() 
-        }); 
-        MEUS_PEDIDOS_IDS.push(ref.id); 
-        
-        if(item.tipo === 'pacote') { 
-            const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; 
-            if (DADOS_EVENTO.tipo_servico === 'misto') { 
-                let cat = (item.categoria || 'classico').toLowerCase().trim(); 
-                cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); 
-                if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); 
-                else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); 
-            } 
-            db.collection("eventos").doc(EVENTO_ID).update(updateData); 
-        } 
-    }); 
-
-    // SE USOU SALDO, DESCONTA DO BANCO
-    if (usouSaldo) {
-        const idSaldo = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`;
-        const saldoRef = db.collection("clientes_saldo").doc(idSaldo);
-        batch.update(saldoRef, { saldo: firebase.firestore.FieldValue.increment(-totalPedido) });
-        const eventoRef = db.collection("eventos").doc(EVENTO_ID);
-        batch.update(eventoRef, { 
-            total_vendas_extra: firebase.firestore.FieldValue.increment(CARRINHO_LOCAL.length),
-            total_faturamento: firebase.firestore.FieldValue.increment(totalPedido)
-        });
-    }
-
-    batch.commit().then(() => { 
-        localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); 
-        CARRINHO_LOCAL = []; 
-        salvarCarrinhoLocal(); 
-        mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); 
-        document.getElementById('modalListaPedidos').style.display = 'flex'; 
-        rastrearFilaGlobal(); 
-    }).catch(err => alert("Erro ao enviar: " + err)); 
- }
-
+ function abrirPagamentoMassa() { const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); if (total === 0 || (total > 0 && MEU_SALDO >= total)) { if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa(); } else { document.getElementById('modalListaPedidos').style.display = 'none'; document.getElementById('modalPagamentoMassa').style.display = 'flex'; } }
+ function confirmarEnvioMassa() { document.getElementById('modalPagamentoMassa').style.display = 'none'; const batch = db.batch(); const totalPedido = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); let usouSaldo = false; if (totalPedido > 0 && MEU_SALDO >= totalPedido) { usouSaldo = true; }
+    CARRINHO_LOCAL.forEach(item => { const ref = db.collection("pedidos").doc(); let statusInicial = 'pendente'; let sinalizou = false; if (item.tipo === 'extra') { if (usouSaldo) { statusInicial = 'pendente'; sinalizou = true; } else { statusInicial = 'aguardando_pagamento'; } }
+        batch.set(ref, { evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria || 'classico', tipo: item.tipo, preco: item.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: "Pedido em Grupo/Carrinho", status: statusInicial, sinalizou_pagamento: sinalizou, data: new Date() }); MEUS_PEDIDOS_IDS.push(ref.id);
+        if(item.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (item.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } });
+    if (usouSaldo) { const idSaldo = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`; const saldoRef = db.collection("clientes_saldo").doc(idSaldo); batch.update(saldoRef, { saldo: firebase.firestore.FieldValue.increment(-totalPedido) }); const eventoRef = db.collection("eventos").doc(EVENTO_ID); batch.update(eventoRef, { total_vendas_extra: firebase.firestore.FieldValue.increment(CARRINHO_LOCAL.length), total_faturamento: firebase.firestore.FieldValue.increment(totalPedido) }); }
+    batch.commit().then(() => { localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); CARRINHO_LOCAL = []; salvarCarrinhoLocal(); mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); document.getElementById('modalListaPedidos').style.display = 'flex'; rastrearFilaGlobal(); }).catch(err => alert("Erro ao enviar: " + err)); }
  function atualizarUIBadge() { const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length; const btn = document.getElementById('btnMeusPedidos'); if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex'; }
  function verificarCombosAtivos() { let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago'); let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado; let ehMisto = DADOS_EVENTO.tipo_servico === 'misto'; if(temPagos || pacoteEsgotado || ehMisto) { document.getElementById('areaCombos').style.display = 'grid'; } else { document.getElementById('areaCombos').style.display = 'none'; } }
  function abrirMontadorCombo(qtd) { COMBO_QTD_ALVO = qtd; ITENS_COMBO_SELECIONADOS = []; document.getElementById('maxComboQtd').innerText = qtd; const lista = document.getElementById('listaSelecaoCombo'); lista.innerHTML = ''; let itensPagos = []; DADOS_EVENTO.cardapio.forEach(item => { let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) || (DADOS_EVENTO.tipo_servico === 'misto'); if(isPaid && item.disponivel !== false) { itensPagos.push(item); } }); if(itensPagos.length === 0) return alert("Não há drinks disponíveis para combo."); itensPagos.forEach((item, index) => { let precoReal = item.preco; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda; const div = document.createElement('div'); div.className = 'combo-item-row'; div.id = `row_combo_${index}`; div.innerHTML = `<div style="flex:1; text-align:left;"><strong style="color:#fff;">${item.nome}</strong><br><span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span></div><div class="qtd-control"><button class="btn-qtd btn-minus" onclick="alterarQtdCombo(${index}, -1, ${precoReal}, '${item.nome}')">-</button><span class="qtd-display" id="qtd_combo_${index}">0</span><button class="btn-qtd btn-plus" onclick="alterarQtdCombo(${index}, 1, ${precoReal}, '${item.nome}')">+</button></div>`; lista.appendChild(div); }); atualizarTotalCombo(); document.getElementById('modalCombo').style.display = 'flex'; }
