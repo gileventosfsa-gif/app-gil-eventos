@@ -91,8 +91,13 @@
         .btn-reject { background: #FF4444; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; flex: 1;}
         .btn-edit-review { background: #2196F3; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; flex: 1;}
 
-        #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay, #reviewsManagerOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay, #reviewsManagerOverlay { display: none; }
+        /* BANCO */
+        .saldo-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #333; margin-bottom: 5px; border-radius: 5px; }
+        .btn-bank-add { background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-bank-remove { background: #FF4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay, #reviewsManagerOverlay, #bankOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay, #reviewsManagerOverlay, #bankOverlay { display: none; }
         .login-box { text-align: center; background: #222; padding: 30px; border-radius: 15px; border: 1px solid #444; min-width: 300px; width: 90%; max-width: 600px; }
         .btn-top { background: #444; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
         .contacts-list { max-height: 300px; overflow-y: auto; text-align: left; margin-top: 15px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333; }
@@ -107,6 +112,18 @@
 <body>
     <audio id="somAlerta" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
     <div id="loginOverlay"><div class="login-box"><h1 style="margin-bottom:20px;">🔒 Área Restrita</h1><input type="password" id="senhaInput" placeholder="Senha" style="padding:10px; border-radius:5px;"><br><br><button class="btn-top" style="background:#FFD580; color:black;" onclick="verificarSenha()">ACESSAR</button><p id="erroSenha" style="color:red; display:none; margin-top:10px;">Senha Incorreta!</p></div></div>
+    
+    <div id="bankOverlay"><div class="login-box" style="width: 500px; max-height:85vh;">
+        <h2 style="color:#4CAF50;">🏦 Banco do Evento</h2>
+        <div style="display:flex; gap:5px; margin-bottom:20px;">
+            <input type="text" id="inputNomeBanco" placeholder="Nome do Convidado" style="flex:1; padding:10px; border-radius:5px; border:none;">
+            <button class="btn-top" style="background:#2196F3;" onclick="adicionarSaldoManual()">➕ Add Saldo</button>
+        </div>
+        <h4 style="text-align:left; color:#aaa; border-bottom:1px solid #444; padding-bottom:5px;">Clientes com Saldo:</h4>
+        <div id="listaSaldos" class="contacts-list" style="height:300px;">Carregando...</div>
+        <button onclick="document.getElementById('bankOverlay').style.display='none'" class="btn-top" style="margin-top:20px;">Fechar</button>
+    </div></div>
+
     <div id="stockOverlay"><div class="login-box" style="width: 400px; max-height: 80vh; overflow-y: auto;"><h2 style="color:#FFD580;">Gerenciar Cardápio</h2><div id="listaEstoque"></div><button onclick="document.getElementById('stockOverlay').style.display='none'" class="btn-top" style="margin-top:20px; width:100%;">FECHAR</button></div></div>
     <div id="contactsOverlay"><div class="login-box"><h2 style="color:#FFD580;">👥 Leads</h2><div class="contacts-list" id="listaContatos">Carregando...</div><div style="margin-top:20px; display:flex; gap:10px; justify-content:center;"><button onclick="copiarListaContatos()" class="btn-top" style="background:#4CAF50;">📋 Copiar</button><button onclick="document.getElementById('contactsOverlay').style.display='none'" class="btn-top">Fechar</button></div></div></div>
     
@@ -148,6 +165,7 @@
 
         <div class="sound-control"><span style="font-size:1.2em;">🔊</span><input type="range" min="0" max="1" step="0.1" value="1" onchange="document.getElementById('somAlerta').volume=this.value"></div>
         <div>
+            <button onclick="abrirBanco()" class="btn-top" style="background:#FF9800; color:black; font-weight:bold;">🏦 Banco / Créditos</button>
             <div style="display:inline-block; position:relative;">
                 <button onclick="abrirChatAdmin()" class="btn-top" style="background:#009688;">💬 Chat</button>
                 <div class="chat-badge" id="chatBadgeGlobal">0</div>
@@ -282,176 +300,143 @@
             });
             monitorarChat();
             
-            // --- MONITORAR AVALIAÇÕES PENDENTES ---
             db.collection("avaliacoes").where("status", "==", "pendente").onSnapshot(snapshot => {
                 const lista = document.getElementById('listaReviews');
                 document.getElementById('qtdReviews').innerText = `(${snapshot.size})`;
-                
-                if(snapshot.empty) {
-                    lista.innerHTML = '<p style="color:#555; font-size:0.8em; text-align:center;">Nenhuma avaliação pendente.</p>';
-                    return;
-                }
-                
+                if(snapshot.empty) { lista.innerHTML = '<p style="color:#555; font-size:0.8em; text-align:center;">Nenhuma avaliação pendente.</p>'; return; }
                 lista.innerHTML = '';
                 snapshot.forEach(doc => {
                     const r = doc.data();
                     const estrelas = "⭐".repeat(r.nota);
+                    lista.innerHTML += `<div class="review-pending"><div style="display:flex; justify-content:space-between;"><strong style="color:#fff; font-size:0.9em;">${r.cliente}</strong><span class="review-stars">${estrelas}</span></div><div style="font-size:0.8em; color:#aaa;">Drink: ${r.drink}</div><div class="review-text">"${r.comentario}"</div><div class="review-actions"><button class="btn-approve" onclick="moderarReview('${doc.id}', true)">✅ Aprovar</button><button class="btn-reject" onclick="moderarReview('${doc.id}', false)">❌ Excluir</button></div></div>`;
+                });
+            });
+        }
+        
+        // --- FUNÇÕES BANCO / CRÉDITO ---
+        function abrirBanco() {
+            document.getElementById('bankOverlay').style.display = 'flex';
+            carregarSaldos();
+        }
+
+        function carregarSaldos() {
+            const lista = document.getElementById('listaSaldos');
+            lista.innerHTML = "Carregando...";
+            db.collection("clientes_saldo").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
+                if(snapshot.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum saldo cadastrado.</p>"; return; }
+                lista.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const d = doc.data();
                     lista.innerHTML += `
-                        <div class="review-pending">
-                            <div style="display:flex; justify-content:space-between;">
-                                <strong style="color:#fff; font-size:0.9em;">${r.cliente}</strong>
-                                <span class="review-stars">${estrelas}</span>
+                        <div class="saldo-row">
+                            <div>
+                                <strong>${d.nome}</strong><br>
+                                <span style="color:#4CAF50; font-size:1.1em;">R$ ${d.saldo.toFixed(2)}</span>
                             </div>
-                            <div style="font-size:0.8em; color:#aaa;">Drink: ${r.drink}</div>
-                            <div class="review-text">"${r.comentario}"</div>
-                            <div class="review-actions">
-                                <button class="btn-approve" onclick="moderarReview('${doc.id}', true)">✅ Aprovar</button>
-                                <button class="btn-reject" onclick="moderarReview('${doc.id}', false)">❌ Excluir</button>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 10)">+10</button>
+                                <button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 50)">+50</button>
+                                <button class="btn-bank-remove" onclick="alterarSaldo('${doc.id}', -10)">-10</button>
                             </div>
                         </div>
                     `;
                 });
             });
         }
-        
-        // --- FUNÇÕES DE MODERAÇÃO ---
-        function moderarReview(id, aprovado) {
-            if(aprovado) {
-                db.collection("avaliacoes").doc(id).update({ status: 'aprovado' });
-            } else {
-                if(confirm("Excluir avaliação?")) db.collection("avaliacoes").doc(id).delete();
-            }
+
+        function adicionarSaldoManual() {
+            const nome = document.getElementById('inputNomeBanco').value.trim();
+            if(!nome) return alert("Digite o nome!");
+            const valorStr = prompt(`Quanto adicionar de saldo para ${nome}?`, "50");
+            if(!valorStr) return;
+            const valor = parseFloat(valorStr.replace(',', '.'));
+            
+            // Verifica se já existe, senão cria
+            const id = `${EVENTO_ID}_${limparString(nome)}`;
+            db.collection("clientes_saldo").doc(id).get().then(doc => {
+                if(doc.exists) {
+                    db.collection("clientes_saldo").doc(id).update({ saldo: firebase.firestore.FieldValue.increment(valor) });
+                } else {
+                    db.collection("clientes_saldo").doc(id).set({
+                        evento_id: EVENTO_ID,
+                        nome: nome,
+                        saldo: valor
+                    });
+                }
+                document.getElementById('inputNomeBanco').value = '';
+            });
         }
 
-        // --- NOVA FUNÇÃO: GERENCIAR APROVADAS (EDITAR/EXCLUIR) ---
+        function alterarSaldo(docId, valor) {
+            db.collection("clientes_saldo").doc(docId).update({
+                saldo: firebase.firestore.FieldValue.increment(valor)
+            });
+        }
+
+        function moderarReview(id, aprovado) {
+            if(aprovado) { db.collection("avaliacoes").doc(id).update({ status: 'aprovado' }); } else { if(confirm("Excluir avaliação?")) db.collection("avaliacoes").doc(id).delete(); }
+        }
+
         function abrirGerenciadorReviews() {
             document.getElementById('reviewsManagerOverlay').style.display = 'flex';
             const lista = document.getElementById('listaAprovadas');
             lista.innerHTML = "Carregando...";
-            
             db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snapshot => {
-                if(snapshot.empty) {
-                    lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhuma avaliação aprovada.</p>";
-                    return;
-                }
+                if(snapshot.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhuma avaliação aprovada.</p>"; return; }
                 lista.innerHTML = "";
                 snapshot.forEach(doc => {
                     const r = doc.data();
                     const estrelas = "⭐".repeat(r.nota);
-                    lista.innerHTML += `
-                        <div class="review-approved">
-                            <div style="display:flex; justify-content:space-between;">
-                                <strong>${r.cliente}</strong>
-                                <span>${estrelas}</span>
-                            </div>
-                            <p style="font-style:italic; color:#ccc; font-size:0.9em;">"${r.comentario}"</p>
-                            <div class="review-actions">
-                                <button class="btn-edit-review" onclick="editarTextoReview('${doc.id}', '${r.comentario.replace(/'/g, "")}')">✏️ Editar</button>
-                                <button class="btn-reject" onclick="moderarReview('${doc.id}', false)">🗑️ Excluir</button>
-                            </div>
-                        </div>
-                    `;
+                    lista.innerHTML += `<div class="review-approved"><div style="display:flex; justify-content:space-between;"><strong>${r.cliente}</strong><span>${estrelas}</span></div><p style="font-style:italic; color:#ccc; font-size:0.9em;">"${r.comentario}"</p><div class="review-actions"><button class="btn-edit-review" onclick="editarTextoReview('${doc.id}', '${r.comentario.replace(/'/g, "")}')">✏️ Editar</button><button class="btn-reject" onclick="moderarReview('${doc.id}', false)">🗑️ Excluir</button></div></div>`;
                 });
             });
         }
 
         function editarTextoReview(id, textoAtual) {
             const novoTexto = prompt("Edite o comentário:", textoAtual);
-            if(novoTexto !== null) {
-                db.collection("avaliacoes").doc(id).update({ comentario: novoTexto })
-                .then(() => { alert("Atualizado!"); abrirGerenciadorReviews(); });
-            }
+            if(novoTexto !== null) { db.collection("avaliacoes").doc(id).update({ comentario: novoTexto }).then(() => { alert("Atualizado!"); abrirGerenciadorReviews(); }); }
         }
 
         function sincronizarContadores() {
-            db.collection("pedidos")
-              .where("evento_id", "==", EVENTO_ID)
-              .where("tipo", "==", "pacote") 
-              .where("status", "in", ["pendente", "servido"]) 
-              .get()
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("tipo", "==", "pacote").where("status", "in", ["pendente", "servido"]).get()
               .then(snapshot => {
-                  let total = 0;
-                  let classico = 0;
-                  let premium = 0;
-
+                  let total = 0; let classico = 0; let premium = 0;
                   snapshot.forEach(doc => {
-                      const p = doc.data();
-                      total++;
+                      const p = doc.data(); total++;
                       let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
                       cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "");
-                      if(cat.includes('premium')) premium++;
-                      else classico++;
+                      if(cat.includes('premium')) premium++; else classico++;
                   });
-
-                  db.collection("eventos").doc(EVENTO_ID).update({
-                      total_consumido: total,
-                      consumido_classico: classico,
-                      consumido_premium: premium
-                  }).then(() => console.log("Contadores sincronizados."));
+                  db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: total, consumido_classico: classico, consumido_premium: premium }).then(() => console.log("Contadores sincronizados."));
               });
         }
 
         function lancarManual(item, tipoForcado) { 
             const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
             if(nome === null) return; 
-            
             let tipo = tipoForcado;
             let precoFinal = item.preco || 0;
             if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
-
             const categoriaNorm = limparString(item.categoria); 
             let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
-            
-            db.collection("pedidos").add({ 
-                evento_id: EVENTO_ID, 
-                drink: item.nome, 
-                categoria_drink: item.categoria, 
-                tipo: tipo, 
-                preco: precoFinal,
-                nome_convidado: nome || "Balcão", 
-                status: statusInicial, 
-                sinalizou_pagamento: false, 
-                data: new Date() 
-            }).then(() => {
-                if(tipo === 'pacote') setTimeout(sincronizarContadores, 500); 
-            });
+            db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria, tipo: tipo, preco: precoFinal, nome_convidado: nome || "Balcão", status: statusInicial, sinalizou_pagamento: false, data: new Date() }).then(() => { if(tipo === 'pacote') setTimeout(sincronizarContadores, 500); });
         }
 
         function gerarBotoes(menu) { 
-            const div = document.getElementById('listaBotoesManual'); 
-            div.innerHTML = ''; 
+            const div = document.getElementById('listaBotoesManual'); div.innerHTML = ''; 
             menu.forEach(item => { 
                 const pausado = item.disponivel === false; 
                 let precoDisplay = item.preco || 0;
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoDisplay = item.preco_prevenda;
-
-                const divRow = document.createElement('div');
-                divRow.className = `manual-row ${pausado ? 'pausado' : ''}`;
+                const divRow = document.createElement('div'); divRow.className = `manual-row ${pausado ? 'pausado' : ''}`;
                 const itemStr = JSON.stringify(item).replace(/"/g, "&quot;");
-
-                divRow.innerHTML = `
-                    <span class="manual-name">${item.nome} <small>(R$ ${precoDisplay})</small></span>
-                    <div class="manual-actions">
-                        <button class="btn-manual pct" onclick='lancarManual(${itemStr}, "pacote")'>🟢 PCT</button>
-                        <button class="btn-manual vd" onclick='lancarManual(${itemStr}, "extra")'>💲 VD</button>
-                    </div>
-                `;
+                divRow.innerHTML = `<span class="manual-name">${item.nome} <small>(R$ ${precoDisplay})</small></span><div class="manual-actions"><button class="btn-manual pct" onclick='lancarManual(${itemStr}, "pacote")'>🟢 PCT</button><button class="btn-manual vd" onclick='lancarManual(${itemStr}, "extra")'>💲 VD</button></div>`;
                 div.appendChild(divRow); 
             }); 
         }
 
-        function mudarStatus(id, novoStatus) { 
-            if(!confirm("Entregar pedido?")) return; 
-            db.collection("pedidos").doc(id).update({ status: novoStatus })
-              .then(() => setTimeout(sincronizarContadores, 500)); 
-        }
-
-        function cancelarPedido(id) { 
-            if(!confirm("Cancelar?")) return; 
-            db.collection("pedidos").doc(id).update({ status: 'cancelado' })
-              .then(() => setTimeout(sincronizarContadores, 500)); 
-        }
-
+        function mudarStatus(id, novoStatus) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }).then(() => setTimeout(sincronizarContadores, 500)); }
+        function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }).then(() => setTimeout(sincronizarContadores, 500)); }
         function monitorarChat() {
             db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 let novasMensagens = 0;
@@ -459,59 +444,15 @@
                 if(novasMensagens > 0) { CHAT_UNREAD_COUNT += novasMensagens; const badge = document.getElementById('chatBadgeGlobal'); badge.innerText = CHAT_UNREAD_COUNT; badge.style.display = 'flex'; }
             });
         }
-        
         function abrirChatAdmin() { 
-            document.getElementById('chatOverlay').style.display = 'flex'; 
-            CHAT_UNREAD_COUNT = 0; 
-            document.getElementById('chatBadgeGlobal').style.display = 'none'; 
-            
-            let usersFromChat = new Set();
-            let usersFromOrders = new Set();
-            
-            const render = () => {
-                const allUsers = new Set([...usersFromChat, ...usersFromOrders]);
-                const lista = document.getElementById('chatUsersList'); 
-                lista.innerHTML = ''; 
-                allUsers.forEach(u => { 
-                    lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; 
-                }); 
-            };
-
-            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { 
-                usersFromChat.clear();
-                s.forEach(d => usersFromChat.add(d.data().nome)); 
-                render();
-            }); 
-            
-            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).onSnapshot(s => {
-                usersFromOrders.clear();
-                s.forEach(d => usersFromOrders.add(d.data().nome_convidado));
-                render();
-            });
+            document.getElementById('chatOverlay').style.display = 'flex'; CHAT_UNREAD_COUNT = 0; document.getElementById('chatBadgeGlobal').style.display = 'none'; 
+            let usersFromChat = new Set(); let usersFromOrders = new Set();
+            const render = () => { const allUsers = new Set([...usersFromChat, ...usersFromOrders]); const lista = document.getElementById('chatUsersList'); lista.innerHTML = ''; allUsers.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; }); };
+            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { usersFromChat.clear(); s.forEach(d => usersFromChat.add(d.data().nome)); render(); }); 
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { usersFromOrders.clear(); s.forEach(d => usersFromOrders.add(d.data().nome_convidado)); render(); });
         }
-        
         function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
-        
-        function carregarConversa(nome) { 
-            SELECTED_CHAT_USER = nome; 
-            const area = document.getElementById('chatAdminMsgs'); 
-            area.innerHTML = 'Carregando...'; 
-            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { 
-                area.innerHTML = ''; 
-                let msgs = []; 
-                s.forEach(doc => msgs.push(doc.data())); 
-                msgs.sort((a,b) => a.data - b.data); 
-                msgs.forEach(m => { 
-                    let classe = '';
-                    if (m.remetente === 'cliente') classe = 'msg-client';
-                    else if (m.remetente === 'admin') classe = 'msg-admin';
-                    else classe = 'msg-sistema'; 
-
-                    area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; 
-                }); 
-                area.scrollTop = area.scrollHeight; 
-            }); 
-        }
+        function carregarConversa(nome) { SELECTED_CHAT_USER = nome; const area = document.getElementById('chatAdminMsgs'); area.innerHTML = 'Carregando...'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { area.innerHTML = ''; let msgs = []; s.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { let classe = ''; if (m.remetente === 'cliente') classe = 'msg-client'; else if (m.remetente === 'admin') classe = 'msg-admin'; else classe = 'msg-sistema'; area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; }); area.scrollTop = area.scrollHeight; }); }
         function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
         function abrirContatos() { document.getElementById('contactsOverlay').style.display = 'flex'; const lista = document.getElementById('listaContatos'); lista.innerHTML = "Carregando..."; db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => { if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; } lista.innerHTML = ""; q.forEach((doc) => { const d = doc.data(); let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : ""; lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`; }); }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; }); }
         function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
@@ -531,26 +472,16 @@
         function atualizarInterface(dados) { 
             document.getElementById('nomeEvento').innerText = dados.nome; 
             document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
-            
             if (dados.tipo_servico === 'misto') {
-                document.getElementById('boxConsumoSimples').style.display = 'none';
-                document.getElementById('boxConsumoMisto').style.display = 'block';
-                const cClassico = Number(dados.consumido_classico || 0); const lClassico = Number(dados.limite_classico || 0);
-                const cPremium = Number(dados.consumido_premium || 0); const lPremium = Number(dados.limite_premium || 0);
-                document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`;
-                document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
-                const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0;
-                const pctPremium = lPremium > 0 ? (cPremium/lPremium)*100 : 0;
-                document.getElementById('barClassico').style.width = pctClassico + '%';
-                document.getElementById('barPremium').style.width = pctPremium + '%';
+                document.getElementById('boxConsumoSimples').style.display = 'none'; document.getElementById('boxConsumoMisto').style.display = 'block';
+                const cClassico = Number(dados.consumido_classico || 0); const lClassico = Number(dados.limite_classico || 0); const cPremium = Number(dados.consumido_premium || 0); const lPremium = Number(dados.limite_premium || 0);
+                document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`; document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
+                const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0; const pctPremium = lPremium > 0 ? (cPremium/lPremium)*100 : 0;
+                document.getElementById('barClassico').style.width = pctClassico + '%'; document.getElementById('barPremium').style.width = pctPremium + '%';
             } else {
-                document.getElementById('boxConsumoSimples').style.display = 'block';
-                document.getElementById('boxConsumoMisto').style.display = 'none';
+                document.getElementById('boxConsumoSimples').style.display = 'block'; document.getElementById('boxConsumoMisto').style.display = 'none';
                 document.getElementById('consumido').innerText = dados.total_consumido;
-                if(dados.tipo_servico === 'pacote' || dados.tipo_servico === 'premium') { 
-                    document.getElementById('total').innerText = dados.total_contratado; 
-                    document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; 
-                } else { document.getElementById('total').innerText = '∞'; }
+                if(dados.tipo_servico === 'pacote' || dados.tipo_servico === 'premium') { document.getElementById('total').innerText = dados.total_contratado; document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; } else { document.getElementById('total').innerText = '∞'; }
             }
             document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
             document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; 
@@ -558,7 +489,6 @@
             if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; } 
         }
 
-        // --- FUNÇÕES DE CONTROLE DE STATUS ---
         function mudarStatusEvento(novoStatus) {
             if(novoStatus === 'encerrado' && !confirm("Tem certeza que deseja ENCERRAR o evento?")) return;
             db.collection("eventos").doc(EVENTO_ID).update({ status: novoStatus });
