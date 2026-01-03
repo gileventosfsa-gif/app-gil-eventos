@@ -83,14 +83,16 @@
 
         /* AVALIAÇÕES */
         .review-pending { background: #2a1a00; border: 1px solid #FFD580; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .review-approved { background: #1a2e1a; border: 1px solid #4CAF50; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
         .review-stars { color: #FFD580; font-size: 1.2em; }
         .review-text { font-style: italic; color: #ddd; font-size: 0.9em; margin: 5px 0; }
         .review-actions { display: flex; gap: 5px; }
         .btn-approve { background: #4CAF50; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; flex: 1;}
         .btn-reject { background: #FF4444; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; flex: 1;}
+        .btn-edit-review { background: #2196F3; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; flex: 1;}
 
-        #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay { display: none; }
+        #loginOverlay, #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay, #reviewsManagerOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #eyeAuthOverlay, #qrOverlay, #stockOverlay, #contactsOverlay, #chatOverlay, #reviewsManagerOverlay { display: none; }
         .login-box { text-align: center; background: #222; padding: 30px; border-radius: 15px; border: 1px solid #444; min-width: 300px; width: 90%; max-width: 600px; }
         .btn-top { background: #444; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
         .contacts-list { max-height: 300px; overflow-y: auto; text-align: left; margin-top: 15px; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #333; }
@@ -108,6 +110,12 @@
     <div id="stockOverlay"><div class="login-box" style="width: 400px; max-height: 80vh; overflow-y: auto;"><h2 style="color:#FFD580;">Gerenciar Cardápio</h2><div id="listaEstoque"></div><button onclick="document.getElementById('stockOverlay').style.display='none'" class="btn-top" style="margin-top:20px; width:100%;">FECHAR</button></div></div>
     <div id="contactsOverlay"><div class="login-box"><h2 style="color:#FFD580;">👥 Leads</h2><div class="contacts-list" id="listaContatos">Carregando...</div><div style="margin-top:20px; display:flex; gap:10px; justify-content:center;"><button onclick="copiarListaContatos()" class="btn-top" style="background:#4CAF50;">📋 Copiar</button><button onclick="document.getElementById('contactsOverlay').style.display='none'" class="btn-top">Fechar</button></div></div></div>
     
+    <div id="reviewsManagerOverlay"><div class="login-box" style="max-height:85vh; width:500px;">
+        <h2 style="color:#FFD580;">⭐ Avaliações Aprovadas</h2>
+        <div class="contacts-list" id="listaAprovadas" style="max-height:300px;">Carregando...</div>
+        <button onclick="document.getElementById('reviewsManagerOverlay').style.display='none'" class="btn-top" style="margin-top:20px;">Fechar</button>
+    </div></div>
+
     <div id="chatOverlay"><div class="login-box">
         <h2 style="color:#FFD580;">💬 Central de Mensagens</h2>
         <div class="chat-layout">
@@ -130,6 +138,7 @@
         <div>
             <span id="nomeEvento" style="font-weight:bold; font-size:1.2em;">Carregando...</span>
             <span class="badge-event" id="tipoEvento">...</span> 
+            
             <div class="status-controls">
                 <button class="status-btn btn-aberto" id="btnStatusAberto" onclick="mudarStatusEvento('aberto')">🟢 Aberto</button>
                 <button class="status-btn btn-pausado" id="btnStatusPausado" onclick="mudarStatusEvento('pausado')">✋ Pausar</button>
@@ -156,9 +165,10 @@
         <div class="col-commands">
             <div class="card-box">
                 <div class="label">⭐ Moderação de Avaliações <span id="qtdReviews" style="color:#FFD580;">(0)</span></div>
-                <div id="listaReviews" style="max-height:200px; overflow-y:auto; margin-top:10px;">
+                <div id="listaReviews" style="max-height:200px; overflow-y:auto; margin-top:10px; margin-bottom:10px;">
                     <p style="color:#555; font-size:0.8em; text-align:center;">Nenhuma avaliação pendente.</p>
                 </div>
+                <button class="btn-top" style="width:100%; background:#333; color:#aaa;" onclick="abrirGerenciadorReviews()">📂 Gerenciar Aprovadas</button>
             </div>
 
             <div class="card-box">
@@ -310,6 +320,46 @@
                 db.collection("avaliacoes").doc(id).update({ status: 'aprovado' });
             } else {
                 if(confirm("Excluir avaliação?")) db.collection("avaliacoes").doc(id).delete();
+            }
+        }
+
+        // --- NOVA FUNÇÃO: GERENCIAR APROVADAS (EDITAR/EXCLUIR) ---
+        function abrirGerenciadorReviews() {
+            document.getElementById('reviewsManagerOverlay').style.display = 'flex';
+            const lista = document.getElementById('listaAprovadas');
+            lista.innerHTML = "Carregando...";
+            
+            db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snapshot => {
+                if(snapshot.empty) {
+                    lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhuma avaliação aprovada.</p>";
+                    return;
+                }
+                lista.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const r = doc.data();
+                    const estrelas = "⭐".repeat(r.nota);
+                    lista.innerHTML += `
+                        <div class="review-approved">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>${r.cliente}</strong>
+                                <span>${estrelas}</span>
+                            </div>
+                            <p style="font-style:italic; color:#ccc; font-size:0.9em;">"${r.comentario}"</p>
+                            <div class="review-actions">
+                                <button class="btn-edit-review" onclick="editarTextoReview('${doc.id}', '${r.comentario.replace(/'/g, "")}')">✏️ Editar</button>
+                                <button class="btn-reject" onclick="moderarReview('${doc.id}', false)">🗑️ Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function editarTextoReview(id, textoAtual) {
+            const novoTexto = prompt("Edite o comentário:", textoAtual);
+            if(novoTexto !== null) {
+                db.collection("avaliacoes").doc(id).update({ comentario: novoTexto })
+                .then(() => { alert("Atualizado!"); abrirGerenciadorReviews(); });
             }
         }
 
