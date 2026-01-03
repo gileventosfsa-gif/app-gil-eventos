@@ -51,11 +51,11 @@
   .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
   .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
   
-  /* ESTILO DO ITEM DA FILA */
-  .my-order-item { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 12px; text-align: left; border-left: 4px solid #555; position: relative; }
-  .my-order-item.is-mine { border: 1px solid rgba(76, 175, 80, 0.3); background: rgba(76, 175, 80, 0.05); } /* Destaque para meu pedido */
-  .guest-name { font-size: 0.8em; color: #aaa; font-style: italic; }
-  .guest-name.mine { color: #4CAF50; font-weight: bold; font-style: normal; }
+  /* ESTILO DO ITEM DA FILA GLOBAL */
+  .my-order-item { background: #222; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #555; position: relative; }
+  .my-order-item.is-mine { border: 1px solid rgba(76, 175, 80, 0.5); background: rgba(76, 175, 80, 0.08); } 
+  .guest-name { font-size: 0.8em; color: #888; font-style: italic; margin-left: 5px;}
+  .guest-name.mine { color: #4CAF50; font-weight: bold; font-style: normal; text-transform:uppercase;}
 
   .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: 500; }
   .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
@@ -99,8 +99,8 @@
   .cart-warning { background: rgba(255, 149, 0, 0.15); border: 1px solid #FF9500; color: #FF9500; font-size: 0.85em; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: bold; display: none; animation: pulseWarning 2s infinite; }
   @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0); } }
 
-  /* NOVA CLASSE PARA FILA */
-  .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 3px 8px; border-radius: 8px; margin-left: 8px; font-weight: bold; vertical-align: middle; box-shadow: 0 2px 5px rgba(33, 150, 243, 0.4); display:inline-block; margin-bottom: 3px;}
+  /* FILA GLOBAL */
+  .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 2px 6px; border-radius: 6px; margin-left: 5px; font-weight: bold; vertical-align: middle; display:inline-block;}
   .queue-pos.first { background: linear-gradient(45deg, #00C853, #64DD17); color: #000; animation: pulse 1s infinite; }
  </style>
 </head>
@@ -121,7 +121,7 @@
 </div>
 
 <div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()" style="display: flex;">
-    🛒 Ver Carrinho / Pedidos 
+    🛒 Ver Carrinho / Fila 
     <div class="float-badge" id="badgeMeusPedidos">0</div>
 </div>
 
@@ -130,10 +130,10 @@
 
 <div class="modal-overlay" id="modalPagamentoMassa"><div class="modal-box"><h2 style="color:#4CAF50; margin:0;">Finalizar Pedido</h2><p style="color:#ddd;">Você está pagando por <strong><span id="qtdItensMassa">0</span> itens</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Total a pagar:</span><strong style="font-size:2.2em; color:#4CAF50;" id="valorTotalMassa">R$ 0,00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTextoMassa">75992011008</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button></div><button class="btn-confirm" onclick="confirmarEnvioMassa()">✅ JÁ PAGUEI / ENVIAR TUDO</button><button onclick="document.getElementById('modalPagamentoMassa').style.display='none'; document.getElementById('modalListaPedidos').style.display='flex';" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Voltar ao Carrinho</button></div></div>
 
-<div class="modal-overlay" id="modalListaPedidos"><div class="modal-box" style="height: 650px; max-height:90vh;"><div class="modal-tabs"><button class="tab-btn active" onclick="mudarAba('pedidos')">📝 Fila de Pedidos</button><button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button></div>
+<div class="modal-overlay" id="modalListaPedidos"><div class="modal-box" style="height: 650px; max-height:90vh;"><div class="modal-tabs"><button class="tab-btn active" onclick="mudarAba('pedidos')">📋 Fila Geral</button><button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button></div>
     <div id="tab-pedidos" class="tab-content active">
         <div id="areaCarrinho" class="cart-section" style="display:none;">
-            <div class="cart-title">🛒 No Carrinho (A Enviar) <span style="font-size:0.8em; color:#fff;" id="countCarrinho"></span></div>
+            <div class="cart-title">🛒 Seu Carrinho (A Enviar) <span style="font-size:0.8em; color:#fff;" id="countCarrinho"></span></div>
             <div id="listaCarrinhoHTML"></div>
             <div id="msgAvisoPagamento" class="cart-warning">
                 ⚠️ <strong>ATENÇÃO:</strong> Drinks pagos só entram na fila de preparo após a <u>confirmação do PIX</u>!
@@ -144,8 +144,10 @@
             </div>
         </div>
         <div id="areaHistorico">
-            <h4 style="color:#aaa; text-align:left; border-bottom:1px solid #333; margin-bottom:10px;">📋 Fila de Preparação (Todos)</h4>
-            <div id="listaMeusPedidosHTML"></div>
+            <h4 style="color:#aaa; text-align:left; border-bottom:1px solid #333; margin-bottom:10px; font-size:0.9em; text-transform:uppercase;">🍹 Acompanhamento da Fila (Ao Vivo)</h4>
+            <div id="listaMeusPedidosHTML">
+                <p style="color:#555; text-align:center; padding:20px;">Carregando fila...</p>
+            </div>
         </div>
     </div>
     <div id="tab-chat" class="tab-content"><div class="chat-container"><div class="chat-messages" id="chatMessages"><p style="text-align:center; color:#555; font-size:0.8em; margin-top:20px;">Fale diretamente com o barman aqui.</p></div><div class="chat-input-area"><input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem..."><button class="chat-send" onclick="enviarMensagem()">➤</button></div></div></div><button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:15px; background:#333; color:#fff;">FECHAR</button></div></div>
@@ -168,7 +170,6 @@
  let CARRINHO_LOCAL = JSON.parse(localStorage.getItem(`carrinho_${EVENTO_ID}`) || "[]");
  let COMBO_QTD_ALVO = 0;
  let ITENS_COMBO_SELECIONADOS = [];
- // FILA GLOBAL IDS nao precisamos mais separar, vamos usar o snapshot direto
 
  function limparString(str) { if(!str) return ""; return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); }
  if(NOME_CONVIDADO) { document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = NOME_CONVIDADO; }
@@ -176,38 +177,42 @@
 
  function iniciarApp() {
   db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
-   if(doc.exists) { DADOS_EVENTO = doc.data(); if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); }
+   if(doc.exists) { DADOS_EVENTO = doc.data(); if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; renderizarCardapio(); verificarTimer(); verificarCombosAtivos(); atualizarUIBadge(); iniciarMonitoramentoFila(); }
   });
-  // RASTREAR PEDIDOS AGORA RASTREIA TUDO (FILA GLOBAL)
   rastrearFilaGlobal();
   if(NOME_CONVIDADO) carregarChat(); 
   renderizarCarrinho();
  }
 
- // --- FUNÇÃO PRINCIPAL: FILA GLOBAL COMPARTILHADA ---
+ // --- FUNÇÃO CORRIGIDA: FILA GLOBAL COM ORDENAÇÃO LOCAL ---
  function rastrearFilaGlobal() {
-    // Busca TODOS os pedidos do evento (exceto cancelados)
-    // Ordena por data Crescente (Antigos primeiro = Fila Indiana)
     db.collection("pedidos")
       .where("evento_id", "==", EVENTO_ID)
-      .orderBy("data", "asc")
       .onSnapshot((snapshot) => { 
         const listaHTML = document.getElementById('listaMeusPedidosHTML'); 
         listaHTML.innerHTML = ''; 
         
-        let contagemFilaPreparacao = 0;
-        let meusPedidosAtivosCount = 0;
+        let pedidos = [];
+        snapshot.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
 
-        if(snapshot.empty) {
-            listaHTML.innerHTML = '<p style="color:#555; text-align:center;">Fila vazia! Peça o primeiro drink. 🍹</p>';
+        // Ordena por data (Antigos primeiro)
+        pedidos.sort((a, b) => {
+            let dateA = a.data ? a.data.toDate() : new Date();
+            let dateB = b.data ? b.data.toDate() : new Date();
+            return dateA - dateB;
+        });
+
+        if(pedidos.length === 0) {
+            listaHTML.innerHTML = '<p style="color:#555; text-align:center; padding:10px;">Fila vazia! Peça o primeiro drink. 🍹</p>';
             document.getElementById('badgeMeusPedidos').innerText = CARRINHO_LOCAL.length;
             return;
         }
 
-        snapshot.forEach(doc => { 
-            const p = {id: doc.id, ...doc.data()};
-            
-            // Filtra cancelados da visualização para não poluir
+        let contagemFilaPreparacao = 0;
+        let meusPedidosAtivosCount = 0;
+
+        pedidos.forEach(p => { 
+            // Ignora cancelados
             if(p.status === 'cancelado') return;
 
             let isMine = (p.nome_convidado === NOME_CONVIDADO);
@@ -218,12 +223,10 @@
             let divClass = isMine ? "my-order-item is-mine" : "my-order-item";
             let posicaoTexto = "";
 
-            // Lógica de Status e Fila
             if(p.status === 'pendente') { 
                 statusText = "🟡 Preparando"; 
                 cor = "#FFD580"; 
                 contagemFilaPreparacao++; 
-                // Mostra posição apenas para status pendente
                 const destaqueClass = contagemFilaPreparacao === 1 ? "first" : "";
                 const textoPos = contagemFilaPreparacao === 1 ? "É A SUA VEZ!" : `#${contagemFilaPreparacao} da fila`;
                 posicaoTexto = `<span class="queue-pos ${destaqueClass}">${textoPos}</span>`;
@@ -252,17 +255,26 @@
 
             listaHTML.innerHTML += `
                 <div class="${divClass}" style="border-left-color:${cor}">
-                    <strong>${p.drink}</strong> ${nomeDisplay} ${posicaoTexto}
-                    <span style="float:right; color:${cor}; font-weight:bold; font-size:0.8em;">${statusText}</span>
-                    <br><small style="color:#aaa;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <strong>${p.drink}</strong> ${nomeDisplay}<br>
+                            ${posicaoTexto}
+                        </div>
+                        <span style="color:${cor}; font-weight:bold; font-size:0.8em; white-space:nowrap; margin-left:5px;">${statusText}</span>
+                    </div>
+                    <small style="color:#aaa; display:block; margin-top:5px;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>
                     ${extraHTML}
                 </div>`; 
         }); 
         
-        // Atualiza Badge Geral (Carrinho + Meus Ativos na Fila)
+        // Atualiza Badge Geral
         const totalBadge = CARRINHO_LOCAL.length + meusPedidosAtivosCount;
         document.getElementById('badgeMeusPedidos').innerText = totalBadge;
     }); 
+ }
+
+ function iniciarMonitoramentoFila() {
+    // Função auxiliar vazia, pois rastrearFilaGlobal já faz o trabalho completo
  }
 
  function adicionarAoCarrinho(nome, tipo, preco, categoria) {
@@ -419,10 +431,7 @@
  function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
  let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
  function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
- function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "🔔 Entrou no cardápio.", remetente: 'sistema', data: new Date() }); 
- // RECARREGA TUDO COM O NOVO NOME
- location.reload();
- }
+ function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "🔔 Entrou no cardápio.", remetente: 'sistema', data: new Date() }); location.reload(); }
  function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTextoMassa').innerText); alert("Copiado!"); }
  function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
  function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
