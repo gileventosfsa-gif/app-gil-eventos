@@ -32,6 +32,10 @@
         .order-card.extra { border-left-color: #FFD580; background: #2A2210; } 
         .order-card.pacote { border-left-color: #4CAF50; } 
         .order-card.pagamento { border-left-color: #FF4444; background: #2a1010; border: 1px dashed #FF4444; }
+        
+        /* CARD DE RECARGA */
+        .order-card.recarga { border-left-color: #2196F3; background: #101a2a; border: 1px dashed #2196F3; }
+
         .order-card.cliente-avisou { border: 2px solid #FFD580; box-shadow: 0 0 10px rgba(255, 213, 128, 0.3); }
         .order-info h3 { margin: 5px 0; font-size: 1.3em; }
         .client { color: #aaa; font-size: 0.9em; }
@@ -43,6 +47,8 @@
         .btn-deny { flex: 1; background: #D32F2F; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .btn-cancel { flex: 1; background: transparent; border: 1px solid #777; padding: 10px; border-radius: 5px; color: #aaa; cursor: pointer; }
         
+        .btn-recarga { flex: 2; background: #2196F3; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
+
         .bars-container { display: flex; gap: 5px; margin-top: 5px; }
         .sub-bar { flex: 1; background: #333; height: 8px; border-radius: 4px; overflow: hidden; position: relative; }
         .sub-bar-fill { height: 100%; }
@@ -275,7 +281,16 @@
                     let visualAviso = p.sinalizou_pagamento ? 'cliente-avisou' : '';
                     let obsHtml = p.observacao ? `<span class="obs-tag">⚠️ OBS: ${p.observacao}</span>` : '';
 
-                    if(p.status === 'aguardando_pagamento' || p.status === 'pagamento_rejeitado') {
+                    // LÓGICA DE RECARGA
+                    if(p.tipo === 'recarga') {
+                        classe = 'recarga';
+                        badge = `💰 RECARGA SOLICITADA`;
+                        btnHtml = `
+                            <button class="btn-recarga" onclick="confirmarRecarga('${p.id}', '${p.nome_convidado}', ${p.preco})">✅ CONFIRMAR RECARGA</button>
+                            <button class="btn-deny" onclick="cancelarPedido('${p.id}')">❌ NEGAR</button>
+                        `;
+                    }
+                    else if(p.status === 'aguardando_pagamento' || p.status === 'pagamento_rejeitado') {
                         classe = 'pagamento';
                         badge = `🔴 AGUARDANDO PGTO (R$ ${p.preco}) ${p.sinalizou_pagamento ? '👉 CLIENTE PAGOU' : ''}`;
                         btnHtml = `<button class="btn-deny" onclick="recusarPagamento('${p.id}')">🚫 NÃO CONSTA</button><button class="btn-pay" onclick="confirmarPagamento('${p.id}', ${p.preco})">💰 CONFIRMAR</button>`;
@@ -294,7 +309,7 @@
                     </div>`;
                 });
             });
-            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["servido", "cancelado"]).limit(30).onSnapshot((s) => { 
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["servido", "cancelado", "concluido"]).limit(30).onSnapshot((s) => { 
                 const l = document.getElementById('listaHistorico'); l.innerHTML = ''; 
                 s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); 
             });
@@ -344,6 +359,30 @@
             });
         }
 
+        function confirmarRecarga(pedidoId, nome, valor) {
+            if(!confirm(`Confirmar recarga de R$ ${valor} para ${nome}?`)) return;
+            
+            // 1. Atualiza pedido para concluido
+            db.collection("pedidos").doc(pedidoId).update({ status: 'concluido' });
+
+            // 2. Adiciona saldo
+            const idSaldo = `${EVENTO_ID}_${limparString(nome)}`;
+            const refSaldo = db.collection("clientes_saldo").doc(idSaldo);
+            
+            refSaldo.get().then(doc => {
+                if(doc.exists) {
+                    refSaldo.update({ saldo: firebase.firestore.FieldValue.increment(valor) });
+                } else {
+                    refSaldo.set({ evento_id: EVENTO_ID, nome: nome, saldo: valor });
+                }
+            });
+
+            // 3. Registra faturamento
+            db.collection("eventos").doc(EVENTO_ID).update({ 
+                total_faturamento: firebase.firestore.FieldValue.increment(valor) 
+            });
+        }
+
         function adicionarSaldoManual() {
             const nome = document.getElementById('inputNomeBanco').value.trim();
             if(!nome) return alert("Digite o nome!");
@@ -351,7 +390,6 @@
             if(!valorStr) return;
             const valor = parseFloat(valorStr.replace(',', '.'));
             
-            // Verifica se já existe, senão cria
             const id = `${EVENTO_ID}_${limparString(nome)}`;
             db.collection("clientes_saldo").doc(id).get().then(doc => {
                 if(doc.exists) {
@@ -472,16 +510,26 @@
         function atualizarInterface(dados) { 
             document.getElementById('nomeEvento').innerText = dados.nome; 
             document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
+            
             if (dados.tipo_servico === 'misto') {
-                document.getElementById('boxConsumoSimples').style.display = 'none'; document.getElementById('boxConsumoMisto').style.display = 'block';
-                const cClassico = Number(dados.consumido_classico || 0); const lClassico = Number(dados.limite_classico || 0); const cPremium = Number(dados.consumido_premium || 0); const lPremium = Number(dados.limite_premium || 0);
-                document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`; document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
-                const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0; const pctPremium = lPremium > 0 ? (cPremium/lPremium)*100 : 0;
-                document.getElementById('barClassico').style.width = pctClassico + '%'; document.getElementById('barPremium').style.width = pctPremium + '%';
+                document.getElementById('boxConsumoSimples').style.display = 'none';
+                document.getElementById('boxConsumoMisto').style.display = 'block';
+                const cClassico = Number(dados.consumido_classico || 0); const lClassico = Number(dados.limite_classico || 0);
+                const cPremium = Number(dados.consumido_premium || 0); const lPremium = Number(dados.limite_premium || 0);
+                document.getElementById('txtClassico').innerText = `${cClassico}/${lClassico}`;
+                document.getElementById('txtPremium').innerText = `${cPremium}/${lPremium}`;
+                const pctClassico = lClassico > 0 ? (cClassico/lClassico)*100 : 0;
+                const pctPremium = lPremium > 0 ? (cPremium/lPremium)*100 : 0;
+                document.getElementById('barClassico').style.width = pctClassico + '%';
+                document.getElementById('barPremium').style.width = pctPremium + '%';
             } else {
-                document.getElementById('boxConsumoSimples').style.display = 'block'; document.getElementById('boxConsumoMisto').style.display = 'none';
+                document.getElementById('boxConsumoSimples').style.display = 'block';
+                document.getElementById('boxConsumoMisto').style.display = 'none';
                 document.getElementById('consumido').innerText = dados.total_consumido;
-                if(dados.tipo_servico === 'pacote' || dados.tipo_servico === 'premium') { document.getElementById('total').innerText = dados.total_contratado; document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; } else { document.getElementById('total').innerText = '∞'; }
+                if(dados.tipo_servico === 'pacote' || dados.tipo_servico === 'premium') { 
+                    document.getElementById('total').innerText = dados.total_contratado; 
+                    document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; 
+                } else { document.getElementById('total').innerText = '∞'; }
             }
             document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
             document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; 
@@ -489,6 +537,7 @@
             if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; } 
         }
 
+        // --- FUNÇÕES DE CONTROLE DE STATUS ---
         function mudarStatusEvento(novoStatus) {
             if(novoStatus === 'encerrado' && !confirm("Tem certeza que deseja ENCERRAR o evento?")) return;
             db.collection("eventos").doc(EVENTO_ID).update({ status: novoStatus });
