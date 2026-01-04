@@ -26,7 +26,7 @@
         .search-input:focus { border-color: #FFD580; }
 
         /* LISTA DE EVENTOS */
-        .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         
         .event-card { background: #1E1E1E; border: 1px solid #333; border-radius: 12px; padding: 20px; position: relative; transition: all 0.3s; }
         .event-card:hover { border-color: #FFD580; transform: translateY(-3px); }
@@ -43,21 +43,39 @@
         .event-type { background: #333; font-size: 0.7em; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: #ccc; }
 
         /* CARD STATS */
-        .card-stats { display: flex; gap: 15px; margin-bottom: 20px; font-size: 0.85em; color: #888; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 10px 0; }
+        .card-stats { display: flex; gap: 15px; margin-bottom: 15px; font-size: 0.85em; color: #888; border-top: 1px solid #333; padding: 10px 0; }
         .stat-item strong { color: #FFD580; }
 
         /* ACTIONS */
-        .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .btn-card { padding: 10px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.2s; }
         .btn-torre { background: #2196F3; color: white; grid-column: 1 / -1; } 
         .btn-edit { background: #444; color: #ccc; }
         .btn-copy { background: #444; color: #ccc; }
         .btn-delete { background: transparent; border: 1px solid #FF1744; color: #FF1744; margin-top: 10px; width: 100%; font-size: 0.8em; }
 
+        /* CONTROLES RÁPIDOS NO CARD */
+        .quick-controls { background: #252525; padding: 10px; border-radius: 8px; display: flex; gap: 5px; align-items: center; justify-content: space-between; border: 1px solid #333; }
+        .btn-mini-ctrl { width: 35px; height: 35px; border-radius: 5px; border: none; cursor: pointer; font-size: 1.2em; display: flex; align-items: center; justify-content: center; transition: 0.2s; background: #333; }
+        .btn-mini-ctrl:hover { transform: scale(1.1); }
+        .btn-mini-ctrl.abrir:hover { background: #00E676; }
+        .btn-mini-ctrl.pausar:hover { background: #FFD600; }
+        .btn-mini-ctrl.fechar:hover { background: #FF1744; }
+        
+        .btn-extrato { flex-grow: 1; background: #2962FF; color: white; border: none; border-radius: 5px; height: 35px; font-weight: bold; cursor: pointer; font-size: 0.8em; margin-left: 5px; }
+        .btn-extrato:hover { background: #2979FF; }
+
         /* MODAL GERAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { text-align: center; width: 90%; max-width: 300px; background: #222; padding: 30px; border-radius: 15px; border: 1px solid #444; }
         .modal-box-large { background: #1E1E1E; padding: 25px; border-radius: 15px; width: 90%; max-width: 700px; height: 85vh; display: flex; flex-direction: column; border: 1px solid #333; }
+
+        /* ESTILOS DO RELATÓRIO (MODAL) */
+        .modal-report-box { background: #1E1E1E; padding: 20px; border-radius: 15px; width: 90%; max-width: 500px; height: 80vh; display: flex; flex-direction: column; border: 1px solid #444; }
+        .report-summary { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 1px solid #444; }
+        .report-list { flex-grow: 1; overflow-y: auto; background: #121212; padding: 10px; border-radius: 8px; border: 1px solid #333; text-align: left; }
+        .report-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 8px 0; font-size: 0.85em; color: #ccc; }
+        .report-header { font-weight: bold; color: #FFD580; margin-bottom: 10px; border-bottom: 2px solid #FFD580; padding-bottom: 5px; display: flex; justify-content: space-between; }
 
         /* TABS AVALIAÇÕES */
         .tabs-header { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
@@ -93,6 +111,41 @@
             <p style="color:#aaa;">Digite sua senha mestra</p>
             <input type="password" id="senhaMestra" style="width:100%; padding:15px; border-radius:8px; border:none; margin-bottom:15px; text-align:center;" placeholder="Senha">
             <button onclick="fazerLogin()" style="width:100%; padding:15px; background:#FFD580; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">ENTRAR</button>
+        </div>
+    </div>
+
+    <div id="modalRelatorio" class="modal-overlay">
+        <div class="modal-report-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="color:#2979FF; margin:0;">Extrato do Pacote</h2>
+                <button onclick="document.getElementById('modalRelatorio').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5em; cursor:pointer;">&times;</button>
+            </div>
+            <p style="color:#aaa; font-size:0.8em; margin-bottom:15px;">Comprovante de consumo para o cliente.</p>
+            
+            <div class="report-summary">
+                <div style="display:flex; justify-content:space-around;">
+                    <div>
+                        <small style="color:#888;">CONTRATADO</small><br>
+                        <strong style="font-size:1.4em; color:#fff;" id="repContratado">0</strong>
+                    </div>
+                    <div style="border-right:1px solid #444;"></div>
+                    <div>
+                        <small style="color:#888;">CONSUMIDO</small><br>
+                        <strong style="font-size:1.4em; color:#00E676;" id="repConsumido">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-header">
+                <span style="width: 50px;">HORA</span>
+                <span style="flex: 1; margin-left: 10px;">CLIENTE / DRINK</span>
+            </div>
+            
+            <div id="listaRelatorio" class="report-list">
+                <p style="text-align:center; color:#555;">Carregando...</p>
+            </div>
+            
+            <button onclick="document.getElementById('modalRelatorio').style.display='none'" style="margin-top:10px; background:#333; color:white; border:1px solid #555; padding:10px; border-radius:5px; cursor:pointer;">Fechar</button>
         </div>
     </div>
 
@@ -224,9 +277,84 @@
                     <button class="btn-card btn-copy" onclick="copiarLinkEvento('${e.id}')">🔗 Link Cardápio</button>
                 </div>
                 
+                <div class="quick-controls">
+                    <button class="btn-mini-ctrl abrir" onclick="mudarStatus('${e.id}', 'aberto')" title="Abrir Bar">🟢</button>
+                    <button class="btn-mini-ctrl pausar" onclick="mudarStatus('${e.id}', 'pausado')" title="Pausar Pedidos">✋</button>
+                    <button class="btn-mini-ctrl fechar" onclick="mudarStatus('${e.id}', 'encerrado')" title="Encerrar Evento">🏁</button>
+                    <button class="btn-extrato" onclick="abrirRelatorioCard('${e.id}')">📊 EXTRATO PACOTE</button>
+                </div>
+                
                 <button class="btn-card btn-delete" onclick="excluirEvento('${e.id}', '${e.nome}')">🗑️ Excluir Evento</button>
             </div>
             `;
+        }
+
+        // --- FUNÇÕES DE CONTROLE RÁPIDO (NOVO) ---
+        function mudarStatus(id, novoStatus) {
+            if(novoStatus === 'encerrado' && !confirm("Tem certeza que deseja ENCERRAR este evento?")) return;
+            
+            db.collection("eventos").doc(id).update({ status: novoStatus })
+            .then(() => {
+                // Atualização automática via onSnapshot
+            }).catch(err => alert("Erro: " + err));
+        }
+
+        function abrirRelatorioCard(id) {
+            document.getElementById('modalRelatorio').style.display = 'flex';
+            
+            // Pega dados do evento do cache local
+            const evento = listaEventosCache.find(e => e.id === id);
+            
+            document.getElementById('repContratado').innerText = evento.total_contratado || 0;
+            document.getElementById('repConsumido').innerText = evento.total_consumido || 0;
+
+            const lista = document.getElementById('listaRelatorio');
+            lista.innerHTML = '<p style="text-align:center; color:#555;">Carregando...</p>';
+
+            // Busca pedidos
+            db.collection("pedidos")
+              .where("evento_id", "==", id)
+              .where("tipo", "==", "pacote")
+              .get()
+              .then(snapshot => {
+                  if(snapshot.empty) {
+                      lista.innerHTML = '<p style="text-align:center; color:#555; margin-top:20px;">Nenhum consumo registrado.</p>';
+                      return;
+                  }
+
+                  let itens = [];
+                  snapshot.forEach(doc => itens.push(doc.data()));
+                  itens.sort((a,b) => {
+                      let dA = a.data && a.data.toDate ? a.data.toDate() : new Date();
+                      let dB = b.data && b.data.toDate ? b.data.toDate() : new Date();
+                      return dB - dA;
+                  });
+
+                  lista.innerHTML = '';
+                  itens.forEach(item => {
+                      let estiloExtra = "";
+                      let statusExtra = "";
+                      if(item.status === 'cancelado') {
+                          estiloExtra = "text-decoration: line-through; opacity: 0.5;";
+                          statusExtra = "(CANC)";
+                      }
+                      let hora = "??:??";
+                      if(item.data && item.data.toDate) {
+                          hora = item.data.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                      }
+
+                      lista.innerHTML += `
+                        <div class="report-row" style="${estiloExtra}">
+                            <span style="width: 50px; color:#888;">${hora}</span>
+                            <div style="flex:1; margin-left:10px;">
+                                <strong style="color:#fff;">${item.nome_convidado}</strong> ${statusExtra}
+                                <br>
+                                <span style="color:#2979FF; font-size:0.9em;">${item.drink}</span>
+                            </div>
+                        </div>
+                      `;
+                  });
+              });
         }
 
         function filtrarEventos() {
@@ -279,7 +407,6 @@
         function mudarAbaReviews(aba) {
             abaAtualReviews = aba;
             document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
-            // Gambiarra para pegar o indice do botão
             const btns = document.querySelectorAll('.tab-link');
             if(aba === 'pendente') btns[0].classList.add('active');
             else btns[1].classList.add('active');
@@ -291,7 +418,6 @@
             const lista = document.getElementById('listaReviewsGlobal');
             lista.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">Carregando...</p>';
 
-            // Busca TODAS as avaliações com o status selecionado
             db.collection("avaliacoes").where("status", "==", abaAtualReviews).get().then(snapshot => {
                 if(snapshot.empty) {
                     lista.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">Nenhuma avaliação encontrada nesta aba.</p>';
@@ -300,8 +426,6 @@
 
                 let reviews = [];
                 snapshot.forEach(doc => reviews.push({ id: doc.id, ...doc.data() }));
-
-                // Ordena no cliente para evitar criar indice no firebase agora
                 reviews.sort((a,b) => b.data_evento.toDate() - a.data_evento.toDate());
 
                 lista.innerHTML = "";
