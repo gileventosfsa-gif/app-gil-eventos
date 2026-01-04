@@ -306,7 +306,7 @@
         return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); 
     }
 
-    // CHECK INICIAL DO NOME - CORRIGIDO
+    // CHECK INICIAL DO NOME
     if(NOME_CONVIDADO && NOME_CONVIDADO !== "null") { 
         document.getElementById('modalNome').style.display = 'none'; 
         document.getElementById('displayNome').innerText = NOME_CONVIDADO; 
@@ -344,7 +344,9 @@
         document.getElementById('modalNome').style.display = 'none'; 
         document.getElementById('displayNome').innerText = val; 
         
+        // MANDA MENSAGEM AUTOMÁTICA DE BOAS VINDAS
         if (EVENTO_ID) {
+            // Log do sistema
             db.collection("chat_mensagens").add({ 
                 evento_id: EVENTO_ID, 
                 nome: NOME_CONVIDADO, 
@@ -352,8 +354,18 @@
                 remetente: 'sistema', 
                 data: new Date() 
             }); 
+            
+            // Boas vindas do Admin (Automático)
+            setTimeout(() => {
+                db.collection("chat_mensagens").add({
+                    evento_id: EVENTO_ID,
+                    nome: NOME_CONVIDADO,
+                    mensagem: "Olá! Seja bem-vindo(a). Se precisar de algo, é só chamar aqui! 🍹",
+                    remetente: 'admin',
+                    data: new Date()
+                });
+            }, 1000);
         }
-        // REMOVIDO O RELOAD PARA NÃO TRAVAR
     }
 
     // --- FUNÇÕES DE LÓGICA DE NEGÓCIO ---
@@ -559,6 +571,7 @@
         batch.commit().then(() => { localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); CARRINHO_LOCAL = []; salvarCarrinhoLocal(); mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); document.getElementById('modalListaPedidos').style.display = 'flex'; rastrearFilaGlobal(); }).catch(err => alert("Erro ao enviar: " + err)); }
     
     // UTILS
+    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display = 'flex'; } // CORREÇÃO: ADICIONADA A FUNÇÃO QUE FALTAVA
     function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; adicionarAoCarrinho(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco, 'combo'); }
     function atualizarUIBadge() { const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length; const btn = document.getElementById('btnMeusPedidos'); if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex'; }
     
