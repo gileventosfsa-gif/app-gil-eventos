@@ -288,6 +288,7 @@
     let DADOS_EVENTO = null;
     let NOME_CONVIDADO = localStorage.getItem('nome_usuario_gil');
     let TIMER_MINUTOS = 15;
+    let LIMITE_PEDIDO = 3; // Limite padrão de 3 drinks por vez
     let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
     let CARRINHO_LOCAL = JSON.parse(localStorage.getItem(`carrinho_${EVENTO_ID}`) || "[]");
     let PEDIDOS_AVALIADOS = JSON.parse(localStorage.getItem(`avaliados_${EVENTO_ID}`) || "[]");
@@ -323,6 +324,7 @@
             if(doc.exists) { 
                 DADOS_EVENTO = doc.data(); 
                 if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; 
+                if (DADOS_EVENTO.limite_pedido) LIMITE_PEDIDO = DADOS_EVENTO.limite_pedido; // Pega do banco se existir
                 verificarStatusEvento(DADOS_EVENTO.status);
                 renderizarCardapio(); 
                 verificarTimer(); 
@@ -346,9 +348,7 @@
         document.getElementById('modalNome').style.display = 'none'; 
         document.getElementById('displayNome').innerText = val; 
         
-        // MANDA MENSAGEM AUTOMÁTICA DE BOAS VINDAS
         if (EVENTO_ID) {
-            // Log do sistema
             db.collection("chat_mensagens").add({ 
                 evento_id: EVENTO_ID, 
                 nome: NOME_CONVIDADO, 
@@ -356,8 +356,6 @@
                 remetente: 'sistema', 
                 data: new Date() 
             }); 
-            
-            // Boas vindas do Admin (Automático)
             setTimeout(() => {
                 db.collection("chat_mensagens").add({
                     evento_id: EVENTO_ID,
@@ -383,16 +381,12 @@
         return false;
     }
 
-    // --- CORREÇÃO DA LÓGICA DE COMBOS ---
+    // --- CORREÇÃO DA LÓGICA DE COMBOS (Mantida) ---
     function verificarCombosAtivos() {
         if (!DADOS_EVENTO || !DADOS_EVENTO.cardapio) return;
         const temItemPago = DADOS_EVENTO.cardapio.some(d => d.disponivel !== false && isItemPago(d));
         const areaCombos = document.getElementById('areaCombos');
-        if (temItemPago) {
-            areaCombos.style.display = 'grid'; 
-        } else {
-            areaCombos.style.display = 'none'; 
-        }
+        if (temItemPago) { areaCombos.style.display = 'grid'; } else { areaCombos.style.display = 'none'; }
     }
 
     function abrirMontadorCombo(qtd) { 
@@ -515,7 +509,16 @@
 
     function adicionarAoCarrinho(nome, tipo, preco, categoria) {
         if(tipo === 'pacote') {
+            // 1. Verifica tempo
             const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
+            
+            // 2. Verifica Limite de Quantidade no Carrinho (NOVA LÓGICA)
+            const itensNoCarrinho = CARRINHO_LOCAL.filter(i => i.tipo === 'pacote').length;
+            if (itensNoCarrinho >= LIMITE_PEDIDO) {
+                return alert(`⚠️ Limite de ${LIMITE_PEDIDO} drinks por vez atingido!\n\nEnvie o pedido atual antes de pedir mais.`);
+            }
+
+            // 3. Verifica Limite Global do Pacote
             if(isItemPago({categoria: categoria})) { 
                 alert("⚠️ O pacote acabou de esgotar! Você será redirecionado para compra."); 
                 tipo = 'extra'; 
@@ -528,7 +531,7 @@
         salvarCarrinhoLocal();
         mostrarNotificacao(`✅ ${nome} adicionado!`);
         atualizarUIBadge();
-        if(tipo === 'pacote') salvarTimer();
+        // REMOVIDO: salvarTimer() AQUI (Agora é só no checkout)
     }
 
     function salvarCarrinhoLocal() { localStorage.setItem(`carrinho_${EVENTO_ID}`, JSON.stringify(CARRINHO_LOCAL)); renderizarCarrinho(); }
@@ -570,11 +573,40 @@
 
     function abrirPagamentoMassa() { const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); if (total === 0 || (total > 0 && MEU_SALDO >= total)) { if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa(); } else { document.getElementById('modalListaPedidos').style.display = 'none'; document.getElementById('modalPagamentoMassa').style.display = 'flex'; } }
     function confirmarEnvioMassa() { document.getElementById('modalPagamentoMassa').style.display = 'none'; const batch = db.batch(); const totalPedido = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); let usouSaldo = false; if (totalPedido > 0 && MEU_SALDO >= totalPedido) { usouSaldo = true; }
-        CARRINHO_LOCAL.forEach(item => { const ref = db.collection("pedidos").doc(); let statusInicial = 'pendente'; let sinalizou = false; if (item.tipo === 'extra') { if (usouSaldo) { statusInicial = 'pendente'; sinalizou = true; } else { statusInicial = 'aguardando_pagamento'; } }
+        
+        let temPacoteNoPedido = false; // Flag para disparar o timer
+
+        CARRINHO_LOCAL.forEach(item => { 
+            const ref = db.collection("pedidos").doc(); 
+            let statusInicial = 'pendente'; 
+            let sinalizou = false; 
+            
+            if (item.tipo === 'extra') { 
+                if (usouSaldo) { statusInicial = 'pendente'; sinalizou = true; } else { statusInicial = 'aguardando_pagamento'; } 
+            } else {
+                temPacoteNoPedido = true; // Achou um drink do pacote
+            }
+
             batch.set(ref, { evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria || 'classico', tipo: item.tipo, preco: item.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: "Pedido em Grupo/Carrinho", status: statusInicial, sinalizou_pagamento: sinalizou, data: new Date() }); MEUS_PEDIDOS_IDS.push(ref.id);
             if(item.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (item.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } });
+        
         if (usouSaldo) { const idSaldo = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`; const saldoRef = db.collection("clientes_saldo").doc(idSaldo); batch.update(saldoRef, { saldo: firebase.firestore.FieldValue.increment(-totalPedido) }); const eventoRef = db.collection("eventos").doc(EVENTO_ID); batch.update(eventoRef, { total_vendas_extra: firebase.firestore.FieldValue.increment(CARRINHO_LOCAL.length), total_faturamento: firebase.firestore.FieldValue.increment(totalPedido) }); }
-        batch.commit().then(() => { localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); CARRINHO_LOCAL = []; salvarCarrinhoLocal(); mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); document.getElementById('modalListaPedidos').style.display = 'flex'; rastrearFilaGlobal(); }).catch(err => alert("Erro ao enviar: " + err)); }
+        
+        batch.commit().then(() => { 
+            localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); 
+            CARRINHO_LOCAL = []; 
+            salvarCarrinhoLocal(); 
+            mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); 
+            
+            // AGORA SIM, DISPARA O TIMER (SE TIVER PACOTE)
+            if (temPacoteNoPedido) {
+                salvarTimer();
+            }
+
+            document.getElementById('modalListaPedidos').style.display = 'flex'; 
+            rastrearFilaGlobal(); 
+        }).catch(err => alert("Erro ao enviar: " + err)); 
+    }
     
     // UTILS
     function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display = 'flex'; }
@@ -592,7 +624,7 @@
     // CHAT E STATUS
     function verificarStatusEvento(status) { const overlay = document.getElementById('telaBloqueio'); const icon = document.getElementById('iconStatus'); const title = document.getElementById('tituloStatus'); const msg = document.getElementById('msgStatus'); if (!status || status === 'aberto') { overlay.style.display = 'none'; return; } overlay.style.display = 'flex'; if (status === 'aguardando') { icon.innerText = '⏳'; title.innerText = 'EM BREVE'; msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂'; } else if (status === 'pausado') { icon.innerText = '✋'; title.innerText = 'BAR PAUSADO'; msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!'; } else if (status === 'encerrado') { icon.innerText = '🏁'; title.innerText = 'EVENTO ENCERRADO'; msg.innerText = 'Obrigado pela presença! O bar foi finalizado.'; } }
     
-    // --- FUNÇÃO DE FILA GLOBAL ORIGINAL RESTAURADA ---
+    // --- FUNÇÃO DE FILA GLOBAL RESTAURADA COM VISUAL NOVO ---
     function rastrearFilaGlobal() {
       db.collection("pedidos")
        .where("evento_id", "==", EVENTO_ID)
@@ -616,7 +648,7 @@
         pedidos.forEach(p => { 
           if(p.status === 'cancelado' || p.status === 'concluido') return; 
 
-          let isMine = (p.nome_convidado === NOME_CONVIDADO);
+          let isMine = (limparString(p.nome_convidado) === limparString(NOME_CONVIDADO));
           if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
            
           if(p.tipo === 'recarga') {
@@ -686,18 +718,43 @@
     function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
     function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
     function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
-    
     function copiarPixRodape() { const chave = DADOS_EVENTO.chave_pix || "75998649927"; navigator.clipboard.writeText(chave).then(() => { alert(`Chave PIX copiada: ${chave}\n\nObrigado pela contribuição! 🥂`); }); }
-
-    function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
-    function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
-    let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
-    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display='flex'; }
-    function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "🔔 Entrou no cardápio.", remetente: 'sistema', data: new Date() }); location.reload(); }
     function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTextoMassa').innerText); alert("Copiado!"); }
     function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
-    function getTempoRestante() { const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
-    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 ADICIONAR (PACOTE)`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
+    
+    // --- CORREÇÃO DO TIMER 0 ---
+    // Se o timer for 0 ou nulo, retorna 0 imediatamente (liberado)
+    function getTempoRestante() { 
+        if (!TIMER_MINUTOS || TIMER_MINUTOS == 0) return 0;
+        
+        const last = localStorage.getItem(`timer_${EVENTO_ID}`); 
+        if(!last) return 0; 
+        
+        const diff = new Date().getTime() - parseInt(last); 
+        const limit = TIMER_MINUTOS * 60000; 
+        
+        return diff < limit ? (limit - diff)/1000 : 0; 
+    }
+
+    function verificarTimer() { 
+        const restante = getTempoRestante(); 
+        document.querySelectorAll('.btn-pacote').forEach(btn => { 
+            // Se o timer for 0, o restante será 0, então cai no else e libera
+            if(restante > 0) { 
+                btn.disabled = true; 
+                btn.classList.add('btn-blocked'); 
+                btn.classList.remove('btn-free'); 
+                btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; 
+            } else { 
+                btn.disabled = false; 
+                btn.classList.remove('btn-blocked'); 
+                btn.classList.add('btn-free'); 
+                btn.innerHTML = `🆓 ADICIONAR (PACOTE)`; 
+            } 
+        }); 
+        if(restante > 0) setTimeout(verificarTimer, 5000); 
+    }
+    
     function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
 </script>
 </body>
