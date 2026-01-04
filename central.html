@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Central de Comando - Gil Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; }
@@ -65,7 +67,7 @@
         .btn-mini-ctrl.fechar:hover { background: #FF1744; }
         
         .btn-extrato { flex-grow: 1; background: #2962FF; color: white; border: none; border-radius: 5px; height: 35px; font-weight: bold; cursor: pointer; font-size: 0.8em; margin-left: 5px; }
-        .btn-extrato:hover { background: #2979FF; }
+        .btn-extrato:hover { background: #1565C0; }
 
         /* MODAL GERAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
@@ -75,9 +77,6 @@
         /* ESTILOS DO RELATÓRIO (MODAL) */
         .modal-report-box { background: #1E1E1E; padding: 20px; border-radius: 15px; width: 90%; max-width: 500px; height: 85vh; display: flex; flex-direction: column; border: 1px solid #444; }
         
-        /* Área específica para tirar a foto */
-        #areaParaFoto { background: #1E1E1E; padding: 15px; border-radius: 10px; }
-
         .report-summary { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 1px solid #444; }
         .report-list { flex-grow: 1; overflow-y: auto; background: #121212; padding: 10px; border-radius: 8px; border: 1px solid #333; text-align: left; }
         .report-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 8px 0; font-size: 0.85em; color: #ccc; }
@@ -126,12 +125,12 @@
                 <h2 style="color:#2979FF; margin:0;">Extrato do Pacote</h2>
                 <button onclick="document.getElementById('modalRelatorio').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5em; cursor:pointer;">&times;</button>
             </div>
-            <p style="color:#aaa; font-size:0.8em; margin-bottom:15px;">Comprovante de consumo para o cliente.</p>
+            <p style="color:#aaa; font-size:0.8em; margin-bottom:15px;">Visualização rápida. Clique em baixar para gerar o PDF.</p>
             
-            <div id="areaParaFoto">
+            <div id="areaDadosEvento">
                 <div style="text-align:center; margin-bottom:10px; border-bottom:1px solid #444; padding-bottom:5px;">
-                    <strong style="color:#FFD580; text-transform: uppercase;" id="nomeEventoRelatorio">EVENTO</strong><br>
-                    <small style="color:#aaa;" id="dataEventoRelatorio">00/00/0000</small>
+                    <strong style="color:#FFD580; text-transform: uppercase;" id="nomeEventoRelatorio">...</strong><br>
+                    <small style="color:#aaa;" id="dataEventoRelatorio">...</small>
                 </div>
 
                 <div class="report-summary">
@@ -147,19 +146,21 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="report-header">
-                    <span style="width: 50px;">HORA</span>
-                    <span style="flex: 1; margin-left: 10px;">CLIENTE / DRINK</span>
-                </div>
-                
-                <div id="listaRelatorio" class="report-list" style="max-height: 400px; overflow-y: auto;">
-                    <p style="text-align:center; color:#555;">Carregando...</p>
-                </div>
-                <div style="text-align:center; font-size:0.7em; color:#555; margin-top:10px;">Gil Eventos - Comprovante Digital</div>
             </div>
+
+            <div class="report-header">
+                <span style="width: 50px;">HORA</span>
+                <span style="flex: 1; margin-left: 10px;">CLIENTE / DRINK</span>
+            </div>
+            
+            <div id="listaRelatorio" class="report-list">
+                <p style="text-align:center; color:#555;">Carregando...</p>
+            </div>
+            
             <div style="display:flex; gap:10px; margin-top:10px;">
-                <button onclick="baixarImagemExtrato()" style="flex:1; background:#00E676; color:#000; border:none; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer;">📥 BAIXAR COMPROVANTE</button>
+                <button onclick="baixarPDFExtrato()" style="flex:1; background:#E53935; color:#fff; border:none; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+                    📄 BAIXAR PDF
+                </button>
                 <button onclick="document.getElementById('modalRelatorio').style.display='none'" style="background:#333; color:white; border:1px solid #555; padding:15px; border-radius:8px; cursor:pointer;">Fechar</button>
             </div>
         </div>
@@ -229,6 +230,9 @@
         }
 
         let listaEventosCache = [];
+        // Variáveis globais para armazenar dados do relatório atual
+        let RELATORIO_ATUAL_DADOS = [];
+        let RELATORIO_ATUAL_EVENTO = null;
 
         function carregarEventos() {
             db.collection("eventos").orderBy("data_criacao", "desc").onSnapshot(snapshot => {
@@ -305,14 +309,10 @@
             `;
         }
 
-        // --- FUNÇÕES DE CONTROLE RÁPIDO (NOVO) ---
         function mudarStatus(id, novoStatus) {
             if(novoStatus === 'encerrado' && !confirm("Tem certeza que deseja ENCERRAR este evento?")) return;
-            
             db.collection("eventos").doc(id).update({ status: novoStatus })
-            .then(() => {
-                // Atualização automática via onSnapshot
-            }).catch(err => alert("Erro: " + err));
+            .then(() => {}).catch(err => alert("Erro: " + err));
         }
 
         function abrirRelatorioCard(id) {
@@ -320,6 +320,7 @@
             
             // Pega dados do evento do cache local
             const evento = listaEventosCache.find(e => e.id === id);
+            RELATORIO_ATUAL_EVENTO = evento; // Salva para o PDF usar depois
             
             document.getElementById('repContratado').innerText = evento.total_contratado || 0;
             document.getElementById('repConsumido').innerText = evento.total_consumido || 0;
@@ -337,6 +338,7 @@
               .then(snapshot => {
                   if(snapshot.empty) {
                       lista.innerHTML = '<p style="text-align:center; color:#555; margin-top:20px;">Nenhum consumo registrado.</p>';
+                      RELATORIO_ATUAL_DADOS = [];
                       return;
                   }
 
@@ -347,6 +349,8 @@
                       let dB = b.data && b.data.toDate ? b.data.toDate() : new Date();
                       return dB - dA;
                   });
+
+                  RELATORIO_ATUAL_DADOS = itens; // Salva para o PDF
 
                   lista.innerHTML = '';
                   itens.forEach(item => {
@@ -375,36 +379,91 @@
               });
         }
 
-        // --- FUNÇÃO DE DOWNLOAD DA IMAGEM ---
-        function baixarImagemExtrato() {
-            const elemento = document.getElementById('areaParaFoto');
-            
-            // Força a altura para pegar todo o conteúdo (mesmo com scroll)
-            const lista = document.getElementById('listaRelatorio');
-            const alturaOriginal = lista.style.maxHeight;
-            const overflowOriginal = lista.style.overflowY;
-            
-            lista.style.maxHeight = 'none';
-            lista.style.overflowY = 'visible';
+        // --- FUNÇÃO DE DOWNLOAD EM PDF (NOVA) ---
+        function baixarPDFExtrato() {
+            if(!RELATORIO_ATUAL_EVENTO || RELATORIO_ATUAL_DADOS.length === 0) {
+                return alert("Não há dados para gerar o PDF.");
+            }
 
-            html2canvas(elemento, {
-                backgroundColor: "#1E1E1E",
-                scale: 2 // Melhora a qualidade
-            }).then(canvas => {
-                // Cria link de download
-                const link = document.createElement('a');
-                link.download = 'extrato-gil-eventos.png';
-                link.href = canvas.toDataURL();
-                link.click();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-                // Restaura o scroll
-                lista.style.maxHeight = alturaOriginal;
-                lista.style.overflowY = overflowOriginal;
-            }).catch(err => {
-                alert("Erro ao gerar imagem: " + err);
-                lista.style.maxHeight = alturaOriginal;
-                lista.style.overflowY = overflowOriginal;
+            // Configuração do PDF
+            const nomeEvento = RELATORIO_ATUAL_EVENTO.nome.toUpperCase();
+            const dataEvento = RELATORIO_ATUAL_EVENTO.data_evento || "Data n/d";
+            const dataEmissao = new Date().toLocaleString('pt-BR');
+
+            // Cabeçalho
+            doc.setFontSize(18);
+            doc.text("GIL EVENTOS - EXTRATO PACOTE", 105, 15, null, null, "center");
+            
+            doc.setFontSize(12);
+            doc.text(`Evento: ${nomeEvento}`, 14, 25);
+            doc.text(`Data do Evento: ${dataEvento}`, 14, 32);
+            doc.text(`Emissão: ${dataEmissao}`, 14, 39);
+
+            // Resumo
+            doc.setDrawColor(0);
+            doc.setFillColor(240, 240, 240);
+            doc.rect(14, 45, 182, 20, 'F');
+            
+            doc.setFontSize(10);
+            doc.text("TOTAL CONTRATADO", 40, 50, null, null, "center");
+            doc.text("TOTAL CONSUMIDO", 160, 50, null, null, "center");
+            
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text(String(RELATORIO_ATUAL_EVENTO.total_contratado || 0), 40, 60, null, null, "center");
+            
+            // Cor condicional para o consumido
+            const consumido = RELATORIO_ATUAL_EVENTO.total_consumido || 0;
+            const contratado = RELATORIO_ATUAL_EVENTO.total_contratado || 0;
+            if(consumido > contratado) doc.setTextColor(255, 0, 0); // Vermelho se passar
+            else doc.setTextColor(0, 128, 0); // Verde se ok
+            
+            doc.text(String(consumido), 160, 60, null, null, "center");
+            doc.setTextColor(0, 0, 0); // Reset cor
+
+            // Tabela de Itens (Reverte ordem para cronológica no PDF: mais antigo primeiro)
+            const dadosTabela = [...RELATORIO_ATUAL_DADOS].reverse().map(item => {
+                let hora = "--:--";
+                if(item.data && item.data.toDate) {
+                    hora = item.data.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
+                
+                let status = item.status === 'cancelado' ? '(CANCELADO)' : '';
+                
+                // Formata array para o autotable
+                return [hora, item.nome_convidado, item.drink, status];
             });
+
+            doc.autoTable({
+                startY: 70,
+                head: [['HORA', 'QUEM PEDIU', 'DRINK', 'STATUS']],
+                body: dadosTabela,
+                theme: 'striped',
+                headStyles: { fillColor: [41, 98, 255] }, // Azul
+                styles: { fontSize: 9 },
+                didParseCell: function(data) {
+                    // Risca itens cancelados
+                    if (data.row.raw[3] === '(CANCELADO)') {
+                        data.cell.styles.textColor = [150, 150, 150];
+                        data.cell.styles.fontStyle = 'italic';
+                    }
+                }
+            });
+
+            // Rodapé
+            const paginas = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= paginas; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text('Sistema Gil Eventos - Controle Digital', 105, 290, null, null, 'center');
+            }
+
+            // Salva o arquivo com nome limpo
+            const nomeArquivo = `Extrato_${nomeEvento.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+            doc.save(nomeArquivo);
         }
 
         function filtrarEventos() {
