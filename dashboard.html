@@ -32,10 +32,7 @@
         .order-card.extra { border-left-color: #FFD580; background: #2A2210; } 
         .order-card.pacote { border-left-color: #4CAF50; } 
         .order-card.pagamento { border-left-color: #FF4444; background: #2a1010; border: 1px dashed #FF4444; }
-        
-        /* CARD DE RECARGA */
         .order-card.recarga { border-left-color: #2196F3; background: #101a2a; border: 1px dashed #2196F3; }
-
         .order-card.cliente-avisou { border: 2px solid #FFD580; box-shadow: 0 0 10px rgba(255, 213, 128, 0.3); }
         .order-info h3 { margin: 5px 0; font-size: 1.3em; }
         .client { color: #aaa; font-size: 0.9em; }
@@ -46,7 +43,6 @@
         .btn-pay { flex: 2; background: #FFD580; border: none; padding: 10px; border-radius: 5px; color: #000; cursor: pointer; font-weight: bold; }
         .btn-deny { flex: 1; background: #D32F2F; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; font-size: 0.8em; }
         .btn-cancel { flex: 1; background: transparent; border: 1px solid #777; padding: 10px; border-radius: 5px; color: #aaa; cursor: pointer; }
-        
         .btn-recarga { flex: 2; background: #2196F3; border: none; padding: 10px; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
 
         .bars-container { display: flex; gap: 5px; margin-top: 5px; }
@@ -76,6 +72,7 @@
         .msg-admin { background: #007bff; align-self: flex-end; text-align: right; }
         .msg-sistema { background: none; border: none; color: #777; text-align: center; width: 100%; padding: 5px; font-size: 0.8em; font-style: italic; }
         .chat-controls { display: flex; gap: 5px; }
+        .chat-header-info { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:5px; }
         .chat-badge { position: absolute; top: -5px; right: -5px; background: #FF4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7em; display: flex; align-items: center; justify-content: center; font-weight: bold; display: none; }
 
         /* STATUS CONTROLS */
@@ -144,6 +141,10 @@
         <div class="chat-layout">
             <div class="chat-users" id="chatUsersList"></div>
             <div class="chat-area">
+                <div class="chat-header-info">
+                    <span id="chatUserName" style="color:#FFD580; font-weight:bold;">Selecione um cliente</span>
+                    <button class="btn-top" style="background:transparent; border:1px solid #FF4444; color:#FF4444; padding:5px;" onclick="limparConversaAtual()">🗑️ Limpar Conversa</button>
+                </div>
                 <div class="chat-msgs" id="chatAdminMsgs">Selecione um cliente ao lado.</div>
                 <div class="chat-controls">
                     <input type="text" id="adminChatInput" placeholder="Responder..." style="flex:1; padding:5px;">
@@ -281,7 +282,6 @@
                     let visualAviso = p.sinalizou_pagamento ? 'cliente-avisou' : '';
                     let obsHtml = p.observacao ? `<span class="obs-tag">⚠️ OBS: ${p.observacao}</span>` : '';
 
-                    // LÓGICA DE RECARGA
                     if(p.tipo === 'recarga') {
                         classe = 'recarga';
                         badge = `💰 RECARGA SOLICITADA`;
@@ -313,7 +313,6 @@
                 const l = document.getElementById('listaHistorico'); l.innerHTML = ''; 
                 s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); 
             });
-            monitorarChat();
             
             db.collection("avaliacoes").where("status", "==", "pendente").onSnapshot(snapshot => {
                 const lista = document.getElementById('listaReviews');
@@ -326,155 +325,54 @@
                     lista.innerHTML += `<div class="review-pending"><div style="display:flex; justify-content:space-between;"><strong style="color:#fff; font-size:0.9em;">${r.cliente}</strong><span class="review-stars">${estrelas}</span></div><div style="font-size:0.8em; color:#aaa;">Drink: ${r.drink}</div><div class="review-text">"${r.comentario}"</div><div class="review-actions"><button class="btn-approve" onclick="moderarReview('${doc.id}', true)">✅ Aprovar</button><button class="btn-reject" onclick="moderarReview('${doc.id}', false)">❌ Excluir</button></div></div>`;
                 });
             });
+
+            monitorarChat();
         }
         
-        // --- FUNÇÕES BANCO / CRÉDITO ---
-        function abrirBanco() {
-            document.getElementById('bankOverlay').style.display = 'flex';
-            carregarSaldos();
-        }
-
+        function abrirBanco() { document.getElementById('bankOverlay').style.display = 'flex'; carregarSaldos(); }
         function carregarSaldos() {
-            const lista = document.getElementById('listaSaldos');
-            lista.innerHTML = "Carregando...";
+            const lista = document.getElementById('listaSaldos'); lista.innerHTML = "Carregando...";
             db.collection("clientes_saldo").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 if(snapshot.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum saldo cadastrado.</p>"; return; }
                 lista.innerHTML = "";
-                snapshot.forEach(doc => {
-                    const d = doc.data();
-                    lista.innerHTML += `
-                        <div class="saldo-row">
-                            <div>
-                                <strong>${d.nome}</strong><br>
-                                <span style="color:#4CAF50; font-size:1.1em;">R$ ${d.saldo.toFixed(2)}</span>
-                            </div>
-                            <div style="display:flex; gap:5px;">
-                                <button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 10)">+10</button>
-                                <button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 50)">+50</button>
-                                <button class="btn-bank-remove" onclick="alterarSaldo('${doc.id}', -10)">-10</button>
-                            </div>
-                        </div>
-                    `;
-                });
+                snapshot.forEach(doc => { const d = doc.data(); lista.innerHTML += `<div class="saldo-row"><div><strong>${d.nome}</strong><br><span style="color:#4CAF50; font-size:1.1em;">R$ ${d.saldo.toFixed(2)}</span></div><div style="display:flex; gap:5px;"><button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 10)">+10</button><button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 50)">+50</button><button class="btn-bank-remove" onclick="alterarSaldo('${doc.id}', -10)">-10</button></div></div>`; });
             });
         }
-
         function confirmarRecarga(pedidoId, nome, valor) {
             if(!confirm(`Confirmar recarga de R$ ${valor} para ${nome}?`)) return;
-            
-            // 1. Atualiza pedido para concluido
             db.collection("pedidos").doc(pedidoId).update({ status: 'concluido' });
-
-            // 2. Adiciona saldo
             const idSaldo = `${EVENTO_ID}_${limparString(nome)}`;
             const refSaldo = db.collection("clientes_saldo").doc(idSaldo);
-            
             refSaldo.get().then(doc => {
-                if(doc.exists) {
-                    refSaldo.update({ saldo: firebase.firestore.FieldValue.increment(valor) });
-                } else {
-                    refSaldo.set({ evento_id: EVENTO_ID, nome: nome, saldo: valor });
-                }
+                if(doc.exists) { refSaldo.update({ saldo: firebase.firestore.FieldValue.increment(valor) }); } 
+                else { refSaldo.set({ evento_id: EVENTO_ID, nome: nome, saldo: valor }); }
             });
-
-            // 3. Registra faturamento
-            db.collection("eventos").doc(EVENTO_ID).update({ 
-                total_faturamento: firebase.firestore.FieldValue.increment(valor) 
-            });
+            db.collection("eventos").doc(EVENTO_ID).update({ total_faturamento: firebase.firestore.FieldValue.increment(valor) });
         }
-
         function adicionarSaldoManual() {
             const nome = document.getElementById('inputNomeBanco').value.trim();
             if(!nome) return alert("Digite o nome!");
             const valorStr = prompt(`Quanto adicionar de saldo para ${nome}?`, "50");
             if(!valorStr) return;
             const valor = parseFloat(valorStr.replace(',', '.'));
-            
             const id = `${EVENTO_ID}_${limparString(nome)}`;
             db.collection("clientes_saldo").doc(id).get().then(doc => {
-                if(doc.exists) {
-                    db.collection("clientes_saldo").doc(id).update({ saldo: firebase.firestore.FieldValue.increment(valor) });
-                } else {
-                    db.collection("clientes_saldo").doc(id).set({
-                        evento_id: EVENTO_ID,
-                        nome: nome,
-                        saldo: valor
-                    });
-                }
+                if(doc.exists) { db.collection("clientes_saldo").doc(id).update({ saldo: firebase.firestore.FieldValue.increment(valor) }); } 
+                else { db.collection("clientes_saldo").doc(id).set({ evento_id: EVENTO_ID, nome: nome, saldo: valor }); }
                 document.getElementById('inputNomeBanco').value = '';
             });
         }
-
-        function alterarSaldo(docId, valor) {
-            db.collection("clientes_saldo").doc(docId).update({
-                saldo: firebase.firestore.FieldValue.increment(valor)
-            });
-        }
-
-        function moderarReview(id, aprovado) {
-            if(aprovado) { db.collection("avaliacoes").doc(id).update({ status: 'aprovado' }); } else { if(confirm("Excluir avaliação?")) db.collection("avaliacoes").doc(id).delete(); }
-        }
-
-        function abrirGerenciadorReviews() {
-            document.getElementById('reviewsManagerOverlay').style.display = 'flex';
-            const lista = document.getElementById('listaAprovadas');
-            lista.innerHTML = "Carregando...";
-            db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snapshot => {
-                if(snapshot.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhuma avaliação aprovada.</p>"; return; }
-                lista.innerHTML = "";
-                snapshot.forEach(doc => {
-                    const r = doc.data();
-                    const estrelas = "⭐".repeat(r.nota);
-                    lista.innerHTML += `<div class="review-approved"><div style="display:flex; justify-content:space-between;"><strong>${r.cliente}</strong><span>${estrelas}</span></div><p style="font-style:italic; color:#ccc; font-size:0.9em;">"${r.comentario}"</p><div class="review-actions"><button class="btn-edit-review" onclick="editarTextoReview('${doc.id}', '${r.comentario.replace(/'/g, "")}')">✏️ Editar</button><button class="btn-reject" onclick="moderarReview('${doc.id}', false)">🗑️ Excluir</button></div></div>`;
-                });
-            });
-        }
-
-        function editarTextoReview(id, textoAtual) {
-            const novoTexto = prompt("Edite o comentário:", textoAtual);
-            if(novoTexto !== null) { db.collection("avaliacoes").doc(id).update({ comentario: novoTexto }).then(() => { alert("Atualizado!"); abrirGerenciadorReviews(); }); }
-        }
-
-        function sincronizarContadores() {
-            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("tipo", "==", "pacote").where("status", "in", ["pendente", "servido"]).get()
-              .then(snapshot => {
-                  let total = 0; let classico = 0; let premium = 0;
-                  snapshot.forEach(doc => {
-                      const p = doc.data(); total++;
-                      let cat = (p.categoria_drink || 'classico').toLowerCase().trim();
-                      cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "");
-                      if(cat.includes('premium')) premium++; else classico++;
-                  });
-                  db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: total, consumido_classico: classico, consumido_premium: premium }).then(() => console.log("Contadores sincronizados."));
-              });
-        }
-
-        function lancarManual(item, tipoForcado) { 
-            const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); 
-            if(nome === null) return; 
-            let tipo = tipoForcado;
-            let precoFinal = item.preco || 0;
-            if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda;
-            const categoriaNorm = limparString(item.categoria); 
-            let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente';
-            db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria, tipo: tipo, preco: precoFinal, nome_convidado: nome || "Balcão", status: statusInicial, sinalizou_pagamento: false, data: new Date() }).then(() => { if(tipo === 'pacote') setTimeout(sincronizarContadores, 500); });
-        }
-
-        function gerarBotoes(menu) { 
-            const div = document.getElementById('listaBotoesManual'); div.innerHTML = ''; 
-            menu.forEach(item => { 
-                const pausado = item.disponivel === false; 
-                let precoDisplay = item.preco || 0;
-                if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoDisplay = item.preco_prevenda;
-                const divRow = document.createElement('div'); divRow.className = `manual-row ${pausado ? 'pausado' : ''}`;
-                const itemStr = JSON.stringify(item).replace(/"/g, "&quot;");
-                divRow.innerHTML = `<span class="manual-name">${item.nome} <small>(R$ ${precoDisplay})</small></span><div class="manual-actions"><button class="btn-manual pct" onclick='lancarManual(${itemStr}, "pacote")'>🟢 PCT</button><button class="btn-manual vd" onclick='lancarManual(${itemStr}, "extra")'>💲 VD</button></div>`;
-                div.appendChild(divRow); 
-            }); 
-        }
-
+        function alterarSaldo(docId, valor) { db.collection("clientes_saldo").doc(docId).update({ saldo: firebase.firestore.FieldValue.increment(valor) }); }
+        function moderarReview(id, aprovado) { if(aprovado) { db.collection("avaliacoes").doc(id).update({ status: 'aprovado' }); } else { if(confirm("Excluir avaliação?")) db.collection("avaliacoes").doc(id).delete(); } }
+        function abrirGerenciadorReviews() { document.getElementById('reviewsManagerOverlay').style.display = 'flex'; const lista = document.getElementById('listaAprovadas'); lista.innerHTML = "Carregando..."; db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snapshot => { if(snapshot.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhuma avaliação aprovada.</p>"; return; } lista.innerHTML = ""; snapshot.forEach(doc => { const r = doc.data(); const estrelas = "⭐".repeat(r.nota); lista.innerHTML += `<div class="review-approved"><div style="display:flex; justify-content:space-between;"><strong>${r.cliente}</strong><span>${estrelas}</span></div><p style="font-style:italic; color:#ccc; font-size:0.9em;">"${r.comentario}"</p><div class="review-actions"><button class="btn-edit-review" onclick="editarTextoReview('${doc.id}', '${r.comentario.replace(/'/g, "")}')">✏️ Editar</button><button class="btn-reject" onclick="moderarReview('${doc.id}', false)">🗑️ Excluir</button></div></div>`; }); }); }
+        function editarTextoReview(id, textoAtual) { const novoTexto = prompt("Edite o comentário:", textoAtual); if(novoTexto !== null) { db.collection("avaliacoes").doc(id).update({ comentario: novoTexto }).then(() => { alert("Atualizado!"); abrirGerenciadorReviews(); }); } }
+        function sincronizarContadores() { db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("tipo", "==", "pacote").where("status", "in", ["pendente", "servido"]).get().then(snapshot => { let total = 0; let classico = 0; let premium = 0; snapshot.forEach(doc => { const p = doc.data(); total++; let cat = (p.categoria_drink || 'classico').toLowerCase().trim().replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if(cat.includes('premium')) premium++; else classico++; }); db.collection("eventos").doc(EVENTO_ID).update({ total_consumido: total, consumido_classico: classico, consumido_premium: premium }).then(() => console.log("Contadores sincronizados.")); }); }
+        function lancarManual(item, tipoForcado) { const nome = prompt(`Nome do cliente para ${item.nome}:`, "Balcão"); if(nome === null) return; let tipo = tipoForcado; let precoFinal = item.preco || 0; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoFinal = item.preco_prevenda; const categoriaNorm = limparString(item.categoria); let statusInicial = (tipo === 'extra') ? 'aguardando_pagamento' : 'pendente'; db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria, tipo: tipo, preco: precoFinal, nome_convidado: nome || "Balcão", status: statusInicial, sinalizou_pagamento: false, data: new Date() }).then(() => { if(tipo === 'pacote') setTimeout(sincronizarContadores, 500); }); }
+        function gerarBotoes(menu) { const div = document.getElementById('listaBotoesManual'); div.innerHTML = ''; menu.forEach(item => { const pausado = item.disponivel === false; let precoDisplay = item.preco || 0; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoDisplay = item.preco_prevenda; const divRow = document.createElement('div'); divRow.className = `manual-row ${pausado ? 'pausado' : ''}`; const itemStr = JSON.stringify(item).replace(/"/g, "&quot;"); divRow.innerHTML = `<span class="manual-name">${item.nome} <small>(R$ ${precoDisplay})</small></span><div class="manual-actions"><button class="btn-manual pct" onclick='lancarManual(${itemStr}, "pacote")'>🟢 PCT</button><button class="btn-manual vd" onclick='lancarManual(${itemStr}, "extra")'>💲 VD</button></div>`; div.appendChild(divRow); }); }
         function mudarStatus(id, novoStatus) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }).then(() => setTimeout(sincronizarContadores, 500)); }
         function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }).then(() => setTimeout(sincronizarContadores, 500)); }
+        
+        // --- CHAT COM ORDENAÇÃO LOCAL (CORRIGIDO) ---
         function monitorarChat() {
             db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 let novasMensagens = 0;
@@ -490,8 +388,57 @@
             db.collection("pedidos").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { usersFromOrders.clear(); s.forEach(d => usersFromOrders.add(d.data().nome_convidado)); render(); });
         }
         function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
-        function carregarConversa(nome) { SELECTED_CHAT_USER = nome; const area = document.getElementById('chatAdminMsgs'); area.innerHTML = 'Carregando...'; db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", nome).onSnapshot(s => { area.innerHTML = ''; let msgs = []; s.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { let classe = ''; if (m.remetente === 'cliente') classe = 'msg-client'; else if (m.remetente === 'admin') classe = 'msg-admin'; else classe = 'msg-sistema'; area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; }); area.scrollTop = area.scrollHeight; }); }
+        
+        function carregarConversa(nome) { 
+            SELECTED_CHAT_USER = nome; 
+            document.getElementById('chatUserName').innerText = nome;
+            const area = document.getElementById('chatAdminMsgs'); 
+            area.innerHTML = 'Carregando...'; 
+            
+            // REMOVIDO orderBy("data") do banco para evitar erro de índice
+            db.collection("chat_mensagens")
+              .where("evento_id", "==", EVENTO_ID)
+              .where("nome", "==", nome)
+              .onSnapshot(s => { 
+                area.innerHTML = ''; 
+                let msgs = []; 
+                s.forEach(doc => msgs.push(doc.data())); 
+                
+                // ORDENAÇÃO VIA JAVASCRIPT
+                msgs.sort((a,b) => a.data - b.data); 
+                
+                msgs.forEach(m => { 
+                    let classe = '';
+                    if (m.remetente === 'cliente') classe = 'msg-client';
+                    else if (m.remetente === 'admin') classe = 'msg-admin';
+                    else classe = 'msg-sistema'; 
+
+                    area.innerHTML += `<div class="msg ${classe}">${m.mensagem}</div>`; 
+                }); 
+                area.scrollTop = area.scrollHeight; 
+            }); 
+        }
+
         function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
+        
+        // --- NOVA FUNÇÃO APAGAR CONVERSA ---
+        function limparConversaAtual() {
+            if(!SELECTED_CHAT_USER) return alert("Selecione um cliente primeiro.");
+            if(!confirm("Tem certeza que deseja APAGAR TODA A CONVERSA com " + SELECTED_CHAT_USER + "?\nIsso não pode ser desfeito.")) return;
+            
+            db.collection("chat_mensagens")
+              .where("evento_id", "==", EVENTO_ID)
+              .where("nome", "==", SELECTED_CHAT_USER)
+              .get()
+              .then(snapshot => {
+                  const batch = db.batch();
+                  snapshot.forEach(doc => {
+                      batch.delete(doc.ref);
+                  });
+                  batch.commit().then(() => alert("Conversa apagada com sucesso!"));
+              });
+        }
+
         function abrirContatos() { document.getElementById('contactsOverlay').style.display = 'flex'; const lista = document.getElementById('listaContatos'); lista.innerHTML = "Carregando..."; db.collection("clientes_marketing").where("evento_id", "==", EVENTO_ID).get().then((q) => { if (q.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum contato salvo ainda.</p>"; return; } lista.innerHTML = ""; q.forEach((doc) => { const d = doc.data(); let dataStr = d.data_cadastro && d.data_cadastro.toDate ? d.data_cadastro.toDate().toLocaleDateString() : ""; lista.innerHTML += `<div class="contact-row"><div><strong>${d.nome}</strong></div><div>${d.whatsapp}</div><div style="font-size:0.8em;">${dataStr}</div></div>`; }); }).catch(e => { console.log(e); lista.innerHTML = "Erro ao carregar."; }); }
         function copiarListaContatos() { let texto = "NOME; WHATSAPP\n"; document.querySelectorAll('.contact-row').forEach(row => { texto += `${row.children[0].innerText}; ${row.children[1].innerText}\n`; }); navigator.clipboard.writeText(texto).then(() => alert("Copiado!")); }
         function confirmarPagamento(id, preco) { if(!confirm("Confirmar pagamento?")) return; db.collection("pedidos").doc(id).update({ status: 'pendente', sinalizou_pagamento: false }); db.collection("eventos").doc(EVENTO_ID).update({ total_vendas_extra: firebase.firestore.FieldValue.increment(1), total_faturamento: firebase.firestore.FieldValue.increment(preco) }); }
