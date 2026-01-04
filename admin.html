@@ -81,8 +81,16 @@
         <div id="listaDrinksEditor"></div>
         <button class="btn-add" onclick="adicionarNovoDrink()">+ ADICIONAR NOVO DRINK</button>
 
-        <label>Timer de Bloqueio (minutos)</label>
-        <input type="number" id="timerBloqueio" value="15">
+        <div class="row" style="margin-top:25px; padding-top:15px; border-top:1px solid #333;">
+            <div class="col">
+                <label>Timer de Bloqueio (min)</label>
+                <input type="number" id="timerBloqueio" value="15" placeholder="Tempo entre pedidos">
+            </div>
+            <div class="col">
+                <label>Limite Drinks por Vez</label>
+                <input type="number" id="limitePorPedido" value="3" placeholder="Padrão: 3">
+            </div>
+        </div>
 
         <label>Senha Admin</label>
         <input type="text" id="senhaAdmin" placeholder="Senha mestre">
@@ -125,7 +133,6 @@
         { total: 0, classicos: 0, premiums: 0, label: "✏️ PERSONALIZADO (Definir Quantidades)" }
     ];
 
-    // *** CARDÁPIO PADRÃO COM AS DESCRIÇÕES CORRETAS ***
     const CARDAPIO_PADRAO = [
         { nome: "Elixir do Sol", desc: "Abacaxi, hortelã, toque cítrico e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
         { nome: "Desejo Proibido", desc: "Frutas vermelhas intensas, cítrico e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
@@ -135,16 +142,13 @@
         { nome: "Fúria Rubi", desc: "Morango, tangerina e maracujá.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
         { nome: "Caipirinha Premium", desc: "Limão tahiti, açúcar na medida e aguardente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
         { nome: "Segredo da Casa", desc: "Criação autoral com toque secreto.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        
         { nome: "Aperol Sunset", desc: "Aperol com espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
         { nome: "Gin Tropical", desc: "Gin, abacaxi grelhado e especiarias.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
         { nome: "Mojito da Ilha", desc: "Rum branco, hortelã fresca e limão.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
-        
         { nome: "Coquetel Kids", desc: "Mix cremoso de frutas vermelhas.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
         { nome: "Personalizado", desc: "O cliente escolhe as frutas.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 }
     ];
 
-    // Inicializa com o padrão (Cópia profunda para não alterar a constante)
     let cardapioAtual = JSON.parse(JSON.stringify(CARDAPIO_PADRAO));
 
     const selectMisto = document.getElementById('selectComboMisto');
@@ -190,10 +194,13 @@
                 }
 
                 document.getElementById('chavePix').value = dados.chave_pix || "";
-                document.getElementById('timerBloqueio').value = dados.timer_minutos;
+                
+                // CARREGA OS VALORES SALVOS (OU PADRÃO SE NÃO EXISTIR)
+                document.getElementById('timerBloqueio').value = dados.timer_minutos !== undefined ? dados.timer_minutos : 15;
+                document.getElementById('limitePorPedido').value = dados.limite_pedido !== undefined ? dados.limite_pedido : 3;
+
                 document.getElementById('senhaAdmin').value = dados.senha_admin;
                 
-                // SE O CARDÁPIO NO BANCO EXISTIR E TIVER ITENS, USA ELE. SE NÃO, USA O PADRÃO.
                 if(dados.cardapio && dados.cardapio.length > 0) {
                     cardapioAtual = dados.cardapio;
                 } else {
@@ -290,7 +297,11 @@
         const nome = document.getElementById('nomeEvento').value;
         const tipo = document.getElementById('tipoServico').value;
         const pix = document.getElementById('chavePix').value || "Não informada";
-        const timer = parseInt(document.getElementById('timerBloqueio').value);
+        
+        // PEGA OS VALORES DOS INPUTS
+        const timer = parseInt(document.getElementById('timerBloqueio').value) || 15;
+        const limitePedido = parseInt(document.getElementById('limitePorPedido').value) || 3;
+        
         const senha = document.getElementById('senhaAdmin').value;
         
         let qtdTotal = 0;
@@ -339,39 +350,30 @@
             limite_classico: limiteClassico, 
             limite_premium: limitePremium,
             chave_pix: pix, 
-            timer_minutos: timer, 
+            timer_minutos: timer,
+            limite_pedido: limitePedido, // SALVA O LIMITE
             senha_admin: senha, 
             cardapio: cardapioFinal 
         };
 
         if(EVENTO_ID) {
-            // LÓGICA DE ZERAR TUDO AO MUDAR O TIPO
             if (tipo !== TIPO_ORIGINAL) {
                 if(confirm("⚠️ MUDANÇA CRÍTICA DE PACOTE DETECTADA!\n\nDeseja ZERAR TUDO?\n(Isso vai zerar contadores, faturamento e APAGAR TODO O HISTÓRICO de pedidos deste evento)")) {
-                    
                     dados.total_consumido = 0;
                     dados.consumido_classico = 0;
                     dados.consumido_premium = 0;
                     dados.total_vendas_extra = 0;
                     dados.total_faturamento = 0;
-
                     try {
                         const batch = db.batch();
                         const snapshot = await db.collection("pedidos").where("evento_id", "==", EVENTO_ID).get();
-                        
                         if (!snapshot.empty) {
-                            snapshot.forEach(doc => {
-                                batch.delete(doc.ref);
-                            });
+                            snapshot.forEach(doc => { batch.delete(doc.ref); });
                             await batch.commit();
-                            console.log("Pedidos antigos apagados.");
                         }
-                    } catch (error) {
-                        console.error("Erro ao limpar pedidos:", error);
-                    }
+                    } catch (error) { console.error("Erro ao limpar pedidos:", error); }
                 }
             }
-
             db.collection("eventos").doc(EVENTO_ID).update(dados).then(() => { 
                 alert("Evento Atualizado!"); 
                 window.location.href = `dashboard.html?evento=${EVENTO_ID}`; 
