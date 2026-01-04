@@ -8,10 +8,26 @@
     <style>
         body { background-color: #121212; color: #fff; font-family: 'Poppins', sans-serif; text-align: center; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
-        h1 { color: #FFD580; margin-bottom: 30px; }
+        h1 { color: #FFD580; margin-bottom: 20px; }
         
-        select { width: 100%; padding: 15px; border-radius: 10px; background: #222; color: #fff; border: 1px solid #444; font-size: 1.1em; margin-bottom: 30px; }
+        select { width: 100%; padding: 15px; border-radius: 10px; background: #222; color: #fff; border: 1px solid #444; font-size: 1.1em; margin-bottom: 15px; }
         
+        .btn-prova {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 2px solid #2979FF;
+            color: #2979FF;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 30px;
+            font-size: 1em;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .btn-prova:hover { background: rgba(41, 121, 255, 0.1); }
+
         .status-display { padding: 20px; background: #1E1E1E; border-radius: 15px; margin-bottom: 30px; border: 1px solid #333; }
         .status-label { font-size: 0.9em; color: #aaa; }
         .status-value { font-size: 2em; font-weight: 800; margin-top: 5px; display: block; }
@@ -24,9 +40,6 @@
         .btn-abrir { background: #00E676; box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); }
         .btn-pausar { background: #FFD600; box-shadow: 0 0 15px rgba(255, 214, 0, 0.4); }
         .btn-encerrar { background: #FF1744; color: #fff; box-shadow: 0 0 15px rgba(255, 23, 68, 0.4); }
-        .btn-relatorio { background: #2979FF; color: white; box-shadow: 0 0 15px rgba(41, 121, 255, 0.4); margin-top: 20px; }
-
-        .loading { color: #888; font-style: italic; }
 
         /* MODAL DE RELATÓRIO */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: none; align-items: center; justify-content: center; }
@@ -49,6 +62,10 @@
             <option value="">Carregando eventos...</option>
         </select>
 
+        <button class="btn-prova" onclick="abrirRelatorio()">
+            📊 Ver Extrato / Prova de Consumo
+        </button>
+
         <div class="status-display">
             <span class="status-label">STATUS ATUAL:</span>
             <span id="displayStatus" class="status-value">...</span>
@@ -58,10 +75,6 @@
             <button class="btn btn-abrir" onclick="mudarStatus('aberto')">🟢 ABRIR BAR</button>
             <button class="btn btn-pausar" onclick="mudarStatus('pausado')">✋ PAUSAR PEDIDOS</button>
             <button class="btn btn-encerrar" onclick="mudarStatus('encerrado')">🏁 ENCERRAR EVENTO</button>
-            
-            <hr style="width:100%; border-color:#333; margin: 10px 0;">
-            
-            <button class="btn btn-relatorio" onclick="abrirRelatorio()">📊 EXTRATO / PROVA DE PACOTE</button>
         </div>
         
         <p style="margin-top:30px; color:#555; font-size:0.8em;">
@@ -139,7 +152,6 @@
                     const display = document.getElementById("displayStatus");
                     display.innerText = status.toUpperCase();
 
-                    // Muda a cor do texto conforme status
                     if(status === 'aberto') display.style.color = "#00E676";
                     else if(status === 'pausado') display.style.color = "#FFD600";
                     else display.style.color = "#FF1744";
@@ -200,7 +212,7 @@
 
                   lista.innerHTML = '';
                   itens.forEach(item => {
-                      // Se foi cancelado, a gente mostra riscado ou com cor diferente (para provar que não contou)
+                      // Se foi cancelado, mostra riscado
                       let estiloExtra = "";
                       let statusExtra = "";
                       
