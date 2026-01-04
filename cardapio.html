@@ -1,645 +1,409 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
- <title>Cardápio Digital</title>
- <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
- <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
- 
- <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
- <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio Digital - Fila & Pagamento</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --primary: #bb86fc;
+            --success: #03dac6;
+            --error: #cf6679;
+            --text: #ffffff;
+        }
 
- <style>
-  body { font-family: 'Poppins', sans-serif; background-color: #0F0F0F; background-image: radial-gradient(circle at top right, #1a1a1a, #0F0F0F); color: #EAEAEA; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; padding-bottom: 120px; }
-  .container { max-width: 600px; margin: auto; }
-  .header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
-  .brand-subtitle { color: #FFD580; font-size: 0.8em; letter-spacing: 3px; text-transform: uppercase; display: block; margin-bottom: 5px; font-weight: 300; }
-  .event-name { color: #fff; font-size: 1.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 213, 128, 0.2); }
-  .section-title { color: #FFD580; border-bottom: 1px solid #333; padding-bottom: 8px; margin: 30px 0 20px 0; text-transform: uppercase; font-size: 0.95em; letter-spacing: 1px; font-weight: 600; }
-  .drink-card { background: #1E1E1E; border-radius: 16px; margin-bottom: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #333; transition: transform 0.2s; }
-  .drink-card:active { transform: scale(0.98); }
-  .card-image-box { width: 100%; height: 350px; position: relative; background: #000; overflow: hidden; }
-  .blur-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: blur(15px) brightness(0.5); transform: scale(1.1); z-index: 1; }
-  .front-image { position: relative; width: 100%; height: 100%; object-fit: contain; z-index: 2; drop-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-  .card-image-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; background: linear-gradient(to top, #1E1E1E, transparent); z-index: 3; }
-  .drink-content { padding: 15px 20px; position: relative; z-index: 4; }
-  .drink-title { font-size: 1.4em; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.8); position: relative; bottom: 20px; }
-  .drink-desc { font-size: 0.95em; color: #ccc; margin: -10px 0 15px 0; line-height: 1.4; font-weight: 300; }
-  .price-tag-container { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid #FFD580; text-align: right; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 5; }
-  .price-old { text-decoration: line-through; color: #FF4444; font-size: 0.75em; display: block; font-weight: bold; }
-  .price-now { color: #4CAF50; font-weight: 800; font-size: 1.1em; }
-  .btn-action { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 1em; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-  .btn-free { background: linear-gradient(45deg, #2E7D32, #4CAF50); color: white; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); }
-  .btn-paid { background: linear-gradient(45deg, #FF8F00, #FFD580); color: #000; box-shadow: 0 4px 15px rgba(255, 143, 0, 0.3); }
-  .btn-blocked { background: #333; color: #666; cursor: not-allowed; border: 1px solid #444; }
-  .float-btn { position: fixed; bottom: 20px; right: 20px; background: #FFD580; color: #000; padding: 15px 25px; border-radius: 50px; font-weight: bold; box-shadow: 0 5px 20px rgba(255, 213, 128, 0.4); cursor: pointer; z-index: 500; display: flex; align-items: center; gap: 10px; animation: floatUp 0.3s; }
-  .float-badge { background: #FF4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; }
-  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 900; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-  .modal-box { background: #1E1E1E; padding: 25px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-  .input-nome, .input-obs { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; font-size: 1em; }
-  .btn-confirm { width: 100%; padding: 15px; background: #FFD580; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1em; }
-  .modal-tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
-  .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 12px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
-  .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
-  .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 8px; right: 15px; display: none; }
-  .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
-  .tab-content.active { display: block; }
-  .chat-container { display: flex; flex-direction: column; height: 300px; }
-  .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-  .chat-input-area { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
-  .chat-input { flex: 1; background: #111; border: 1px solid #444; color: white; padding: 12px; border-radius: 25px; outline: none; }
-  .chat-send { background: #FFD580; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: black; }
-  .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; font-size: 0.9em; line-height: 1.4; position: relative; }
-  .msg-mine { background: #2E7D32; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-  .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
-  .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
-  
-  /* ESTILOS DA FILA (VISUAL RESTAURADO) */
-  .my-order-item { background: #252525; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 5px solid #555; position: relative; border: 1px solid #333; }
-  .my-order-item.is-mine { border-color: #4CAF50; background: rgba(76, 175, 80, 0.1); } 
-  .guest-name { font-size: 0.85em; color: #aaa; font-style: italic; margin-left: 5px;}
-  .guest-name.mine { color: #4CAF50; font-weight: 800; font-style: normal; text-transform:uppercase; font-size:0.9em; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
 
-  .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 2px 6px; border-radius: 6px; margin-left: 5px; font-weight: bold; vertical-align: middle; display:inline-block;}
-  .queue-pos.first { background: linear-gradient(45deg, #00C853, #64DD17); color: #000; animation: pulse 1s infinite; }
+        h1, h2, h3 { color: var(--primary); text-align: center; }
 
-  .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: 500; }
-  .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
-  .btn-i-paid { background: #4CAF50; color: white; }
-  .btn-client-cancel { background: transparent; border: 1px solid #777; color: #aaa; margin-top: 5px; }
-  
-  #avisoPacote { background: rgba(255, 68, 68, 0.15); border: 1px solid #FF4444; color: #FF4444; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 25px; display: none; }
-  #notification { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 25px; border-radius: 50px; display:none; border: 1px solid #FFD580; z-index:950; white-space:nowrap; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-size: 0.9em; }
-  .pix-area { background: #252525; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px dashed #FFD580; text-align: left; }
-  .pix-key { font-family: monospace; color: #FFD580; font-size: 1.1em; word-break: break-all; margin-bottom: 10px; display: block; background: #111; padding: 10px; border-radius: 5px; text-align: center; }
-  .disclaimer { text-align: center; color: #666; font-size: 0.7em; text-transform: uppercase; margin-top: 30px; letter-spacing: 1px; opacity: 0.7; }
-  .combo-banner { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
-  .btn-combo { background: linear-gradient(135deg, #6A1B9A, #9C27B0); color: white; padding: 15px 10px; border-radius: 12px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3); transition: 0.2s; }
-  .btn-combo:active { transform: scale(0.95); }
-  .combo-title { font-weight: 800; font-size: 1.1em; display: block; margin-bottom: 5px; }
-  .combo-desc { font-size: 0.8em; opacity: 0.9; }
-  .combo-item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border: 1px solid #333; }
-  .combo-item-row.selected { border-color: #4CAF50; background: #1a2e1a; }
-  .chk-combo { transform: scale(1.5); accent-color: #4CAF50; }
-  #totalComboDisplay { font-size: 1.5em; color: #4CAF50; font-weight: bold; margin: 15px 0; display: block; }
-  .qtd-control { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 20px; }
-  .btn-qtd { width: 32px; height: 32px; border-radius: 50%; border: none; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; color: white; transition: 0.2s; }
-  .btn-minus { background: #444; }
-  .btn-plus { background: #4CAF50; }
-  .btn-qtd:active { transform: scale(0.9); }
-  .qtd-display { font-weight: bold; font-size: 1.1em; width: 20px; text-align: center; color: white; }
-  @keyframes floatUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  .ready-alert { animation: pulse 1.5s infinite; border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
-  .alcohol-note { background: rgba(33, 150, 243, 0.15); border: 1px solid #2196F3; color: #90CAF9; padding: 12px; border-radius: 10px; text-align: center; font-size: 0.85em; margin-bottom: 25px; line-height: 1.5; }
-  .alcohol-note strong { color: #fff; }
-  
-  /* CARRINHO ESTILO */
-  .cart-section { border: 1px solid #FFD580; background: rgba(255, 213, 128, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
-  .cart-title { color: #FFD580; font-weight: bold; text-transform: uppercase; border-bottom: 1px dashed #FFD580; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center;}
-  .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #333; }
-  .cart-item-info { text-align: left; }
-  .btn-remove-cart { color: #FF4444; background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 0 10px; }
-  .cart-total-area { margin-top: 15px; padding-top: 10px; border-top: 1px solid #555; text-align: right; }
-  
-  /* AVISO PAGAMENTO */
-  .cart-warning { background: rgba(255, 149, 0, 0.15); border: 1px solid #FF9500; color: #FF9500; font-size: 0.85em; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: bold; display: none; animation: pulseWarning 2s infinite; }
-  @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0); } }
+        /* Estilo do Cardápio */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
 
-  /* TELA DE BLOQUEIO */
-  .status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(10px); padding: 20px; box-sizing: border-box; }
-  .status-icon { font-size: 5em; margin-bottom: 20px; animation: bounce 2s infinite; }
-  .status-title { font-size: 2em; color: #FFD580; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
-  .status-msg { font-size: 1.1em; color: #ccc; max-width: 400px; line-height: 1.5; }
-  @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
+        .item-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #333;
+        }
 
-  /* MURAL DA FAMA */
-  .mural-btn { position: absolute; top: 20px; right: 20px; background: rgba(255, 213, 128, 0.1); border: 1px solid #FFD580; color: #FFD580; padding: 5px 12px; border-radius: 20px; font-size: 0.8em; cursor: pointer; }
-  .review-card { background: #222; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 3px solid #FFD580; text-align: left; }
-  .stars { color: #FFD580; font-size: 1.1em; }
-  .review-meta { font-size: 0.7em; color: #777; margin-top: 8px; display: block; border-top: 1px solid #333; padding-top: 5px; }
-  
-  /* ESTRELAS INTERATIVAS */
-  .star-select { cursor: pointer; opacity: 0.3; transition: 0.2s; }
-  .star-select.active { opacity: 1; transform: scale(1.2); }
+        .btn-add {
+            background-color: var(--primary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
 
-  /* BOTÕES SOCIAIS E CONTRIBUIÇÃO */
-  .social-grid { display: flex; gap: 10px; margin-top: 15px; }
-  .btn-social-footer { flex: 1; padding: 12px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s; }
-  .btn-social-footer:active { transform: scale(0.95); }
+        /* Área da Fila / Meus Pedidos */
+        .fila-container {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #333;
+        }
 
-  /* BOTÕES DE RECARGA NO MODAL */
-  .grid-recarga { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-  .btn-recarga-option { background: #222; border: 1px solid #444; padding: 15px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-  .btn-recarga-option:hover { background: #333; border-color: #FFD580; }
-  .btn-recarga-option.selected { background: #1a2e1a; border-color: #4CAF50; color: #4CAF50; }
- </style>
+        .pedido-item {
+            background-color: #2c2c2c;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-aguardando { background-color: #ffa000; color: #000; }
+        .status-confirmado { background-color: #1976d2; color: white; }
+        .status-preparando { background-color: #7b1fa2; color: white; } /* Roxo */
+        .status-pronto { background-color: var(--success); color: #000; }
+        .status-cancelado { background-color: var(--error); color: white; }
+
+        .btn-cancelar {
+            background-color: var(--error);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        /* Modal de Pagamento */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid var(--primary);
+        }
+
+        .btn-pix {
+            background-color: var(--success);
+            color: #000;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-pix:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        .btn-pagar-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: #000;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border: none;
+            cursor: pointer;
+            z-index: 90;
+        }
+    </style>
 </head>
 <body>
 
-<div id="telaBloqueio" class="status-overlay">
-    <div class="status-icon" id="iconStatus">🔒</div>
-    <div class="status-title" id="tituloStatus">BAR FECHADO</div>
-    <div class="status-msg" id="msgStatus">O evento ainda não começou ou o bar está encerrado no momento.</div>
-</div>
+    <h1>Cardápio Digital</h1>
 
-<div class="container">
- <div class="header">
-     <span class="brand-subtitle">GIL EVENTOS</span>
-     <div class="event-name" id="nomeEvento">Carregando...</div>
-     <div class="welcome-user">Olá, <span id="displayNome">Visitante</span> 👋</div>
-     <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-top:5px;">
-         <div id="displaySaldo" style="color: #4CAF50; font-weight: bold; font-size: 0.9em; display: none;">💰 Saldo: R$ 0,00</div>
-         <button onclick="abrirModalRecarga()" style="background:#2196F3; border:none; color:white; padding: 5px 15px; border-radius:20px; cursor:pointer; font-weight:bold; font-size:0.8em; display:flex; align-items:center; gap:5px; box-shadow: 0 2px 5px rgba(33, 150, 243, 0.4);">
-            ➕ RECARREGAR
-         </button>
-     </div>
-     <button class="mural-btn" onclick="abrirMural()">⭐ Mural da Fama</button>
- </div>
- <div id="avisoPacote">⚠️ PACOTE ESGOTADO</div>
-  
- <div id="areaCombos" class="combo-banner" style="display:none;">
-  <div class="btn-combo" onclick="abrirMontadorCombo(3)"><span class="combo-title">🔥 COMBO TRIO</span><span class="combo-desc">Escolha 3 drinks<br>Desconto: -R$ 3,00</span></div>
-  <div class="btn-combo" style="background: linear-gradient(135deg, #BF360C, #FF5722);" onclick="abrirMontadorCombo(5)"><span class="combo-title">🖐️ COMBO 5</span><span class="combo-desc">Escolha 5 drinks<br>Desconto: -R$ 10,00</span></div>
- </div>
-
- <div class="alcohol-note">ℹ️ <strong>Clássicos da Casa</strong> podem ser feitos com ou sem álcool.<br>Os <strong>Premiums</strong> contêm álcool por padrão (não fazemos sem).</div>
-
- <div id="listaCardapio"></div>
- <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
-
- <div style="margin-top: 40px; margin-bottom: 30px; padding: 20px; background: rgba(255, 213, 128, 0.05); border: 1px dashed #FFD580; border-radius: 12px; text-align: center;">
-     <h3 style="color: #FFD580; margin: 0 0 10px 0;">Curtiu a experiência? 🥂</h3>
-     <p style="font-size: 0.85em; color: #ccc; line-height: 1.5; margin-bottom: 20px;">
-         Se quiser apoiar a <strong>Gil Eventos</strong> a criar momentos ainda mais incríveis, você pode fazer uma contribuição voluntária. <br><br>
-         É totalmente opcional, mas recebida com muito carinho!
-     </p>
-     
-     <a href="https://bbpay.apps.bb.com.br/m/#/cm49eyJvcHIiOiJDQ0siLCJzb2xpY2l0YXRpb25OdW1iZXIiOiI1ODk3MTc3NSJ9" target="_blank" style="background: linear-gradient(45deg, #FFD580, #FFAB00); color: #000; text-decoration: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(255, 171, 0, 0.3); width: 80%;">
-         🤝 Contribuição Voluntária
-     </a>
-     
-     <button onclick="copiarPixRodape()" style="background:transparent; border:1px solid #FFD580; color:#FFD580; padding:10px 20px; border-radius:30px; margin-top:15px; cursor:pointer; font-size:0.9em; width:80%;">
-        🔑 Copiar Chave PIX (Gorjeta)
-     </button>
-
-     <div class="social-grid">
-        <a href="https://wa.me/5575998649927" target="_blank" class="btn-social-footer" style="background:#25D366;">
-            <span style="font-size:1.4em;">💬</span> Falar com Gil
-        </a>
-        <a href="https://www.instagram.com/_gileventos?igsh=MWNvbWNiZ214NTllNw==" target="_blank" class="btn-social-footer" style="background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">
-            <span style="font-size:1.4em;">📸</span> Seguir no Insta
-        </a>
-     </div>
- </div>
-
-</div>
-
-<div class="float-btn" id="btnMeusPedidos" onclick="abrirMeusPedidos()" style="display: flex;">
-    🛒 Ver Carrinho / Fila 
-    <div class="float-badge" id="badgeMeusPedidos">0</div>
-</div>
-
-<div class="modal-overlay" id="modalCombo"><div class="modal-box" style="height: 600px;"><h2 style="color:#FFD580; margin:0 0 5px 0;">Montar Combo</h2><p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">Selecione <span id="maxComboQtd" style="color:#fff; font-weight:bold;">3</span> drinks:</p><div id="listaSelecaoCombo" style="flex-grow:1; overflow-y:auto; text-align:left;"></div><div style="border-top:1px solid #333; padding-top:10px;"><span id="totalComboDisplay">R$ 0,00</span><button class="btn-confirm" id="btnFinalizarCombo" onclick="finalizarCombo()">CONFIRMAR COMBO</button><button onclick="document.getElementById('modalCombo').style.display='none'" style="background:none; border:none; color:#888; margin-top:10px;">Cancelar</button></div></div></div>
-<div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Como devemos te chamar?</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
-
-<div class="modal-overlay" id="modalRecarga"><div class="modal-box">
-    <h2 style="color:#4CAF50;">💰 Adicionar Saldo</h2>
-    <p style="color:#aaa; font-size:0.9em;">Escolha um pacote para pedir sem fila!</p>
-    
-    <div class="grid-recarga">
-        <div class="btn-recarga-option" onclick="selecionarPacote(30)">
-            💳 R$ 30,00
+    <div class="menu-grid" id="menu-lista">
         </div>
-        <div class="btn-recarga-option" onclick="selecionarPacote(50)">
-            💳 R$ 50,00
-        </div>
-        <div class="btn-recarga-option" onclick="selecionarPacote(100)">
-            💳 R$ 100,00
-        </div>
-        <div class="btn-recarga-option" onclick="selecionarPacote(0)">
-            ✏️ Outro Valor
+
+    <button id="btn-carrinho" class="btn-pagar-float" onclick="abrirModalPagamento()" style="display:none;">
+        Pagar R$ <span id="total-float">0,00</span>
+    </button>
+
+    <div class="fila-container">
+        <h2><i class="fas fa-list-ol"></i> Acompanhar Pedidos</h2>
+        <div id="lista-pedidos-cliente">
+            <p style="text-align:center; color: #777;">Sua fila está vazia.</p>
         </div>
     </div>
 
-    <div id="areaValorManual" style="display:none; margin-top:15px;">
-        <p style="margin:0; color:#aaa; font-size:0.8em;">Digite o valor que vai pagar:</p>
-        <input type="number" id="valorRecarga" placeholder="0,00" class="input-nome" style="font-size:1.5em; text-align:center;">
-    </div>
-    
-    <div class="pix-area" style="display:none;" id="areaPixRecarga">
-        <span class="pix-key" id="chavePixRecarga">...</span>
-        <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:5px;" onclick="copiarPixRecarga()">📋 COPIAR CHAVE PIX</button>
-    </div>
-
-    <button class="btn-confirm" id="btnOpcaoPix" onclick="mostrarPixRecarga()" style="background:#4CAF50; margin-top:15px; display:none;">💠 PAGAR COM PIX</button>
-    <button class="btn-confirm" id="btnConfirmarRecarga" onclick="confirmarSolicitacaoRecarga()" style="display:none; background:#2196F3; margin-top:10px;">✅ JÁ PAGUEI / ENVIAR</button>
-    
-    <button onclick="fecharModalRecarga()" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button>
-</div></div>
-
-<div class="modal-overlay" id="modalPagamentoMassa"><div class="modal-box"><h2 style="color:#4CAF50; margin:0;">Finalizar Pedido</h2><p style="color:#ddd;">Você está pagando por <strong><span id="qtdItensMassa">0</span> itens</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Total a pagar:</span><strong style="font-size:2.2em; color:#4CAF50;" id="valorTotalMassa">R$ 0,00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTextoMassa">75992011008</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button></div><button class="btn-confirm" onclick="confirmarEnvioMassa()">✅ JÁ PAGUEI / ENVIAR TUDO</button><button onclick="document.getElementById('modalPagamentoMassa').style.display='none'; document.getElementById('modalListaPedidos').style.display='flex';" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Voltar ao Carrinho</button></div></div>
-
-<div class="modal-overlay" id="modalListaPedidos"><div class="modal-box" style="height: 650px; max-height:90vh;"><div class="modal-tabs"><button class="tab-btn active" onclick="mudarAba('pedidos')">📋 Fila Geral</button><button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button></div>
-    <div id="tab-pedidos" class="tab-content active">
-        <div id="areaCarrinho" class="cart-section" style="display:none;">
-            <div class="cart-title">🛒 Seu Carrinho (A Enviar) <span style="font-size:0.8em; color:#fff;" id="countCarrinho"></span></div>
-            <div id="listaCarrinhoHTML"></div>
-            <div id="msgAvisoPagamento" class="cart-warning">
-                ⚠️ <strong>ATENÇÃO:</strong> Drinks pagos só entram na fila de preparo após a <u>confirmação do PIX</u>!
+    <div id="modal-pagamento" class="modal">
+        <div class="modal-content">
+            <h3>Pagamento via PIX</h3>
+            <p>Chave Pix: 12.345.678/0001-99</p>
+            <p style="font-size: 0.9em; color: #aaa;">Copie a chave e faça o pagamento no seu banco.</p>
+            <div style="background: white; padding: 10px; margin: 10px auto; width: 150px; height: 150px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ExemploPix" alt="QR Code" style="width:100%">
             </div>
-            <div class="cart-total-area">
-                <div style="font-size:1.2em; color:#fff; margin-bottom:10px;">Total: <strong style="color:#4CAF50;" id="totalCarrinhoDisplay">R$ 0,00</strong></div>
-                <button class="btn-confirm" id="btnCheckoutCart" style="background:#4CAF50; color:#fff;" onclick="abrirPagamentoMassa()">ENVIAR TUDO 🚀</button>
-            </div>
-        </div>
-        <div id="areaHistorico">
-            <h4 style="color:#aaa; text-align:left; border-bottom:1px solid #333; margin-bottom:10px; font-size:0.9em; text-transform:uppercase;">🍹 Acompanhamento da Fila (Ao Vivo)</h4>
-            <div id="listaMeusPedidosHTML">
-                <p style="color:#555; text-align:center; padding:20px;">Carregando fila...</p>
-            </div>
+            
+            <button id="btn-confirmar-pix" class="btn-pix" onclick="confirmarPix()">
+                <i class="fas fa-check-circle"></i> JÁ FIZ O PIX
+            </button>
+            
+            <button onclick="fecharModal()" style="margin-top: 10px; background: transparent; border: 1px solid #555; color: white; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer;">Cancelar / Voltar</button>
         </div>
     </div>
-    <div id="tab-chat" class="tab-content"><div class="chat-container"><div class="chat-messages" id="chatMessages"><p style="text-align:center; color:#555; font-size:0.8em; margin-top:20px;">Fale diretamente com o barman aqui.</p></div><div class="chat-input-area"><input type="text" id="chatInput" class="chat-input" placeholder="Digite sua mensagem..."><button class="chat-send" onclick="enviarMensagem()">➤</button></div></div></div><button class="btn-confirm" onclick="document.getElementById('modalListaPedidos').style.display='none'" style="margin-top:15px; background:#333; color:#fff;">FECHAR</button></div></div>
 
-<div class="modal-overlay" id="modalMural"><div class="modal-box" style="max-height:80vh; overflow-y:auto;"><h2 style="color:#FFD580; margin-bottom:5px;">⭐ Mural da Fama</h2><p style="color:#aaa; font-size:0.8em; margin-bottom:20px;">O que a galera está falando dos drinks!</p><div id="listaMuralHTML">Carregando...</div><button class="btn-confirm" style="margin-top:15px; background:#333;" onclick="document.getElementById('modalMural').style.display='none'">FECHAR</button></div></div>
+    <script>
+        // --- DADOS INICIAIS ---
+        const cardapio = [
+            { id: 1, nome: "Gin Tônica", preco: 25.00 },
+            { id: 2, nome: "Caipirinha", preco: 20.00 },
+            { id: 3, nome: "Cerveja 600ml", preco: 15.00 },
+            { id: 4, nome: "Água sem Gás", preco: 5.00 }
+        ];
 
-<div class="modal-overlay" id="modalAvaliar"><div class="modal-box"><h2 style="color:#fff;">O que achou?</h2><p id="nomeDrinkAvaliar" style="color:#FFD580; font-weight:bold;"></p><div style="font-size:2em; margin:15px 0; display:flex; justify-content:center; gap:5px;">
-    <span class="star-select active" onclick="setEstrelas(1)" id="star1">⭐</span>
-    <span class="star-select active" onclick="setEstrelas(2)" id="star2">⭐</span>
-    <span class="star-select active" onclick="setEstrelas(3)" id="star3">⭐</span>
-    <span class="star-select active" onclick="setEstrelas(4)" id="star4">⭐</span>
-    <span class="star-select active" onclick="setEstrelas(5)" id="star5">⭐</span>
-</div><input type="hidden" id="notaEstrela" value="5"><textarea id="textoAvaliacao" class="input-obs" placeholder="Deixe um comentário..."></textarea><button class="btn-confirm" onclick="enviarAvaliacao()">ENVIAR AVALIAÇÃO</button><button onclick="document.getElementById('modalAvaliar').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button></div></div>
+        // Carrinho atual (antes de pagar)
+        let carrinho = [];
+        // Pedidos confirmados (Fila)
+        let meusPedidos = []; 
 
-<div class="modal-overlay" id="modalPronto"><div class="modal-box ready-alert"><div style="font-size:4em;">🎉</div><h2 style="color:#4CAF50;">SEU DRINK TÁ PRONTO!</h2><p style="color:#fff;">Pode buscar no balcão.</p><button class="btn-confirm" style="background:#4CAF50;" onclick="document.getElementById('modalPronto').style.display='none'">JÁ PEGUEI</button></div></div>
-<div id="notification"></div>
-
-<script>
-    const firebaseConfig = { apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk", authDomain: "gil-eventos-app-911fe.firebaseapp.com", projectId: "gil-eventos-app-911fe", storageBucket: "gil-eventos-app-911fe.firebasestorage.app", messagingSenderId: "503025880352", appId: "1:503025880352:web:694b7f2889cff501c7db45", measurementId: "G-3DZ1P5C0M3" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const params = new URLSearchParams(window.location.search);
-    const EVENTO_ID = params.get('evento');
-    
-    // VARIÁVEIS GLOBAIS
-    let DADOS_EVENTO = null;
-    let NOME_CONVIDADO = localStorage.getItem('nome_usuario_gil');
-    let TIMER_MINUTOS = 15;
-    let LIMITE_PEDIDO = 3; 
-    let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
-    let CARRINHO_LOCAL = JSON.parse(localStorage.getItem(`carrinho_${EVENTO_ID}`) || "[]");
-    let PEDIDOS_AVALIADOS = JSON.parse(localStorage.getItem(`avaliados_${EVENTO_ID}`) || "[]");
-    let COMBO_QTD_ALVO = 0;
-    let ITENS_COMBO_SELECIONADOS = [];
-    let DRINK_AVALIANDO_ID = null;
-    let DRINK_AVALIANDO_NOME = null;
-    let MEU_SALDO = 0; 
-    
-    const LINKS_PAGAMENTO = {
-        30: "https://pay.infinitepay.io/gileventosdrinks/VC1DLTAtUg-2KwuM0f69D-30,00",
-        50: "https://pay.infinitepay.io/gileventosdrinks/VC1DLTAtUg-70qhjUMDcH-50,00",
-        100: "https://pay.infinitepay.io/gileventosdrinks/VC1DLTAtUg-mJdWLLbXp-100,00"
-    };
-
-    function limparString(str) { 
-        if(!str) return ""; 
-        return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); 
-    }
-
-    if(NOME_CONVIDADO && NOME_CONVIDADO !== "null") { 
-        document.getElementById('modalNome').style.display = 'none'; 
-        document.getElementById('displayNome').innerText = NOME_CONVIDADO; 
-    } else {
-        document.getElementById('modalNome').style.display = 'flex';
-    }
-
-    if(EVENTO_ID) iniciarApp();
-
-    function iniciarApp() {
-        db.collection("eventos").doc(EVENTO_ID).onSnapshot((doc) => {
-            if(doc.exists) { 
-                DADOS_EVENTO = doc.data(); 
-                if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; 
-                if (DADOS_EVENTO.limite_pedido) LIMITE_PEDIDO = DADOS_EVENTO.limite_pedido;
-                verificarStatusEvento(DADOS_EVENTO.status);
-                renderizarCardapio(); 
-                verificarTimer(); 
-                verificarCombosAtivos(); 
-                atualizarUIBadge(); 
-                monitorarSaldo(); 
+        // --- INICIALIZAÇÃO ---
+        window.onload = function() {
+            renderizarCardapio();
+            // Tenta carregar do localStorage se existir
+            const salvos = localStorage.getItem('meusPedidos');
+            if(salvos) {
+                meusPedidos = JSON.parse(salvos);
+                renderizarFila();
             }
-        });
-        rastrearFilaGlobal();
-        if(NOME_CONVIDADO) carregarChat(); 
-        renderizarCarrinho();
-    }
+        };
 
-    function salvarNome() { 
-        const val = document.getElementById('inputNomeConvidado').value; 
-        if(!val) return; 
-        NOME_CONVIDADO = val; 
-        localStorage.setItem('nome_usuario_gil', val); 
-        document.getElementById('modalNome').style.display = 'none'; 
-        document.getElementById('displayNome').innerText = val; 
-        
-        // CORREÇÃO DO CHAT: Sem reload, inicia conversa direto
-        if (EVENTO_ID) {
-            db.collection("chat_mensagens").add({ 
-                evento_id: EVENTO_ID, 
-                nome: NOME_CONVIDADO, 
-                mensagem: "🔔 Entrou no cardápio.", 
-                remetente: 'sistema', 
-                data: new Date() 
-            }).then(() => {
-                setTimeout(() => {
-                    db.collection("chat_mensagens").add({
-                        evento_id: EVENTO_ID,
-                        nome: NOME_CONVIDADO,
-                        mensagem: "Olá! Seja bem-vindo(a). Se precisar de algo, é só chamar aqui! 🍹",
-                        remetente: 'admin',
-                        data: new Date()
-                    });
-                    carregarChat(); // Inicia o listener do chat
-                }, 1000);
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
+        function renderizarCardapio() {
+            const container = document.getElementById('menu-lista');
+            container.innerHTML = '';
+            cardapio.forEach(item => {
+                container.innerHTML += `
+                    <div class="item-card">
+                        <h3>${item.nome}</h3>
+                        <p>R$ ${item.preco.toFixed(2)}</p>
+                        <button class="btn-add" onclick="adicionarAoCarrinho(${item.id})">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                `;
             });
         }
-    }
 
-    function isItemPago(item) {
-        if(!DADOS_EVENTO) return false;
-        if(item.tipo_cobranca === 'pago') return true;
-        if((DADOS_EVENTO.tipo_servico === 'pacote' || DADOS_EVENTO.tipo_servico === 'premium') && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) return true;
-        if(DADOS_EVENTO.tipo_servico === 'misto') {
-            if(item.categoria === 'classico' && DADOS_EVENTO.consumido_classico >= DADOS_EVENTO.limite_classico) return true;
-            if(item.categoria === 'premium' && DADOS_EVENTO.consumido_premium >= DADOS_EVENTO.limite_premium) return true;
+        function adicionarAoCarrinho(id) {
+            const item = cardapio.find(p => p.id === id);
+            carrinho.push(item);
+            atualizarBotaoFlutuante();
         }
-        return false;
-    }
 
-    function verificarCombosAtivos() {
-        if (!DADOS_EVENTO || !DADOS_EVENTO.cardapio) return;
-        const temItemPago = DADOS_EVENTO.cardapio.some(d => d.disponivel !== false && isItemPago(d));
-        document.getElementById('areaCombos').style.display = temItemPago ? 'grid' : 'none';
-    }
-
-    function abrirMontadorCombo(qtd) { 
-        COMBO_QTD_ALVO = qtd; ITENS_COMBO_SELECIONADOS = []; document.getElementById('maxComboQtd').innerText = qtd; const lista = document.getElementById('listaSelecaoCombo'); lista.innerHTML = ''; 
-        let itensParaCombo = DADOS_EVENTO.cardapio.filter(item => isItemPago(item) && item.disponivel !== false);
-        if(itensParaCombo.length === 0) return alert("Não há drinks pagos disponíveis para formar combo."); 
-        itensParaCombo.forEach((item, index) => { 
-            let precoReal = item.preco; 
-            if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda; 
-            const rowId = `combo_item_${index}`;
-            lista.innerHTML += `<div id="row_${rowId}" class="combo-item-row"><div style="flex:1; text-align:left;"><strong style="color:#fff;">${item.nome}</strong><br><span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span></div><div class="qtd-control"><button class="btn-qtd btn-minus" onclick="alterarQtdCombo('${rowId}', -1, ${precoReal}, '${item.nome}')">-</button><span class="qtd-display" id="qtd_${rowId}">0</span><button class="btn-qtd btn-plus" onclick="alterarQtdCombo('${rowId}', 1, ${precoReal}, '${item.nome}')">+</button></div></div>`; 
-        }); 
-        atualizarTotalCombo(); 
-        document.getElementById('modalCombo').style.display = 'flex'; 
-    }
-
-    function alterarQtdCombo(rowId, delta, preco, nome) { 
-        const spanQtd = document.getElementById(`qtd_${rowId}`); let currentQtd = parseInt(spanQtd.innerText); const row = document.getElementById(`row_${rowId}`); 
-        if (delta === 1) { 
-            if (ITENS_COMBO_SELECIONADOS.length >= COMBO_QTD_ALVO) return alert(`Máximo de ${COMBO_QTD_ALVO} drinks!`); 
-            ITENS_COMBO_SELECIONADOS.push({nome: nome, preco: preco}); currentQtd++; 
-        } else { 
-            if (currentQtd > 0) { currentQtd--; const idxToRemove = ITENS_COMBO_SELECIONADOS.findIndex(i => i.nome === nome); if (idxToRemove > -1) ITENS_COMBO_SELECIONADOS.splice(idxToRemove, 1); } 
-        } 
-        spanQtd.innerText = currentQtd; 
-        if(currentQtd > 0) row.classList.add('selected'); else row.classList.remove('selected'); 
-        atualizarTotalCombo(); 
-    }
-
-    function atualizarTotalCombo() { 
-        let soma = ITENS_COMBO_SELECIONADOS.reduce((acc, i) => acc + i.preco, 0); let desconto = 0; let btn = document.getElementById('btnFinalizarCombo'); 
-        if(ITENS_COMBO_SELECIONADOS.length === COMBO_QTD_ALVO) { 
-            if(COMBO_QTD_ALVO === 3) desconto = 3; if(COMBO_QTD_ALVO === 5) desconto = 10; 
-            btn.disabled = false; btn.style.opacity = 1; btn.innerText = "ADICIONAR COMBO AO CARRINHO"; 
-        } else { btn.disabled = true; btn.style.opacity = 0.5; btn.innerText = `Selecione ${COMBO_QTD_ALVO}`; } 
-        let totalFinal = Math.max(0, soma - desconto); 
-        document.getElementById('totalComboDisplay').innerText = `Total: R$ ${totalFinal.toFixed(2)}`; 
-        ITEM_ATUAL = { nome: `COMBO ${COMBO_QTD_ALVO}: ${ITENS_COMBO_SELECIONADOS.map(i => i.nome).join(', ')}`, tipo: 'extra', preco: totalFinal }; 
-    }
-
-    function monitorarSaldo() {
-        if(!NOME_CONVIDADO) return;
-        const id = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`;
-        db.collection("clientes_saldo").doc(id).onSnapshot(doc => {
-            if(doc.exists) {
-                MEU_SALDO = doc.data().saldo || 0;
-                document.getElementById('displaySaldo').innerText = `💰 Saldo: R$ ${MEU_SALDO.toFixed(2)}`;
-                document.getElementById('displaySaldo').style.display = 'block';
-                renderizarCarrinho(); 
-            }
-        });
-    }
-
-    function getDrinkData(nomeOriginal) { const n = limparString(nomeOriginal); const dados = { 'elixir do sol': { img: 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg', desc: 'Abacaxi, hortelã, toque cítrico e especiarias.' }, 'desejo proibido': { img: 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg', desc: 'Frutas vermelhas intensas, cítrico e hortelã.' }, 'encanto noturno': { img: 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg', desc: 'Uva roxa, cítrico e manjericão fresco.' }, 'tropical mix': { img: 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg', desc: 'Tangerina, kiwi, abacaxi e ervas frescas.' }, 'brisa verde': { img: 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg', desc: 'Limão, gengibre, manjericão e açúcar de cana.' }, 'furia rubi': { img: 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg', desc: 'Morango, tangerina e maracujá.' }, 'caipirinha premium': { img: 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', desc: 'Limão tahiti, açúcar na medida e aguardente.' }, 'segredo da casa': { img: 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg', desc: 'Criação autoral com toque secreto.' }, 'aperol sunset': { img: 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg', desc: 'Aperol com espumante e laranja caramelizada.' }, 'gin tropical': { img: 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', desc: 'Gin, abacaxi grelhado e especiarias.' }, 'mojito da ilha': { img: 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', desc: 'Rum branco, hortelã fresca e limão.' }, 'coquetel kids': { img: 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', desc: 'Mix cremoso de frutas vermelhas. Delicioso e colorido.' }, 'personalizado': { img: 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', desc: 'O cliente escolhe as frutas e combinações na hora.' } }; for (const [key, data] of Object.entries(dados)) { if (n.includes(key)) return data; } if (n.includes('mojito')) return dados['mojito da ilha']; if (n.includes('gin')) return dados['gin tropical']; return { img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', desc: 'Uma experiência de sabor única.' }; }
-    function getDrinkImage(nome) { return getDrinkData(nome).img; }
-    
-    function renderizarCardapio() { 
-        document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome; 
-        const lista = document.getElementById('listaCardapio'); lista.innerHTML = ''; 
-        const renderGrupo = (titulo, items) => { 
-            if(items.length === 0) return ''; 
-            let html = `<div class="section-title">${titulo}</div>`; 
-            items.forEach(item => { 
-                let disponivel = item.disponivel !== false; 
-                let precoFinal = item.preco || 0; 
-                let htmlPreco = ''; 
-                const dadosVisuais = getDrinkData(item.nome); 
-                if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) { precoFinal = item.preco_prevenda; htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`; } else if(item.tipo_cobranca === 'pago') { htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`; } 
-                let cardHTML = `<div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}"><div class="card-image-box"><div class="blur-bg" style="background-image: url('${dadosVisuais.img}')"></div><img src="${dadosVisuais.img}" class="front-image" loading="lazy" alt="${item.nome}"><div class="card-image-overlay"></div>${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${dadosVisuais.desc}</p>`; 
-                let deveCobrar = isItemPago(item);
-                if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; } 
-                else if(deveCobrar) { cardHTML += `<button class="btn-action btn-paid" onclick="adicionarAoCarrinho('${item.nome}', 'extra', ${precoFinal}, '${item.categoria}')">🛒 ADICIONAR + (R$ ${precoFinal})</button>`; } 
-                else { cardHTML += `<button class="btn-action btn-free btn-pacote" onclick="adicionarAoCarrinho('${item.nome}', 'pacote', 0, '${item.categoria}')">🆓 ADICIONAR (PACOTE)</button>`; } 
-                cardHTML += `</div></div>`; html += cardHTML; 
-            }); 
-            return html; 
-        }; 
-        lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico')); 
-        lista.innerHTML += renderGrupo('💎 Drinks Premium', DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium')); 
-    }
-
-    function adicionarAoCarrinho(nome, tipo, preco, categoria) {
-        if(tipo === 'pacote') {
-            const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
-            const itensNoCarrinho = CARRINHO_LOCAL.filter(i => i.tipo === 'pacote').length;
-            if (itensNoCarrinho >= LIMITE_PEDIDO) return alert(`⚠️ Limite de ${LIMITE_PEDIDO} drinks por vez atingido!\n\nEnvie o pedido atual antes de pedir mais.`);
-            if(isItemPago({categoria: categoria})) { alert("⚠️ O pacote acabou de esgotar! Você será redirecionado para compra."); tipo = 'extra'; const drinkData = DADOS_EVENTO.cardapio.find(d => d.nome === nome); preco = drinkData ? (DADOS_EVENTO.modo_preco==='prevenda' ? drinkData.preco_prevenda : drinkData.preco) : 10; }
-        }
-        const item = { idTemp: Date.now(), nome, tipo, preco, categoria, data: new Date().toISOString() };
-        CARRINHO_LOCAL.push(item);
-        salvarCarrinhoLocal();
-        mostrarNotificacao(`✅ ${nome} adicionado!`);
-        atualizarUIBadge();
-    }
-
-    function salvarCarrinhoLocal() { localStorage.setItem(`carrinho_${EVENTO_ID}`, JSON.stringify(CARRINHO_LOCAL)); renderizarCarrinho(); }
-    function removerDoCarrinho(idTemp) { CARRINHO_LOCAL = CARRINHO_LOCAL.filter(i => i.idTemp !== idTemp); salvarCarrinhoLocal(); }
-    
-    function renderizarCarrinho() {
-        const div = document.getElementById('listaCarrinhoHTML');
-        const area = document.getElementById('areaCarrinho');
-        const btnCheckout = document.getElementById('btnCheckoutCart');
-        div.innerHTML = ''; let total = 0;
-        if (CARRINHO_LOCAL.length === 0) { area.style.display = 'none'; return; }
-        area.style.display = 'block';
-        document.getElementById('countCarrinho').innerText = `(${CARRINHO_LOCAL.length})`;
-        CARRINHO_LOCAL.forEach(item => {
-            let precoTexto = item.tipo === 'pacote' ? 'Grátis (Pacote)' : `R$ ${item.preco},00`;
-            let corPreco = item.tipo === 'pacote' ? '#aaa' : '#4CAF50';
-            if(item.tipo !== 'pacote') total += item.preco;
-            div.innerHTML += `<div class="cart-item-row"><div class="cart-item-info"><strong style="color:#fff;">${item.nome}</strong><br><small style="color:${corPreco};">${precoTexto}</small></div><button class="btn-remove-cart" onclick="removerDoCarrinho(${item.idTemp})">🗑️</button></div>`;
-        });
-        document.getElementById('totalCarrinhoDisplay').innerText = `R$ ${total.toFixed(2)}`;
-        const avisoPagamento = document.getElementById('msgAvisoPagamento');
-        if(total > 0) { 
-            if(MEU_SALDO >= total) {
-                btnCheckout.innerText = `USAR SALDO (R$ ${total.toFixed(2)}) 🚀`; btnCheckout.style.background = "#2196F3"; 
-                avisoPagamento.innerHTML = `✅ Você tem saldo suficiente! O pedido será enviado direto para o bar.`;
-                avisoPagamento.style.color = "#4CAF50"; avisoPagamento.style.borderColor = "#4CAF50"; avisoPagamento.style.background = "rgba(76, 175, 80, 0.1)";
+        function atualizarBotaoFlutuante() {
+            const btn = document.getElementById('btn-carrinho');
+            const spanTotal = document.getElementById('total-float');
+            
+            if (carrinho.length > 0) {
+                const total = carrinho.reduce((sum, item) => sum + item.preco, 0);
+                spanTotal.innerText = total.toFixed(2);
+                btn.style.display = 'block';
             } else {
-                btnCheckout.innerText = `PAGAR R$ ${total.toFixed(2)} E ENVIAR 🚀`; btnCheckout.style.background = "#4CAF50"; 
-                avisoPagamento.innerHTML = `⚠️ <strong>ATENÇÃO:</strong> Drinks pagos só entram na fila de preparo após a <u>confirmação do PIX</u>!`;
-                avisoPagamento.style.color = "#FF9500"; avisoPagamento.style.borderColor = "#FF9500"; avisoPagamento.style.background = "rgba(255, 149, 0, 0.15)";
+                btn.style.display = 'none';
             }
-            btnCheckout.style.color = "#fff"; avisoPagamento.style.display = "block"; 
-        } 
-        else { btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀"; btnCheckout.style.background = "#FFD580"; btnCheckout.style.color = "#000"; avisoPagamento.style.display = "none"; }
-        document.getElementById('valorTotalMassa').innerText = `R$ ${total.toFixed(2)}`;
-        document.getElementById('qtdItensMassa').innerText = CARRINHO_LOCAL.length;
-        if(DADOS_EVENTO && DADOS_EVENTO.chave_pix) document.getElementById('chavePixTextoMassa').innerText = DADOS_EVENTO.chave_pix;
-    }
-
-    function abrirPagamentoMassa() { const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); if (total === 0 || (total > 0 && MEU_SALDO >= total)) { if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa(); } else { document.getElementById('modalListaPedidos').style.display = 'none'; document.getElementById('modalPagamentoMassa').style.display = 'flex'; } }
-    
-    function confirmarEnvioMassa() { 
-        document.getElementById('modalPagamentoMassa').style.display = 'none'; const batch = db.batch(); const totalPedido = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); let usouSaldo = false; if (totalPedido > 0 && MEU_SALDO >= totalPedido) { usouSaldo = true; }
-        let temPacoteNoPedido = false; 
-        CARRINHO_LOCAL.forEach(item => { 
-            const ref = db.collection("pedidos").doc(); 
-            let statusInicial = 'pendente'; let sinalizou = false; 
-            if (item.tipo === 'extra') { 
-                if (usouSaldo) { statusInicial = 'pendente'; sinalizou = true; } else { statusInicial = 'aguardando_pagamento'; } 
-            } else { temPacoteNoPedido = true; }
-            batch.set(ref, { evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria || 'classico', tipo: item.tipo, preco: item.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: "Pedido em Grupo/Carrinho", status: statusInicial, sinalizou_pagamento: sinalizou, data: new Date() }); MEUS_PEDIDOS_IDS.push(ref.id);
-            if(item.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (item.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } 
-        });
-        if (usouSaldo) { const idSaldo = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`; const saldoRef = db.collection("clientes_saldo").doc(idSaldo); batch.update(saldoRef, { saldo: firebase.firestore.FieldValue.increment(-totalPedido) }); const eventoRef = db.collection("eventos").doc(EVENTO_ID); batch.update(eventoRef, { total_vendas_extra: firebase.firestore.FieldValue.increment(CARRINHO_LOCAL.length), total_faturamento: firebase.firestore.FieldValue.increment(totalPedido) }); }
-        batch.commit().then(() => { 
-            localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); 
-            CARRINHO_LOCAL = []; salvarCarrinhoLocal(); mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); 
-            if (temPacoteNoPedido) salvarTimer();
-            document.getElementById('modalListaPedidos').style.display = 'flex'; 
-            rastrearFilaGlobal(); 
-        }).catch(err => alert("Erro ao enviar: " + err)); 
-    }
-    
-    // --- FUNÇÃO DE FILA GLOBAL ORIGINAL RESTAURADA ---
-    function rastrearFilaGlobal() {
-      db.collection("pedidos")
-       .where("evento_id", "==", EVENTO_ID)
-       .onSnapshot((snapshot) => { 
-        const listaHTML = document.getElementById('listaMeusPedidosHTML'); 
-        listaHTML.innerHTML = ''; 
-        let pedidos = [];
-        snapshot.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
-        pedidos.sort((a, b) => { let dA = a.data ? a.data.toDate() : new Date(); let dB = b.data ? b.data.toDate() : new Date(); return dA - dB; });
-        
-        let contagemFilaPreparacao = 0;
-        let meusPedidosAtivosCount = 0;
-        
-        // Se vazio
-        if(pedidos.length === 0) {
-            listaHTML.innerHTML = '<p style="color:#555; text-align:center; padding:10px;">Fila vazia! Peça o primeiro drink. 🍹</p>';
         }
 
-        pedidos.forEach(p => { 
-          // NÃO filtra cancelados aqui para garantir que a lógica de "meus pedidos" funcione, mas visualmente sim
-          if(p.status === 'cancelado' || p.status === 'concluido') return; 
+        // --- LÓGICA DE PAGAMENTO (CORRIGIDA) ---
+        function abrirModalPagamento() {
+            document.getElementById('modal-pagamento').style.display = 'flex';
+            // Reseta o botão caso ele tenha ficado travado de uma tentativa anterior
+            const btnPix = document.getElementById('btn-confirmar-pix');
+            btnPix.innerHTML = '<i class="fas fa-check-circle"></i> JÁ FIZ O PIX';
+            btnPix.disabled = false;
+        }
 
-          let isMine = (limparString(p.nome_convidado) === limparString(NOME_CONVIDADO));
-          if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
-           
-          // Recarga
-          if(p.tipo === 'recarga') {
-            if(isMine) {
-              let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado';
-              listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:#2196F3; background:rgba(33, 150, 243, 0.1);"><strong>${p.drink}</strong> <br><small>${statusTxt}</small></div>`;
-            }
-            return; 
-          }
+        function fecharModal() {
+            document.getElementById('modal-pagamento').style.display = 'none';
+        }
 
-          let statusText = "Fila", cor = "#888", extraHTML = ""; 
-          let nomeDisplay = isMine ? `<span class="guest-name mine">(VOCÊ)</span>` : `<span class="guest-name">(${p.nome_convidado})</span>`;
-          let divClass = isMine ? "my-order-item is-mine" : "my-order-item";
-          let posicaoTexto = "";
-          
-          if(p.status === 'pendente') { 
-            statusText = "🟡 Preparando"; cor = "#FFD580"; contagemFilaPreparacao++; 
-            let destaqueClass = "";
-            let textoPos = `#${contagemFilaPreparacao} da fila`;
-            if (contagemFilaPreparacao === 1) { destaqueClass = "first"; if (isMine) textoPos = "É A SUA VEZ! 🍸"; else textoPos = "PREPARANDO AGORA"; }
-            posicaoTexto = `<span class="queue-pos ${destaqueClass}">${textoPos}</span>`;
-          } 
-          else if(p.status === 'aguardando_pagamento') { 
-            statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; 
-            if(isMine) {
-              if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; 
-              else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`;
+        function confirmarPix() {
+            const btnPix = document.getElementById('btn-confirmar-pix');
+
+            // 1. FEEDBACK VISUAL IMEDIATO
+            btnPix.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            btnPix.disabled = true;
+
+            // 2. SIMULAÇÃO DE ENVIO (1.5 segundos)
+            setTimeout(() => {
+                // Cria o "Pedido" oficial
+                const novoPedido = {
+                    id: Date.now(), // ID único baseado no tempo
+                    itens: [...carrinho],
+                    total: carrinho.reduce((sum, item) => sum + item.preco, 0),
+                    status: 'aguardando', // Status inicial
+                    hora: new Date().toLocaleTimeString()
+                };
+
+                // Move do carrinho para a fila de pedidos
+                meusPedidos.push(novoPedido);
+                carrinho = []; // Limpa carrinho
+                
+                // Salva e atualiza tela
+                salvarDados();
+                renderizarFila();
+                atualizarBotaoFlutuante();
+                fecharModal();
+
+                alert("Pagamento enviado para análise! Seu pedido está na fila.");
+            }, 1500);
+        }
+
+        // --- LÓGICA DA FILA E CANCELAMENTO (CORRIGIDA) ---
+        function renderizarFila() {
+            const container = document.getElementById('lista-pedidos-cliente');
+            
+            if (meusPedidos.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: #777;">Nenhum pedido na fila.</p>';
+                return;
             }
-          } 
-          else if(p.status === 'pagamento_rejeitado') { 
-            statusText = "❌ Pix Não Achado"; cor = "#FF4444"; 
-            if(isMine) extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; 
-          } 
-          else if(p.status === 'servido') { 
-            statusText = "🟢 Pronto!"; cor = "#4CAF50"; 
-            if(isMine) {
-              verificarAlertaPronto(p.id, p.status);
-              if(!PEDIDOS_AVALIADOS.includes(p.id)) extraHTML += `<button class="btn-client-action" style="background:transparent; border:1px solid #FFD580; color:#FFD580;" onclick="abrirAvaliacao('${p.id}', '${p.drink}')">⭐ Avaliar Drink</button>`;
+
+            container.innerHTML = '';
+            
+            // Ordena: mais recentes primeiro
+            meusPedidos.sort((a, b) => b.id - a.id).forEach(pedido => {
+                
+                // Define classe da badge baseada no status
+                let classeStatus = '';
+                let textoStatus = pedido.status;
+                let podeCancelar = true;
+
+                switch(pedido.status) {
+                    case 'aguardando': classeStatus = 'status-aguardando'; textoStatus = 'Aguardando Pag.'; break;
+                    case 'confirmado': classeStatus = 'status-confirmado'; textoStatus = 'Na Fila'; break;
+                    case 'preparando': 
+                        classeStatus = 'status-preparando'; 
+                        textoStatus = 'Preparando...'; 
+                        podeCancelar = false; // TRAVA O CANCELAMENTO AQUI
+                        break;
+                    case 'pronto': 
+                        classeStatus = 'status-pronto'; 
+                        textoStatus = 'Pronto p/ Retirar'; 
+                        podeCancelar = false; 
+                        break;
+                    case 'cancelado': 
+                        classeStatus = 'status-cancelado'; 
+                        textoStatus = 'Cancelado'; 
+                        podeCancelar = false; 
+                        break;
+                }
+
+                // Cria nomes dos itens para exibir
+                const nomesItens = pedido.itens.map(i => i.nome).join(', ');
+
+                // Botão de cancelar só aparece se podeCancelar for true
+                const btnCancelarHTML = podeCancelar 
+                    ? `<button class="btn-cancelar" onclick="cancelarPedido(${pedido.id})"><i class="fas fa-times"></i> Cancelar</button>` 
+                    : '';
+
+                container.innerHTML += `
+                    <div class="pedido-item">
+                        <div>
+                            <strong>#${pedido.id.toString().slice(-4)}</strong> - <span style="font-size:0.9em; color:#ccc">${nomesItens}</span>
+                            <br>
+                            <small>Total: R$ ${pedido.total.toFixed(2)}</small>
+                        </div>
+                        <div style="text-align:right;">
+                            <span class="status-badge ${classeStatus}">${textoStatus}</span>
+                            <div style="margin-top:5px;">
+                                ${btnCancelarHTML}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function cancelarPedido(idPedido) {
+            const index = meusPedidos.findIndex(p => p.id === idPedido);
+            if (index === -1) return;
+
+            const pedido = meusPedidos[index];
+
+            // DUPLA VERIFICAÇÃO DE SEGURANÇA
+            if (pedido.status === 'preparando') {
+                alert("ERRO: O pedido já está sendo preparado e não pode ser cancelado!");
+                return;
             }
-          } 
-          
-          if(isMine && p.status !== 'servido') extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
-          
-          listaHTML.innerHTML += `<div class="${divClass}" style="border-left-color:${cor}"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><strong>${p.drink}</strong> ${nomeDisplay}<br>${posicaoTexto}</div><span style="color:${cor}; font-weight:bold; font-size:0.8em; white-space:nowrap; margin-left:5px;">${statusText}</span></div><small style="color:#aaa; display:block; margin-top:5px;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; 
-        }); 
+            if (pedido.status === 'pronto') {
+                alert("Seu drink já está pronto!");
+                return;
+            }
+
+            if (confirm("Deseja realmente cancelar este pedido?")) {
+                pedido.status = 'cancelado';
+                salvarDados();
+                renderizarFila();
+                alert("Pedido cancelado.");
+            }
+        }
+
+        function salvarDados() {
+            localStorage.setItem('meusPedidos', JSON.stringify(meusPedidos));
+        }
         
-        const totalBadge = CARRINHO_LOCAL.length + meusPedidosAtivosCount;
-        document.getElementById('badgeMeusPedidos').innerText = totalBadge;
-      }); 
-    }
-
-    // UTILS e OUTRAS FUNÇÕES
-    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display = 'flex'; }
-    function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; adicionarAoCarrinho(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco, 'combo'); }
-    function atualizarUIBadge() { const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length; const btn = document.getElementById('btnMeusPedidos'); if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex'; }
-    function abrirModalRecarga() { document.getElementById('modalRecarga').style.display = 'flex'; document.getElementById('valorRecarga').value = ''; document.getElementById('areaPixRecarga').style.display = 'none'; document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('btnOpcaoPix').style.display = 'none'; document.getElementById('btnConfirmarRecarga').style.display = 'none'; document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); }
-    function fecharModalRecarga() { document.getElementById('modalRecarga').style.display = 'none'; }
-    function selecionarPacote(valor) { document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); if(valor === 0) { document.getElementById('areaValorManual').style.display = 'block'; document.getElementById('valorRecarga').value = ''; } else { document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('valorRecarga').value = valor; if(LINKS_PAGAMENTO[valor]) { window.open(LINKS_PAGAMENTO[valor], '_blank'); } else { alert("Pagamento manual: use o PIX."); } } document.getElementById('btnOpcaoPix').style.display = 'block'; document.getElementById('btnConfirmarRecarga').style.display = 'block'; }
-    function mostrarPixRecarga() { const valor = document.getElementById('valorRecarga').value; if(!valor || valor <= 0) return alert("Escolha um pacote ou digite o valor!"); const chave = DADOS_EVENTO.chave_pix || "75998649927"; document.getElementById('chavePixRecarga').innerText = chave; document.getElementById('areaPixRecarga').style.display = 'block'; }
-    function copiarPixRecarga() { const chave = document.getElementById('chavePixRecarga').innerText; navigator.clipboard.writeText(chave).then(() => alert("Chave copiada!")); }
-    function confirmarSolicitacaoRecarga() { const valor = parseFloat(document.getElementById('valorRecarga').value); if(!valor) return alert("Selecione um pacote!"); db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: `CRÉDITO R$ ${valor.toFixed(2)}`, categoria_drink: 'recarga', tipo: 'recarga', preco: valor, nome_convidado: NOME_CONVIDADO, status: 'aguardando_pagamento', sinalizou_pagamento: true, data: new Date() }).then(() => { fecharModalRecarga(); mostrarNotificacao("Solicitação enviada! Aguarde a confirmação."); abrirMeusPedidos(); }); }
-    function verificarStatusEvento(status) { const overlay = document.getElementById('telaBloqueio'); const icon = document.getElementById('iconStatus'); const title = document.getElementById('tituloStatus'); const msg = document.getElementById('msgStatus'); if (!status || status === 'aberto') { overlay.style.display = 'none'; return; } overlay.style.display = 'flex'; if (status === 'aguardando') { icon.innerText = '⏳'; title.innerText = 'EM BREVE'; msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂'; } else if (status === 'pausado') { icon.innerText = '✋'; title.innerText = 'BAR PAUSADO'; msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!'; } else if (status === 'encerrado') { icon.innerText = '🏁'; title.innerText = 'EVENTO ENCERRADO'; msg.innerText = 'Obrigado pela presença! O bar foi finalizado.'; } }
-    function abrirAvaliacao(id, nome) { DRINK_AVALIANDO_ID = id; DRINK_AVALIANDO_NOME = nome; document.getElementById('nomeDrinkAvaliar').innerText = nome; document.getElementById('modalAvaliar').style.display = 'flex'; setEstrelas(5); }
-    function setEstrelas(n) { document.getElementById('notaEstrela').value = n; for(let i=1; i<=5; i++) { const star = document.getElementById('star'+i); if(i <= n) star.classList.add('active'); else star.classList.remove('active'); } }
-    function enviarAvaliacao() { const nota = document.getElementById('notaEstrela').value; const coment = document.getElementById('textoAvaliacao').value; if(!coment || coment.trim() === "") { return alert("Por favor, escreva um comentário para enviar sua avaliação!"); } db.collection("avaliacoes").add({ evento_id: EVENTO_ID, nome_evento: DADOS_EVENTO.nome, data_evento: new Date(), drink: DRINK_AVALIANDO_NOME, cliente: NOME_CONVIDADO, nota: parseInt(nota), comentario: coment, status: 'pendente' }).then(() => { alert("Obrigado! Sua avaliação foi enviada."); document.getElementById('modalAvaliar').style.display = 'none'; PEDIDOS_AVALIADOS.push(DRINK_AVALIANDO_ID); localStorage.setItem(`avaliados_${EVENTO_ID}`, JSON.stringify(PEDIDOS_AVALIADOS)); rastrearFilaGlobal(); document.getElementById('textoAvaliacao').value = ""; }); }
-    function abrirMural() { document.getElementById('modalMural').style.display = 'flex'; const lista = document.getElementById('listaMuralHTML'); lista.innerHTML = '<p style="text-align:center; color:#888;">Carregando...</p>'; db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snap => { if(snap.empty) { lista.innerHTML = "<p style='color:#777; text-align:center;'>Ainda sem avaliações.</p>"; return; } let reviews = []; snap.forEach(doc => reviews.push(doc.data())); reviews.sort((a,b) => { let dA = a.data_evento && a.data_evento.toDate ? a.data_evento.toDate() : new Date(); let dB = b.data_evento && b.data_evento.toDate ? b.data_evento.toDate() : new Date(); return dB - dA; }); reviews = reviews.slice(0, 20); lista.innerHTML = ""; reviews.forEach(r => { const estrelas = "⭐".repeat(r.nota); const dataStr = r.data_evento && r.data_evento.toDate ? r.data_evento.toDate().toLocaleDateString() : ''; lista.innerHTML += `<div class="review-card"><div style="display:flex; justify-content:space-between;"><strong style="color:#fff;">${r.cliente}</strong><span class="stars">${estrelas}</span></div><div style="color:#aaa; font-size:0.85em; margin-bottom:5px;">Bebeu: ${r.drink}</div><div style="color:#ddd; font-style:italic;">"${r.comentario}"</div><span class="review-meta">Evento: ${r.nome_evento} • ${dataStr}</span></div>`; }); }); }
-    function mudarAba(aba) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); if(aba === 'pedidos') { document.querySelector('.tab-btn:nth-child(1)').classList.add('active'); document.getElementById('tab-pedidos').classList.add('active'); } else { document.querySelector('.tab-btn:nth-child(2)').classList.add('active'); document.getElementById('tab-chat').classList.add('active'); document.getElementById('alertChatTab').style.display = 'none'; rolarChat(); } }
-    function enviarMensagem() { const txt = document.getElementById('chatInput').value; if(!txt.trim()) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: txt, remetente: 'cliente', data: new Date() }); document.getElementById('chatInput').value = ''; }
-    function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
-    function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
-    function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
-    function copiarPixRodape() { const chave = DADOS_EVENTO.chave_pix || "75998649927"; navigator.clipboard.writeText(chave).then(() => { alert(`Chave PIX copiada: ${chave}\n\nObrigado pela contribuição! 🥂`); }); }
-    function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTextoMassa').innerText); alert("Copiado!"); }
-    function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
-    function getTempoRestante() { if (!TIMER_MINUTOS || TIMER_MINUTOS == 0) return 0; const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
-    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 ADICIONAR (PACOTE)`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
-    function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
-</script>
+        // --- FERRAMENTA DE TESTE (PARA VOCÊ VERIFICAR O BLOQUEIO) ---
+        // Abra o console do navegador e digite: simularPreparacao(ID_DO_PEDIDO)
+        // Isso vai mudar o status para 'preparando' para você testar se o botão some.
+        window.simularPreparacao = function(idPedido) {
+            const p = meusPedidos.find(i => i.id === idPedido);
+            if(p) {
+                p.status = 'preparando';
+                salvarDados();
+                renderizarFila();
+                console.log("Pedido " + idPedido + " agora está em PREPARAÇÃO.");
+            }
+        }
+    </script>
 </body>
 </html>
