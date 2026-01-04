@@ -24,8 +24,19 @@
         .btn-abrir { background: #00E676; box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); }
         .btn-pausar { background: #FFD600; box-shadow: 0 0 15px rgba(255, 214, 0, 0.4); }
         .btn-encerrar { background: #FF1744; color: #fff; box-shadow: 0 0 15px rgba(255, 23, 68, 0.4); }
+        .btn-relatorio { background: #2979FF; color: white; box-shadow: 0 0 15px rgba(41, 121, 255, 0.4); margin-top: 20px; }
 
         .loading { color: #888; font-style: italic; }
+
+        /* MODAL DE RELATÓRIO */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: #1E1E1E; padding: 20px; border-radius: 15px; width: 90%; max-width: 500px; height: 80vh; display: flex; flex-direction: column; border: 1px solid #444; }
+        .report-summary { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 1px solid #444; }
+        .report-list { flex-grow: 1; overflow-y: auto; background: #121212; padding: 10px; border-radius: 8px; border: 1px solid #333; text-align: left; }
+        .report-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 8px 0; font-size: 0.85em; color: #ccc; }
+        .report-header { font-weight: bold; color: #FFD580; margin-bottom: 10px; border-bottom: 2px solid #FFD580; padding-bottom: 5px; display: flex; justify-content: space-between; }
+        
+        .btn-fechar { background: #333; color: #fff; border: 1px solid #555; padding: 15px; width: 100%; margin-top: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -47,11 +58,47 @@
             <button class="btn btn-abrir" onclick="mudarStatus('aberto')">🟢 ABRIR BAR</button>
             <button class="btn btn-pausar" onclick="mudarStatus('pausado')">✋ PAUSAR PEDIDOS</button>
             <button class="btn btn-encerrar" onclick="mudarStatus('encerrado')">🏁 ENCERRAR EVENTO</button>
+            
+            <hr style="width:100%; border-color:#333; margin: 10px 0;">
+            
+            <button class="btn btn-relatorio" onclick="abrirRelatorio()">📊 EXTRATO / PROVA DE PACOTE</button>
         </div>
         
         <p style="margin-top:30px; color:#555; font-size:0.8em;">
             As alterações refletem instantaneamente no cardápio de todos os convidados.
         </p>
+    </div>
+
+    <div id="modalRelatorio" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:#2979FF; margin-top:0;">Extrato do Pacote</h2>
+            <p style="color:#aaa; font-size:0.8em; margin-bottom:15px;">Use isso para provar o consumo ao cliente.</p>
+            
+            <div class="report-summary">
+                <div style="display:flex; justify-content:space-around;">
+                    <div>
+                        <small style="color:#888;">CONTRATADO</small><br>
+                        <strong style="font-size:1.4em; color:#fff;" id="repContratado">0</strong>
+                    </div>
+                    <div style="border-right:1px solid #444;"></div>
+                    <div>
+                        <small style="color:#888;">CONSUMIDO</small><br>
+                        <strong style="font-size:1.4em; color:#00E676;" id="repConsumido">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-header">
+                <span style="width: 50px;">HORA</span>
+                <span style="flex: 1; margin-left: 10px;">CLIENTE / DRINK</span>
+            </div>
+            
+            <div id="listaRelatorio" class="report-list">
+                <p style="text-align:center; color:#555;">Carregando dados...</p>
+            </div>
+
+            <button class="btn-fechar" onclick="document.getElementById('modalRelatorio').style.display='none'">FECHAR</button>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -62,6 +109,7 @@
         const db = firebase.firestore();
 
         let eventoAtualID = "";
+        let dadosEventoAtual = null;
 
         // 1. Carregar lista de eventos ativos
         db.collection("eventos").orderBy("data_criacao", "desc").get().then((snapshot) => {
@@ -85,8 +133,8 @@
 
             db.collection("eventos").doc(id).onSnapshot((doc) => {
                 if(doc.exists) {
-                    const data = doc.data();
-                    const status = data.status || "aberto"; // padrão é aberto
+                    dadosEventoAtual = doc.data();
+                    const status = dadosEventoAtual.status || "aberto"; 
                     
                     const display = document.getElementById("displayStatus");
                     display.innerText = status.toUpperCase();
@@ -110,11 +158,74 @@
             db.collection("eventos").doc(eventoAtualID).update({
                 status: novoStatus
             }).then(() => {
-                // Feedback visual rápido (opcional, pois o onSnapshot já atualiza)
-                // alert("Status alterado para " + novoStatus);
+                // Sucesso
             }).catch((error) => {
                 alert("Erro ao atualizar: " + error);
             });
+        }
+
+        // 4. Função do Relatório (Extrato)
+        function abrirRelatorio() {
+            if(!eventoAtualID || !dadosEventoAtual) return alert("Selecione um evento primeiro!");
+            
+            document.getElementById('modalRelatorio').style.display = 'flex';
+            
+            // Atualiza totais do cabeçalho
+            document.getElementById('repContratado').innerText = dadosEventoAtual.total_contratado || 0;
+            document.getElementById('repConsumido').innerText = dadosEventoAtual.total_consumido || 0;
+
+            const lista = document.getElementById('listaRelatorio');
+            lista.innerHTML = '<p style="text-align:center; color:#555;">Carregando...</p>';
+
+            // Busca pedidos do pacote deste evento
+            db.collection("pedidos")
+              .where("evento_id", "==", eventoAtualID)
+              .where("tipo", "==", "pacote") // Apenas itens do pacote
+              .get()
+              .then(snapshot => {
+                  if(snapshot.empty) {
+                      lista.innerHTML = '<p style="text-align:center; color:#555; margin-top:20px;">Nenhum consumo registrado no pacote.</p>';
+                      return;
+                  }
+
+                  let itens = [];
+                  snapshot.forEach(doc => itens.push(doc.data()));
+
+                  // Ordena do mais recente para o mais antigo
+                  itens.sort((a,b) => {
+                      let dA = a.data && a.data.toDate ? a.data.toDate() : new Date();
+                      let dB = b.data && b.data.toDate ? b.data.toDate() : new Date();
+                      return dB - dA;
+                  });
+
+                  lista.innerHTML = '';
+                  itens.forEach(item => {
+                      // Se foi cancelado, a gente mostra riscado ou com cor diferente (para provar que não contou)
+                      let estiloExtra = "";
+                      let statusExtra = "";
+                      
+                      if(item.status === 'cancelado') {
+                          estiloExtra = "text-decoration: line-through; opacity: 0.5;";
+                          statusExtra = "(CANCELADO)";
+                      }
+
+                      let hora = "??:??";
+                      if(item.data && item.data.toDate) {
+                          hora = item.data.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                      }
+
+                      lista.innerHTML += `
+                        <div class="report-row" style="${estiloExtra}">
+                            <span style="width: 50px; color:#888;">${hora}</span>
+                            <div style="flex:1; margin-left:10px;">
+                                <strong style="color:#fff;">${item.nome_convidado}</strong> ${statusExtra}
+                                <br>
+                                <span style="color:#2979FF; font-size:0.9em;">${item.drink}</span>
+                            </div>
+                        </div>
+                      `;
+                  });
+              });
         }
     </script>
 </body>
