@@ -184,6 +184,10 @@
     🔑 Copiar Chave PIX (Gorjeta)
    </button>
 
+   <button onclick="abrirModalMarketing()" style="background:transparent; border:1px solid #25D366; color:#25D366; padding:10px 20px; border-radius:30px; margin-top:10px; cursor:pointer; font-size:0.9em; width:80%;">
+    🎁 Entrar no Clube VIP
+   </button>
+
    <div class="social-grid">
     <a href="https://wa.me/5575998649927" target="_blank" class="btn-social-footer" style="background:#25D366;">
       <span style="font-size:1.4em;">💬</span> Falar com Gil
@@ -203,6 +207,16 @@
 
 <div class="modal-overlay" id="modalCombo"><div class="modal-box" style="height: 600px;"><h2 style="color:#FFD580; margin:0 0 5px 0;">Montar Combo</h2><p style="color:#aaa; font-size:0.9em; margin-bottom:15px;">Selecione <span id="maxComboQtd" style="color:#fff; font-weight:bold;">3</span> drinks:</p><div id="listaSelecaoCombo" style="flex-grow:1; overflow-y:auto; text-align:left;"></div><div style="border-top:1px solid #333; padding-top:10px;"><span id="totalComboDisplay">R$ 0,00</span><button class="btn-confirm" id="btnFinalizarCombo" onclick="finalizarCombo()">CONFIRMAR COMBO</button><button onclick="document.getElementById('modalCombo').style.display='none'" style="background:none; border:none; color:#888; margin-top:10px;">Cancelar</button></div></div></div>
 <div class="modal-overlay" id="modalNome" style="display:flex;"><div class="modal-box"><h3>Bem-vindo!</h3><p style="color:#aaa;">Como devemos te chamar?</p><input type="text" id="inputNomeConvidado" class="input-nome" placeholder="Seu Nome"><button class="btn-confirm" onclick="salvarNome()">ENTRAR</button></div></div>
+
+<div class="modal-overlay" id="modalMarketing">
+    <div class="modal-box">
+        <h2 style="color:#25D366;">📲 Clube VIP</h2>
+        <p style="color:#ccc;">Deixe seu WhatsApp para receber promoções e descontos exclusivos!</p>
+        <input type="tel" id="mktZap" class="input-nome" placeholder="(75) 99999-9999">
+        <button class="btn-confirm" onclick="salvarZap()" style="background:#25D366; color:#fff;">QUERO PARTICIPAR</button>
+        <button onclick="document.getElementById('modalMarketing').style.display='none'" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Agora não</button>
+    </div>
+</div>
 
 <div class="modal-overlay" id="modalRecarga"><div class="modal-box">
   <h2 style="color:#4CAF50;">💰 Adicionar Saldo</h2>
@@ -344,7 +358,6 @@
     document.getElementById('modalNome').style.display = 'none'; 
     document.getElementById('displayNome').innerText = val; 
      
-    // CORREÇÃO DO CHAT: Sem reload, inicia conversa direto
     if (EVENTO_ID) {
       db.collection("chat_mensagens").add({ 
         evento_id: EVENTO_ID, 
@@ -361,7 +374,7 @@
             remetente: 'admin',
             data: new Date()
           });
-          carregarChat(); // Inicia o listener do chat
+          carregarChat(); 
         }, 1000);
       });
     }
@@ -538,7 +551,6 @@
     }).catch(err => alert("Erro ao enviar: " + err)); 
   }
    
-  // --- FUNÇÃO DE FILA GLOBAL ORIGINAL RESTAURADA ---
   function rastrearFilaGlobal() {
    db.collection("pedidos")
     .where("evento_id", "==", EVENTO_ID)
@@ -552,19 +564,16 @@
     let contagemFilaPreparacao = 0;
     let meusPedidosAtivosCount = 0;
      
-    // Se vazio
     if(pedidos.length === 0) {
       listaHTML.innerHTML = '<p style="color:#555; text-align:center; padding:10px;">Fila vazia! Peça o primeiro drink. 🍹</p>';
     }
 
     pedidos.forEach(p => { 
-     // NÃO filtra cancelados aqui para garantir que a lógica de "meus pedidos" funcione, mas visualmente sim
      if(p.status === 'cancelado' || p.status === 'concluido') return; 
 
      let isMine = (limparString(p.nome_convidado) === limparString(NOME_CONVIDADO));
      if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
       
-     // Recarga
      if(p.tipo === 'recarga') {
       if(isMine) {
        let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado';
@@ -633,7 +642,7 @@
   function enviarMensagem() { const txt = document.getElementById('chatInput').value; if(!txt.trim()) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: txt, remetente: 'cliente', data: new Date() }); document.getElementById('chatInput').value = ''; }
   function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
   function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
-  function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
+  function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo! Obrigado por fazer parte do Clube VIP."); document.getElementById('modalMarketing').style.display = 'none'; }
   function copiarPixRodape() { const chave = DADOS_EVENTO.chave_pix || "75998649927"; navigator.clipboard.writeText(chave).then(() => { alert(`Chave PIX copiada: ${chave}\n\nObrigado pela contribuição! 🥂`); }); }
   function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTextoMassa').innerText); alert("Copiado!"); }
   function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
@@ -641,9 +650,11 @@
   function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 ADICIONAR (PACOTE)`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
   function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
 
-  // --- FUNÇÕES QUE FALTAVAM (CORREÇÃO DE BUGS) ---
+  // --- FUNÇÕES DE MARKETING E MODAIS (ADICIONADAS) ---
+  function abrirModalMarketing() {
+      document.getElementById('modalMarketing').style.display = 'flex';
+  }
 
-  // 1. AVISA O PAGAMENTO (Atualiza Firebase e a tela mostra "Verificando")
   function avisarPagamento(idPedido) {
     db.collection("pedidos").doc(idPedido).update({
       sinalizou_pagamento: true
@@ -654,25 +665,18 @@
     });
   }
 
-  // 2. CANCELAMENTO COM BLOQUEIO DE PREPARAÇÃO
   function cancelarPedidoCliente(idPedido) {
     db.collection("pedidos").doc(idPedido).get().then(doc => {
       if(doc.exists) {
         const p = doc.data();
-
-        // Se status for 'pendente' (significa Preparando no seu código), BLOQUEIA
         if (p.status === 'pendente') {
           alert("🚫 Ops! O barman JÁ ESTÁ PREPARANDO seu drink.\n\nNão é possível cancelar agora.");
           return;
         }
-
-        // Se já estiver pronto, também bloqueia
         if (p.status === 'servido') {
           alert("Seu pedido já está pronto!");
           return;
         }
-
-        // Se passou pelos bloqueios, confirma e cancela
         if(confirm("Tem certeza que deseja cancelar este pedido?")) {
           db.collection("pedidos").doc(idPedido).update({
             status: 'cancelado'
@@ -684,9 +688,7 @@
     });
   }
 
-  // 3. ALERTA QUANDO FICA PRONTO (Simples)
   function verificarAlertaPronto(id, status) {
-    // Verifica se já mostramos alerta para este ID nesta sessão para não ficar pipocando
     let mostrados = JSON.parse(sessionStorage.getItem('alertas_mostrados') || "[]");
     if(status === 'servido' && !mostrados.includes(id)) {
       document.getElementById('modalPronto').style.display = 'flex';
