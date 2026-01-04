@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Central de Comando - Gil Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #121212; color: #EAEAEA; margin: 0; padding: 20px; }
         
@@ -71,7 +73,11 @@
         .modal-box-large { background: #1E1E1E; padding: 25px; border-radius: 15px; width: 90%; max-width: 700px; height: 85vh; display: flex; flex-direction: column; border: 1px solid #333; }
 
         /* ESTILOS DO RELATÓRIO (MODAL) */
-        .modal-report-box { background: #1E1E1E; padding: 20px; border-radius: 15px; width: 90%; max-width: 500px; height: 80vh; display: flex; flex-direction: column; border: 1px solid #444; }
+        .modal-report-box { background: #1E1E1E; padding: 20px; border-radius: 15px; width: 90%; max-width: 500px; height: 85vh; display: flex; flex-direction: column; border: 1px solid #444; }
+        
+        /* Área específica para tirar a foto */
+        #areaParaFoto { background: #1E1E1E; padding: 15px; border-radius: 10px; }
+
         .report-summary { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; border: 1px solid #444; }
         .report-list { flex-grow: 1; overflow-y: auto; background: #121212; padding: 10px; border-radius: 8px; border: 1px solid #333; text-align: left; }
         .report-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 8px 0; font-size: 0.85em; color: #ccc; }
@@ -122,30 +128,40 @@
             </div>
             <p style="color:#aaa; font-size:0.8em; margin-bottom:15px;">Comprovante de consumo para o cliente.</p>
             
-            <div class="report-summary">
-                <div style="display:flex; justify-content:space-around;">
-                    <div>
-                        <small style="color:#888;">CONTRATADO</small><br>
-                        <strong style="font-size:1.4em; color:#fff;" id="repContratado">0</strong>
-                    </div>
-                    <div style="border-right:1px solid #444;"></div>
-                    <div>
-                        <small style="color:#888;">CONSUMIDO</small><br>
-                        <strong style="font-size:1.4em; color:#00E676;" id="repConsumido">0</strong>
+            <div id="areaParaFoto">
+                <div style="text-align:center; margin-bottom:10px; border-bottom:1px solid #444; padding-bottom:5px;">
+                    <strong style="color:#FFD580; text-transform: uppercase;" id="nomeEventoRelatorio">EVENTO</strong><br>
+                    <small style="color:#aaa;" id="dataEventoRelatorio">00/00/0000</small>
+                </div>
+
+                <div class="report-summary">
+                    <div style="display:flex; justify-content:space-around;">
+                        <div>
+                            <small style="color:#888;">CONTRATADO</small><br>
+                            <strong style="font-size:1.4em; color:#fff;" id="repContratado">0</strong>
+                        </div>
+                        <div style="border-right:1px solid #444;"></div>
+                        <div>
+                            <small style="color:#888;">CONSUMIDO</small><br>
+                            <strong style="font-size:1.4em; color:#00E676;" id="repConsumido">0</strong>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="report-header">
-                <span style="width: 50px;">HORA</span>
-                <span style="flex: 1; margin-left: 10px;">CLIENTE / DRINK</span>
+                <div class="report-header">
+                    <span style="width: 50px;">HORA</span>
+                    <span style="flex: 1; margin-left: 10px;">CLIENTE / DRINK</span>
+                </div>
+                
+                <div id="listaRelatorio" class="report-list" style="max-height: 400px; overflow-y: auto;">
+                    <p style="text-align:center; color:#555;">Carregando...</p>
+                </div>
+                <div style="text-align:center; font-size:0.7em; color:#555; margin-top:10px;">Gil Eventos - Comprovante Digital</div>
             </div>
-            
-            <div id="listaRelatorio" class="report-list">
-                <p style="text-align:center; color:#555;">Carregando...</p>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button onclick="baixarImagemExtrato()" style="flex:1; background:#00E676; color:#000; border:none; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer;">📥 BAIXAR COMPROVANTE</button>
+                <button onclick="document.getElementById('modalRelatorio').style.display='none'" style="background:#333; color:white; border:1px solid #555; padding:15px; border-radius:8px; cursor:pointer;">Fechar</button>
             </div>
-            
-            <button onclick="document.getElementById('modalRelatorio').style.display='none'" style="margin-top:10px; background:#333; color:white; border:1px solid #555; padding:10px; border-radius:5px; cursor:pointer;">Fechar</button>
         </div>
     </div>
 
@@ -307,6 +323,8 @@
             
             document.getElementById('repContratado').innerText = evento.total_contratado || 0;
             document.getElementById('repConsumido').innerText = evento.total_consumido || 0;
+            document.getElementById('nomeEventoRelatorio').innerText = evento.nome;
+            document.getElementById('dataEventoRelatorio').innerText = evento.data_evento || "Data n/d";
 
             const lista = document.getElementById('listaRelatorio');
             lista.innerHTML = '<p style="text-align:center; color:#555;">Carregando...</p>';
@@ -355,6 +373,38 @@
                       `;
                   });
               });
+        }
+
+        // --- FUNÇÃO DE DOWNLOAD DA IMAGEM ---
+        function baixarImagemExtrato() {
+            const elemento = document.getElementById('areaParaFoto');
+            
+            // Força a altura para pegar todo o conteúdo (mesmo com scroll)
+            const lista = document.getElementById('listaRelatorio');
+            const alturaOriginal = lista.style.maxHeight;
+            const overflowOriginal = lista.style.overflowY;
+            
+            lista.style.maxHeight = 'none';
+            lista.style.overflowY = 'visible';
+
+            html2canvas(elemento, {
+                backgroundColor: "#1E1E1E",
+                scale: 2 // Melhora a qualidade
+            }).then(canvas => {
+                // Cria link de download
+                const link = document.createElement('a');
+                link.download = 'extrato-gil-eventos.png';
+                link.href = canvas.toDataURL();
+                link.click();
+
+                // Restaura o scroll
+                lista.style.maxHeight = alturaOriginal;
+                lista.style.overflowY = overflowOriginal;
+            }).catch(err => {
+                alert("Erro ao gerar imagem: " + err);
+                lista.style.maxHeight = alturaOriginal;
+                lista.style.overflowY = overflowOriginal;
+            });
         }
 
         function filtrarEventos() {
