@@ -381,13 +381,23 @@
         return false;
     }
 
-    function verificarCombosAtivos() { 
-        if(!DADOS_EVENTO || !DADOS_EVENTO.cardapio) return;
-        let drinksPagosAtivos = DADOS_EVENTO.cardapio.filter(d => isItemPago(d) && d.disponivel !== false).length;
-        if(drinksPagosAtivos > 0) {
-            document.getElementById('areaCombos').style.display = 'grid';
+    // --- CORREÇÃO DA LÓGICA DE COMBOS AQUI ---
+    function verificarCombosAtivos() {
+        if (!DADOS_EVENTO || !DADOS_EVENTO.cardapio) return;
+
+        // A lógica: Procura se existe ALGUM drink que atenda a 2 condições:
+        // 1. Está disponível (d.disponivel !== false)
+        // 2. É cobrado (isItemPago(d) retorna true)
+        const temItemPago = DADOS_EVENTO.cardapio.some(d => 
+            d.disponivel !== false && isItemPago(d)
+        );
+
+        const areaCombos = document.getElementById('areaCombos');
+
+        if (temItemPago) {
+            areaCombos.style.display = 'grid'; // Mostra se tiver item pago
         } else {
-            document.getElementById('areaCombos').style.display = 'none';
+            areaCombos.style.display = 'none'; // Esconde se tudo for grátis/pacote
         }
     }
 
@@ -397,7 +407,9 @@
         document.getElementById('maxComboQtd').innerText = qtd; 
         const lista = document.getElementById('listaSelecaoCombo'); 
         lista.innerHTML = ''; 
+        
         let itensParaCombo = DADOS_EVENTO.cardapio.filter(item => isItemPago(item) && item.disponivel !== false);
+        
         if(itensParaCombo.length === 0) return alert("Não há drinks pagos disponíveis para formar combo."); 
         
         itensParaCombo.forEach((item, index) => { 
@@ -594,110 +606,6 @@
         reviews.sort((a,b) => { let dA = a.data_evento && a.data_evento.toDate ? a.data_evento.toDate() : new Date(); let dB = b.data_evento && b.data_evento.toDate ? b.data_evento.toDate() : new Date(); return dB - dA; });
         reviews = reviews.slice(0, 20); lista.innerHTML = ""; reviews.forEach(r => { const estrelas = "⭐".repeat(r.nota); const dataStr = r.data_evento && r.data_evento.toDate ? r.data_evento.toDate().toLocaleDateString() : ''; lista.innerHTML += `<div class="review-card"><div style="display:flex; justify-content:space-between;"><strong style="color:#fff;">${r.cliente}</strong><span class="stars">${estrelas}</span></div><div style="color:#aaa; font-size:0.85em; margin-bottom:5px;">Bebeu: ${r.drink}</div><div style="color:#ddd; font-style:italic;">"${r.comentario}"</div><span class="review-meta">Evento: ${r.nome_evento} • ${dataStr}</span></div>`; }); }); }
     function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; adicionarAoCarrinho(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco, 'combo'); }
-    function getDrinkData(nomeOriginal) { const n = limparString(nomeOriginal); const dados = { 'elixir do sol': { img: 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg', desc: 'Abacaxi, hortelã, toque cítrico e especiarias.' }, 'desejo proibido': { img: 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg', desc: 'Frutas vermelhas intensas, cítrico e hortelã.' }, 'encanto noturno': { img: 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg', desc: 'Uva roxa, cítrico e manjericão fresco.' }, 'tropical mix': { img: 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg', desc: 'Tangerina, kiwi, abacaxi e ervas frescas.' }, 'brisa verde': { img: 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg', desc: 'Limão, gengibre, manjericão e açúcar de cana.' }, 'furia rubi': { img: 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg', desc: 'Morango, tangerina e maracujá.' }, 'caipirinha premium': { img: 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', desc: 'Limão tahiti, açúcar na medida e aguardente.' }, 'segredo da casa': { img: 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg', desc: 'Criação autoral com toque secreto.' }, 'aperol sunset': { img: 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg', desc: 'Aperol com espumante e laranja caramelizada.' }, 'gin tropical': { img: 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', desc: 'Gin, abacaxi grelhado e especiarias.' }, 'mojito da ilha': { img: 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', desc: 'Rum branco, hortelã fresca e limão.' }, 'coquetel kids': { img: 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', desc: 'Mix cremoso de frutas vermelhas. Delicioso e colorido.' }, 'personalizado': { img: 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', desc: 'O cliente escolhe as frutas e combinações na hora.' } }; for (const [key, data] of Object.entries(dados)) { if (n.includes(key)) return data; } if (n.includes('mojito')) return dados['mojito da ilha']; if (n.includes('gin')) return dados['gin tropical']; return { img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', desc: 'Uma experiência de sabor única.' }; }
-    function getDrinkImage(nome) { return getDrinkData(nome).img; }
-    
-    function renderizarCardapio() { 
-        document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome; 
-        const lista = document.getElementById('listaCardapio'); lista.innerHTML = ''; 
-        const classicos = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico'); 
-        const premiums = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium'); 
-        
-        const renderGrupo = (titulo, items) => { 
-            if(items.length === 0) return ''; 
-            let html = `<div class="section-title">${titulo}</div>`; 
-            items.forEach(item => { 
-                let disponivel = item.disponivel !== false; 
-                let precoFinal = item.preco || 0; 
-                let htmlPreco = ''; 
-                const dadosVisuais = getDrinkData(item.nome); 
-                let imagemUrl = dadosVisuais.img; 
-                let descricao = dadosVisuais.desc; 
-                if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) { precoFinal = item.preco_prevenda; htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`; } else if(item.tipo_cobranca === 'pago') { htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`; } 
-                let cardHTML = `<div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}"><div class="card-image-box"><div class="blur-bg" style="background-image: url('${imagemUrl}')"></div><img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}"><div class="card-image-overlay"></div>${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${descricao}</p>`; 
-                let deveCobrar = isItemPago(item);
-                if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; } 
-                else if(deveCobrar) { cardHTML += `<button class="btn-action btn-paid" onclick="adicionarAoCarrinho('${item.nome}', 'extra', ${precoFinal}, '${item.categoria}')">🛒 ADICIONAR + (R$ ${precoFinal})</button>`; } 
-                else { cardHTML += `<button class="btn-action btn-free btn-pacote" onclick="adicionarAoCarrinho('${item.nome}', 'pacote', 0, '${item.categoria}')">🆓 ADICIONAR (PACOTE)</button>`; } 
-                cardHTML += `</div></div>`; html += cardHTML; 
-            }); 
-            return html; 
-        }; 
-        lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', classicos); lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums); 
-    }
-
-    function adicionarAoCarrinho(nome, tipo, preco, categoria) {
-        if(tipo === 'pacote') {
-            const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
-            if(isItemPago({categoria: categoria})) { 
-                alert("⚠️ O pacote acabou de esgotar! Você será redirecionado para compra."); 
-                tipo = 'extra'; 
-                const drinkData = DADOS_EVENTO.cardapio.find(d => d.nome === nome); 
-                preco = drinkData ? (DADOS_EVENTO.modo_preco==='prevenda' ? drinkData.preco_prevenda : drinkData.preco) : 10; 
-            }
-        }
-        const item = { idTemp: Date.now(), nome, tipo, preco, categoria, data: new Date().toISOString() };
-        CARRINHO_LOCAL.push(item);
-        salvarCarrinhoLocal();
-        mostrarNotificacao(`✅ ${nome} adicionado!`);
-        atualizarUIBadge();
-        if(tipo === 'pacote') salvarTimer();
-    }
-
-    function salvarCarrinhoLocal() { localStorage.setItem(`carrinho_${EVENTO_ID}`, JSON.stringify(CARRINHO_LOCAL)); renderizarCarrinho(); }
-    function removerDoCarrinho(idTemp) { CARRINHO_LOCAL = CARRINHO_LOCAL.filter(i => i.idTemp !== idTemp); salvarCarrinhoLocal(); }
-    function renderizarCarrinho() {
-        const div = document.getElementById('listaCarrinhoHTML');
-        const area = document.getElementById('areaCarrinho');
-        const btnCheckout = document.getElementById('btnCheckoutCart');
-        div.innerHTML = ''; let total = 0;
-        if (CARRINHO_LOCAL.length === 0) { area.style.display = 'none'; return; }
-        area.style.display = 'block';
-        document.getElementById('countCarrinho').innerText = `(${CARRINHO_LOCAL.length})`;
-        CARRINHO_LOCAL.forEach(item => {
-            let precoTexto = item.tipo === 'pacote' ? 'Grátis (Pacote)' : `R$ ${item.preco},00`;
-            let corPreco = item.tipo === 'pacote' ? '#aaa' : '#4CAF50';
-            if(item.tipo !== 'pacote') total += item.preco;
-            div.innerHTML += `<div class="cart-item-row"><div class="cart-item-info"><strong style="color:#fff;">${item.nome}</strong><br><small style="color:${corPreco};">${precoTexto}</small></div><button class="btn-remove-cart" onclick="removerDoCarrinho(${item.idTemp})">🗑️</button></div>`;
-        });
-        document.getElementById('totalCarrinhoDisplay').innerText = `R$ ${total.toFixed(2)}`;
-        const avisoPagamento = document.getElementById('msgAvisoPagamento');
-        if(total > 0) { 
-            if(MEU_SALDO >= total) {
-                btnCheckout.innerText = `USAR SALDO (R$ ${total.toFixed(2)}) 🚀`; btnCheckout.style.background = "#2196F3"; 
-                avisoPagamento.innerHTML = `✅ Você tem saldo suficiente! O pedido será enviado direto para o bar.`;
-                avisoPagamento.style.color = "#4CAF50"; avisoPagamento.style.borderColor = "#4CAF50"; avisoPagamento.style.background = "rgba(76, 175, 80, 0.1)";
-            } else {
-                btnCheckout.innerText = `PAGAR R$ ${total.toFixed(2)} E ENVIAR 🚀`; btnCheckout.style.background = "#4CAF50"; 
-                avisoPagamento.innerHTML = `⚠️ <strong>ATENÇÃO:</strong> Drinks pagos só entram na fila de preparo após a <u>confirmação do PIX</u>!`;
-                avisoPagamento.style.color = "#FF9500"; avisoPagamento.style.borderColor = "#FF9500"; avisoPagamento.style.background = "rgba(255, 149, 0, 0.15)";
-            }
-            btnCheckout.style.color = "#fff"; avisoPagamento.style.display = "block"; 
-        } 
-        else { btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀"; btnCheckout.style.background = "#FFD580"; btnCheckout.style.color = "#000"; avisoPagamento.style.display = "none"; }
-        document.getElementById('valorTotalMassa').innerText = `R$ ${total.toFixed(2)}`;
-        document.getElementById('qtdItensMassa').innerText = CARRINHO_LOCAL.length;
-        if(DADOS_EVENTO && DADOS_EVENTO.chave_pix) document.getElementById('chavePixTextoMassa').innerText = DADOS_EVENTO.chave_pix;
-    }
-    function abrirPagamentoMassa() { const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); if (total === 0 || (total > 0 && MEU_SALDO >= total)) { if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa(); } else { document.getElementById('modalListaPedidos').style.display = 'none'; document.getElementById('modalPagamentoMassa').style.display = 'flex'; } }
-    function confirmarEnvioMassa() { document.getElementById('modalPagamentoMassa').style.display = 'none'; const batch = db.batch(); const totalPedido = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); let usouSaldo = false; if (totalPedido > 0 && MEU_SALDO >= totalPedido) { usouSaldo = true; }
-        CARRINHO_LOCAL.forEach(item => { const ref = db.collection("pedidos").doc(); let statusInicial = 'pendente'; let sinalizou = false; if (item.tipo === 'extra') { if (usouSaldo) { statusInicial = 'pendente'; sinalizou = true; } else { statusInicial = 'aguardando_pagamento'; } }
-            batch.set(ref, { evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria || 'classico', tipo: item.tipo, preco: item.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: "Pedido em Grupo/Carrinho", status: statusInicial, sinalizou_pagamento: sinalizou, data: new Date() }); MEUS_PEDIDOS_IDS.push(ref.id);
-            if(item.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (item.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } });
-        if (usouSaldo) { const idSaldo = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`; const saldoRef = db.collection("clientes_saldo").doc(idSaldo); batch.update(saldoRef, { saldo: firebase.firestore.FieldValue.increment(-totalPedido) }); const eventoRef = db.collection("eventos").doc(EVENTO_ID); batch.update(eventoRef, { total_vendas_extra: firebase.firestore.FieldValue.increment(CARRINHO_LOCAL.length), total_faturamento: firebase.firestore.FieldValue.increment(totalPedido) }); }
-        batch.commit().then(() => { localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); CARRINHO_LOCAL = []; salvarCarrinhoLocal(); mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); document.getElementById('modalListaPedidos').style.display = 'flex'; rastrearFilaGlobal(); }).catch(err => alert("Erro ao enviar: " + err)); }
-    function atualizarUIBadge() { const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length; const btn = document.getElementById('btnMeusPedidos'); if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex'; }
-    function verificarCombosAtivos() { let temPagos = DADOS_EVENTO.cardapio.some(d => d.tipo_cobranca === 'pago'); let pacoteEsgotado = DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado; let ehMisto = DADOS_EVENTO.tipo_servico === 'misto'; if(temPagos || pacoteEsgotado || ehMisto) { document.getElementById('areaCombos').style.display = 'grid'; } else { document.getElementById('areaCombos').style.display = 'none'; } }
-    function abrirMontadorCombo(qtd) { COMBO_QTD_ALVO = qtd; ITENS_COMBO_SELECIONADOS = []; document.getElementById('maxComboQtd').innerText = qtd; const lista = document.getElementById('listaSelecaoCombo'); lista.innerHTML = ''; let itensPagos = []; DADOS_EVENTO.cardapio.forEach(item => { let isPaid = item.tipo_cobranca === 'pago' || (DADOS_EVENTO.tipo_servico === 'pacote' && DADOS_EVENTO.total_consumido >= DADOS_EVENTO.total_contratado) || (DADOS_EVENTO.tipo_servico === 'misto'); if(isPaid && item.disponivel !== false) { itensPagos.push(item); } }); if(itensPagos.length === 0) return alert("Não há drinks disponíveis para combo."); itensPagos.forEach((item, index) => { let precoReal = item.preco; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda; const div = document.createElement('div'); div.className = 'combo-item-row'; div.id = `row_combo_${index}`; div.innerHTML = `<div style="flex:1; text-align:left;"><strong style="color:#fff;">${item.nome}</strong><br><span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span></div><div class="qtd-control"><button class="btn-qtd btn-minus" onclick="alterarQtdCombo(${index}, -1, ${precoReal}, '${item.nome}')">-</button><span class="qtd-display" id="qtd_combo_${index}">0</span><button class="btn-qtd btn-plus" onclick="alterarQtdCombo(${index}, 1, ${precoReal}, '${item.nome}')">+</button></div>`; lista.appendChild(div); }); atualizarTotalCombo(); document.getElementById('modalCombo').style.display = 'flex'; }
-    function alterarQtdCombo(index, delta, preco, nome) { const spanQtd = document.getElementById(`qtd_combo_${index}`); let currentQtd = parseInt(spanQtd.innerText); const row = document.getElementById(`row_combo_${index}`); if (delta === 1) { if (ITENS_COMBO_SELECIONADOS.length >= COMBO_QTD_ALVO) return alert(`Máximo de ${COMBO_QTD_ALVO} drinks!`); ITENS_COMBO_SELECIONADOS.push({nome: nome, preco: preco}); currentQtd++; } else { if (currentQtd > 0) { currentQtd--; const idxToRemove = ITENS_COMBO_SELECIONADOS.findIndex(i => i.nome === nome); if (idxToRemove > -1) ITENS_COMBO_SELECIONADOS.splice(idxToRemove, 1); } } spanQtd.innerText = currentQtd; if(currentQtd > 0) row.classList.add('selected'); else row.classList.remove('selected'); atualizarTotalCombo(); }
-    function atualizarTotalCombo() { let soma = ITENS_COMBO_SELECIONADOS.reduce((acc, i) => acc + i.preco, 0); let desconto = 0; let btn = document.getElementById('btnFinalizarCombo'); if(ITENS_COMBO_SELECIONADOS.length === COMBO_QTD_ALVO) { if(COMBO_QTD_ALVO === 3) desconto = 3; if(COMBO_QTD_ALVO === 5) desconto = 10; btn.disabled = false; btn.style.opacity = 1; btn.innerText = "ADICIONAR COMBO AO CARRINHO"; } else { btn.disabled = true; btn.style.opacity = 0.5; btn.innerText = `Selecione ${COMBO_QTD_ALVO}`; } let totalFinal = Math.max(0, soma - desconto); document.getElementById('totalComboDisplay').innerText = `Total: R$ ${totalFinal.toFixed(2)}`; ITEM_ATUAL = { nome: `COMBO ${COMBO_QTD_ALVO}: ${ITENS_COMBO_SELECIONADOS.map(i => i.nome).join(', ')}`, tipo: 'extra', preco: totalFinal }; }
-    function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; adicionarAoCarrinho(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco, 'combo'); }
-    function getDrinkData(nomeOriginal) { const n = limparString(nomeOriginal); const dados = { 'elixir do sol': { img: 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg', desc: 'Abacaxi, hortelã, toque cítrico e especiarias.' }, 'desejo proibido': { img: 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg', desc: 'Frutas vermelhas intensas, cítrico e hortelã.' }, 'encanto noturno': { img: 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg', desc: 'Uva roxa, cítrico e manjericão fresco.' }, 'tropical mix': { img: 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg', desc: 'Tangerina, kiwi, abacaxi e ervas frescas.' }, 'brisa verde': { img: 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg', desc: 'Limão, gengibre, manjericão e açúcar de cana.' }, 'furia rubi': { img: 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg', desc: 'Morango, tangerina e maracujá.' }, 'caipirinha premium': { img: 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', desc: 'Limão tahiti, açúcar na medida e aguardente.' }, 'segredo da casa': { img: 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg', desc: 'Criação autoral com toque secreto.' }, 'aperol sunset': { img: 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg', desc: 'Aperol com espumante e laranja caramelizada.' }, 'gin tropical': { img: 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', desc: 'Gin, abacaxi grelhado e especiarias.' }, 'mojito da ilha': { img: 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', desc: 'Rum branco, hortelã fresca e limão.' }, 'coquetel kids': { img: 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', desc: 'Mix cremoso de frutas vermelhas. Delicioso e colorido.' }, 'personalizado': { img: 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', desc: 'O cliente escolhe as frutas e combinações na hora.' } }; for (const [key, data] of Object.entries(dados)) { if (n.includes(key)) return data; } if (n.includes('mojito')) return dados['mojito da ilha']; if (n.includes('gin')) return dados['gin tropical']; return { img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', desc: 'Uma experiência de sabor única.' }; }
-    function getDrinkImage(nome) { return getDrinkData(nome).img; }
-    function renderizarCardapio() { document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome; const lista = document.getElementById('listaCardapio'); lista.innerHTML = ''; const classicos = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico'); const premiums = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium'); 
-        const renderGrupo = (titulo, items) => { if(items.length === 0) return ''; let html = `<div class="section-title">${titulo}</div>`; items.forEach(item => { let disponivel = item.disponivel !== false; let precoFinal = item.preco || 0; let htmlPreco = ''; const dadosVisuais = getDrinkData(item.nome); let imagemUrl = dadosVisuais.img; let descricao = dadosVisuais.desc; if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) { precoFinal = item.preco_prevenda; htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`; } else if(item.tipo_cobranca === 'pago') { htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`; } let cardHTML = `<div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}"><div class="card-image-box"><div class="blur-bg" style="background-image: url('${imagemUrl}')"></div><img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}"><div class="card-image-overlay"></div>${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${descricao}</p>`; 
-        let deveCobrar = isItemPago(item);
-        if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; } else if(deveCobrar) { cardHTML += `<button class="btn-action btn-paid" onclick="adicionarAoCarrinho('${item.nome}', 'extra', ${precoFinal}, '${item.categoria}')">🛒 ADICIONAR + (R$ ${precoFinal})</button>`; } else { cardHTML += `<button class="btn-action btn-free btn-pacote" onclick="adicionarAoCarrinho('${item.nome}', 'pacote', 0, '${item.categoria}')">🆓 ADICIONAR (PACOTE)</button>`; } cardHTML += `</div></div>`; html += cardHTML; }); return html; }; lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', classicos); lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums); }
     function mudarAba(aba) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); if(aba === 'pedidos') { document.querySelector('.tab-btn:nth-child(1)').classList.add('active'); document.getElementById('tab-pedidos').classList.add('active'); } else { document.querySelector('.tab-btn:nth-child(2)').classList.add('active'); document.getElementById('tab-chat').classList.add('active'); document.getElementById('alertChatTab').style.display = 'none'; rolarChat(); } }
     function enviarMensagem() { const txt = document.getElementById('chatInput').value; if(!txt.trim()) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: txt, remetente: 'cliente', data: new Date() }); document.getElementById('chatInput').value = ''; }
     function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
