@@ -84,7 +84,8 @@
         <div class="row" style="margin-top:25px; padding-top:15px; border-top:1px solid #333;">
             <div class="col">
                 <label>Timer de Bloqueio (min)</label>
-                <input type="number" id="timerBloqueio" value="15" placeholder="Tempo entre pedidos">
+                <input type="number" id="timerBloqueio" value="15" placeholder="0 para liberar">
+                <small style="color:#666; font-size:0.7em;">* Coloque 0 para desativar o tempo</small>
             </div>
             <div class="col">
                 <label>Limite Drinks por Vez</label>
@@ -195,8 +196,10 @@
 
                 document.getElementById('chavePix').value = dados.chave_pix || "";
                 
-                // CARREGA OS VALORES SALVOS (OU PADRÃO SE NÃO EXISTIR)
-                document.getElementById('timerBloqueio').value = dados.timer_minutos !== undefined ? dados.timer_minutos : 15;
+                // --- CORREÇÃO DO CARREGAMENTO ---
+                // Se o valor for 0, ele mostra 0. Se for indefinido, mostra 15.
+                document.getElementById('timerBloqueio').value = (dados.timer_minutos !== undefined && dados.timer_minutos !== null) ? dados.timer_minutos : 15;
+                
                 document.getElementById('limitePorPedido').value = dados.limite_pedido !== undefined ? dados.limite_pedido : 3;
 
                 document.getElementById('senhaAdmin').value = dados.senha_admin;
@@ -298,8 +301,11 @@
         const tipo = document.getElementById('tipoServico').value;
         const pix = document.getElementById('chavePix').value || "Não informada";
         
-        // PEGA OS VALORES DOS INPUTS
-        const timer = parseInt(document.getElementById('timerBloqueio').value) || 15;
+        // --- CORREÇÃO DA SALVAGEM (ACEITAR 0) ---
+        const timerInput = document.getElementById('timerBloqueio').value;
+        // Se estiver vazio, usa 15. Se tiver "0" ou qualquer número, usa ele.
+        const timer = timerInput === "" ? 15 : parseInt(timerInput);
+
         const limitePedido = parseInt(document.getElementById('limitePorPedido').value) || 3;
         
         const senha = document.getElementById('senhaAdmin').value;
@@ -351,7 +357,7 @@
             limite_premium: limitePremium,
             chave_pix: pix, 
             timer_minutos: timer,
-            limite_pedido: limitePedido, // SALVA O LIMITE
+            limite_pedido: limitePedido,
             senha_admin: senha, 
             cardapio: cardapioFinal 
         };
