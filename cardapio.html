@@ -43,8 +43,11 @@
   .tab-btn { flex: 1; background: none; border: none; color: #777; padding: 12px; font-weight: bold; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
   .tab-btn.active { color: #FFD580; border-bottom-color: #FFD580; }
   .tab-alert { width: 10px; height: 10px; background: #FF4444; border-radius: 50%; position: absolute; top: 8px; right: 15px; display: none; }
-  .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 300px; }
+  
+  /* AJUSTE NA ALTURA DA ABA PARA A FILA NÃO SUMIR */
+  .tab-content { display: none; flex-grow: 1; overflow-y: auto; max-height: 500px; min-height: 300px; }
   .tab-content.active { display: block; }
+  
   .chat-container { display: flex; flex-direction: column; height: 300px; }
   .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
   .chat-input-area { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; }
@@ -55,13 +58,12 @@
   .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
   .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
   
-  /* ESTILOS DA FILA (RESTAURADOS) */
-  .my-order-item { background: #222; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #555; position: relative; }
-  .my-order-item.is-mine { border: 1px solid rgba(76, 175, 80, 0.5); background: rgba(76, 175, 80, 0.08); } 
-  .guest-name { font-size: 0.8em; color: #888; font-style: italic; margin-left: 5px;}
-  .guest-name.mine { color: #4CAF50; font-weight: bold; font-style: normal; text-transform:uppercase;}
+  /* ESTILOS DA FILA (VISUAL RESTAURADO) */
+  .my-order-item { background: #252525; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 5px solid #555; position: relative; border: 1px solid #333; }
+  .my-order-item.is-mine { border-color: #4CAF50; background: rgba(76, 175, 80, 0.1); } 
+  .guest-name { font-size: 0.85em; color: #aaa; font-style: italic; margin-left: 5px;}
+  .guest-name.mine { color: #4CAF50; font-weight: 800; font-style: normal; text-transform:uppercase; font-size:0.9em; }
 
-  /* ESTILOS DA POSIÇÃO DA FILA (RESTURADOS) */
   .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 2px 6px; border-radius: 6px; margin-left: 5px; font-weight: bold; vertical-align: middle; display:inline-block;}
   .queue-pos.first { background: linear-gradient(45deg, #00C853, #64DD17); color: #000; animation: pulse 1s infinite; }
 
@@ -288,7 +290,7 @@
     let DADOS_EVENTO = null;
     let NOME_CONVIDADO = localStorage.getItem('nome_usuario_gil');
     let TIMER_MINUTOS = 15;
-    let LIMITE_PEDIDO = 3; // Limite padrão de 3 drinks por vez
+    let LIMITE_PEDIDO = 3; // Limite padrão
     let MEUS_PEDIDOS_IDS = JSON.parse(localStorage.getItem(`pedidos_${EVENTO_ID}`) || "[]");
     let CARRINHO_LOCAL = JSON.parse(localStorage.getItem(`carrinho_${EVENTO_ID}`) || "[]");
     let PEDIDOS_AVALIADOS = JSON.parse(localStorage.getItem(`avaliados_${EVENTO_ID}`) || "[]");
@@ -309,7 +311,6 @@
         return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); 
     }
 
-    // CHECK INICIAL DO NOME
     if(NOME_CONVIDADO && NOME_CONVIDADO !== "null") { 
         document.getElementById('modalNome').style.display = 'none'; 
         document.getElementById('displayNome').innerText = NOME_CONVIDADO; 
@@ -324,7 +325,7 @@
             if(doc.exists) { 
                 DADOS_EVENTO = doc.data(); 
                 if (DADOS_EVENTO.timer_minutos !== undefined && DADOS_EVENTO.timer_minutos !== null) TIMER_MINUTOS = DADOS_EVENTO.timer_minutos; else TIMER_MINUTOS = 15; 
-                if (DADOS_EVENTO.limite_pedido) LIMITE_PEDIDO = DADOS_EVENTO.limite_pedido; // Pega do banco se existir
+                if (DADOS_EVENTO.limite_pedido) LIMITE_PEDIDO = DADOS_EVENTO.limite_pedido; 
                 verificarStatusEvento(DADOS_EVENTO.status);
                 renderizarCardapio(); 
                 verificarTimer(); 
@@ -341,35 +342,16 @@
     function salvarNome() { 
         const val = document.getElementById('inputNomeConvidado').value; 
         if(!val) return; 
-        
         NOME_CONVIDADO = val; 
         localStorage.setItem('nome_usuario_gil', val); 
-        
         document.getElementById('modalNome').style.display = 'none'; 
         document.getElementById('displayNome').innerText = val; 
-        
         if (EVENTO_ID) {
-            db.collection("chat_mensagens").add({ 
-                evento_id: EVENTO_ID, 
-                nome: NOME_CONVIDADO, 
-                mensagem: "🔔 Entrou no cardápio.", 
-                remetente: 'sistema', 
-                data: new Date() 
-            }); 
-            setTimeout(() => {
-                db.collection("chat_mensagens").add({
-                    evento_id: EVENTO_ID,
-                    nome: NOME_CONVIDADO,
-                    mensagem: "Olá! Seja bem-vindo(a). Se precisar de algo, é só chamar aqui! 🍹",
-                    remetente: 'admin',
-                    data: new Date()
-                });
-            }, 1000);
+            db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "🔔 Entrou no cardápio.", remetente: 'sistema', data: new Date() }); 
+            setTimeout(() => { db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "Olá! Seja bem-vindo(a). Se precisar de algo, é só chamar aqui! 🍹", remetente: 'admin', data: new Date() }); }, 1000);
         }
     }
 
-    // --- FUNÇÕES DE LÓGICA DE NEGÓCIO ---
-    
     function isItemPago(item) {
         if(!DADOS_EVENTO) return false;
         if(item.tipo_cobranca === 'pago') return true;
@@ -381,62 +363,33 @@
         return false;
     }
 
-    // --- CORREÇÃO DA LÓGICA DE COMBOS (Mantida) ---
     function verificarCombosAtivos() {
         if (!DADOS_EVENTO || !DADOS_EVENTO.cardapio) return;
         const temItemPago = DADOS_EVENTO.cardapio.some(d => d.disponivel !== false && isItemPago(d));
-        const areaCombos = document.getElementById('areaCombos');
-        if (temItemPago) { areaCombos.style.display = 'grid'; } else { areaCombos.style.display = 'none'; }
+        document.getElementById('areaCombos').style.display = temItemPago ? 'grid' : 'none';
     }
 
     function abrirMontadorCombo(qtd) { 
-        COMBO_QTD_ALVO = qtd; 
-        ITENS_COMBO_SELECIONADOS = []; 
-        document.getElementById('maxComboQtd').innerText = qtd; 
-        const lista = document.getElementById('listaSelecaoCombo'); 
-        lista.innerHTML = ''; 
-        
+        COMBO_QTD_ALVO = qtd; ITENS_COMBO_SELECIONADOS = []; document.getElementById('maxComboQtd').innerText = qtd; const lista = document.getElementById('listaSelecaoCombo'); lista.innerHTML = ''; 
         let itensParaCombo = DADOS_EVENTO.cardapio.filter(item => isItemPago(item) && item.disponivel !== false);
-        
         if(itensParaCombo.length === 0) return alert("Não há drinks pagos disponíveis para formar combo."); 
-        
         itensParaCombo.forEach((item, index) => { 
             let precoReal = item.preco; 
             if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) precoReal = item.preco_prevenda; 
             const rowId = `combo_item_${index}`;
-            const div = document.createElement('div'); 
-            div.className = 'combo-item-row'; 
-            div.id = `row_${rowId}`; 
-            div.innerHTML = `
-                <div style="flex:1; text-align:left;">
-                    <strong style="color:#fff;">${item.nome}</strong><br>
-                    <span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span>
-                </div>
-                <div class="qtd-control">
-                    <button class="btn-qtd btn-minus" onclick="alterarQtdCombo('${rowId}', -1, ${precoReal}, '${item.nome}')">-</button>
-                    <span class="qtd-display" id="qtd_${rowId}">0</span>
-                    <button class="btn-qtd btn-plus" onclick="alterarQtdCombo('${rowId}', 1, ${precoReal}, '${item.nome}')">+</button>
-                </div>`; 
-            lista.appendChild(div); 
+            lista.innerHTML += `<div id="row_${rowId}" class="combo-item-row"><div style="flex:1; text-align:left;"><strong style="color:#fff;">${item.nome}</strong><br><span style="color:#aaa; font-size:0.8em;">R$ ${precoReal}</span></div><div class="qtd-control"><button class="btn-qtd btn-minus" onclick="alterarQtdCombo('${rowId}', -1, ${precoReal}, '${item.nome}')">-</button><span class="qtd-display" id="qtd_${rowId}">0</span><button class="btn-qtd btn-plus" onclick="alterarQtdCombo('${rowId}', 1, ${precoReal}, '${item.nome}')">+</button></div></div>`; 
         }); 
         atualizarTotalCombo(); 
         document.getElementById('modalCombo').style.display = 'flex'; 
     }
 
     function alterarQtdCombo(rowId, delta, preco, nome) { 
-        const spanQtd = document.getElementById(`qtd_${rowId}`); 
-        let currentQtd = parseInt(spanQtd.innerText); 
-        const row = document.getElementById(`row_${rowId}`); 
+        const spanQtd = document.getElementById(`qtd_${rowId}`); let currentQtd = parseInt(spanQtd.innerText); const row = document.getElementById(`row_${rowId}`); 
         if (delta === 1) { 
             if (ITENS_COMBO_SELECIONADOS.length >= COMBO_QTD_ALVO) return alert(`Máximo de ${COMBO_QTD_ALVO} drinks!`); 
-            ITENS_COMBO_SELECIONADOS.push({nome: nome, preco: preco}); 
-            currentQtd++; 
+            ITENS_COMBO_SELECIONADOS.push({nome: nome, preco: preco}); currentQtd++; 
         } else { 
-            if (currentQtd > 0) { 
-                currentQtd--; 
-                const idxToRemove = ITENS_COMBO_SELECIONADOS.findIndex(i => i.nome === nome); 
-                if (idxToRemove > -1) ITENS_COMBO_SELECIONADOS.splice(idxToRemove, 1); 
-            } 
+            if (currentQtd > 0) { currentQtd--; const idxToRemove = ITENS_COMBO_SELECIONADOS.findIndex(i => i.nome === nome); if (idxToRemove > -1) ITENS_COMBO_SELECIONADOS.splice(idxToRemove, 1); } 
         } 
         spanQtd.innerText = currentQtd; 
         if(currentQtd > 0) row.classList.add('selected'); else row.classList.remove('selected'); 
@@ -444,16 +397,11 @@
     }
 
     function atualizarTotalCombo() { 
-        let soma = ITENS_COMBO_SELECIONADOS.reduce((acc, i) => acc + i.preco, 0); 
-        let desconto = 0; 
-        let btn = document.getElementById('btnFinalizarCombo'); 
+        let soma = ITENS_COMBO_SELECIONADOS.reduce((acc, i) => acc + i.preco, 0); let desconto = 0; let btn = document.getElementById('btnFinalizarCombo'); 
         if(ITENS_COMBO_SELECIONADOS.length === COMBO_QTD_ALVO) { 
-            if(COMBO_QTD_ALVO === 3) desconto = 3; 
-            if(COMBO_QTD_ALVO === 5) desconto = 10; 
+            if(COMBO_QTD_ALVO === 3) desconto = 3; if(COMBO_QTD_ALVO === 5) desconto = 10; 
             btn.disabled = false; btn.style.opacity = 1; btn.innerText = "ADICIONAR COMBO AO CARRINHO"; 
-        } else { 
-            btn.disabled = true; btn.style.opacity = 0.5; btn.innerText = `Selecione ${COMBO_QTD_ALVO}`; 
-        } 
+        } else { btn.disabled = true; btn.style.opacity = 0.5; btn.innerText = `Selecione ${COMBO_QTD_ALVO}`; } 
         let totalFinal = Math.max(0, soma - desconto); 
         document.getElementById('totalComboDisplay').innerText = `Total: R$ ${totalFinal.toFixed(2)}`; 
         ITEM_ATUAL = { nome: `COMBO ${COMBO_QTD_ALVO}: ${ITENS_COMBO_SELECIONADOS.map(i => i.nome).join(', ')}`, tipo: 'extra', preco: totalFinal }; 
@@ -465,15 +413,12 @@
         db.collection("clientes_saldo").doc(id).onSnapshot(doc => {
             if(doc.exists) {
                 MEU_SALDO = doc.data().saldo || 0;
-                const display = document.getElementById('displaySaldo');
-                display.innerText = `💰 Saldo: R$ ${MEU_SALDO.toFixed(2)}`;
-                display.style.display = 'block';
+                document.getElementById('displaySaldo').innerText = `💰 Saldo: R$ ${MEU_SALDO.toFixed(2)}`;
+                document.getElementById('displaySaldo').style.display = 'block';
                 renderizarCarrinho(); 
             }
         });
     }
-
-    // --- RENDERIZAÇÃO E UTILITÁRIOS ---
 
     function getDrinkData(nomeOriginal) { const n = limparString(nomeOriginal); const dados = { 'elixir do sol': { img: 'https://i.pinimg.com/1200x/ec/95/bb/ec95bb7033085ad3ebe6bf27af43fc3b.jpg', desc: 'Abacaxi, hortelã, toque cítrico e especiarias.' }, 'desejo proibido': { img: 'https://i.pinimg.com/1200x/af/dc/90/afdc9026e1fd2608797c98a82e41edda.jpg', desc: 'Frutas vermelhas intensas, cítrico e hortelã.' }, 'encanto noturno': { img: 'https://i.pinimg.com/1200x/48/58/b8/4858b879bd71c391806c0e4f79c9d1ae.jpg', desc: 'Uva roxa, cítrico e manjericão fresco.' }, 'tropical mix': { img: 'https://i.pinimg.com/736x/bc/14/95/bc1495ef5e924218ca560758a14b5e99.jpg', desc: 'Tangerina, kiwi, abacaxi e ervas frescas.' }, 'brisa verde': { img: 'https://i.pinimg.com/736x/99/0f/c0/990fc0d7c30418fcb3e3458a566cbc92.jpg', desc: 'Limão, gengibre, manjericão e açúcar de cana.' }, 'furia rubi': { img: 'https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg', desc: 'Morango, tangerina e maracujá.' }, 'caipirinha premium': { img: 'https://i.pinimg.com/1200x/2e/b5/42/2eb5420cb4ecf0f87d82c644cd2debb8.jpg', desc: 'Limão tahiti, açúcar na medida e aguardente.' }, 'segredo da casa': { img: 'https://i.pinimg.com/1200x/44/14/5a/44145aafec6c6d3f1d13a74d5ee46e6f.jpg', desc: 'Criação autoral com toque secreto.' }, 'aperol sunset': { img: 'https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg', desc: 'Aperol com espumante e laranja caramelizada.' }, 'gin tropical': { img: 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', desc: 'Gin, abacaxi grelhado e especiarias.' }, 'mojito da ilha': { img: 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', desc: 'Rum branco, hortelã fresca e limão.' }, 'coquetel kids': { img: 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', desc: 'Mix cremoso de frutas vermelhas. Delicioso e colorido.' }, 'personalizado': { img: 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', desc: 'O cliente escolhe as frutas e combinações na hora.' } }; for (const [key, data] of Object.entries(dados)) { if (n.includes(key)) return data; } if (n.includes('mojito')) return dados['mojito da ilha']; if (n.includes('gin')) return dados['gin tropical']; return { img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', desc: 'Uma experiência de sabor única.' }; }
     function getDrinkImage(nome) { return getDrinkData(nome).img; }
@@ -481,9 +426,6 @@
     function renderizarCardapio() { 
         document.getElementById('nomeEvento').innerText = DADOS_EVENTO.nome; 
         const lista = document.getElementById('listaCardapio'); lista.innerHTML = ''; 
-        const classicos = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico'); 
-        const premiums = DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium'); 
-        
         const renderGrupo = (titulo, items) => { 
             if(items.length === 0) return ''; 
             let html = `<div class="section-title">${titulo}</div>`; 
@@ -492,10 +434,8 @@
                 let precoFinal = item.preco || 0; 
                 let htmlPreco = ''; 
                 const dadosVisuais = getDrinkData(item.nome); 
-                let imagemUrl = dadosVisuais.img; 
-                let descricao = dadosVisuais.desc; 
                 if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) { precoFinal = item.preco_prevenda; htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`; } else if(item.tipo_cobranca === 'pago') { htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`; } 
-                let cardHTML = `<div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}"><div class="card-image-box"><div class="blur-bg" style="background-image: url('${imagemUrl}')"></div><img src="${imagemUrl}" class="front-image" loading="lazy" alt="${item.nome}"><div class="card-image-overlay"></div>${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${descricao}</p>`; 
+                let cardHTML = `<div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}"><div class="card-image-box"><div class="blur-bg" style="background-image: url('${dadosVisuais.img}')"></div><img src="${dadosVisuais.img}" class="front-image" loading="lazy" alt="${item.nome}"><div class="card-image-overlay"></div>${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${dadosVisuais.desc}</p>`; 
                 let deveCobrar = isItemPago(item);
                 if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; } 
                 else if(deveCobrar) { cardHTML += `<button class="btn-action btn-paid" onclick="adicionarAoCarrinho('${item.nome}', 'extra', ${precoFinal}, '${item.categoria}')">🛒 ADICIONAR + (R$ ${precoFinal})</button>`; } 
@@ -504,34 +444,22 @@
             }); 
             return html; 
         }; 
-        lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', classicos); lista.innerHTML += renderGrupo('💎 Drinks Premium', premiums); 
+        lista.innerHTML += renderGrupo('🥃 Clássicos da Casa', DADOS_EVENTO.cardapio.filter(d => d.categoria === 'classico')); 
+        lista.innerHTML += renderGrupo('💎 Drinks Premium', DADOS_EVENTO.cardapio.filter(d => d.categoria === 'premium')); 
     }
 
     function adicionarAoCarrinho(nome, tipo, preco, categoria) {
         if(tipo === 'pacote') {
-            // 1. Verifica tempo
             const restante = getTempoRestante(); if(restante > 0) return alert(`Aguarde ${Math.ceil(restante/60)} minutos.`);
-            
-            // 2. Verifica Limite de Quantidade no Carrinho (NOVA LÓGICA)
             const itensNoCarrinho = CARRINHO_LOCAL.filter(i => i.tipo === 'pacote').length;
-            if (itensNoCarrinho >= LIMITE_PEDIDO) {
-                return alert(`⚠️ Limite de ${LIMITE_PEDIDO} drinks por vez atingido!\n\nEnvie o pedido atual antes de pedir mais.`);
-            }
-
-            // 3. Verifica Limite Global do Pacote
-            if(isItemPago({categoria: categoria})) { 
-                alert("⚠️ O pacote acabou de esgotar! Você será redirecionado para compra."); 
-                tipo = 'extra'; 
-                const drinkData = DADOS_EVENTO.cardapio.find(d => d.nome === nome); 
-                preco = drinkData ? (DADOS_EVENTO.modo_preco==='prevenda' ? drinkData.preco_prevenda : drinkData.preco) : 10; 
-            }
+            if (itensNoCarrinho >= LIMITE_PEDIDO) return alert(`⚠️ Limite de ${LIMITE_PEDIDO} drinks por vez atingido!\n\nEnvie o pedido atual antes de pedir mais.`);
+            if(isItemPago({categoria: categoria})) { alert("⚠️ O pacote acabou de esgotar! Você será redirecionado para compra."); tipo = 'extra'; const drinkData = DADOS_EVENTO.cardapio.find(d => d.nome === nome); preco = drinkData ? (DADOS_EVENTO.modo_preco==='prevenda' ? drinkData.preco_prevenda : drinkData.preco) : 10; }
         }
         const item = { idTemp: Date.now(), nome, tipo, preco, categoria, data: new Date().toISOString() };
         CARRINHO_LOCAL.push(item);
         salvarCarrinhoLocal();
         mostrarNotificacao(`✅ ${nome} adicionado!`);
         atualizarUIBadge();
-        // REMOVIDO: salvarTimer() AQUI (Agora é só no checkout)
     }
 
     function salvarCarrinhoLocal() { localStorage.setItem(`carrinho_${EVENTO_ID}`, JSON.stringify(CARRINHO_LOCAL)); renderizarCarrinho(); }
@@ -540,7 +468,6 @@
     function renderizarCarrinho() {
         const div = document.getElementById('listaCarrinhoHTML');
         const area = document.getElementById('areaCarrinho');
-        const btnCheckout = document.getElementById('btnCheckoutCart');
         div.innerHTML = ''; let total = 0;
         if (CARRINHO_LOCAL.length === 0) { area.style.display = 'none'; return; }
         area.style.display = 'block';
@@ -553,6 +480,7 @@
         });
         document.getElementById('totalCarrinhoDisplay').innerText = `R$ ${total.toFixed(2)}`;
         const avisoPagamento = document.getElementById('msgAvisoPagamento');
+        const btnCheckout = document.getElementById('btnCheckoutCart');
         if(total > 0) { 
             if(MEU_SALDO >= total) {
                 btnCheckout.innerText = `USAR SALDO (R$ ${total.toFixed(2)}) 🚀`; btnCheckout.style.background = "#2196F3"; 
@@ -572,59 +500,30 @@
     }
 
     function abrirPagamentoMassa() { const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); if (total === 0 || (total > 0 && MEU_SALDO >= total)) { if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa(); } else { document.getElementById('modalListaPedidos').style.display = 'none'; document.getElementById('modalPagamentoMassa').style.display = 'flex'; } }
-    function confirmarEnvioMassa() { document.getElementById('modalPagamentoMassa').style.display = 'none'; const batch = db.batch(); const totalPedido = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); let usouSaldo = false; if (totalPedido > 0 && MEU_SALDO >= totalPedido) { usouSaldo = true; }
-        
-        let temPacoteNoPedido = false; // Flag para disparar o timer
-
+    
+    function confirmarEnvioMassa() { 
+        document.getElementById('modalPagamentoMassa').style.display = 'none'; const batch = db.batch(); const totalPedido = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); let usouSaldo = false; if (totalPedido > 0 && MEU_SALDO >= totalPedido) { usouSaldo = true; }
+        let temPacoteNoPedido = false; 
         CARRINHO_LOCAL.forEach(item => { 
             const ref = db.collection("pedidos").doc(); 
-            let statusInicial = 'pendente'; 
-            let sinalizou = false; 
-            
+            let statusInicial = 'pendente'; let sinalizou = false; 
             if (item.tipo === 'extra') { 
                 if (usouSaldo) { statusInicial = 'pendente'; sinalizou = true; } else { statusInicial = 'aguardando_pagamento'; } 
-            } else {
-                temPacoteNoPedido = true; // Achou um drink do pacote
-            }
-
+            } else { temPacoteNoPedido = true; }
             batch.set(ref, { evento_id: EVENTO_ID, drink: item.nome, categoria_drink: item.categoria || 'classico', tipo: item.tipo, preco: item.preco, nome_convidado: NOME_CONVIDADO || "Anônimo", observacao: "Pedido em Grupo/Carrinho", status: statusInicial, sinalizou_pagamento: sinalizou, data: new Date() }); MEUS_PEDIDOS_IDS.push(ref.id);
-            if(item.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (item.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } });
-        
+            if(item.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (item.categoria || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } 
+        });
         if (usouSaldo) { const idSaldo = `${EVENTO_ID}_${limparString(NOME_CONVIDADO)}`; const saldoRef = db.collection("clientes_saldo").doc(idSaldo); batch.update(saldoRef, { saldo: firebase.firestore.FieldValue.increment(-totalPedido) }); const eventoRef = db.collection("eventos").doc(EVENTO_ID); batch.update(eventoRef, { total_vendas_extra: firebase.firestore.FieldValue.increment(CARRINHO_LOCAL.length), total_faturamento: firebase.firestore.FieldValue.increment(totalPedido) }); }
-        
         batch.commit().then(() => { 
             localStorage.setItem(`pedidos_${EVENTO_ID}`, JSON.stringify(MEUS_PEDIDOS_IDS)); 
-            CARRINHO_LOCAL = []; 
-            salvarCarrinhoLocal(); 
-            mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); 
-            
-            // AGORA SIM, DISPARA O TIMER (SE TIVER PACOTE)
-            if (temPacoteNoPedido) {
-                salvarTimer();
-            }
-
+            CARRINHO_LOCAL = []; salvarCarrinhoLocal(); mostrarNotificacao("🚀 Pedidos enviados com sucesso!"); 
+            if (temPacoteNoPedido) salvarTimer();
             document.getElementById('modalListaPedidos').style.display = 'flex'; 
             rastrearFilaGlobal(); 
         }).catch(err => alert("Erro ao enviar: " + err)); 
     }
     
-    // UTILS
-    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display = 'flex'; }
-    function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; adicionarAoCarrinho(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco, 'combo'); }
-    function atualizarUIBadge() { const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length; const btn = document.getElementById('btnMeusPedidos'); if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex'; }
-    
-    // RECARGA
-    function abrirModalRecarga() { document.getElementById('modalRecarga').style.display = 'flex'; document.getElementById('valorRecarga').value = ''; document.getElementById('areaPixRecarga').style.display = 'none'; document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('btnOpcaoPix').style.display = 'none'; document.getElementById('btnConfirmarRecarga').style.display = 'none'; document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); }
-    function fecharModalRecarga() { document.getElementById('modalRecarga').style.display = 'none'; }
-    function selecionarPacote(valor) { document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); if(valor === 0) { document.getElementById('areaValorManual').style.display = 'block'; document.getElementById('valorRecarga').value = ''; } else { document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('valorRecarga').value = valor; if(LINKS_PAGAMENTO[valor]) { window.open(LINKS_PAGAMENTO[valor], '_blank'); } else { alert("Pagamento manual: use o PIX."); } } document.getElementById('btnOpcaoPix').style.display = 'block'; document.getElementById('btnConfirmarRecarga').style.display = 'block'; }
-    function mostrarPixRecarga() { const valor = document.getElementById('valorRecarga').value; if(!valor || valor <= 0) return alert("Escolha um pacote ou digite o valor!"); const chave = DADOS_EVENTO.chave_pix || "75998649927"; document.getElementById('chavePixRecarga').innerText = chave; document.getElementById('areaPixRecarga').style.display = 'block'; }
-    function copiarPixRecarga() { const chave = document.getElementById('chavePixRecarga').innerText; navigator.clipboard.writeText(chave).then(() => alert("Chave copiada!")); }
-    function confirmarSolicitacaoRecarga() { const valor = parseFloat(document.getElementById('valorRecarga').value); if(!valor) return alert("Selecione um pacote!"); db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: `CRÉDITO R$ ${valor.toFixed(2)}`, categoria_drink: 'recarga', tipo: 'recarga', preco: valor, nome_convidado: NOME_CONVIDADO, status: 'aguardando_pagamento', sinalizou_pagamento: true, data: new Date() }).then(() => { fecharModalRecarga(); mostrarNotificacao("Solicitação enviada! Aguarde a confirmação."); abrirMeusPedidos(); }); }
-
-    // CHAT E STATUS
-    function verificarStatusEvento(status) { const overlay = document.getElementById('telaBloqueio'); const icon = document.getElementById('iconStatus'); const title = document.getElementById('tituloStatus'); const msg = document.getElementById('msgStatus'); if (!status || status === 'aberto') { overlay.style.display = 'none'; return; } overlay.style.display = 'flex'; if (status === 'aguardando') { icon.innerText = '⏳'; title.innerText = 'EM BREVE'; msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂'; } else if (status === 'pausado') { icon.innerText = '✋'; title.innerText = 'BAR PAUSADO'; msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!'; } else if (status === 'encerrado') { icon.innerText = '🏁'; title.innerText = 'EVENTO ENCERRADO'; msg.innerText = 'Obrigado pela presença! O bar foi finalizado.'; } }
-    
-    // --- FUNÇÃO DE FILA GLOBAL RESTAURADA COM VISUAL NOVO ---
+    // --- FUNÇÃO DE FILA GLOBAL RESTAURADA (VISUAL ANTIGO) ---
     function rastrearFilaGlobal() {
       db.collection("pedidos")
        .where("evento_id", "==", EVENTO_ID)
@@ -633,32 +532,28 @@
         listaHTML.innerHTML = ''; 
         let pedidos = [];
         snapshot.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
-        pedidos.sort((a, b) => {
-          let dateA = a.data ? a.data.toDate() : new Date();
-          let dateB = b.data ? b.data.toDate() : new Date();
-          return dateA - dateB;
-        });
-        if(pedidos.length === 0) {
-          listaHTML.innerHTML = '<p style="color:#555; text-align:center; padding:10px;">Fila vazia! Peça o primeiro drink. 🍹</p>';
-          document.getElementById('badgeMeusPedidos').innerText = CARRINHO_LOCAL.length;
-          return;
-        }
+        pedidos.sort((a, b) => { let dA = a.data ? a.data.toDate() : new Date(); let dB = b.data ? b.data.toDate() : new Date(); return dA - dB; });
+        
         let contagemFilaPreparacao = 0;
         let meusPedidosAtivosCount = 0;
+        
+        // Se vazio
+        if(pedidos.length === 0) {
+            listaHTML.innerHTML = '<p style="color:#555; text-align:center; padding:10px;">Fila vazia! Peça o primeiro drink. 🍹</p>';
+        }
+
         pedidos.forEach(p => { 
+          // NÃO filtra cancelados aqui para garantir que a lógica de "meus pedidos" funcione, mas visualmente sim
           if(p.status === 'cancelado' || p.status === 'concluido') return; 
 
           let isMine = (limparString(p.nome_convidado) === limparString(NOME_CONVIDADO));
           if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
            
+          // Recarga
           if(p.tipo === 'recarga') {
             if(isMine) {
               let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado';
-              listaHTML.innerHTML += `
-                <div class="my-order-item" style="border-left-color:#2196F3; background:rgba(33, 150, 243, 0.1);">
-                  <strong>${p.drink}</strong> <br>
-                  <small>${statusTxt}</small>
-                </div>`;
+              listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:#2196F3; background:rgba(33, 150, 243, 0.1);"><strong>${p.drink}</strong> <br><small>${statusTxt}</small></div>`;
             }
             return; 
           }
@@ -667,14 +562,12 @@
           let nomeDisplay = isMine ? `<span class="guest-name mine">(VOCÊ)</span>` : `<span class="guest-name">(${p.nome_convidado})</span>`;
           let divClass = isMine ? "my-order-item is-mine" : "my-order-item";
           let posicaoTexto = "";
+          
           if(p.status === 'pendente') { 
             statusText = "🟡 Preparando"; cor = "#FFD580"; contagemFilaPreparacao++; 
             let destaqueClass = "";
             let textoPos = `#${contagemFilaPreparacao} da fila`;
-            if (contagemFilaPreparacao === 1) {
-              destaqueClass = "first"; 
-              if (isMine) textoPos = "É A SUA VEZ! 🍸"; else textoPos = "PREPARANDO AGORA";
-            }
+            if (contagemFilaPreparacao === 1) { destaqueClass = "first"; if (isMine) textoPos = "É A SUA VEZ! 🍸"; else textoPos = "PREPARANDO AGORA"; }
             posicaoTexto = `<span class="queue-pos ${destaqueClass}">${textoPos}</span>`;
           } 
           else if(p.status === 'aguardando_pagamento') { 
@@ -692,69 +585,49 @@
             statusText = "🟢 Pronto!"; cor = "#4CAF50"; 
             if(isMine) {
               verificarAlertaPronto(p.id, p.status);
-              if(!PEDIDOS_AVALIADOS.includes(p.id)) {
-                extraHTML += `<button class="btn-client-action" style="background:transparent; border:1px solid #FFD580; color:#FFD580;" onclick="abrirAvaliacao('${p.id}', '${p.drink}')">⭐ Avaliar Drink</button>`;
-              }
+              if(!PEDIDOS_AVALIADOS.includes(p.id)) extraHTML += `<button class="btn-client-action" style="background:transparent; border:1px solid #FFD580; color:#FFD580;" onclick="abrirAvaliacao('${p.id}', '${p.drink}')">⭐ Avaliar Drink</button>`;
             }
           } 
+          
           if(isMine && p.status !== 'servido') extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`;
+          
           listaHTML.innerHTML += `<div class="${divClass}" style="border-left-color:${cor}"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><strong>${p.drink}</strong> ${nomeDisplay}<br>${posicaoTexto}</div><span style="color:${cor}; font-weight:bold; font-size:0.8em; white-space:nowrap; margin-left:5px;">${statusText}</span></div><small style="color:#aaa; display:block; margin-top:5px;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; 
         }); 
+        
         const totalBadge = CARRINHO_LOCAL.length + meusPedidosAtivosCount;
         document.getElementById('badgeMeusPedidos').innerText = totalBadge;
       }); 
     }
 
+    // UTILS e OUTRAS FUNÇÕES
+    function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display = 'flex'; }
+    function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; adicionarAoCarrinho(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco, 'combo'); }
+    function atualizarUIBadge() { const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length; const btn = document.getElementById('btnMeusPedidos'); if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex'; }
+    function abrirModalRecarga() { document.getElementById('modalRecarga').style.display = 'flex'; document.getElementById('valorRecarga').value = ''; document.getElementById('areaPixRecarga').style.display = 'none'; document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('btnOpcaoPix').style.display = 'none'; document.getElementById('btnConfirmarRecarga').style.display = 'none'; document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); }
+    function fecharModalRecarga() { document.getElementById('modalRecarga').style.display = 'none'; }
+    function selecionarPacote(valor) { document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); if(valor === 0) { document.getElementById('areaValorManual').style.display = 'block'; document.getElementById('valorRecarga').value = ''; } else { document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('valorRecarga').value = valor; if(LINKS_PAGAMENTO[valor]) { window.open(LINKS_PAGAMENTO[valor], '_blank'); } else { alert("Pagamento manual: use o PIX."); } } document.getElementById('btnOpcaoPix').style.display = 'block'; document.getElementById('btnConfirmarRecarga').style.display = 'block'; }
+    function mostrarPixRecarga() { const valor = document.getElementById('valorRecarga').value; if(!valor || valor <= 0) return alert("Escolha um pacote ou digite o valor!"); const chave = DADOS_EVENTO.chave_pix || "75998649927"; document.getElementById('chavePixRecarga').innerText = chave; document.getElementById('areaPixRecarga').style.display = 'block'; }
+    function copiarPixRecarga() { const chave = document.getElementById('chavePixRecarga').innerText; navigator.clipboard.writeText(chave).then(() => alert("Chave copiada!")); }
+    function confirmarSolicitacaoRecarga() { const valor = parseFloat(document.getElementById('valorRecarga').value); if(!valor) return alert("Selecione um pacote!"); db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: `CRÉDITO R$ ${valor.toFixed(2)}`, categoria_drink: 'recarga', tipo: 'recarga', preco: valor, nome_convidado: NOME_CONVIDADO, status: 'aguardando_pagamento', sinalizou_pagamento: true, data: new Date() }).then(() => { fecharModalRecarga(); mostrarNotificacao("Solicitação enviada! Aguarde a confirmação."); abrirMeusPedidos(); }); }
+    function verificarStatusEvento(status) { const overlay = document.getElementById('telaBloqueio'); const icon = document.getElementById('iconStatus'); const title = document.getElementById('tituloStatus'); const msg = document.getElementById('msgStatus'); if (!status || status === 'aberto') { overlay.style.display = 'none'; return; } overlay.style.display = 'flex'; if (status === 'aguardando') { icon.innerText = '⏳'; title.innerText = 'EM BREVE'; msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂'; } else if (status === 'pausado') { icon.innerText = '✋'; title.innerText = 'BAR PAUSADO'; msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!'; } else if (status === 'encerrado') { icon.innerText = '🏁'; title.innerText = 'EVENTO ENCERRADO'; msg.innerText = 'Obrigado pela presença! O bar foi finalizado.'; } }
     function abrirAvaliacao(id, nome) { DRINK_AVALIANDO_ID = id; DRINK_AVALIANDO_NOME = nome; document.getElementById('nomeDrinkAvaliar').innerText = nome; document.getElementById('modalAvaliar').style.display = 'flex'; setEstrelas(5); }
     function setEstrelas(n) { document.getElementById('notaEstrela').value = n; for(let i=1; i<=5; i++) { const star = document.getElementById('star'+i); if(i <= n) star.classList.add('active'); else star.classList.remove('active'); } }
     function enviarAvaliacao() { const nota = document.getElementById('notaEstrela').value; const coment = document.getElementById('textoAvaliacao').value; if(!coment || coment.trim() === "") { return alert("Por favor, escreva um comentário para enviar sua avaliação!"); } db.collection("avaliacoes").add({ evento_id: EVENTO_ID, nome_evento: DADOS_EVENTO.nome, data_evento: new Date(), drink: DRINK_AVALIANDO_NOME, cliente: NOME_CONVIDADO, nota: parseInt(nota), comentario: coment, status: 'pendente' }).then(() => { alert("Obrigado! Sua avaliação foi enviada."); document.getElementById('modalAvaliar').style.display = 'none'; PEDIDOS_AVALIADOS.push(DRINK_AVALIANDO_ID); localStorage.setItem(`avaliados_${EVENTO_ID}`, JSON.stringify(PEDIDOS_AVALIADOS)); rastrearFilaGlobal(); document.getElementById('textoAvaliacao').value = ""; }); }
-    function abrirMural() { document.getElementById('modalMural').style.display = 'flex'; const lista = document.getElementById('listaMuralHTML'); lista.innerHTML = '<p style="text-align:center; color:#888;">Carregando...</p>'; 
-        db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snap => { if(snap.empty) { lista.innerHTML = "<p style='color:#777; text-align:center;'>Ainda sem avaliações.</p>"; return; } let reviews = []; snap.forEach(doc => reviews.push(doc.data())); 
-        reviews.sort((a,b) => { let dA = a.data_evento && a.data_evento.toDate ? a.data_evento.toDate() : new Date(); let dB = b.data_evento && b.data_evento.toDate ? b.data_evento.toDate() : new Date(); return dB - dA; });
-        reviews = reviews.slice(0, 20); lista.innerHTML = ""; reviews.forEach(r => { const estrelas = "⭐".repeat(r.nota); const dataStr = r.data_evento && r.data_evento.toDate ? r.data_evento.toDate().toLocaleDateString() : ''; lista.innerHTML += `<div class="review-card"><div style="display:flex; justify-content:space-between;"><strong style="color:#fff;">${r.cliente}</strong><span class="stars">${estrelas}</span></div><div style="color:#aaa; font-size:0.85em; margin-bottom:5px;">Bebeu: ${r.drink}</div><div style="color:#ddd; font-style:italic;">"${r.comentario}"</div><span class="review-meta">Evento: ${r.nome_evento} • ${dataStr}</span></div>`; }); }); }
-    function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; adicionarAoCarrinho(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco, 'combo'); }
+    function abrirMural() { document.getElementById('modalMural').style.display = 'flex'; const lista = document.getElementById('listaMuralHTML'); lista.innerHTML = '<p style="text-align:center; color:#888;">Carregando...</p>'; db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snap => { if(snap.empty) { lista.innerHTML = "<p style='color:#777; text-align:center;'>Ainda sem avaliações.</p>"; return; } let reviews = []; snap.forEach(doc => reviews.push(doc.data())); reviews.sort((a,b) => { let dA = a.data_evento && a.data_evento.toDate ? a.data_evento.toDate() : new Date(); let dB = b.data_evento && b.data_evento.toDate ? b.data_evento.toDate() : new Date(); return dB - dA; }); reviews = reviews.slice(0, 20); lista.innerHTML = ""; reviews.forEach(r => { const estrelas = "⭐".repeat(r.nota); const dataStr = r.data_evento && r.data_evento.toDate ? r.data_evento.toDate().toLocaleDateString() : ''; lista.innerHTML += `<div class="review-card"><div style="display:flex; justify-content:space-between;"><strong style="color:#fff;">${r.cliente}</strong><span class="stars">${estrelas}</span></div><div style="color:#aaa; font-size:0.85em; margin-bottom:5px;">Bebeu: ${r.drink}</div><div style="color:#ddd; font-style:italic;">"${r.comentario}"</div><span class="review-meta">Evento: ${r.nome_evento} • ${dataStr}</span></div>`; }); }); }
     function mudarAba(aba) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); if(aba === 'pedidos') { document.querySelector('.tab-btn:nth-child(1)').classList.add('active'); document.getElementById('tab-pedidos').classList.add('active'); } else { document.querySelector('.tab-btn:nth-child(2)').classList.add('active'); document.getElementById('tab-chat').classList.add('active'); document.getElementById('alertChatTab').style.display = 'none'; rolarChat(); } }
     function enviarMensagem() { const txt = document.getElementById('chatInput').value; if(!txt.trim()) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: txt, remetente: 'cliente', data: new Date() }); document.getElementById('chatInput').value = ''; }
     function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
     function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
     function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
     function copiarPixRodape() { const chave = DADOS_EVENTO.chave_pix || "75998649927"; navigator.clipboard.writeText(chave).then(() => { alert(`Chave PIX copiada: ${chave}\n\nObrigado pela contribuição! 🥂`); }); }
+    function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
+    function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
+    let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
+    function salvarNome() { const val = document.getElementById('inputNomeConvidado').value; if(!val) return; NOME_CONVIDADO = val; localStorage.setItem('nome_usuario_gil', val); document.getElementById('modalNome').style.display = 'none'; document.getElementById('displayNome').innerText = val; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: NOME_CONVIDADO, mensagem: "🔔 Entrou no cardápio.", remetente: 'sistema', data: new Date() }); location.reload(); }
     function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTextoMassa').innerText); alert("Copiado!"); }
     function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
-    
-    // --- CORREÇÃO DO TIMER 0 ---
-    // Se o timer for 0 ou nulo, retorna 0 imediatamente (liberado)
-    function getTempoRestante() { 
-        if (!TIMER_MINUTOS || TIMER_MINUTOS == 0) return 0;
-        
-        const last = localStorage.getItem(`timer_${EVENTO_ID}`); 
-        if(!last) return 0; 
-        
-        const diff = new Date().getTime() - parseInt(last); 
-        const limit = TIMER_MINUTOS * 60000; 
-        
-        return diff < limit ? (limit - diff)/1000 : 0; 
-    }
-
-    function verificarTimer() { 
-        const restante = getTempoRestante(); 
-        document.querySelectorAll('.btn-pacote').forEach(btn => { 
-            // Se o timer for 0, o restante será 0, então cai no else e libera
-            if(restante > 0) { 
-                btn.disabled = true; 
-                btn.classList.add('btn-blocked'); 
-                btn.classList.remove('btn-free'); 
-                btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; 
-            } else { 
-                btn.disabled = false; 
-                btn.classList.remove('btn-blocked'); 
-                btn.classList.add('btn-free'); 
-                btn.innerHTML = `🆓 ADICIONAR (PACOTE)`; 
-            } 
-        }); 
-        if(restante > 0) setTimeout(verificarTimer, 5000); 
-    }
-    
+    function getTempoRestante() { if (!TIMER_MINUTOS || TIMER_MINUTOS == 0) return 0; const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
+    function verificarTimer() { const restante = getTempoRestante(); document.querySelectorAll('.btn-pacote').forEach(btn => { if(restante > 0) { btn.disabled = true; btn.classList.add('btn-blocked'); btn.classList.remove('btn-free'); btn.innerHTML = `⏳ Aguarde ${Math.ceil(restante/60)} min`; } else { btn.disabled = false; btn.classList.remove('btn-blocked'); btn.classList.add('btn-free'); btn.innerHTML = `🆓 ADICIONAR (PACOTE)`; } }); if(restante > 0) setTimeout(verificarTimer, 5000); }
     function mostrarNotificacao(t) { const n = document.getElementById('notification'); n.innerText=t; n.style.display='block'; setTimeout(()=>n.style.display='none',4000); }
 </script>
 </body>
