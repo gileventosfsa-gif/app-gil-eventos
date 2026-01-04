@@ -85,24 +85,16 @@
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
   .alcohol-note { background: rgba(33, 150, 243, 0.15); border: 1px solid #2196F3; color: #90CAF9; padding: 12px; border-radius: 10px; text-align: center; font-size: 0.85em; margin-bottom: 25px; line-height: 1.5; }
   .alcohol-note strong { color: #fff; }
-  
-  /* CARRINHO ESTILO */
   .cart-section { border: 1px solid #FFD580; background: rgba(255, 213, 128, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
   .cart-title { color: #FFD580; font-weight: bold; text-transform: uppercase; border-bottom: 1px dashed #FFD580; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; display: flex; justify-content: space-between; align-items: center;}
   .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #333; }
   .cart-item-info { text-align: left; }
   .btn-remove-cart { color: #FF4444; background: none; border: none; font-size: 1.2em; cursor: pointer; padding: 0 10px; }
   .cart-total-area { margin-top: 15px; padding-top: 10px; border-top: 1px solid #555; text-align: right; }
-  
-  /* AVISO PAGAMENTO */
   .cart-warning { background: rgba(255, 149, 0, 0.15); border: 1px solid #FF9500; color: #FF9500; font-size: 0.85em; padding: 10px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: bold; display: none; animation: pulseWarning 2s infinite; }
   @keyframes pulseWarning { 0% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 149, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 149, 0, 0); } }
-
-  /* FILA GLOBAL */
   .queue-pos { font-size: 0.7em; background: #2196F3; color: white; padding: 2px 6px; border-radius: 6px; margin-left: 5px; font-weight: bold; vertical-align: middle; display:inline-block;}
   .queue-pos.first { background: linear-gradient(45deg, #00C853, #64DD17); color: #000; animation: pulse 1s infinite; }
-  
-  /* TELA DE BLOQUEIO */
   .status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; backdrop-filter: blur(10px); padding: 20px; box-sizing: border-box; }
   .status-icon { font-size: 5em; margin-bottom: 20px; animation: bounce 2s infinite; }
   .status-title { font-size: 2em; color: #FFD580; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
@@ -118,17 +110,11 @@
   /* ESTRELAS INTERATIVAS */
   .star-select { cursor: pointer; opacity: 0.3; transition: 0.2s; }
   .star-select.active { opacity: 1; transform: scale(1.2); }
-
+  
   /* BOTÕES SOCIAIS E CONTRIBUIÇÃO */
   .social-grid { display: flex; gap: 10px; margin-top: 15px; }
   .btn-social-footer { flex: 1; padding: 12px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s; }
   .btn-social-footer:active { transform: scale(0.95); }
-
-  /* BOTÕES DE RECARGA NO MODAL */
-  .grid-recarga { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-  .btn-recarga-option { background: #222; border: 1px solid #444; padding: 15px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-  .btn-recarga-option:hover { background: #333; border-color: #FFD580; }
-  .btn-recarga-option.selected { background: #1a2e1a; border-color: #4CAF50; color: #4CAF50; }
  </style>
 </head>
 <body>
@@ -163,7 +149,7 @@
 
  <div id="listaCardapio"></div>
  <div class="disclaimer">* FOTOS MERAMENTE ILUSTRATIVAS</div>
-
+ 
  <div style="margin-top: 40px; margin-bottom: 30px; padding: 20px; background: rgba(255, 213, 128, 0.05); border: 1px dashed #FFD580; border-radius: 12px; text-align: center;">
      <h3 style="color: #FFD580; margin: 0 0 10px 0;">Curtiu a experiência? 🥂</h3>
      <p style="font-size: 0.85em; color: #ccc; line-height: 1.5; margin-bottom: 20px;">
@@ -516,12 +502,15 @@
  function enviarAvaliacao() {
      const nota = document.getElementById('notaEstrela').value;
      const coment = document.getElementById('textoAvaliacao').value;
+     
+     // TRAVA DE COMENTÁRIO OBRIGATÓRIO
      if(!coment || coment.trim() === "") {
          return alert("Por favor, escreva um comentário para enviar sua avaliação!");
      }
+
      db.collection("avaliacoes").add({
          evento_id: EVENTO_ID,
-         nome_evento: DADOS_EVENTO.nome, 
+         nome_evento: DADOS_EVENTO.nome, // HISTÓRICO
          data_evento: new Date(),
          drink: DRINK_AVALIANDO_NOME,
          cliente: NOME_CONVIDADO,
@@ -534,7 +523,7 @@
          PEDIDOS_AVALIADOS.push(DRINK_AVALIANDO_ID);
          localStorage.setItem(`avaliados_${EVENTO_ID}`, JSON.stringify(PEDIDOS_AVALIADOS));
          rastrearFilaGlobal();
-         document.getElementById('textoAvaliacao').value = ""; 
+         document.getElementById('textoAvaliacao').value = ""; // Limpa campo
      });
  }
  
@@ -542,17 +531,35 @@
      document.getElementById('modalMural').style.display = 'flex';
      const lista = document.getElementById('listaMuralHTML');
      lista.innerHTML = '<p style="text-align:center; color:#888;">Carregando...</p>';
+     
+     // BUSCA GLOBAL COM ORDENAÇÃO LOCAL (CLIENT-SIDE SORT) PARA CORRIGIR O ERRO DE CARREGAMENTO
      db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snap => {
          if(snap.empty) { lista.innerHTML = "<p style='color:#777; text-align:center;'>Ainda sem avaliações.</p>"; return; }
+         
          let reviews = [];
          snap.forEach(doc => reviews.push(doc.data()));
+         
+         // Ordena por data (mais recente primeiro) no Javascript
          reviews.sort((a,b) => b.data_evento.toDate() - a.data_evento.toDate());
+         
+         // Pega apenas os 20 últimos
          reviews = reviews.slice(0, 20);
+
          lista.innerHTML = "";
          reviews.forEach(r => {
              const estrelas = "⭐".repeat(r.nota);
              const dataStr = r.data_evento.toDate().toLocaleDateString();
-             lista.innerHTML += `<div class="review-card"><div style="display:flex; justify-content:space-between;"><strong style="color:#fff;">${r.cliente}</strong><span class="stars">${estrelas}</span></div><div style="color:#aaa; font-size:0.85em; margin-bottom:5px;">Bebeu: ${r.drink}</div><div style="color:#ddd; font-style:italic;">"${r.comentario}"</div><span class="review-meta">Evento: ${r.nome_evento} • ${dataStr}</span></div>`;
+             lista.innerHTML += `
+                <div class="review-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong style="color:#fff;">${r.cliente}</strong>
+                        <span class="stars">${estrelas}</span>
+                    </div>
+                    <div style="color:#aaa; font-size:0.85em; margin-bottom:5px;">Bebeu: ${r.drink}</div>
+                    <div style="color:#ddd; font-style:italic;">"${r.comentario}"</div>
+                    <span class="review-meta">Evento: ${r.nome_evento} • ${dataStr}</span>
+                </div>
+             `;
          });
      });
  }
@@ -590,6 +597,8 @@
     });
     document.getElementById('totalCarrinhoDisplay').innerText = `R$ ${total.toFixed(2)}`;
     const avisoPagamento = document.getElementById('msgAvisoPagamento');
+    
+    // LÓGICA HÍBRIDA (PIX OU SALDO)
     if(total > 0) { 
         if(MEU_SALDO >= total) {
             btnCheckout.innerText = `USAR SALDO (R$ ${total.toFixed(2)}) 🚀`; btnCheckout.style.background = "#2196F3"; 
@@ -628,9 +637,6 @@
  function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
  function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
  function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo!"); }
- 
- function copiarPixRodape() { const chave = DADOS_EVENTO.chave_pix || "75998649927"; navigator.clipboard.writeText(chave).then(() => { alert(`Chave PIX copiada: ${chave}\n\nObrigado pela contribuição! 🥂`); }); }
-
  function avisarPagamento(id) { if(confirm("Confirma?")) { db.collection("pedidos").doc(id).update({ sinalizou_pagamento: true }); } }
  function cancelarPedidoCliente(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).get().then(doc => { if(doc.exists) { const p = doc.data(); db.collection("pedidos").doc(id).update({ status: 'cancelado' }); if(p.tipo === 'pacote') { const updateData = { total_consumido: firebase.firestore.FieldValue.increment(-1) }; if (DADOS_EVENTO.tipo_servico === 'misto') { let cat = (p.categoria_drink || 'classico').toLowerCase().trim(); cat = cat.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, ""); if (cat.includes('premium')) updateData['consumido_premium'] = firebase.firestore.FieldValue.increment(-1); else updateData['consumido_classico'] = firebase.firestore.FieldValue.increment(-1); } db.collection("eventos").doc(EVENTO_ID).update(updateData); } } }); }
  let pedidosNotificados = []; function verificarAlertaPronto(id, status) { if(status === 'servido' && !pedidosNotificados.includes(id)) { if(navigator.vibrate) navigator.vibrate([200, 100, 200]); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); document.getElementById('modalPronto').style.display = 'flex'; pedidosNotificados.push(id); } }
