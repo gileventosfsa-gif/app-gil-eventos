@@ -55,11 +55,6 @@
   .msg-admin { background: #333; color: #ddd; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #444; }
   .msg-time { font-size: 0.65em; opacity: 0.7; display: block; text-align: right; margin-top: 4px; }
   
-  .my-order-item { background: #222; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left; border-left: 4px solid #555; position: relative; }
-  .my-order-item.is-mine { border: 1px solid rgba(76, 175, 80, 0.5); background: rgba(76, 175, 80, 0.08); } 
-  .guest-name { font-size: 0.8em; color: #888; font-style: italic; margin-left: 5px;}
-  .guest-name.mine { color: #4CAF50; font-weight: bold; font-style: normal; text-transform:uppercase;}
-
   .payment-alert { background: rgba(255, 68, 68, 0.1); color: #FF4444; padding: 10px; font-size: 0.85em; border-radius: 6px; margin-top: 10px; display: block; border: 1px dashed #FF4444; text-align: center; font-weight: 500; }
   .btn-client-action { width: 100%; margin-top: 5px; padding: 8px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8em; }
   .btn-i-paid { background: #4CAF50; color: white; }
@@ -381,24 +376,11 @@
         return false;
     }
 
-    // --- CORREÇÃO DA LÓGICA DE COMBOS AQUI ---
     function verificarCombosAtivos() {
         if (!DADOS_EVENTO || !DADOS_EVENTO.cardapio) return;
-
-        // A lógica: Procura se existe ALGUM drink que atenda a 2 condições:
-        // 1. Está disponível (d.disponivel !== false)
-        // 2. É cobrado (isItemPago(d) retorna true)
-        const temItemPago = DADOS_EVENTO.cardapio.some(d => 
-            d.disponivel !== false && isItemPago(d)
-        );
-
+        const temItemPago = DADOS_EVENTO.cardapio.some(d => d.disponivel !== false && isItemPago(d));
         const areaCombos = document.getElementById('areaCombos');
-
-        if (temItemPago) {
-            areaCombos.style.display = 'grid'; // Mostra se tiver item pago
-        } else {
-            areaCombos.style.display = 'none'; // Esconde se tudo for grátis/pacote
-        }
+        if (temItemPago) { areaCombos.style.display = 'grid'; } else { areaCombos.style.display = 'none'; }
     }
 
     function abrirMontadorCombo(qtd) { 
@@ -597,7 +579,72 @@
 
     // CHAT E STATUS
     function verificarStatusEvento(status) { const overlay = document.getElementById('telaBloqueio'); const icon = document.getElementById('iconStatus'); const title = document.getElementById('tituloStatus'); const msg = document.getElementById('msgStatus'); if (!status || status === 'aberto') { overlay.style.display = 'none'; return; } overlay.style.display = 'flex'; if (status === 'aguardando') { icon.innerText = '⏳'; title.innerText = 'EM BREVE'; msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂'; } else if (status === 'pausado') { icon.innerText = '✋'; title.innerText = 'BAR PAUSADO'; msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!'; } else if (status === 'encerrado') { icon.innerText = '🏁'; title.innerText = 'EVENTO ENCERRADO'; msg.innerText = 'Obrigado pela presença! O bar foi finalizado.'; } }
-    function rastrearFilaGlobal() { db.collection("pedidos").where("evento_id", "==", EVENTO_ID).onSnapshot((snapshot) => { const listaHTML = document.getElementById('listaMeusPedidosHTML'); listaHTML.innerHTML = ''; let pedidos = []; snapshot.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); }); pedidos.sort((a, b) => { let dateA = a.data ? a.data.toDate() : new Date(); let dateB = b.data ? b.data.toDate() : new Date(); return dateA - dateB; }); if(pedidos.length === 0) { listaHTML.innerHTML = '<p style="color:#555; text-align:center; padding:10px;">Fila vazia! Peça o primeiro drink. 🍹</p>'; document.getElementById('badgeMeusPedidos').innerText = CARRINHO_LOCAL.length; return; } let contagemFilaPreparacao = 0; let meusPedidosAtivosCount = 0; pedidos.forEach(p => { if(p.status === 'cancelado' || p.status === 'concluido') return; let isMine = (limparString(p.nome_convidado) === limparString(NOME_CONVIDADO)); if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++; if(p.tipo === 'recarga') { if(isMine) { let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado'; listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:#2196F3; background:rgba(33, 150, 243, 0.1);"><strong>${p.drink}</strong> <br><small>${statusTxt}</small></div>`; } return; } let statusText = "Fila", cor = "#888", extraHTML = ""; let nomeDisplay = isMine ? `<span class="guest-name mine">(VOCÊ)</span>` : `<span class="guest-name">(${p.nome_convidado})</span>`; let divClass = isMine ? "my-order-item is-mine" : "my-order-item"; let posicaoTexto = ""; if(p.status === 'pendente') { statusText = "🟡 Preparando"; cor = "#FFD580"; contagemFilaPreparacao++; let destaqueClass = ""; let textoPos = `#${contagemFilaPreparacao} da fila`; if (contagemFilaPreparacao === 1) { destaqueClass = "first"; if (isMine) textoPos = "É A SUA VEZ! 🍸"; else textoPos = "PREPARANDO AGORA"; } posicaoTexto = `<span class="queue-pos ${destaqueClass}">${textoPos}</span>`; } else if(p.status === 'aguardando_pagamento') { statusText = "🔴 Aguardando Pagto"; cor = "#FF4444"; if(isMine) { if(!p.sinalizou_pagamento) extraHTML += `<button class="btn-client-action btn-i-paid" style="background:#4CAF50; color:white; border:none;" onclick="avisarPagamento('${p.id}')">✅ JÁ FIZ O PIX</button>`; else extraHTML += `<span class="payment-alert" style="color:#FFD580; border-color:#FFD580;">⌛ Verificando...</span>`; } } else if(p.status === 'pagamento_rejeitado') { statusText = "❌ Pix Não Achado"; cor = "#FF4444"; if(isMine) extraHTML += `<span class="payment-alert">O caixa não achou o Pix.</span>`; } else if(p.status === 'servido') { statusText = "🟢 Pronto!"; cor = "#4CAF50"; if(isMine) { verificarAlertaPronto(p.id, p.status); if(!PEDIDOS_AVALIADOS.includes(p.id)) { extraHTML += `<button class="btn-client-action" style="background:transparent; border:1px solid #FFD580; color:#FFD580;" onclick="abrirAvaliacao('${p.id}', '${p.drink}')">⭐ Avaliar Drink</button>`; } } } if(isMine && p.status !== 'servido') extraHTML += `<button class="btn-client-action btn-client-cancel" onclick="cancelarPedidoCliente('${p.id}')">Cancelar Pedido</button>`; listaHTML.innerHTML += `<div class="${divClass}" style="border-left-color:${cor}"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><strong>${p.drink}</strong> ${nomeDisplay}<br>${posicaoTexto}</div><span style="color:${cor}; font-weight:bold; font-size:0.8em; white-space:nowrap; margin-left:5px;">${statusText}</span></div><small style="color:#aaa; display:block; margin-top:5px;">${p.data.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>${extraHTML}</div>`; }); const totalBadge = CARRINHO_LOCAL.length + meusPedidosAtivosCount; document.getElementById('badgeMeusPedidos').innerText = totalBadge; }); }
+    
+    // --- FUNÇÃO DE FILA GLOBAL CORRIGIDA ---
+    function rastrearFilaGlobal() {
+        db.collection("pedidos")
+          .where("evento_id", "==", EVENTO_ID)
+          .onSnapshot((snapshot) => {
+              const divFila = document.getElementById('listaMeusPedidosHTML');
+              divFila.innerHTML = ''; 
+
+              let todosPedidos = [];
+              snapshot.forEach(doc => {
+                  todosPedidos.push({ id: doc.id, ...doc.data() });
+              });
+
+              todosPedidos.sort((a, b) => {
+                  let dA = a.data ? a.data.toDate() : new Date();
+                  let dB = b.data ? b.data.toDate() : new Date();
+                  return dA - dB;
+              });
+
+              let posicaoFila = 0;
+
+              if(todosPedidos.length === 0) {
+                  divFila.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">A fila está vazia. Peça o primeiro! 🍹</div>';
+                  return;
+              }
+
+              todosPedidos.forEach(p => {
+                  if(p.status === 'cancelado' || p.status === 'concluido') return;
+
+                  let isMine = (limparString(p.nome_convidado) === limparString(NOME_CONVIDADO));
+                  
+                  let nomeDisplay = isMine ? `<span style="color:#4CAF50; font-weight:800; font-size:1.1em;">(VOCÊ)</span>` : p.nome_convidado;
+                  let bgStyle = isMine ? 'background: rgba(76, 175, 80, 0.1); border: 1px solid #4CAF50;' : 'background: #252525; border: 1px solid #333;';
+                  let statusHtml = '';
+                  let icon = '';
+
+                  if (p.status === 'pendente') {
+                      posicaoFila++;
+                      icon = '👨‍🍳';
+                      if (posicaoFila === 1) statusHtml = `<span style="color:#FFD580; font-weight:bold;">PREPARANDO AGORA...</span>`;
+                      else statusHtml = `<span style="color:#aaa;">${posicaoFila}º da Fila</span>`;
+                  } 
+                  else if (p.status === 'aguardando_pagamento') {
+                      icon = '💰';
+                      statusHtml = `<span style="color:#FF4444;">Aguardando Pagamento</span>`;
+                  }
+                  else if (p.status === 'servido') {
+                      icon = '✅';
+                      statusHtml = `<span style="color:#4CAF50; font-weight:bold;">PRONTO / ENTREGUE</span>`;
+                  }
+
+                  divFila.innerHTML += `
+                      <div style="padding:12px; border-radius:10px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; ${bgStyle}">
+                          <div>
+                              <div style="font-size:0.8em; color:#888; margin-bottom:2px;">${icon} ${statusHtml}</div>
+                              <div style="font-weight:bold; color:#fff; font-size:1em;">${p.drink}</div>
+                              <div style="font-size:0.9em; color:#ccc;">${nomeDisplay}</div>
+                          </div>
+                          ${isMine && p.status === 'servido' ? `<button onclick="abrirAvaliacao('${p.id}', '${p.drink}')" style="font-size:0.7em; padding:5px 10px; border-radius:5px; border:none; background:#FFD580; cursor:pointer;">⭐ Avaliar</button>` : ''}
+                      </div>
+                  `;
+              });
+          });
+    }
+
     function abrirAvaliacao(id, nome) { DRINK_AVALIANDO_ID = id; DRINK_AVALIANDO_NOME = nome; document.getElementById('nomeDrinkAvaliar').innerText = nome; document.getElementById('modalAvaliar').style.display = 'flex'; setEstrelas(5); }
     function setEstrelas(n) { document.getElementById('notaEstrela').value = n; for(let i=1; i<=5; i++) { const star = document.getElementById('star'+i); if(i <= n) star.classList.add('active'); else star.classList.remove('active'); } }
     function enviarAvaliacao() { const nota = document.getElementById('notaEstrela').value; const coment = document.getElementById('textoAvaliacao').value; if(!coment || coment.trim() === "") { return alert("Por favor, escreva um comentário para enviar sua avaliação!"); } db.collection("avaliacoes").add({ evento_id: EVENTO_ID, nome_evento: DADOS_EVENTO.nome, data_evento: new Date(), drink: DRINK_AVALIANDO_NOME, cliente: NOME_CONVIDADO, nota: parseInt(nota), comentario: coment, status: 'pendente' }).then(() => { alert("Obrigado! Sua avaliação foi enviada."); document.getElementById('modalAvaliar').style.display = 'none'; PEDIDOS_AVALIADOS.push(DRINK_AVALIANDO_ID); localStorage.setItem(`avaliados_${EVENTO_ID}`, JSON.stringify(PEDIDOS_AVALIADOS)); rastrearFilaGlobal(); document.getElementById('textoAvaliacao').value = ""; }); }
