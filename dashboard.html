@@ -266,18 +266,31 @@
                     atualizarBotoesStatus(DADOS_EVENTO.status || 'aberto');
                 }
             });
-            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["pendente", "aguardando_pagamento", "pagamento_rejeitado"]).onSnapshot((snapshot) => {
+            // CORREÇÃO: SEM ORDERBY NO BANCO (EVITA ERRO DE INDEX)
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).onSnapshot((snapshot) => {
                 const lista = document.getElementById('listaFila');
-                document.getElementById('qtdFila').innerText = snapshot.size;
-                snapshot.docChanges().forEach((change) => { if (change.type === "added") document.getElementById('somAlerta').play().catch(()=>{}); });
-                lista.innerHTML = snapshot.empty ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
                 
                 let pedidos = [];
                 snapshot.forEach(doc => { pedidos.push({id: doc.id, ...doc.data()}); });
-                pedidos.sort((a, b) => { return a.data - b.data; });
+                
+                // ORDENA NO JS (Data mais antiga primeiro)
+                pedidos.sort((a, b) => { 
+                    let dA = a.data ? a.data.toDate() : new Date();
+                    let dB = b.data ? b.data.toDate() : new Date();
+                    return dA - dB; 
+                });
 
-                pedidos.forEach(p => {
-                    const hora = p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                // Filtra os que não são 'pendente', 'aguardando' ou 'rejeitado'
+                let pedidosAtivos = pedidos.filter(p => ["pendente", "aguardando_pagamento", "pagamento_rejeitado"].includes(p.status));
+
+                document.getElementById('qtdFila').innerText = pedidosAtivos.length;
+                
+                snapshot.docChanges().forEach((change) => { if (change.type === "added") document.getElementById('somAlerta').play().catch(()=>{}); });
+                
+                lista.innerHTML = pedidosAtivos.length === 0 ? '<div style="text-align:center; color:#555; margin-top:50px;">Vazio</div>' : '';
+                
+                pedidosAtivos.forEach(p => {
+                    const hora = p.data ? p.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--';
                     let classe, badge, btnHtml;
                     let visualAviso = p.sinalizou_pagamento ? 'cliente-avisou' : '';
                     let obsHtml = p.observacao ? `<span class="obs-tag">⚠️ OBS: ${p.observacao}</span>` : '';
@@ -372,7 +385,7 @@
         function mudarStatus(id, novoStatus) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }).then(() => setTimeout(sincronizarContadores, 500)); }
         function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }).then(() => setTimeout(sincronizarContadores, 500)); }
         
-        // --- CHAT COM ORDENAÇÃO LOCAL (CORRIGIDO) ---
+        // --- CHAT CORRIGIDO (SEM ORDERBY NO BANCO) ---
         function monitorarChat() {
             db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 let novasMensagens = 0;
@@ -383,9 +396,26 @@
         function abrirChatAdmin() { 
             document.getElementById('chatOverlay').style.display = 'flex'; CHAT_UNREAD_COUNT = 0; document.getElementById('chatBadgeGlobal').style.display = 'none'; 
             let usersFromChat = new Set(); let usersFromOrders = new Set();
-            const render = () => { const allUsers = new Set([...usersFromChat, ...usersFromOrders]); const lista = document.getElementById('chatUsersList'); lista.innerHTML = ''; allUsers.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; }); };
-            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { usersFromChat.clear(); s.forEach(d => usersFromChat.add(d.data().nome)); render(); }); 
-            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { usersFromOrders.clear(); s.forEach(d => usersFromOrders.add(d.data().nome_convidado)); render(); });
+            
+            const render = () => { 
+                const allUsers = new Set([...usersFromChat, ...usersFromOrders]); 
+                const lista = document.getElementById('chatUsersList'); 
+                lista.innerHTML = ''; 
+                allUsers.forEach(u => { lista.innerHTML += `<div class="user-item" onclick="carregarConversa('${u}')">${u}</div>`; }); 
+            };
+            
+            // Ouvinte de mensagens (incluindo as de boas-vindas)
+            db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { 
+                usersFromChat.clear(); 
+                s.forEach(d => usersFromChat.add(d.data().nome)); 
+                render(); 
+            }); 
+            
+            db.collection("pedidos").where("evento_id", "==", EVENTO_ID).onSnapshot(s => { 
+                usersFromOrders.clear(); 
+                s.forEach(d => usersFromOrders.add(d.data().nome_convidado)); 
+                render(); 
+            });
         }
         function fecharChatAdmin() { document.getElementById('chatOverlay').style.display = 'none'; }
         
@@ -395,7 +425,7 @@
             const area = document.getElementById('chatAdminMsgs'); 
             area.innerHTML = 'Carregando...'; 
             
-            // REMOVIDO orderBy("data") do banco para evitar erro de índice
+            // CORREÇÃO: Sem orderBy no banco
             db.collection("chat_mensagens")
               .where("evento_id", "==", EVENTO_ID)
               .where("nome", "==", nome)
@@ -404,8 +434,11 @@
                 let msgs = []; 
                 s.forEach(doc => msgs.push(doc.data())); 
                 
-                // ORDENAÇÃO VIA JAVASCRIPT
-                msgs.sort((a,b) => a.data - b.data); 
+                msgs.sort((a,b) => {
+                    let dA = a.data ? a.data.toDate() : new Date();
+                    let dB = b.data ? b.data.toDate() : new Date();
+                    return dA - dB;
+                });
                 
                 msgs.forEach(m => { 
                     let classe = '';
@@ -421,7 +454,6 @@
 
         function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
         
-        // --- NOVA FUNÇÃO APAGAR CONVERSA ---
         function limparConversaAtual() {
             if(!SELECTED_CHAT_USER) return alert("Selecione um cliente primeiro.");
             if(!confirm("Tem certeza que deseja APAGAR TODA A CONVERSA com " + SELECTED_CHAT_USER + "?\nIsso não pode ser desfeito.")) return;
@@ -457,7 +489,6 @@
         function atualizarInterface(dados) { 
             document.getElementById('nomeEvento').innerText = dados.nome; 
             document.getElementById('tipoEvento').innerText = dados.tipo_servico.toUpperCase();
-            
             if (dados.tipo_servico === 'misto') {
                 document.getElementById('boxConsumoSimples').style.display = 'none';
                 document.getElementById('boxConsumoMisto').style.display = 'block';
