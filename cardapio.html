@@ -261,6 +261,10 @@
   </div>
    
   <div class="pix-area" style="display:none;" id="areaPixRecarga">
+    <div style="text-align:left; font-size:0.9em; color:#ddd; margin-bottom:10px; line-height:1.6;">
+        <p style="margin:0;"><strong>Banco:</strong> INTER</p>
+        <p style="margin:0;"><strong>Nome:</strong> GILVAN XAVIER BORGES</p>
+    </div>
     <span class="pix-key" id="chavePixRecarga">...</span>
     <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:5px;" onclick="copiarPixRecarga()">📋 COPIAR CHAVE PIX</button>
   </div>
@@ -271,7 +275,22 @@
   <button onclick="fecharModalRecarga()" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Cancelar</button>
 </div></div>
 
-<div class="modal-overlay" id="modalPagamentoMassa"><div class="modal-box"><h2 style="color:#4CAF50; margin:0;">Finalizar Pedido</h2><p style="color:#ddd;">Você está pagando por <strong><span id="qtdItensMassa">0</span> itens</strong></p><div class="pix-area"><span style="display:block; color:#aaa; font-size:0.8em;">Total a pagar:</span><strong style="font-size:2.2em; color:#4CAF50;" id="valorTotalMassa">R$ 0,00</strong><hr style="border-color:#444; margin:10px 0;"><span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span><span class="pix-key" id="chavePixTextoMassa">75992011008</span><button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button></div><button class="btn-confirm" onclick="confirmarEnvioMassa()">✅ JÁ PAGUEI / ENVIAR TUDO</button><button onclick="document.getElementById('modalPagamentoMassa').style.display='none'; document.getElementById('modalListaPedidos').style.display='flex';" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Voltar ao Carrinho</button></div></div>
+<div class="modal-overlay" id="modalPagamentoMassa"><div class="modal-box"><h2 style="color:#4CAF50; margin:0;">Finalizar Pedido</h2><p style="color:#ddd;">Você está pagando por <strong><span id="qtdItensMassa">0</span> itens</strong></p>
+<div class="pix-area">
+    <span style="display:block; color:#aaa; font-size:0.8em;">Total a pagar:</span>
+    <strong style="font-size:2.2em; color:#4CAF50;" id="valorTotalMassa">R$ 0,00</strong>
+    <hr style="border-color:#444; margin:10px 0;">
+    
+    <div style="text-align:left; font-size:0.9em; color:#ddd; margin-bottom:10px; line-height:1.6;">
+        <p style="margin:0;"><strong>Banco:</strong> INTER</p>
+        <p style="margin:0;"><strong>Nome:</strong> GILVAN XAVIER BORGES</p>
+    </div>
+
+    <span style="display:block; color:#aaa; font-size:0.8em; margin-bottom:5px;">Chave PIX (Celular):</span>
+    <span class="pix-key" id="chavePixTextoMassa">75992011008</span>
+    <button style="background:#FFD580; color:#000; border:none; padding:10px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button>
+</div>
+<button class="btn-confirm" onclick="confirmarEnvioMassa()">✅ JÁ PAGUEI / ENVIAR TUDO</button><button onclick="document.getElementById('modalPagamentoMassa').style.display='none'; document.getElementById('modalListaPedidos').style.display='flex';" style="background:none; border:none; color:#888; margin-top:15px; text-decoration:underline;">Voltar ao Carrinho</button></div></div>
 
 <div class="modal-overlay" id="modalListaPedidos"><div class="modal-box" style="height: 650px; max-height:90vh;"><div class="modal-tabs"><button class="tab-btn active" onclick="mudarAba('pedidos')">📋 Fila Geral</button><button class="tab-btn" onclick="mudarAba('chat')">💬 Chat <span id="alertChatTab" class="tab-alert"></span></button></div>
   <div id="tab-pedidos" class="tab-content active">
@@ -558,7 +577,9 @@
     else { btnCheckout.innerText = "ENVIAR TUDO (GRÁTIS) 🚀"; btnCheckout.style.background = "#FFD580"; btnCheckout.style.color = "#000"; avisoPagamento.style.display = "none"; }
     document.getElementById('valorTotalMassa').innerText = `R$ ${total.toFixed(2)}`;
     document.getElementById('qtdItensMassa').innerText = CARRINHO_LOCAL.length;
-    if(DADOS_EVENTO && DADOS_EVENTO.chave_pix) document.getElementById('chavePixTextoMassa').innerText = DADOS_EVENTO.chave_pix;
+    // MODIFICADO: USA O VALOR PADRÃO SE NÃO TIVER DADOS_EVENTO
+    const chave = (DADOS_EVENTO && DADOS_EVENTO.chave_pix) ? DADOS_EVENTO.chave_pix : "75992011008";
+    document.getElementById('chavePixTextoMassa').innerText = chave;
   }
 
   function abrirPagamentoMassa() { const total = CARRINHO_LOCAL.reduce((acc, item) => item.tipo !== 'pacote' ? acc + item.preco : acc, 0); if (total === 0 || (total > 0 && MEU_SALDO >= total)) { if(confirm("Confirmar envio dos pedidos?")) confirmarEnvioMassa(); } else { document.getElementById('modalListaPedidos').style.display = 'none'; document.getElementById('modalPagamentoMassa').style.display = 'flex'; } }
@@ -664,7 +685,8 @@
   function abrirModalRecarga() { document.getElementById('modalRecarga').style.display = 'flex'; document.getElementById('valorRecarga').value = ''; document.getElementById('areaPixRecarga').style.display = 'none'; document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('btnOpcaoPix').style.display = 'none'; document.getElementById('btnConfirmarRecarga').style.display = 'none'; document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); }
   function fecharModalRecarga() { document.getElementById('modalRecarga').style.display = 'none'; }
   function selecionarPacote(valor) { document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); if(valor === 0) { document.getElementById('areaValorManual').style.display = 'block'; document.getElementById('valorRecarga').value = ''; } else { document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('valorRecarga').value = valor; if(LINKS_PAGAMENTO[valor]) { window.open(LINKS_PAGAMENTO[valor], '_blank'); } else { alert("Pagamento manual: use o PIX."); } } document.getElementById('btnOpcaoPix').style.display = 'block'; document.getElementById('btnConfirmarRecarga').style.display = 'block'; }
-  function mostrarPixRecarga() { const valor = document.getElementById('valorRecarga').value; if(!valor || valor <= 0) return alert("Escolha um pacote ou digite o valor!"); const chave = DADOS_EVENTO.chave_pix || "75998649927"; document.getElementById('chavePixRecarga').innerText = chave; document.getElementById('areaPixRecarga').style.display = 'block'; }
+  // MODIFICADO: USA CHAVE PADRÃO SE NÃO TIVER DADOS_EVENTO
+  function mostrarPixRecarga() { const valor = document.getElementById('valorRecarga').value; if(!valor || valor <= 0) return alert("Escolha um pacote ou digite o valor!"); const chave = (DADOS_EVENTO && DADOS_EVENTO.chave_pix) ? DADOS_EVENTO.chave_pix : "75992011008"; document.getElementById('chavePixRecarga').innerText = chave; document.getElementById('areaPixRecarga').style.display = 'block'; }
   function copiarPixRecarga() { const chave = document.getElementById('chavePixRecarga').innerText; navigator.clipboard.writeText(chave).then(() => alert("Chave copiada!")); }
   function confirmarSolicitacaoRecarga() { const valor = parseFloat(document.getElementById('valorRecarga').value); if(!valor) return alert("Selecione um pacote!"); db.collection("pedidos").add({ evento_id: EVENTO_ID, drink: `CRÉDITO R$ ${valor.toFixed(2)}`, categoria_drink: 'recarga', tipo: 'recarga', preco: valor, nome_convidado: NOME_CONVIDADO, status: 'aguardando_pagamento', sinalizou_pagamento: true, data: new Date() }).then(() => { fecharModalRecarga(); mostrarNotificacao("Solicitação enviada! Aguarde a confirmação."); abrirMeusPedidos(); }); }
   function verificarStatusEvento(status) { const overlay = document.getElementById('telaBloqueio'); const icon = document.getElementById('iconStatus'); const title = document.getElementById('tituloStatus'); const msg = document.getElementById('msgStatus'); if (!status || status === 'aberto') { overlay.style.display = 'none'; return; } overlay.style.display = 'flex'; if (status === 'aguardando') { icon.innerText = '⏳'; title.innerText = 'EM BREVE'; msg.innerText = 'O bar ainda não abriu. Aguarde o início do evento! 🥂'; } else if (status === 'pausado') { icon.innerText = '✋'; title.innerText = 'BAR PAUSADO'; msg.innerText = 'Fizemos uma pequena pausa. Voltamos em instantes!'; } else if (status === 'encerrado') { icon.innerText = '🏁'; title.innerText = 'EVENTO ENCERRADO'; msg.innerText = 'Obrigado pela presença! O bar foi finalizado.'; } }
@@ -677,7 +699,8 @@
   function carregarChat() { db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).where("nome", "==", NOME_CONVIDADO).onSnapshot((snapshot) => { const div = document.getElementById('chatMessages'); div.innerHTML = ''; let msgs = []; snapshot.forEach(doc => msgs.push(doc.data())); msgs.sort((a,b) => a.data - b.data); msgs.forEach(m => { const hora = m.data.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); const classe = m.remetente === 'cliente' ? 'msg-mine' : 'msg-admin'; div.innerHTML += `<div class="msg ${classe}">${m.mensagem}<span class="msg-time">${hora}</span></div>`; }); rolarChat(); if(msgs.length > 0 && msgs[msgs.length-1].remetente === 'admin' && !document.getElementById('tab-chat').classList.contains('active')) { document.getElementById('alertChatTab').style.display = 'block'; } }); }
   function rolarChat() { setTimeout(() => { const d = document.getElementById('chatMessages'); d.scrollTop = d.scrollHeight; }, 100); }
   function salvarZap() { const zap = document.getElementById('mktZap').value; if(!zap) return alert("Digite o número!"); db.collection("clientes_marketing").add({ nome: NOME_CONVIDADO, whatsapp: zap, evento_id: EVENTO_ID, data: new Date() }); alert("Salvo! Obrigado por fazer parte do Clube VIP."); document.getElementById('modalMarketing').style.display = 'none'; }
-  function copiarPixRodape() { const chave = DADOS_EVENTO.chave_pix || "75998649927"; navigator.clipboard.writeText(chave).then(() => { alert(`Chave PIX copiada: ${chave}\n\nObrigado pela contribuição! 🥂`); }); }
+  // MODIFICADO: USA CHAVE PADRÃO SE NÃO TIVER DADOS_EVENTO
+  function copiarPixRodape() { const chave = (DADOS_EVENTO && DADOS_EVENTO.chave_pix) ? DADOS_EVENTO.chave_pix : "75992011008"; navigator.clipboard.writeText(chave).then(() => { alert(`Chave PIX copiada: ${chave}\n\nObrigado pela contribuição! 🥂`); }); }
   function copiarPix() { navigator.clipboard.writeText(document.getElementById('chavePixTextoMassa').innerText); alert("Copiado!"); }
   function salvarTimer() { localStorage.setItem(`timer_${EVENTO_ID}`, new Date().getTime()); verificarTimer(); }
   function getTempoRestante() { if (!TIMER_MINUTOS || TIMER_MINUTOS == 0) return 0; const last = localStorage.getItem(`timer_${EVENTO_ID}`); if(!last) return 0; const diff = new Date().getTime() - parseInt(last); const limit = TIMER_MINUTOS * 60000; return diff < limit ? (limit - diff)/1000 : 0; }
