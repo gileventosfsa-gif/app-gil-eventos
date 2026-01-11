@@ -518,8 +518,9 @@
       'gin tropical': { img: 'https://i.pinimg.com/1200x/a6/88/3b/a6883b81f0a7094d3561a63933b7fce7.jpg', desc: 'Gin, abacaxi grelhado e especiarias.' }, 
       'mojito da ilha': { img: 'https://i.pinimg.com/1200x/ec/df/69/ecdf69a431bd0b082f4a58f1655d365b.jpg', desc: 'Rum branco, hortelã fresca e limão.' }, 
       'coquetel kids': { img: 'https://i.pinimg.com/736x/0a/a1/b2/0aa1b2b5ad2959a6640e5a758a131752.jpg', desc: 'Mix cremoso de frutas vermelhas. Delicioso e colorido.' }, 
-      'coquetel personalizado': { img: 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', desc: 'O cliente escolhe as frutas e combinações na hora.' },
-      'coquetel': { img: 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', desc: 'O cliente escolhe as frutas e combinações na hora.' } 
+      
+      // >>> AQUI ESTÁ A CORREÇÃO: AGORA O NOME ESTÁ CERTO E O RESTO FOI REMOVIDO <<<
+      'coquetel personalizado': { img: 'https://i.pinimg.com/736x/25/67/64/25676460a0707b21c3002e7215b1a2fc.jpg', desc: 'O cliente escolhe as frutas e combinações na hora.' } 
     }; 
     
     // Tenta achar na lista padrão primeiro
@@ -527,7 +528,7 @@
       if (n.includes(key)) return data; 
     } 
     
-    // Verificações extras de segurança
+    // Verificações extras de segurança para nomes que contenham mojito/gin
     if (n.includes('mojito')) return dadosPadrao['mojito da ilha']; 
     if (n.includes('gin')) return dadosPadrao['gin tropical']; 
 
@@ -538,12 +539,13 @@
     }
 
     if (drinkNoBanco) {
+        // SÓ USA SE TIVER LINK CADASTRADO. SEM LINK = GENÉRICA.
         if(drinkNoBanco.imagem && drinkNoBanco.imagem.trim() !== "") {
             return { img: drinkNoBanco.imagem, desc: drinkNoBanco.descricao || 'Bebida exclusiva.' };
         }
     }
     
-    // 3. FALLBACK FINAL
+    // 3. FALLBACK FINAL (IMAGEM GENÉRICA)
     return { img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800&q=80', desc: 'Uma experiência de sabor única.' }; 
   }
   function getDrinkImage(nome) { return getDrinkData(nome).img; }
