@@ -673,8 +673,17 @@
       
      if(p.tipo === 'recarga') {
       if(isMine) {
-       let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado';
-       listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:#2196F3; background:rgba(33, 150, 243, 0.1);"><strong>${p.drink}</strong> <br><small>${statusTxt}</small></div>`;
+       // >>>> CORREÇÃO DA MENSAGEM VERMELHA DE RECARGA NEGADA <<<<
+       if(p.status === 'recarga_negada') {
+           listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:#FF4444; background:rgba(255, 68, 68, 0.1);">
+               <strong>${p.drink}</strong> <br>
+               <small style="color:#FF4444; font-weight:bold;">❌ RECARGA RECUSADA</small><br>
+               <span style="font-size:0.8em; color:#ccc;">Contate o balcão no chat ou vá direto ao bar.</span>
+           </div>`;
+       } else {
+           let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado';
+           listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:#2196F3; background:rgba(33, 150, 243, 0.1);"><strong>${p.drink}</strong> <br><small>${statusTxt}</small></div>`;
+       }
       }
       return; 
      }
