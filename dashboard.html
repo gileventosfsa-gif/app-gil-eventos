@@ -119,8 +119,8 @@
     <div id="bankOverlay"><div class="login-box" style="width: 500px; max-height:85vh;">
         <h2 style="color:#4CAF50;">🏦 Banco do Evento</h2>
         <div style="display:flex; gap:5px; margin-bottom:20px;">
-            <input type="text" id="inputNomeBanco" placeholder="Nome do Convidado" style="flex:1; padding:10px; border-radius:5px; border:none;">
-            <button class="btn-top" style="background:#2196F3;" onclick="adicionarSaldoManual()">➕ Add Saldo</button>
+            <input type="text" id="inputNomeBanco" list="listaUsuariosSugestao" placeholder="Nome do Convidado" style="flex:1; padding:10px; border-radius:5px; border:none;">
+            <datalist id="listaUsuariosSugestao"></datalist> <button class="btn-top" style="background:#2196F3;" onclick="adicionarSaldoManual()">➕ Add Saldo</button>
         </div>
         <h4 style="text-align:left; color:#aaa; border-bottom:1px solid #444; padding-bottom:5px;">Clientes com Saldo:</h4>
         <div id="listaSaldos" class="contacts-list" style="height:300px;">Carregando...</div>
@@ -343,15 +343,34 @@
             monitorarChat();
         }
         
+        // >>>>> NOVA FUNÇÃO DE CARREGAR SALDOS COM DATALIST (RESOLVE DUPLICIDADE) <<<<<
         function abrirBanco() { document.getElementById('bankOverlay').style.display = 'flex'; carregarSaldos(); }
         function carregarSaldos() {
-            const lista = document.getElementById('listaSaldos'); lista.innerHTML = "Carregando...";
+            const lista = document.getElementById('listaSaldos'); 
+            const dataList = document.getElementById('listaUsuariosSugestao'); // Onde ficam as sugestões
+            
+            lista.innerHTML = "Carregando...";
+            dataList.innerHTML = ""; // Limpa sugestões antigas
+
             db.collection("clientes_saldo").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 if(snapshot.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhum saldo cadastrado.</p>"; return; }
+                
                 lista.innerHTML = "";
-                snapshot.forEach(doc => { const d = doc.data(); lista.innerHTML += `<div class="saldo-row"><div><strong>${d.nome}</strong><br><span style="color:#4CAF50; font-size:1.1em;">R$ ${d.saldo.toFixed(2)}</span></div><div style="display:flex; gap:5px;"><button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 10)">+10</button><button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 50)">+50</button><button class="btn-bank-remove" onclick="alterarSaldo('${doc.id}', -10)">-10</button></div></div>`; });
+                dataList.innerHTML = ""; // Limpa pra reconstruir
+
+                snapshot.forEach(doc => { 
+                    const d = doc.data(); 
+                    // Adiciona na lista visual de saldos
+                    lista.innerHTML += `<div class="saldo-row"><div><strong>${d.nome}</strong><br><span style="color:#4CAF50; font-size:1.1em;">R$ ${d.saldo.toFixed(2)}</span></div><div style="display:flex; gap:5px;"><button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 10)">+10</button><button class="btn-bank-add" onclick="alterarSaldo('${doc.id}', 50)">+50</button><button class="btn-bank-remove" onclick="alterarSaldo('${doc.id}', -10)">-10</button></div></div>`; 
+                    
+                    // Adiciona na lista de sugestão (datalist)
+                    const option = document.createElement('option');
+                    option.value = d.nome;
+                    dataList.appendChild(option);
+                });
             });
         }
+        
         function confirmarRecarga(pedidoId, nome, valor) {
             if(!confirm(`Confirmar recarga de R$ ${valor} para ${nome}?`)) return;
             db.collection("pedidos").doc(pedidoId).update({ status: 'concluido' });
@@ -361,6 +380,7 @@
                 if(doc.exists) { refSaldo.update({ saldo: firebase.firestore.FieldValue.increment(valor) }); } 
                 else { refSaldo.set({ evento_id: EVENTO_ID, nome: nome, saldo: valor }); }
             });
+            // ATUALIZA O FATURAMENTO GLOBAL DO EVENTO
             db.collection("eventos").doc(EVENTO_ID).update({ total_faturamento: firebase.firestore.FieldValue.increment(valor) });
         }
         
@@ -370,20 +390,36 @@
             db.collection("pedidos").doc(id).update({ status: 'recarga_negada' });
         }
 
+        // >>> FUNÇÃO DE ADICIONAR SALDO MANUAL (ATUALIZA FATURAMENTO) <<<
         function adicionarSaldoManual() {
             const nome = document.getElementById('inputNomeBanco').value.trim();
             if(!nome) return alert("Digite o nome!");
+            
             const valorStr = prompt(`Quanto adicionar de saldo para ${nome}?`, "50");
             if(!valorStr) return;
+            
             const valor = parseFloat(valorStr.replace(',', '.'));
+            if(isNaN(valor)) return alert("Valor inválido");
+
             const id = `${EVENTO_ID}_${limparString(nome)}`;
+            
             db.collection("clientes_saldo").doc(id).get().then(doc => {
                 if(doc.exists) { db.collection("clientes_saldo").doc(id).update({ saldo: firebase.firestore.FieldValue.increment(valor) }); } 
                 else { db.collection("clientes_saldo").doc(id).set({ evento_id: EVENTO_ID, nome: nome, saldo: valor }); }
                 document.getElementById('inputNomeBanco').value = '';
             });
+
+            // ATUALIZA O FATURAMENTO GLOBAL DO EVENTO
+            db.collection("eventos").doc(EVENTO_ID).update({ total_faturamento: firebase.firestore.FieldValue.increment(valor) });
         }
-        function alterarSaldo(docId, valor) { db.collection("clientes_saldo").doc(docId).update({ saldo: firebase.firestore.FieldValue.increment(valor) }); }
+
+        // >>> FUNÇÃO DE ALTERAR SALDO PELO BOTÃO (ATUALIZA FATURAMENTO) <<<
+        function alterarSaldo(docId, valor) { 
+            db.collection("clientes_saldo").doc(docId).update({ saldo: firebase.firestore.FieldValue.increment(valor) }); 
+            // ATUALIZA O FATURAMENTO GLOBAL DO EVENTO (Se for negativo, subtrai)
+            db.collection("eventos").doc(EVENTO_ID).update({ total_faturamento: firebase.firestore.FieldValue.increment(valor) });
+        }
+
         function moderarReview(id, aprovado) { if(aprovado) { db.collection("avaliacoes").doc(id).update({ status: 'aprovado' }); } else { if(confirm("Excluir avaliação?")) db.collection("avaliacoes").doc(id).delete(); } }
         function abrirGerenciadorReviews() { document.getElementById('reviewsManagerOverlay').style.display = 'flex'; const lista = document.getElementById('listaAprovadas'); lista.innerHTML = "Carregando..."; db.collection("avaliacoes").where("status", "==", "aprovado").get().then(snapshot => { if(snapshot.empty) { lista.innerHTML = "<p style='color:#777; padding:10px;'>Nenhuma avaliação aprovada.</p>"; return; } lista.innerHTML = ""; snapshot.forEach(doc => { const r = doc.data(); const estrelas = "⭐".repeat(r.nota); lista.innerHTML += `<div class="review-approved"><div style="display:flex; justify-content:space-between;"><strong>${r.cliente}</strong><span>${estrelas}</span></div><p style="font-style:italic; color:#ccc; font-size:0.9em;">"${r.comentario}"</p><div class="review-actions"><button class="btn-edit-review" onclick="editarTextoReview('${doc.id}', '${r.comentario.replace(/'/g, "")}')">✏️ Editar</button><button class="btn-reject" onclick="moderarReview('${doc.id}', false)">🗑️ Excluir</button></div></div>`; }); }); }
         function editarTextoReview(id, textoAtual) { const novoTexto = prompt("Edite o comentário:", textoAtual); if(novoTexto !== null) { db.collection("avaliacoes").doc(id).update({ comentario: novoTexto }).then(() => { alert("Atualizado!"); abrirGerenciadorReviews(); }); } }
