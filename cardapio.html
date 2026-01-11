@@ -359,6 +359,80 @@
     return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2580-\u27BF]/g, "").trim(); 
   }
 
+  // --- NOVA LÓGICA DE LOGIN COM VERIFICAÇÃO DE DUPLICIDADE ---
+  async function salvarNome() { 
+    let nomeOriginal = document.getElementById('inputNomeConvidado').value.trim();
+    if (!nomeOriginal) return alert("Por favor, digite seu nome.");
+
+    // 1. Verifica duplicidade no banco
+    const snapshot = await db.collection("clientes_marketing")
+        .where("evento_id", "==", EVENTO_ID)
+        .get();
+
+    let count = 0;
+    // Filtra localmente para garantir match exato do começo do nome
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.nome && data.nome.toLowerCase().startsWith(nomeOriginal.toLowerCase())) {
+            count++;
+        }
+    });
+
+    let nomeFinal = nomeOriginal;
+    let mudou = false;
+
+    if (count > 0) {
+        // Se já existe "Carla", o próximo será "Carla - 02", depois "Carla - 03"
+        let suffix = count + 1;
+        nomeFinal = `${nomeOriginal} - ${suffix < 10 ? '0'+suffix : suffix}`;
+        mudou = true;
+    }
+
+    // 2. Salva o nome FINAL no banco (mesmo sem zap) para registrar a contagem
+    const zap = document.getElementById('inputZapLogin').value;
+    
+    await db.collection("clientes_marketing").add({ 
+        nome: nomeFinal, 
+        whatsapp: zap || "", 
+        evento_id: EVENTO_ID, 
+        data: new Date(),
+        origem: 'login_inicial'
+    });
+
+    // 3. Atualiza LocalStorage e Interface
+    NOME_CONVIDADO = nomeFinal; 
+    localStorage.setItem('nome_usuario_gil', nomeFinal); 
+    document.getElementById('displayNome').innerText = nomeFinal; 
+    document.getElementById('modalNome').style.display = 'none'; 
+
+    // 4. Avisa o usuário se o nome mudou
+    if (mudou) {
+        alert(`⚠️ ATENÇÃO: Já existe alguém com o nome "${nomeOriginal}" na festa.\n\nSeu nome de usuário foi alterado para:\n👉 ${nomeFinal}`);
+    }
+     
+    // 5. Envia mensagem de boas-vindas no chat
+    if (EVENTO_ID) {
+      db.collection("chat_mensagens").add({ 
+        evento_id: EVENTO_ID, 
+        nome: NOME_CONVIDADO, 
+        mensagem: "🔔 Entrou no cardápio.", 
+        remetente: 'sistema', 
+        data: new Date() 
+      }).then(() => {
+        setTimeout(() => {
+          db.collection("chat_mensagens").add({
+            evento_id: EVENTO_ID,
+            nome: NOME_CONVIDADO,
+            mensagem: "Olá! Seja bem-vindo(a). Se precisar de algo, é só chamar aqui! 🍹",
+            remetente: 'admin',
+            data: new Date()
+          });
+          carregarChat(); 
+        }, 1000);
+      });
+    }
+  }
+
   if(NOME_CONVIDADO && NOME_CONVIDADO !== "null") { 
     document.getElementById('modalNome').style.display = 'none'; 
     document.getElementById('displayNome').innerText = NOME_CONVIDADO; 
@@ -385,52 +459,6 @@
     rastrearFilaGlobal();
     if(NOME_CONVIDADO) carregarChat(); 
     renderizarCarrinho();
-  }
-
-  // --- FUNÇÃO SALVAR NOME ATUALIZADA COM WHATSAPP ---
-  function salvarNome() { 
-    const val = document.getElementById('inputNomeConvidado').value; 
-    if(!val) return alert("Por favor, digite seu nome."); 
-    
-    // Salva o Nome
-    NOME_CONVIDADO = val; 
-    localStorage.setItem('nome_usuario_gil', val); 
-    document.getElementById('displayNome').innerText = val; 
-
-    // Verifica se preencheu o ZAP e salva também
-    const zapLogin = document.getElementById('inputZapLogin').value;
-    if(zapLogin && zapLogin.trim() !== "") {
-        db.collection("clientes_marketing").add({ 
-            nome: val, 
-            whatsapp: zapLogin, 
-            evento_id: EVENTO_ID, 
-            data: new Date(),
-            origem: 'login_inicial'
-        });
-    }
-
-    document.getElementById('modalNome').style.display = 'none'; 
-     
-    if (EVENTO_ID) {
-      db.collection("chat_mensagens").add({ 
-        evento_id: EVENTO_ID, 
-        nome: NOME_CONVIDADO, 
-        mensagem: "🔔 Entrou no cardápio.", 
-        remetente: 'sistema', 
-        data: new Date() 
-      }).then(() => {
-        setTimeout(() => {
-          db.collection("chat_mensagens").add({
-            evento_id: EVENTO_ID,
-            nome: NOME_CONVIDADO,
-            mensagem: "Olá! Seja bem-vindo(a). Se precisar de algo, é só chamar aqui! 🍹",
-            remetente: 'admin',
-            data: new Date()
-          });
-          carregarChat(); 
-        }, 1000);
-      });
-    }
   }
 
   function isItemPago(item) {
@@ -666,9 +694,9 @@
     }
 
     pedidos.forEach(p => { 
-     // CORREÇÃO: "concluido" agora some SÓ se não for recarga
-     if(p.status === 'cancelado') return; 
-     if(p.status === 'concluido' && p.tipo !== 'recarga') return; 
+     // >>>>>>> CORREÇÃO DO FILTRO (AQUI ESTAVA O ERRO) <<<<<<<
+     if(p.status === 'cancelado') return; // Cancelados somem
+     if(p.status === 'concluido' && p.tipo !== 'recarga') return; // Concluidos (Drinks) somem, RECARGAS FICAM
 
      let isMine = (limparString(p.nome_convidado) === limparString(NOME_CONVIDADO));
      if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
