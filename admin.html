@@ -19,6 +19,7 @@
         .input-nome { flex: 2; font-weight: bold; color: #FFD580; }
         .configs-row { display: flex; gap: 10px; margin-top: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px; flex-wrap: wrap; }
         .config-group { flex: 1; min-width: 120px; }
+        .config-group-full { flex: 100%; margin-top: 5px; } /* Novo estilo para o link da imagem */
         .config-label { font-size: 0.75em; color: #888; margin-bottom: 3px; display: block; }
         .select-mini { width: 100%; padding: 8px; font-size: 0.9em; border: 1px solid #555; }
         .btn-add { background: #333; border: 1px dashed #777; color: #aaa; width: 100%; padding: 15px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
@@ -135,19 +136,19 @@
     ];
 
     const CARDAPIO_PADRAO = [
-        { nome: "Elixir do Sol", desc: "Abacaxi, hortelã, toque cítrico e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "Desejo Proibido", desc: "Frutas vermelhas intensas, cítrico e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "Encanto Noturno", desc: "Uva roxa, cítrico e manjericão fresco.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "Tropical Mix", desc: "Tangerina, kiwi, abacaxi e ervas frescas.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "Brisa Verde", desc: "Limão, gengibre, manjericão e açúcar de cana.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
-        { nome: "Fúria Rubi", desc: "Morango, tangerina e maracujá.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 },
-        { nome: "Caipirinha Premium", desc: "Limão tahiti, açúcar na medida e aguardente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "Segredo da Casa", desc: "Criação autoral com toque secreto.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "Aperol Sunset", desc: "Aperol com espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
-        { nome: "Gin Tropical", desc: "Gin, abacaxi grelhado e especiarias.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
-        { nome: "Mojito da Ilha", desc: "Rum branco, hortelã fresca e limão.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20 },
-        { nome: "Coquetel Kids", desc: "Mix cremoso de frutas vermelhas.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8 },
-        { nome: "Personalizado", desc: "O cliente escolhe as frutas.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10 }
+        { nome: "Elixir do Sol", desc: "Abacaxi, hortelã, toque cítrico e especiarias.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8, imagem: "" },
+        { nome: "Desejo Proibido", desc: "Frutas vermelhas intensas, cítrico e hortelã.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8, imagem: "" },
+        { nome: "Encanto Noturno", desc: "Uva roxa, cítrico e manjericão fresco.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8, imagem: "" },
+        { nome: "Tropical Mix", desc: "Tangerina, kiwi, abacaxi e ervas frescas.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8, imagem: "" },
+        { nome: "Brisa Verde", desc: "Limão, gengibre, manjericão e açúcar de cana.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10, imagem: "" },
+        { nome: "Fúria Rubi", desc: "Morango, tangerina e maracujá.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10, imagem: "" },
+        { nome: "Caipirinha Premium", desc: "Limão tahiti, açúcar na medida e aguardente.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8, imagem: "" },
+        { nome: "Segredo da Casa", desc: "Criação autoral com toque secreto.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8, imagem: "" },
+        { nome: "Aperol Sunset", desc: "Aperol com espumante e laranja caramelizada.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20, imagem: "" },
+        { nome: "Gin Tropical", desc: "Gin, abacaxi grelhado e especiarias.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20, imagem: "" },
+        { nome: "Mojito da Ilha", desc: "Rum branco, hortelã fresca e limão.", categoria: "premium", tipo_cobranca: "pacote", preco: 25, preco_prevenda: 20, imagem: "" },
+        { nome: "Coquetel Kids", desc: "Mix cremoso de frutas vermelhas.", categoria: "classico", tipo_cobranca: "pacote", preco: 10, preco_prevenda: 8, imagem: "" },
+        { nome: "Coquetel Personalizado", desc: "O cliente escolhe as frutas.", categoria: "classico", tipo_cobranca: "pacote", preco: 12, preco_prevenda: 10, imagem: "" }
     ];
 
     let cardapioAtual = JSON.parse(JSON.stringify(CARDAPIO_PADRAO));
@@ -195,13 +196,8 @@
                 }
 
                 document.getElementById('chavePix').value = dados.chave_pix || "";
-                
-                // --- CORREÇÃO DO CARREGAMENTO ---
-                // Se o valor for 0, ele mostra 0. Se for indefinido, mostra 15.
                 document.getElementById('timerBloqueio').value = (dados.timer_minutos !== undefined && dados.timer_minutos !== null) ? dados.timer_minutos : 15;
-                
                 document.getElementById('limitePorPedido').value = dados.limite_pedido !== undefined ? dados.limite_pedido : 3;
-
                 document.getElementById('senhaAdmin').value = dados.senha_admin;
                 
                 if(dados.cardapio && dados.cardapio.length > 0) {
@@ -252,12 +248,29 @@
                     </div>
                     <div class="config-group"><span class="config-label">R$ PRÉ-VENDA</span><input type="number" value="${drink.preco_prevenda||0}" class="input-preco-prevenda select-mini"></div>
                     <div class="config-group"><span class="config-label">R$ NO DIA</span><input type="number" value="${drink.preco||0}" class="input-preco select-mini"></div>
+                    
+                    <div class="config-group-full">
+                        <span class="config-label">URL DA IMAGEM (OPCIONAL)</span>
+                        <input type="text" value="${drink.imagem || ''}" class="input-img select-mini" placeholder="https://exemplo.com/foto.jpg">
+                    </div>
                 </div>`;
             container.appendChild(div);
         });
     }
 
-    function adicionarNovoDrink() { cardapioAtual.push({ nome: "", desc: "", categoria: "classico", tipo_cobranca: "pacote", preco: 0, preco_prevenda: 0 }); renderizarEditor(); }
+    function adicionarNovoDrink() { 
+        cardapioAtual.push({ 
+            nome: "", 
+            desc: "", 
+            categoria: "classico", 
+            tipo_cobranca: "pacote", 
+            preco: 0, 
+            preco_prevenda: 0,
+            imagem: "" // Novo campo vazio
+        }); 
+        renderizarEditor(); 
+    }
+    
     function removerDrink(index) { cardapioAtual.splice(index, 1); renderizarEditor(); }
     
     function togglePacote() { 
@@ -301,9 +314,7 @@
         const tipo = document.getElementById('tipoServico').value;
         const pix = document.getElementById('chavePix').value || "Não informada";
         
-        // --- CORREÇÃO DA SALVAGEM (ACEITAR 0) ---
         const timerInput = document.getElementById('timerBloqueio').value;
-        // Se estiver vazio, usa 15. Se tiver "0" ou qualquer número, usa ele.
         const timer = timerInput === "" ? 15 : parseInt(timerInput);
 
         const limitePedido = parseInt(document.getElementById('limitePorPedido').value) || 3;
@@ -342,6 +353,7 @@
                 tipo_cobranca: item.querySelector('.input-cob').value,
                 preco: parseFloat(item.querySelector('.input-preco').value) || 0,
                 preco_prevenda: parseFloat(item.querySelector('.input-preco-prevenda').value) || 0,
+                imagem: item.querySelector('.input-img').value, // SALVANDO A IMAGEM AQUI
                 disponivel: true 
             });
         });
@@ -401,4 +413,3 @@
 </script>
 </body>
 </html>
-
