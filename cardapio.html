@@ -537,7 +537,7 @@
     if (drinkNoBanco) {
         // SÓ USA SE TIVER LINK CADASTRADO. SEM LINK = GENÉRICA.
         if(drinkNoBanco.imagem && drinkNoBanco.imagem.trim() !== "") {
-            return { img: drinkNoBanco.imagem, desc: drinkNoBanco.descricao || 'Bebida exclusiva.' };
+            return { img: drinkNoBanco.imagem, desc: drinkNoBanco.desc || 'Bebida exclusiva.' };
         }
     }
     
