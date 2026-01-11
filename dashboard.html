@@ -298,9 +298,10 @@
                     if(p.tipo === 'recarga') {
                         classe = 'recarga';
                         badge = `💰 RECARGA SOLICITADA`;
+                        // >>> CORREÇÃO DO BOTÃO NEGAR (USA recusarRecarga) <<<
                         btnHtml = `
                             <button class="btn-recarga" onclick="confirmarRecarga('${p.id}', '${p.nome_convidado}', ${p.preco})">✅ CONFIRMAR RECARGA</button>
-                            <button class="btn-deny" onclick="cancelarPedido('${p.id}')">❌ NEGAR</button>
+                            <button class="btn-deny" onclick="recusarRecarga('${p.id}')">❌ NEGAR</button>
                         `;
                     }
                     else if(p.status === 'aguardando_pagamento' || p.status === 'pagamento_rejeitado') {
@@ -325,7 +326,7 @@
             db.collection("pedidos").where("evento_id", "==", EVENTO_ID).where("status", "in", ["servido", "cancelado", "concluido"]).limit(30).onSnapshot((s) => { 
                 const l = document.getElementById('listaHistorico'); l.innerHTML = ''; 
                 s.forEach(doc => { const p = doc.data(); l.innerHTML += `<div class="hist-item"><div><strong style="color:#FFD580">${p.drink}</strong><br><span style="color:#666">${p.nome_convidado}</span></div><div style="text-align:right">${p.status}</div></div>`; }); 
-            });
+            }); 
             
             db.collection("avaliacoes").where("status", "==", "pendente").onSnapshot(snapshot => {
                 const lista = document.getElementById('listaReviews');
@@ -362,6 +363,13 @@
             });
             db.collection("eventos").doc(EVENTO_ID).update({ total_faturamento: firebase.firestore.FieldValue.increment(valor) });
         }
+        
+        // >>> NOVA FUNÇÃO PARA NEGAR RECARGA <<<
+        function recusarRecarga(id) {
+            if(!confirm("Recusar solicitação de recarga?")) return;
+            db.collection("pedidos").doc(id).update({ status: 'recarga_negada' });
+        }
+
         function adicionarSaldoManual() {
             const nome = document.getElementById('inputNomeBanco').value.trim();
             if(!nome) return alert("Digite o nome!");
@@ -385,7 +393,7 @@
         function mudarStatus(id, novoStatus) { if(!confirm("Entregar pedido?")) return; db.collection("pedidos").doc(id).update({ status: novoStatus }).then(() => setTimeout(sincronizarContadores, 500)); }
         function cancelarPedido(id) { if(!confirm("Cancelar?")) return; db.collection("pedidos").doc(id).update({ status: 'cancelado' }).then(() => setTimeout(sincronizarContadores, 500)); }
         
-        // --- CHAT CORRIGIDO (SEM ORDERBY NO BANCO) ---
+        // --- CHAT CORRIGIDO (SEM ORDERBY NO BANCO E COM ALERTA) ---
         function monitorarChat() {
             db.collection("chat_mensagens").where("evento_id", "==", EVENTO_ID).onSnapshot(snapshot => {
                 let novasMensagens = 0;
@@ -452,7 +460,27 @@
             }); 
         }
 
-        function enviarMsgAdmin() { const txt = document.getElementById('adminChatInput').value; if(!txt || !SELECTED_CHAT_USER) return; db.collection("chat_mensagens").add({ evento_id: EVENTO_ID, nome: SELECTED_CHAT_USER, mensagem: txt, remetente: 'admin', data: new Date() }); document.getElementById('adminChatInput').value = ''; }
+        // >>> CORREÇÃO DO ENVIO (ADICIONADO ALERTA) <<<
+        function enviarMsgAdmin() { 
+            const txt = document.getElementById('adminChatInput').value; 
+            
+            // Verifica se o usuário selecionou um cliente
+            if(!SELECTED_CHAT_USER) {
+                alert("⚠️ Selecione um cliente na lista à esquerda para responder!");
+                return;
+            }
+
+            if(!txt.trim()) return; 
+            
+            db.collection("chat_mensagens").add({ 
+                evento_id: EVENTO_ID, 
+                nome: SELECTED_CHAT_USER, 
+                mensagem: txt, 
+                remetente: 'admin', 
+                data: new Date() 
+            }); 
+            document.getElementById('adminChatInput').value = ''; 
+        }
         
         function limparConversaAtual() {
             if(!SELECTED_CHAT_USER) return alert("Selecione um cliente primeiro.");
