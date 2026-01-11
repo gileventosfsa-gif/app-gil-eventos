@@ -666,19 +666,26 @@
     }
 
     pedidos.forEach(p => { 
-     if(p.status === 'cancelado' || p.status === 'concluido') return; 
+     // CORREÇÃO: "concluido" agora some SÓ se não for recarga
+     if(p.status === 'cancelado') return; 
+     if(p.status === 'concluido' && p.tipo !== 'recarga') return; 
 
      let isMine = (limparString(p.nome_convidado) === limparString(NOME_CONVIDADO));
      if(isMine && (p.status !== 'servido' && p.status !== 'cancelado')) meusPedidosAtivosCount++;
       
      if(p.tipo === 'recarga') {
       if(isMine) {
-       // >>>> CORREÇÃO DA MENSAGEM VERMELHA DE RECARGA NEGADA <<<<
        if(p.status === 'recarga_negada') {
            listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:#FF4444; background:rgba(255, 68, 68, 0.1);">
                <strong>${p.drink}</strong> <br>
                <small style="color:#FF4444; font-weight:bold;">❌ RECARGA RECUSADA</small><br>
                <span style="font-size:0.8em; color:#ccc;">Contate o balcão no chat ou vá direto ao bar.</span>
+           </div>`;
+       } else if (p.status === 'concluido') {
+           listaHTML.innerHTML += `<div class="my-order-item" style="border-left-color:#4CAF50; background:rgba(76, 175, 80, 0.1);">
+               <strong>${p.drink}</strong> <br>
+               <small style="color:#4CAF50; font-weight:bold;">✅ RECARGA APROVADA!</small><br>
+               <span style="font-size:0.8em; color:#ccc;">Saldo liberado.</span>
            </div>`;
        } else {
            let statusTxt = p.status === 'aguardando_pagamento' ? '⏳ Aguardando Aprovação' : '✅ Confirmado';
