@@ -94,6 +94,29 @@
             </div>
         </div>
 
+        <div class="row" style="margin-top:20px; background: rgba(255,213,128,0.05); padding: 15px; border-radius: 10px; border: 1px solid #333;">
+            <div class="col">
+                <label>Código de Acesso (Chave do Evento)</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="codigoAcesso" placeholder="Ex: CASAMENTO2026" style="text-transform: uppercase;">
+                    <button onclick="gerarCodigoUnico()" style="background:#444; border:1px solid #666; color:#FFD580; border-radius:8px; padding:0 15px; cursor:pointer; font-size:0.8em;">GERAR</button>
+                </div>
+            </div>
+            <div class="col">
+                <label>Modo de Operação</label>
+                <select id="modoOperacao">
+                    <option value="online">📱 Online (Fila Digital)</option>
+                    <option value="balcao">🏪 Balcão (Apenas Visualizar)</option>
+                    <option value="hibrido">⚖️ Híbrido (Ambos)</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top:15px; display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" id="visivelBusca" checked style="width:20px; height:20px; margin:0;">
+            <label style="margin:0;">Visível publicamente na busca de eventos</label>
+        </div>
+
         <label>Senha Admin</label>
         <input type="text" id="senhaAdmin" placeholder="Senha mestre">
 
@@ -413,3 +436,4 @@
 </script>
 </body>
 </html>
+
