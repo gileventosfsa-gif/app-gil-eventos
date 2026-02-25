@@ -988,38 +988,46 @@ https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
         function copiarLista(chave) { const texto = BANCO_DE_LISTAS[chave]; if(!texto) return alert("Lista não encontrada para essa quantidade."); navigator.clipboard.writeText(texto).then(() => alert("✅ Lista copiada!")).catch(() => alert("Erro ao copiar")); }
 
         function gerarPDFLista(chave) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
             const textoBruto = BANCO_DE_LISTAS[chave];
             if(!textoBruto) return alert("Lista não encontrada.");
 
-            // Organiza o texto em linhas para a tabela
-            const linhas = textoBruto.split('\n')
-                .filter(l => l.trim() !== "")
-                .map(l => [l.replace(/\*/g, "").replace(/📍/g, "• ").trim()]);
+            // Formata o texto para HTML (converte quebras de linha e limpa negritos)
+            const conteudoFormatado = textoBruto
+                .replace(/\*/g, "")
+                .replace(/\n/g, "<br>")
+                .replace(/📍/g, "• ");
 
-            doc.setFontSize(16);
-            doc.setTextColor(255, 149, 0);
-            doc.text("GIL EVENTOS - LISTA DE INSUMOS", 105, 15, null, null, "center");
-            
-            doc.autoTable({
-                head: [['ITENS NECESSÁRIOS PARA O SEU EVENTO']],
-                body: linhas,
-                startY: 25,
-                theme: 'striped',
-                headStyles: { fillColor: [255, 149, 0], textColor: 255, fontStyle: 'bold' },
-                styles: { fontSize: 10, cellPadding: 3 },
-                margin: { top: 25 }
-            });
-
-            const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], "Lista_Insumos_GilEventos.pdf", { type: "application/pdf" });
-
-            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                navigator.share({ files: [file], title: 'Lista Gil Eventos' }).catch(() => doc.save("Lista_Insumos_GilEventos.pdf"));
-            } else {
-                doc.save("Lista_Insumos_GilEventos.pdf");
-            }
+            const janelaImpressao = window.open('', '_blank', 'width=800,height=900');
+            janelaImpressao.document.write(`
+                <html>
+                <head>
+                    <title>Lista de Compras - Gil Eventos</title>
+                    <style>
+                        body { font-family: 'Poppins', sans-serif; padding: 40px; color: #333; line-height: 1.6; }
+                        .header { text-align: center; border-bottom: 2px solid #FF9500; padding-bottom: 20px; margin-bottom: 30px; }
+                        h1 { color: #FF9500; margin: 0; font-size: 24px; }
+                        .content { font-size: 14px; white-space: pre-wrap; }
+                        .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 20px; }
+                        @media print { .no-print { display: none; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>GIL EVENTOS</h1>
+                        <p>Bar Premium & Coquetelaria</p>
+                    </div>
+                    <div class="content">${conteudoFormatado}</div>
+                    <div class="footer">Documento gerado em ${new Date().toLocaleDateString()} - gileventos.com.br</div>
+                    <script>
+                        setTimeout(() => { 
+                            window.print(); 
+                            window.close(); 
+                        }, 500);
+                    <\/script>
+                </body>
+                </html>
+            `);
+            janelaImpressao.document.close();
         }
         function mostrarPacotesExtras() { const container = document.getElementById('pacotesExtras'); container.style.display = 'grid'; container.scrollIntoView({behavior: 'smooth'}); }
 
@@ -1162,6 +1170,7 @@ https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
     </script>
 </body>
 </html>
+
 
 
 
