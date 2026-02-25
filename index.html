@@ -990,28 +990,35 @@ https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
         function gerarPDFLista(chave) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const texto = BANCO_DE_LISTAS[chave];
-            if(!texto) return alert("Lista não encontrada.");
+            const textoBruto = BANCO_DE_LISTAS[chave];
+            if(!textoBruto) return alert("Lista não encontrada.");
 
-            const linhas = doc.splitTextToSize(texto, 180);
-            doc.setFont("helvetica", "bold");
-            doc.text("GIL EVENTOS - LISTA DE COMPRAS", 105, 15, null, null, "center");
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.text(linhas, 15, 25);
+            // Organiza o texto em linhas para a tabela
+            const linhas = textoBruto.split('\n')
+                .filter(l => l.trim() !== "")
+                .map(l => [l.replace(/\*/g, "").replace(/📍/g, "• ").trim()]);
+
+            doc.setFontSize(16);
+            doc.setTextColor(255, 149, 0);
+            doc.text("GIL EVENTOS - LISTA DE INSUMOS", 105, 15, null, null, "center");
             
-            // Opção de Compartilhamento Nativo (Download/WhatsApp)
-            const pdfBlob = doc.output('blob');
-            const file = new File([pdfBlob], "Lista_Gil_Eventos.pdf", { type: "application/pdf" });
+            doc.autoTable({
+                head: [['ITENS NECESSÁRIOS PARA O SEU EVENTO']],
+                body: linhas,
+                startY: 25,
+                theme: 'striped',
+                headStyles: { fillColor: [255, 149, 0], textColor: 255, fontStyle: 'bold' },
+                styles: { fontSize: 10, cellPadding: 3 },
+                margin: { top: 25 }
+            });
 
-            if (navigator.share) {
-                navigator.share({
-                    files: [file],
-                    title: 'Lista de Compras - Gil Eventos',
-                    text: 'Aqui está sua lista de compras para o evento!'
-                }).catch(() => doc.save("Lista_Gil_Eventos.pdf"));
+            const pdfBlob = doc.output('blob');
+            const file = new File([pdfBlob], "Lista_Insumos_GilEventos.pdf", { type: "application/pdf" });
+
+            if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                navigator.share({ files: [file], title: 'Lista Gil Eventos' }).catch(() => doc.save("Lista_Insumos_GilEventos.pdf"));
             } else {
-                doc.save("Lista_Gil_Eventos.pdf");
+                doc.save("Lista_Insumos_GilEventos.pdf");
             }
         }
         function mostrarPacotesExtras() { const container = document.getElementById('pacotesExtras'); container.style.display = 'grid'; container.scrollIntoView({behavior: 'smooth'}); }
@@ -1154,6 +1161,7 @@ https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
     </script>
 </body>
 </html>
+
 
 
 
