@@ -295,6 +295,15 @@
     }
     
     function removerDrink(index) { cardapioAtual.splice(index, 1); renderizarEditor(); }
+
+    function gerarCodigoUnico() {
+        const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let resultado = '';
+        for (let i = 0; i < 6; i++) {
+            resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+        }
+        document.getElementById('codigoAcesso').value = resultado;
+    }
     
     function togglePacote() { 
         const t = document.getElementById('tipoServico').value; 
@@ -436,4 +445,5 @@
 </script>
 </body>
 </html>
+
 
