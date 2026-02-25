@@ -985,6 +985,34 @@ https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
         function getPacote(array, drinksNeeded) { for(let i=0; i<array.length; i++){ if(array[i].drinks >= drinksNeeded) return array[i]; } return array[array.length-1]; }
         function toggleLista(btn) { const lista = btn.nextElementSibling; lista.style.display = lista.style.display === 'none' || lista.style.display === '' ? 'block' : 'none'; }
         function copiarLista(chave) { const texto = BANCO_DE_LISTAS[chave]; if(!texto) return alert("Lista não encontrada para essa quantidade."); navigator.clipboard.writeText(texto).then(() => alert("✅ Lista copiada!")).catch(() => alert("Erro ao copiar")); }
+
+        function gerarPDFLista(chave) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const texto = BANCO_DE_LISTAS[chave];
+            if(!texto) return alert("Lista não encontrada.");
+
+            const linhas = doc.splitTextToSize(texto, 180);
+            doc.setFont("helvetica", "bold");
+            doc.text("GIL EVENTOS - LISTA DE COMPRAS", 105, 15, null, null, "center");
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(linhas, 15, 25);
+            
+            // Opção de Compartilhamento Nativo (Download/WhatsApp)
+            const pdfBlob = doc.output('blob');
+            const file = new File([pdfBlob], "Lista_Gil_Eventos.pdf", { type: "application/pdf" });
+
+            if (navigator.share) {
+                navigator.share({
+                    files: [file],
+                    title: 'Lista de Compras - Gil Eventos',
+                    text: 'Aqui está sua lista de compras para o evento!'
+                }).catch(() => doc.save("Lista_Gil_Eventos.pdf"));
+            } else {
+                doc.save("Lista_Gil_Eventos.pdf");
+            }
+        }
         function mostrarPacotesExtras() { const container = document.getElementById('pacotesExtras'); container.style.display = 'grid'; container.scrollIntoView({behavior: 'smooth'}); }
 
         function calcular() {
@@ -1125,6 +1153,7 @@ https://www.instagram.com/_gileventos?igsh=MTFpbWUzbm9wbjFuaw==
     </script>
 </body>
 </html>
+
 
 
 
