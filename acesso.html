@@ -94,10 +94,20 @@
         }
     }
 
-    // Permitir Enter no teclado
+   // Permitir Enter no teclado
     document.getElementById('inputCodigo').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') validarAcesso();
     });
+
+    // LÓGICA AUTO-CHECKIN: Verifica se o código veio na URL (ex: acesso.html?c=FESTA10)
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const codigoViaUrl = urlParams.get('c');
+        if (codigoViaUrl) {
+            document.getElementById('inputCodigo').value = codigoViaUrl.toUpperCase();
+            validarAcesso();
+        }
+    };
 </script>
 </body>
 </html>
