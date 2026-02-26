@@ -14,19 +14,26 @@
         }
         body { margin: 0; background: #1a1a1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Poppins', sans-serif; }
         
-        /* Proporção A5 Premium */
+        /* Medidas Travadas para Impressão */
         .placa-master {
-            width: 550px;
-            height: 850px;
+            width: 14cm; 
+            height: 24cm;
             background: var(--dark-bg);
-            border-radius: 40px;
+            border-radius: 1.5cm;
             position: relative;
             overflow: hidden;
             border: 3px solid #333;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
             display: flex;
             flex-direction: column;
             text-align: center;
+            page-break-after: always;
+        }
+
+        /* Classe auxiliar para a placa menor */
+        .placa-menor {
+            width: 11cm;
+            height: 16cm;
+            border-radius: 1cm;
         }
 
         /* Fotos de Fundo Sem Cortes Abruptos */
