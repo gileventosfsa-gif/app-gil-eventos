@@ -120,6 +120,11 @@
     </style>
 </head>
 <body>
+    <div class="no-print" style="position: fixed; top: 10px; left: 10px; z-index: 999; background: #333; padding: 10px; border-radius: 8px;">
+        <button onclick="document.querySelector('.placa-master').classList.remove('placa-menor')" style="cursor:pointer; padding: 5px 10px;">Placa 14x24cm</button>
+        <button onclick="document.querySelector('.placa-master').classList.add('placa-menor')" style="cursor:pointer; padding: 5px 10px;">Placa 11x16cm</button>
+        <button onclick="window.print()" style="cursor:pointer; padding: 5px 10px; background: #FFAE00; border: none; font-weight: bold;">IMPRIMIR</button>
+    </div>
 
     <div class="placa-master">
         <div class="drinks-background">
