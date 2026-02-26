@@ -206,6 +206,24 @@
         </div>
     </div>
 
+    <div id="modalQRGlobal" class="modal-overlay" onclick="document.getElementById('modalQRGlobal').style.display='none'">
+        <div class="login-box" style="max-width: 350px; border: 2px solid #00E676;" onclick="event.stopPropagation()">
+            <h2 style="color:#00E676; font-size: 1.4em; margin-bottom: 5px;">QR CODE FIXO</h2>
+            <p style="font-size: 0.8em; color: #aaa; margin-bottom: 20px;">Este QR nunca muda. Imprima para o Balcão.</p>
+            
+            <div id="qrcodeGlobal" style="background:#fff; padding:15px; border-radius:10px; display:inline-block; margin-bottom:20px;"></div>
+            
+            <p style="color: #FFD580; font-size: 0.8em; margin-bottom: 15px;">Destino: <strong>acesso.html</strong></p>
+
+            <button class="btn-nav" style="background:#444; width:100%; justify-content: center;" onclick="copiarLinkAcesso()">
+                🔗 Copiar Link de Acesso
+            </button>
+            <button class="btn-nav" style="background:transparent; border: 1px solid #777; width:100%; margin-top:10px; justify-content: center;" onclick="document.getElementById('modalQRGlobal').style.display='none'">
+                Fechar
+            </button>
+        </div>
+    </div>
+
     <div class="header">
         <div class="logo">🦅 CENTRAL DE COMANDO</div>
         <div class="nav-buttons">
