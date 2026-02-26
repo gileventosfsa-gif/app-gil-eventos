@@ -509,10 +509,47 @@
             }
         }
 
-        function copiarLinkEvento(id) {
+        let DADOS_QR_ATUAL = null;
+
+        function abrirCompartilhar(id) {
+            const evento = listaEventosCache.find(e => e.id === id);
+            if(!evento) return;
+            DADOS_QR_ATUAL = evento;
+
             const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-            const link = `${urlBase}/cardapio.html?evento=${id}`;
-            navigator.clipboard.writeText(link).then(() => alert("✅ Link do CARDÁPIO copiado!"));
+            const linkDireto = `${urlBase}/cardapio.html?evento=${id}`;
+            
+            document.getElementById('qrNomeEvento').innerText = evento.nome;
+            document.getElementById('qrChaveEvento').innerText = `Chave de Acesso: ${evento.codigo_acesso || 'NÃO DEFINIDA'}`;
+            document.getElementById('modalQR').style.display = 'flex';
+            
+            // Limpa e gera novo QR Code
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById("qrcode"), {
+                text: linkDireto,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function copiarLinkEventoIndividual() {
+            const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const link = `${urlBase}/cardapio.html?evento=${DADOS_QR_ATUAL.id}`;
+            navigator.clipboard.writeText(link).then(() => alert("✅ Link direto copiado!"));
+        }
+
+        function compartilharWhatsApp() {
+            const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const link = `${urlBase}/cardapio.html?evento=${DADOS_QR_ATUAL.id}`;
+            const msg = encodeURIComponent(`🍹 *CARDÁPIO DIGITAL - ${DADOS_QR_ATUAL.nome}*\n\nOlá! Acesse nosso cardápio e faça seus pedidos pelo link abaixo:\n\n🔗 ${link}\n\n*Chave de Acesso:* ${DADOS_QR_ATUAL.codigo_acesso || '---'}`);
+            window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+        }
+
+        function fecharModalQR(e) {
+            if(e.target.id === 'modalQR') document.getElementById('modalQR').style.display = 'none';
         }
 
         function excluirEvento(id, nome) {
