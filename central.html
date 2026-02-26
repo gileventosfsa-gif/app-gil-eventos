@@ -182,10 +182,31 @@
             <div id="listaReviewsGlobal" class="review-list-global">
                 <p style="text-align:center; color:#666; margin-top:20px;">Carregando...</p>
             </div>
+       </div>
+    </div>
+
+    <div id="modalQR" class="modal-overlay" onclick="fecharModalQR(event)">
+        <div class="login-box" style="max-width: 350px;" onclick="event.stopPropagation()">
+            <h2 id="qrNomeEvento" style="color:#FFD580; font-size: 1.2em; margin-bottom: 5px;">Nome do Evento</h2>
+            <p id="qrChaveEvento" style="font-size: 0.8em; color: #aaa; margin-bottom: 20px;">Chave: ---</p>
+            
+            <div id="qrcode" style="background:#fff; padding:15px; border-radius:10px; display:inline-block; margin-bottom:20px;"></div>
+            
+            <div style="display:grid; grid-template-columns: 1fr; gap:10px;">
+                <button class="btn-nav" style="background:#25D366; justify-content: center;" onclick="compartilharWhatsApp()">
+                    💬 Enviar no WhatsApp
+                </button>
+                <button class="btn-nav" style="background:#444; justify-content: center;" onclick="copiarLinkEventoIndividual()">
+                    🔗 Copiar Link Direto
+                </button>
+                <button class="btn-nav" style="background:transparent; border: 1px solid #777; justify-content: center;" onclick="document.getElementById('modalQR').style.display='none'">
+                    Fechar
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="header">
+    <div class="header">
         <div class="logo">🦅 CENTRAL DE COMANDO</div>
         <div class="nav-buttons">
             <a href="admin.html" class="btn-nav btn-novo" target="_blank">➕ Novo Evento</a>
