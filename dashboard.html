@@ -583,10 +583,13 @@
                     document.getElementById('progressoBar').style.width = ((dados.total_consumido/dados.total_contratado)*100)+'%'; 
                 } else { document.getElementById('total').innerText = '∞'; }
             }
-            document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
+             document.getElementById('valorFaturamento').innerText = `R$ ${dados.total_faturamento.toFixed(2)}`; 
             document.getElementById('qtdVendasExtras').innerText = dados.total_vendas_extra; 
+            document.getElementById('displayChaveAcesso').innerText = dados.codigo_acesso || "---";
+            document.getElementById('selectModoOperacao').value = dados.modo_operacao || "online";
+
             const btnModo = document.getElementById('btnModoPreco'); 
-            if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; } 
+            if(dados.modo_preco === 'prevenda') { btnModo.innerText = "🟣 Pré-Venda"; btnModo.style.background = "#9C27B0"; } else { btnModo.innerText = "💲 Normal (Dia)"; btnModo.style.background = "#555"; }
         }
 
         // --- FUNÇÕES DE CONTROLE DE STATUS ---
@@ -604,4 +607,5 @@
     </script>
 </body>
 </html>
+
 
