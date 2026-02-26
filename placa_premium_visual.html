@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Placa Oficial - Gil Eventos Luxury</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { 
+            --gold-light: #FFF5D0;
+            --gold-main: #FFAE00;
+            --gold-dark: #B8860B;
+            --dark-bg: #050505;
+        }
+        body { margin: 0; background: #1a1a1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Poppins', sans-serif; }
+        
+        /* Proporção A5 Premium */
+        .placa-master {
+            width: 550px;
+            height: 850px;
+            background: var(--dark-bg);
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #333;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        /* Fotos de Fundo Sem Cortes Abruptos */
+        .drinks-background {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            display: flex;
+            opacity: 0.6;
+            filter: saturate(1.4) brightness(0.6) contrast(1.1);
+        }
+        .bg-col { flex: 1; height: 100%; background-size: cover; background-position: center; }
+        .bg-1 { background-image: url('https://i.pinimg.com/736x/68/4b/63/684b638accaa4a1e83ed8c62ab81ca88.jpg'); }
+        .bg-2 { background-image: url('https://i.pinimg.com/1200x/d3/e4/9c/d3e49ca04300f5e906581f2be3012616.jpg'); }
+
+        /* Gradiente de Fusão - Remove as faixas */
+        .overlay-gradient {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, rgba(5,5,5,0.4) 50%, rgba(5,5,5,1) 95%);
+            z-index: 1;
+        }
+
+        .content { position: relative; z-index: 2; padding: 50px 40px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+
+        /* Dourado Ultra Intenso */
+        .logo-main { 
+            font-weight: 900; 
+            font-size: 4.5em; 
+            margin: 0;
+            background: linear-gradient(to bottom, var(--gold-light) 0%, var(--gold-main) 50%, var(--gold-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 15px;
+            filter: drop-shadow(0 0 15px rgba(255, 174, 0, 0.5));
+        }
+        .logo-sub { color: #fff; font-weight: 300; font-size: 1.2em; text-transform: uppercase; letter-spacing: 10px; margin-top: -10px; opacity: 0.9; }
+
+        .main-text { font-size: 2.5em; font-weight: 600; color: #fff; text-transform: uppercase; letter-spacing: 2px; margin-top: 40px; }
+        .sub-text { color: var(--gold-main); font-weight: 300; font-size: 1.2em; font-style: italic; margin-bottom: 40px; }
+
+        /* QR CODE FRAME */
+        .qr-frame {
+            background: #fff;
+            padding: 20px;
+            border-radius: 25px;
+            display: inline-block;
+            box-shadow: 0 0 60px rgba(255, 174, 0, 0.3);
+            position: relative;
+            border: 5px solid var(--gold-main);
+        }
+        .qr-tag {
+            position: absolute;
+            top: -18px;
+            background: linear-gradient(90deg, var(--gold-main), #FFD580);
+            color: #000;
+            font-weight: 900;
+            padding: 4px 25px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .instr { color: #fff; font-size: 1em; text-transform: uppercase; letter-spacing: 5px; font-weight: 600; margin-top: 40px; }
+        .exclusive-tag { font-size: 0.7em; color: var(--gold-main); margin-top: 20px; letter-spacing: 3px; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <div class="placa-master">
+        <div class="drinks-background">
+            <div class="bg-col bg-1"></div>
+            <div class="bg-col bg-2"></div>
+        </div>
+        <div class="overlay-gradient"></div>
+
+        <div class="content">
+            <div>
+                <h1 class="logo-main">GIL</h1>
+                <div class="logo-sub">Eventos</div>
+            </div>
+
+            <div>
+                <div class="main-text">Cardápio Digital</div>
+                <div class="sub-text">Viva uma experiência premium</div>
+                
+                <div class="qr-frame">
+                    <div class="qr-tag">ESCANEIE AQUI</div>
+                    <div id="qrcode"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="instr">Aponte a câmera</div>
+                <div class="exclusive-tag">SISTEMA ÚNICO GIL EVENTOS</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ESTE SCRIPT GERA O QR CODE REAL E ÚNICO PARA O SEU BALCÃO
+        const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+        const linkFinal = `${urlBase}/acesso.html`;
+
+        new QRCode(document.getElementById("qrcode"), {
+            text: linkFinal,
+            width: 260,
+            height: 260,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    </script>
+</body>
+</html>
