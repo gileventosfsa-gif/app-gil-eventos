@@ -222,6 +222,9 @@
                 document.getElementById('timerBloqueio').value = (dados.timer_minutos !== undefined && dados.timer_minutos !== null) ? dados.timer_minutos : 15;
                 document.getElementById('limitePorPedido').value = dados.limite_pedido !== undefined ? dados.limite_pedido : 3;
                 document.getElementById('senhaAdmin').value = dados.senha_admin;
+                document.getElementById('codigoAcesso').value = dados.codigo_acesso || "";
+                document.getElementById('modoOperacao').value = dados.modo_operacao || "online";
+                document.getElementById('visivelBusca').checked = dados.visivel_publicamente !== undefined ? dados.visivel_publicamente : true;
                 
                 if(dados.cardapio && dados.cardapio.length > 0) {
                     cardapioAtual = dados.cardapio;
@@ -448,6 +451,7 @@
 </script>
 </body>
 </html>
+
 
 
 
