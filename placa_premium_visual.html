@@ -96,6 +96,15 @@
         .instr { color: #fff; font-size: 1em; text-transform: uppercase; letter-spacing: 5px; font-weight: 600; margin-top: 40px; }
         .exclusive-tag { font-size: 0.7em; color: var(--gold-main); margin-top: 20px; letter-spacing: 3px; font-weight: bold; }
 
+        @media print {
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .placa-master {
+        box-shadow: none; /* Remove sombras que podem borrar no PDF */
+    }
+}
     </style>
 </head>
 <body>
