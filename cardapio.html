@@ -477,8 +477,10 @@
     return false;
   }
 
-  function verificarCombosAtivos() {
+ function verificarCombosAtivos() {
     if (!DADOS_EVENTO || !DADOS_EVENTO.cardapio) return;
+    const modo = DADOS_EVENTO.modo_operacao || "online";
+    if (modo === "balcao") { document.getElementById('areaCombos').style.display = 'none'; return; }
     const temItemPago = DADOS_EVENTO.cardapio.some(d => d.disponivel !== false && isItemPago(d));
     document.getElementById('areaCombos').style.display = temItemPago ? 'grid' : 'none';
   }
