@@ -103,15 +103,20 @@
         .instr { color: #fff; font-size: 1em; text-transform: uppercase; letter-spacing: 5px; font-weight: 600; margin-top: 40px; }
         .exclusive-tag { font-size: 0.7em; color: var(--gold-main); margin-top: 20px; letter-spacing: 3px; font-weight: bold; }
 
-        @media print {
-    body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-    .placa-master {
-        box-shadow: none; /* Remove sombras que podem borrar no PDF */
-    }
-}
+       @media print {
+            @page { margin: 0; size: auto; }
+            body { 
+                margin: 0; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+                display: block;
+            }
+            .placa-master { 
+                box-shadow: none; 
+                margin: 0 auto;
+            }
+            .no-print { display: none; }
+        }
     </style>
 </head>
 <body>
