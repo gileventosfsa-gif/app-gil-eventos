@@ -575,15 +575,28 @@
             });
         }
 
-        function moderarGlobal(id, aprovar) {
-            if(aprovar) {
-                db.collection("avaliacoes").doc(id).update({ status: 'aprovado' })
-                .then(() => carregarAvaliacoesGlobal());
-            } else {
-                if(confirm("Tem certeza que deseja EXCLUIR esta avaliação?")) {
-                    db.collection("avaliacoes").doc(id).delete()
-                    .then(() => carregarAvaliacoesGlobal());
-                }
+       function moderarGlobal(id, aprovar) {
+            if(aprovar) {
+                db.collection("avaliacoes").doc(id).update({ status: 'aprovado' })
+                .then(() => carregarAvaliacoesGlobal());
+            } else {
+                if(confirm("Tem certeza que deseja EXCLUIR esta avaliação?")) {
+                    db.collection("avaliacoes").doc(id).delete()
+                    .then(() => carregarAvaliacoesGlobal());
+                }
+            }
+        }
+
+        function abrirQRGlobal() {
+            const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const linkAcesso = `${urlBase}/acesso.html`;
+            
+            const msg = `Seu QR CODE FIXO para o balcão deve apontar para:\n\n${linkAcesso}\n\nDeseja copiar este link agora?`;
+            
+            if(confirm(msg)) {
+                navigator.clipboard.writeText(linkAcesso).then(() => {
+                    alert("✅ Link copiado! Use este link para gerar sua placa de QR Code permanente.");
+                });
             }
         }
 
