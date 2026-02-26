@@ -562,7 +562,7 @@
 
         function compartilharWhatsApp() {
             const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-            const link = `${urlBase}/cardapio.html?evento=${DADOS_QR_ATUAL.id}`;
+            const link = `${urlBase}/acesso.html?c=${DADOS_QR_ATUAL.codigo_acesso || ''}`;
             const msg = encodeURIComponent(`🍹 *CARDÁPIO DIGITAL - ${DADOS_QR_ATUAL.nome}*\n\nOlá! Acesse nosso cardápio e faça seus pedidos pelo link abaixo:\n\n🔗 ${link}\n\n*Chave de Acesso:* ${DADOS_QR_ATUAL.codigo_acesso || '---'}`);
             window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
         }
