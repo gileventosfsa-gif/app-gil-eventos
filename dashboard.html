@@ -593,9 +593,14 @@
         }
 
         // --- FUNÇÕES DE CONTROLE DE STATUS ---
-        function mudarStatusEvento(novoStatus) {
+       function mudarStatusEvento(novoStatus) {
             if(novoStatus === 'encerrado' && !confirm("Tem certeza que deseja ENCERRAR o evento?")) return;
             db.collection("eventos").doc(EVENTO_ID).update({ status: novoStatus });
+        }
+
+        function mudarModoOperacao(novoModo) {
+            db.collection("eventos").doc(EVENTO_ID).update({ modo_operacao: novoModo })
+            .then(() => console.log("Modo de operação alterado para: " + novoModo));
         }
 
         function atualizarBotoesStatus(status) {
@@ -607,5 +612,6 @@
     </script>
 </body>
 </html>
+
 
 
