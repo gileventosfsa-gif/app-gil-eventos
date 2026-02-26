@@ -28,15 +28,11 @@
     <div class="logo-gil">GIL EVENTOS</div>
     <div class="subtitle">Bar & Coquetelaria</div>
     
-    <p style="font-size: 0.9em; color: #ccc;">Digite o código da festa para acessar o cardápio:</p>
+    <p style="font-size: 0.9em; color: #FFD580; font-weight: 600; text-transform: uppercase;">Selecione o seu evento:</p>
     
-    <input type="text" id="inputCodigo" placeholder="CÓDIGO" maxlength="15">
-    <div id="errorArea" class="error-msg">Código não encontrado ou festa encerrada.</div>
-    
-    <button class="btn-entrar" id="btnAcessar" onclick="validarAcesso()">
-        <span id="textBtn">ACESSAR CARDÁPIO</span>
-        <div class="loader" id="loadingBtn"></div>
-    </button>
+    <div id="listaEventosAtivos" style="margin: 20px 0; display: flex; flex-direction: column; gap: 15px;">
+        <p style="color: #666; font-size: 0.8em;">Buscando eventos...</p>
+    </div>
 
     <div class="footer-funil">
         <p>Ainda não tem o Gil no seu evento?</p>
