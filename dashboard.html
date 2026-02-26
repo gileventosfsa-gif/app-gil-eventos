@@ -163,10 +163,20 @@
             <span id="nomeEvento" style="font-weight:bold; font-size:1.2em;">Carregando...</span>
             <span class="badge-event" id="tipoEvento">...</span> 
             
-            <div class="status-controls">
-                <button class="status-btn btn-aberto" id="btnStatusAberto" onclick="mudarStatusEvento('aberto')">🟢 Aberto</button>
-                <button class="status-btn btn-pausado" id="btnStatusPausado" onclick="mudarStatusEvento('pausado')">✋ Pausar</button>
-                <button class="status-btn btn-encerrado" id="btnStatusEncerrado" onclick="mudarStatusEvento('encerrado')">🏁 Encerrar</button>
+            <div style="margin-top: 10px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <div class="status-controls">
+                    <button class="status-btn btn-aberto" id="btnStatusAberto" onclick="mudarStatusEvento('aberto')">🟢 Aberto</button>
+                    <button class="status-btn btn-pausado" id="btnStatusPausado" onclick="mudarStatusEvento('pausado')">✋ Pausar</button>
+                    <button class="status-btn btn-encerrado" id="btnStatusEncerrado" onclick="mudarStatusEvento('encerrado')">🏁 Encerrar</button>
+                </div>
+                <div style="background: #2a2a2a; padding: 5px 12px; border-radius: 8px; border: 1px solid #FFD580; color: #FFD580; font-weight: bold; font-size: 0.9em;">
+                    🔑 CHAVE: <span id="displayChaveAcesso">---</span>
+                </div>
+                <select id="selectModoOperacao" onchange="mudarModoOperacao(this.value)" style="width: auto; padding: 5px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 0.8em; margin-top: 0;">
+                    <option value="online">📱 MODO: ONLINE</option>
+                    <option value="balcao">🏪 MODO: BALCÃO</option>
+                    <option value="hibrido">⚖️ MODO: HÍBRIDO</option>
+                </select>
             </div>
         </div>
 
@@ -594,3 +604,4 @@
     </script>
 </body>
 </html>
+
