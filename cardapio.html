@@ -780,7 +780,11 @@
   // UTILS e OUTRAS FUNÇÕES
   function abrirMeusPedidos() { document.getElementById('modalListaPedidos').style.display = 'flex'; }
   function finalizarCombo() { document.getElementById('modalCombo').style.display = 'none'; adicionarAoCarrinho(ITEM_ATUAL.nome, 'extra', ITEM_ATUAL.preco, 'combo'); }
-  function atualizarUIBadge() { const total = CARRINHO_LOCAL.length + MEUS_PEDIDOS_IDS.length; const btn = document.getElementById('btnMeusPedidos'); if(CARRINHO_LOCAL.length > 0 || MEUS_PEDIDOS_IDS.length > 0) btn.style.display = 'flex'; }
+  function verificarCombosAtivos() {
+    if (!DADOS_EVENTO || !DADOS_EVENTO.cardapio) return;
+    const temItemPago = DADOS_EVENTO.cardapio.some(d => d.disponivel !== false && isItemPago(d));
+    document.getElementById('areaCombos').style.display = temItemPago ? 'grid' : 'none';
+  }
   function abrirModalRecarga() { document.getElementById('modalRecarga').style.display = 'flex'; document.getElementById('valorRecarga').value = ''; document.getElementById('areaPixRecarga').style.display = 'none'; document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('btnOpcaoPix').style.display = 'none'; document.getElementById('btnConfirmarRecarga').style.display = 'none'; document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); }
   function fecharModalRecarga() { document.getElementById('modalRecarga').style.display = 'none'; }
   function selecionarPacote(valor) { document.querySelectorAll('.btn-recarga-option').forEach(b => b.classList.remove('selected')); if(valor === 0) { document.getElementById('areaValorManual').style.display = 'block'; document.getElementById('valorRecarga').value = ''; } else { document.getElementById('areaValorManual').style.display = 'none'; document.getElementById('valorRecarga').value = valor; if(LINKS_PAGAMENTO[valor]) { window.open(LINKS_PAGAMENTO[valor], '_blank'); } else { alert("Pagamento manual: use o PIX."); } } document.getElementById('btnOpcaoPix').style.display = 'block'; document.getElementById('btnConfirmarRecarga').style.display = 'block'; }
