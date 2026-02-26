@@ -592,10 +592,18 @@
         const dadosVisuais = getDrinkData(item.nome); 
         if(DADOS_EVENTO.modo_preco === 'prevenda' && item.preco_prevenda) { precoFinal = item.preco_prevenda; htmlPreco = `<div class="price-tag-container"><span class="price-old">No dia: R$ ${item.preco}</span><span class="price-now">R$ ${item.preco_prevenda}</span></div>`; } else if(item.tipo_cobranca === 'pago') { htmlPreco = `<div class="price-tag-container"><span class="price-now">R$ ${item.preco}</span></div>`; } 
         let cardHTML = `<div class="drink-card ${item.categoria === 'premium' ? 'premium-style' : ''} ${!disponivel ? 'esgotado' : ''}"><div class="card-image-box"><div class="blur-bg" style="background-image: url('${dadosVisuais.img}')"></div><img src="${dadosVisuais.img}" class="front-image" loading="lazy" alt="${item.nome}"><div class="card-image-overlay"></div>${htmlPreco}</div><div class="drink-content"><h3 class="drink-title">${item.nome}</h3><p class="drink-desc">${dadosVisuais.desc}</p>`; 
+        const modo = DADOS_EVENTO.modo_operacao || "online";
         let deveCobrar = isItemPago(item);
-        if(!disponivel) { cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; } 
-        else if(deveCobrar) { cardHTML += `<button class="btn-action btn-paid" onclick="adicionarAoCarrinho('${item.nome}', 'extra', ${precoFinal}, '${item.categoria}')">🛒 ADICIONAR + (R$ ${precoFinal})</button>`; } 
-        else { cardHTML += `<button class="btn-action btn-free btn-pacote" onclick="adicionarAoCarrinho('${item.nome}', 'pacote', 0, '${item.categoria}')">🆓 ADICIONAR (PACOTE)</button>`; } 
+
+        if(!disponivel) { 
+            cardHTML += `<button class="btn-action btn-blocked" disabled>🚫 INDISPONÍVEL</button>`; 
+        } else if (modo === "balcao") {
+            cardHTML += `<button class="btn-action btn-blocked" style="background:#444; color:#FFD580; cursor:default;">🚶 PEÇA ESTE NO BALCÃO</button>`;
+        } else if(deveCobrar) { 
+            cardHTML += `<button class="btn-action btn-paid" onclick="adicionarAoCarrinho('${item.nome}', 'extra', ${precoFinal}, '${item.categoria}')">🛒 ADICIONAR + (R$ ${precoFinal})</button>`; 
+        } else { 
+            cardHTML += `<button class="btn-action btn-free btn-pacote" onclick="adicionarAoCarrinho('${item.nome}', 'pacote', 0, '${item.categoria}')">🆓 ADICIONAR (PACOTE)</button>`; 
+        }
         cardHTML += `</div></div>`; html += cardHTML; 
       }); 
       return html; 
