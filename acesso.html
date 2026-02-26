@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar na Festa - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: #0F0F0F; color: #EAEAEA; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .login-card { background: #1E1E1E; padding: 40px; border-radius: 20px; border: 1px solid #333; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; }
+        .logo-gil { font-weight: 800; font-size: 2em; text-transform: uppercase; color: #FFD580; margin-bottom: 5px; letter-spacing: 2px; }
+        .subtitle { font-size: 0.8em; color: #aaa; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 30px; }
+        input { width: 100%; padding: 15px; margin: 20px 0; border-radius: 12px; border: 2px solid #333; background: #111; color: #FFD580; font-size: 1.5em; text-align: center; font-weight: 600; text-transform: uppercase; transition: 0.3s; }
+        input:focus { border-color: #FF9500; outline: none; box-shadow: 0 0 15px rgba(255, 149, 0, 0.2); }
+        .btn-entrar { width: 100%; padding: 15px; background: linear-gradient(90deg, #FF6700, #FF9500); border: none; color: white; font-weight: bold; border-radius: 12px; font-size: 1.1em; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 103, 0, 0.3); }
+        .btn-entrar:active { transform: scale(0.98); }
+        .error-msg { color: #FF4444; font-size: 0.85em; margin-top: 10px; display: none; }
+        .footer-funil { margin-top: 40px; border-top: 1px solid #333; padding-top: 20px; }
+        .footer-funil p { font-size: 0.8em; color: #666; margin-bottom: 10px; }
+        .link-vendas { color: #FFD580; text-decoration: none; font-size: 0.9em; font-weight: 600; }
+        .loader { width: 20px; height: 20px; border: 3px solid #FFF; border-bottom-color: transparent; border-radius: 50%; display: none; margin: 0 auto; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="logo-gil">GIL EVENTOS</div>
+    <div class="subtitle">Bar & Coquetelaria</div>
+    
+    <p style="font-size: 0.9em; color: #ccc;">Digite o código da festa para acessar o cardápio:</p>
+    
+    <input type="text" id="inputCodigo" placeholder="CÓDIGO" maxlength="15">
+    <div id="errorArea" class="error-msg">Código não encontrado ou festa encerrada.</div>
+    
+    <button class="btn-entrar" id="btnAcessar" onclick="validarAcesso()">
+        <span id="textBtn">ACESSAR CARDÁPIO</span>
+        <div class="loader" id="loadingBtn"></div>
+    </button>
+
+    <div class="footer-funil">
+        <p>Ainda não tem o Gil no seu evento?</p>
+        <a href="index.html" class="link-vendas">✨ FAÇA UM ORÇAMENTO ONLINE</a>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk",
+        authDomain: "gil-eventos-app-911fe.firebaseapp.com",
+        projectId: "gil-eventos-app-911fe",
+        storageBucket: "gil-eventos-app-911fe.firebasestorage.app",
+        messagingSenderId: "503025880352",
+        appId: "1:503025880352:web:694b7f2889cff501c7db45",
+        measurementId: "G-3DZ1P5C0M3"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function validarAcesso() {
+        const codigo = document.getElementById('inputCodigo').value.toUpperCase().trim();
+        const errorArea = document.getElementById('errorArea');
+        const textBtn = document.getElementById('textBtn');
+        const loader = document.getElementById('loadingBtn');
+
+        if (!codigo) return;
+
+        // UI Feedback
+        errorArea.style.display = 'none';
+        textBtn.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            // BUSCA O EVENTO PELO CÓDIGO DE ACESSO
+            const snapshot = await db.collection("eventos")
+                .where("codigo_acesso", "==", codigo)
+                .where("ativo", "==", true)
+                .limit(1)
+                .get();
+
+            if (!snapshot.empty) {
+                const eventoDoc = snapshot.docs[0];
+                // REDIRECIONA PARA O CARDÁPIO COM O ID ENCONTRADO
+                window.location.href = `cardapio.html?evento=${eventoDoc.id}`;
+            } else {
+                throw new Error("Inválido");
+            }
+        } catch (e) {
+            errorArea.style.display = 'block';
+            textBtn.style.display = 'block';
+            loader.style.display = 'none';
+        }
+    }
+
+    // Permitir Enter no teclado
+    document.getElementById('inputCodigo').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') validarAcesso();
+    });
+</script>
+</body>
+</html>
