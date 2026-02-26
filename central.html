@@ -535,7 +535,8 @@
             DADOS_QR_ATUAL = evento;
 
             const urlBase = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-            const linkDireto = `${urlBase}/cardapio.html?evento=${id}`;
+            // NOVO LINK: Aponta para a porta de entrada com o código embutido
+            const linkDireto = `${urlBase}/acesso.html?c=${evento.codigo_acesso || ''}`;
             
             document.getElementById('qrNomeEvento').innerText = evento.nome;
             document.getElementById('qrChaveEvento').innerText = `Chave de Acesso: ${evento.codigo_acesso || 'NÃO DEFINIDA'}`;
