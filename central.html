@@ -315,10 +315,10 @@
                 </div>
 
                 <div class="card-actions">
-                    <button class="btn-card btn-torre" onclick="window.open('dashboard.html?evento=${e.id}', '_blank')">🚀 TORRE DE CONTROLE</button>
-                    <button class="btn-card btn-edit" onclick="window.open('admin.html?evento=${e.id}', '_blank')">✏️ Editar</button>
-                    <button class="btn-card btn-copy" onclick="copiarLinkEvento('${e.id}')">🔗 Link Cardápio</button>
-                </div>
+                    <button class="btn-card btn-torre" onclick="window.open('dashboard.html?evento=${e.id}', '_blank')">🚀 TORRE DE CONTROLE</button>
+                    <button class="btn-card btn-edit" onclick="window.open('admin.html?evento=${e.id}', '_blank')">✏️ Editar</button>
+                    <button class="btn-card btn-copy" style="background:#FF9500; color:#000;" onclick="abrirCompartilhar('${e.id}')">📱 QR / WhatsApp</button>
+                </div>
                 
                 <div class="quick-controls">
                     <button class="btn-mini-ctrl abrir" onclick="mudarStatus('${e.id}', 'aberto')" title="Abrir Bar">🟢</button>
