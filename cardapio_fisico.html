@@ -38,9 +38,17 @@
         .btn-print { background: #FFD580; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 213, 128, 0.4); }
 
         @media print {
-            .no-print { display: none; }
-            body { background-color: #0F0F0F !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             @page { margin: 0; size: auto; }
+            body { background: #1a1a1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none; }
+            .folha-cardapio { 
+                background: var(--dark-bg) !important;
+                box-shadow: none; 
+                margin: 0 auto; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
+            .item-drink { break-inside: avoid; }
         }
     </style>
 </head>
