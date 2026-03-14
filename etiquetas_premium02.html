@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Etiquetas Luxury - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --gold-main: #FFAE00;
+            --gold-light: #FFF5D0;
+            --gold-dark: #B8860B;
+            --dark-bg: #050505;
+        }
+
+        body { margin: 0; padding: 0; background: #1a1a1a; font-family: 'Poppins', sans-serif; }
+
+        .folha-a4 {
+            width: 210mm;
+            height: 297mm;
+            padding: 10mm;
+            margin: 20px auto;
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            grid-template-rows: repeat(10, 1fr);
+            gap: 3mm; /* Aumentei levemente o espaço para facilitar o corte */
+            box-sizing: border-box;
+        }
+
+        .etiqueta {
+            background: radial-gradient(circle at center, #151515 0%, var(--dark-bg) 100%);
+            border-radius: 4px; /* Cantos levemente arredondados = Luxo */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8px;
+            box-sizing: border-box;
+            position: relative;
+            border: 1px solid rgba(184, 134, 11, 0.3); /* Borda dourada sutil */
+            overflow: hidden;
+        }
+
+        /* Detalhe Dourado Lateral (Selo de Qualidade) */
+        .etiqueta::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 15%; height: 70%; width: 3px;
+            background: linear-gradient(to bottom, var(--gold-light), var(--gold-main), var(--gold-dark));
+            border-radius: 0 2px 2px 0;
+        }
+
+        .frase {
+            color: #eee;
+            font-weight: 600;
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .brand-footer {
+            color: var(--gold-main);
+            font-size: 5pt;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            border-top: 0.5px solid rgba(255, 174, 0, 0.3);
+            padding-top: 3px;
+            margin-top: 2px;
+        }
+
+        .btn-print {
+            position: fixed; top: 20px; right: 20px;
+            padding: 15px 35px; background: var(--gold-main);
+            color: black; border: none; border-radius: 50px;
+            font-weight: 900; cursor: pointer; z-index: 1000;
+            transition: transform 0.2s;
+        }
+
+        .btn-print:hover { transform: scale(1.05); }
+
+        @media print {
+            body { background: none; }
+            .folha-a4 { margin: 0; box-shadow: none; }
+            .btn-print { display: none; }
+            .etiqueta { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print" onclick="window.print()">GERAR ARQUIVO DE IMPRESSÃO</button>
+
+    <div class="folha-a4" id="container"></div>
+
+    <script>
+        const frasesBase = [
+            "Quem tem limite é cartão de crédito.",
+            "Tomei juízo, mas não bateu.",
+            "Relaxa, o mundo dá vodkas!",
+            "Na falta de amor, +1 drink!",
+            "Não tenho problema com bebida!",
+            "Hoje só termina amanhã!",
+            "Não faça drama, me faça um drink!",
+            "Remédio: Paracetaloka!",
+            "Nunca fiz amigos bebendo leite.",
+            "Alguém viu o balde que eu chutei?",
+            "Nada como um drink após o outro.",
+            "Se não me lembro, não fiz!",
+            "Hoje é o dia da maldade!",
+            "Melhor que 1 drink, só 2!",
+            "Só vim pela bebida!"
+        ];
+
+        const container = document.getElementById('container');
+
+        for (let i = 0; i < 40; i++) {
+            const fraseSorteada = frasesBase[i % frasesBase.length];
+            const div = document.createElement('div');
+            div.className = 'etiqueta';
+            div.innerHTML = `
+                <div class="frase">${fraseSorteada}</div>
+                <div class="brand-footer">Gil Eventos</div>
+            `;
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>
