@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Etiquetas de Taça - Gil Eventos Luxury</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --gold-light: #FFF5D0;
+            --gold-main: #FFAE00;
+            --gold-dark: #B8860B;
+            --dark-bg: #050505;
+        }
+
+        body { margin: 0; padding: 0; background: #222; font-family: 'Poppins', sans-serif; }
+
+        /* Configuração da Folha A4 */
+        .folha-a4 {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10mm;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Design da Etiqueta */
+        .etiqueta {
+            width: 55mm;
+            height: 55mm;
+            background: var(--dark-bg);
+            border-radius: 50%;
+            border: 2px solid var(--gold-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(184, 134, 11, 0.4);
+        }
+
+        /* Efeito de Brilho Dourado */
+        .etiqueta::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px var(--gold-dark);
+            pointer-events: none;
+        }
+
+        .frase {
+            color: white;
+            font-weight: 600;
+            font-size: 10pt;
+            text-transform: uppercase;
+            line-height: 1.2;
+            z-index: 2;
+            margin-bottom: 5px;
+        }
+
+        .brand-footer {
+            color: var(--gold-main);
+            font-size: 6pt;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        /* Botão de Impressão */
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: var(--gold-main);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        @media print {
+            body { background: none; }
+            .folha-a4 { margin: 0; box-shadow: none; border: none; }
+            .btn-print { display: none; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print" onclick="window.print()">GERAR PDF PARA IMPRESSÃO</button>
+
+    <div class="folha-a4" id="container">
+        </div>
+
+    <script>
+        const frases = [
+            "Quem tem limite é cartão de crédito.",
+            "Tomei juízo, mas não bateu.",
+            "Relaxa, o mundo dá vodkas!",
+            "Na falta de amor, mais um drink por favor!",
+            "Eu não tenho problema com bebida. Nos damos super bem!",
+            "Hoje só termina amanhã!",
+            "Não faça drama, me faça um drink!",
+            "Comprei seu remédio: Paracetaloka!",
+            "Nunca fiz amigos bebendo leite.",
+            "Alguém viu o balde que eu chutei?",
+            "Nada como um drink após o outro.",
+            "Se não me lembro, então não fiz!",
+            "Hoje é o dia da maldade!",
+            "Melhor que tomar um drink é tomar 2!",
+            "Só vim pela bebida!"
+        ];
+
+        const container = document.getElementById('container');
+
+        frases.forEach(texto => {
+            const div = document.createElement('div');
+            div.className = 'etiqueta';
+            div.innerHTML = `
+                <div class="frase">${texto}</div>
+                <div class="brand-footer">GIL EVENTOS</div>
+            `;
+            container.appendChild(div);
+        });
+    </script>
+</body>
+</html>
