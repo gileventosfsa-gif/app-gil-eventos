@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eterno Amor | Crie uma Homenagem Inesquecível pro Dia dos Namorados</title>
+<meta name="description" content="Surpreenda quem você ama com uma página de homenagem personalizada. Música, fotos, contador de tempo juntos e QR Code exclusivo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rosa: #FF4D79;
+  --rosa-escuro: #E63965;
+  --dourado: #FFD166;
+  --preto: #1A1A1A;
+  --branco: #FFFFFF;
+  --cinza: #F5F5F7;
+  --gradiente: linear-gradient(135deg, #FF4D79 0%, #FF8C42 100%);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--preto);
+  line-height: 1.6;
+  background: var(--branco);
+  overflow-x: hidden;
+}
+h1, h2, h3 { font-family: 'Playfair Display', serif; line-height: 1.2; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.btn {
+  display: inline-block;
+  padding: 16px 32px;
+  background: var(--gradiente);
+  color: var(--branco);
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-decoration: none;
+  text-align: center;
+}
+.btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 77, 121, 0.3); }
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--rosa);
+  color: var(--rosa);
+}
+
+/* Header */
+header {
+  padding: 20px 0;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.header-content { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 24px; font-weight: 700; color: var(--rosa); }
+.logo span { color: var(--dourado); }
+
+/* Hero */
+.hero {
+  padding: 160px 0 100px;
+  background: var(--cinza);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "♥";
+  position: absolute;
+  font-size: 400px;
+  color: rgba(255, 77, 121, 0.05);
+  top: -100px;
+  right: -100px;
+  transform: rotate(15deg);
+}
+.hero h1 { font-size: 3.5rem; margin-bottom: 20px; }
+.hero h1 span { background: var(--gradiente); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto 30px; color: #555; }
+.countdown {
+  display: flex; justify-content: center; gap: 20px; margin: 40px 0;
+}
+.countdown-item {
+  background: var(--branco);
+  padding: 20px; border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  min-width: 90px;
+}
+.countdown-number { font-size: 2.5rem; font-weight: 700; color: var(--rosa); }
+.countdown-label { font-size: 0.9rem; color: #777; text-transform: uppercase; }
+
+/* Demo */
+.demo {
+  padding: 100px 0;
+  background: var(--branco);
+}
+.demo-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+}
+.demo-form input {
+  width: 100%; padding: 14px; margin-bottom: 15px;
+  border: 2px solid #eee; border-radius: 8px; font-size: 16px;
+}
+.demo-form input:focus { border-color: var(--rosa); outline: none; }
+.phone-mockup {
+  background: var(--preto); border-radius: 40px; padding: 15px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  position: relative; max-width: 320px; margin: 0 auto;
+}
+.phone-screen {
+  background: var(--gradiente); border-radius: 30px;
+  padding: 40px 20px; color: var(--branco); text-align: center; min-height: 500px;
+}
+.phone-screen h3 { font-size: 2rem; margin-bottom: 10px; }
+.heart-pulse { font-size: 50px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+/* Features */
+.features { padding: 100px 0; background: var(--cinza); }
+.section-title { text-align: center; font-size: 2.5rem; margin-bottom: 60px; }
+.features-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
+}
+.feature-card {
+  background: var(--branco); padding: 40px 30px; border-radius: 16px;
+  text-align: center; transition: transform 0.3s;
+}
+.feature-card:hover { transform: translateY(-10px); }
+.feature-icon { font-size: 3rem; margin-bottom: 20px; }
+
+/* Pricing */
+.pricing { padding: 100px 0; }
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 60px;
+}
+.price-card {
+  background: var(--branco); border: 2px solid #eee; border-radius: 16px;
+  padding: 40px 30px; text-align: center; position: relative;
+}
+.price-card.popular { border-color: var(--rosa); transform: scale(1.05); }
+.popular-badge {
+  position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+  background: var(--gradiente); color: var(--branco); padding: 5px 20px;
+  border-radius: 20px; font-size: 0.9rem; font-weight: 600;
+}
+.price { font-size: 3rem; font-weight: 700; color: var(--rosa); margin: 20px 0; }
+.price span { font-size: 1rem; color: #777; }
+.price-features { list-style: none; margin: 30px 0; text-align: left; }
+.price-features li { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.price-features li::before { content: "✓"; color: var(--rosa); font-weight: 700; margin-right: 10px; }
+
+/* Social Proof */
+.social-proof { padding: 80px 0; background: var(--preto); color: var(--branco); text-align: center; }
+.stats { display: flex; justify-content: center; gap: 60px; margin: 40px 0; flex-wrap: wrap; }
+.stat-number { font-size: 3rem; font-weight: 700; color: var(--dourado); }
+
+/* FAQ */
+.faq { padding: 100px 0; background: var(--cinza); }
+.faq-item {
+  background: var(--branco); margin-bottom: 15px; border-radius: 12px; overflow: hidden;
+}
+.faq-question {
+  padding: 20px; font-weight: 600; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s; }
+.faq-item.active .faq-answer { padding: 0 20px 20px; max-height: 300px; }
+
+/* Footer */
+footer {
+  background: var(--preto); color: var(--branco); padding: 60px 0 30px;
+  text-align: center;
+}
+.footer-links { display: flex; justify-content: center; gap: 30px; margin: 30px 0; flex-wrap: wrap; }
+.footer-links a { color: var(--branco); text-decoration: none; opacity: 0.8; }
+.footer-links a:hover { opacity: 1; }
+
+/* Responsive */
+@media (max-width: 968px) {
+  .demo-grid, .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.5rem; }
+  .price-card.popular { transform: scale(1); }
+  .countdown { gap: 10px; }
+  .countdown-item { min-width: 70px; padding: 15px 10px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="container header-content">
+    <div class="logo">Eterno<span>Amor</span></div>
+    <a href="#precos" class="btn">Criar Agora</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>O Presente Que Vai <span>Marcar Pra Sempre</span></h1>
+    <p>Crie uma página de homenagem única com fotos, música, contador de tempo juntos e QR Code exclusivo. Entrega em 2 minutos.</p>
+    <div class="countdown" id="countdown">
+      <div class="countdown-item"><div class="countdown-number" id="days">00</div><div class="countdown-label">Dias</div></div>
+      <div class="countdown-item"><div class="countdown-number" id="hours">00</div><div class="countdown-label">Horas</div></div>
+      <div class="countdown-item"><div class="countdown-number" id="minutes">00</div><div class="countdown-label">Min</div></div>
+      <div class="countdown-item"><div class="countdown-number" id="seconds">00</div><div class="countdown-label">Seg</div></div>
+    </div>
+    <a href="#demo" class="btn">Ver Demonstração Grátis</a>
+  </div>
+</section>
+
+<section class="demo" id="demo">
+  <div class="container">
+    <h2 class="section-title">Teste Agora Como Fica</h2>
+    <div class="demo-grid">
+      <div class="demo-form">
+        <h3>Digite o nome do casal:</h3>
+        <input type="text" id="nome1" placeholder="Seu nome" value="Maria">
+        <input type="text" id="nome2" placeholder="Nome do mozão" value="João">
+        <input type="date" id="dataInicio" value="2023-06-12">
+        <button class="btn" onclick="atualizarPreview()">Atualizar Preview</button>
+        <p style="margin-top:20px;font-size:0.9rem;color:#777;">* Esta é apenas uma demonstração. Na versão final você adiciona fotos, música e texto personalizado.</p>
+      </div>
+      <div class="phone-mockup">
+        <div class="phone-screen" id="phonePreview">
+          <div class="heart-pulse">♥</div>
+          <h3 id="previewNomes">Maria & João</h3>
+          <p>Juntos há</p>
+          <h2 id="previewTempo">1 ano, 4 meses</h2>
+          <p style="margin-top:30px;font-size:0.9rem;">Desde 12/06/2023</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <h2 class="section-title">Por Que Todo Mundo Está Fazendo</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>QR Code Exclusivo</h3>
+        <p>Imprima e cole no presente. Ao escanear, abre a homenagem na hora.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎵</div>
+        <h3>Música de Vocês</h3>
+        <p>Adicione a música que marcou o casal. Toca automático ao abrir.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏳</div>
+        <h3>Contador em Tempo Real</h3>
+        <p>Mostra anos, meses, dias, horas e segundos juntos. Atualiza sozinho.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📸</div>
+        <h3>Galeria de Fotos</h3>
+        <p>Até 15 fotos dos melhores momentos de vocês em carrossel animado.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💌</div>
+        <h3>Texto Declarado</h3>
+        <p>Escreva sua declaração. Temos modelos prontos se faltar inspiração.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Link Privado</h3>
+        <p>Só quem tem o link acessa. Fica no ar por 1 ano, renovável.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="social-proof">
+  <div class="container">
+    <h2 style="color:var(--branco);margin-bottom:20px;">+12.847 Casais Já Se Declararam</h2>
+    <div class="stats">
+      <div><div class="stat-number" data-target="12847">0</div><div>Homenagens Criadas</div></div>
+      <div><div class="stat-number" data-target="98">0</div><div>% de Aprovação</div></div>
+      <div><div class="stat-number" data-target="2">0</div><div>Min pra Ficar Pronto</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="precos">
+  <div class="container">
+    <h2 class="section-title">Escolha Seu Plano</h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Essencial</h3>
+        <div class="price">R$19<span>,90</span></div>
+        <ul class="price-features">
+          <li>1 Página personalizada</li>
+          <li>5 Fotos</li>
+          <li>Contador de tempo</li>
+          <li>QR Code</li>
+          <li>1 Ano no ar</li>
+        </ul>
+        <a href="LINK_CHECKOUT_ESSENCIAL" class="btn btn-outline">Quero Esse</a>
+      </div>
+      <div class="price-card popular">
+        <div class="popular-badge">MAIS VENDIDO</div>
+        <h3>Completo</h3>
+        <div class="price">R$29<span>,90</span></div>
+        <ul class="price-features">
+          <li>Tudo do Essencial +</li>
+          <li>15 Fotos</li>
+          <li>Música personalizada</li>
+          <li>Texto com animação</li>
+          <li>Efeitos especiais</li>
+          <li>Domínio: eternoamor.com/casal</li>
+        </ul>
+        <a href="LINK_CHECKOUT_COMPLETO" class="btn">Quero Esse</a>
+      </div>
+      <div class="price-card">
+        <h3>Vitalício</h3>
+        <div class="price">R$47<span>,90</span></div>
+        <ul class="price-features">
+          <li>Tudo do Completo +</li>
+          <li>Página pra sempre no ar</li>
+          <li>Editar quando quiser</li>
+          <li>Certificado digital</li>
+          <li>Suporte prioritário</li>
+        </ul>
+        <a href="LINK_CHECKOUT_VITALICIO" class="btn btn-outline">Quero Esse</a>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:40px;color:#777;">Pagamento 100% seguro | Garantia de 7 dias ou seu dinheiro de volta</p>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="container">
+    <h2 class="section-title">Dúvidas Frequentes</h2>
+    <div class="faq-item">
+      <div class="faq-question">Quanto tempo demora pra ficar pronto? <span>+</span></div>
+      <div class="faq-answer">Após o pagamento, você recebe o link pra personalizar na hora. Em 2 minutos sua homenagem tá no ar com QR Code.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">Preciso entender de tecnologia? <span>+</span></div>
+      <div class="faq-answer">Nada. É só preencher os campos, subir as fotos e escolher a música. Tudo intuitivo igual postar no Instagram.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">E se meu amor não gostar? <span>+</span></div>
+      <div class="faq-answer">Impossível, mas se acontecer você tem 7 dias de garantia. Devolvemos 100% do valor sem pergunta.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-question">A página sai do ar depois de 1 ano? <span>+</span></div>
+      <div class="faq-answer">No plano Essencial e Completo sim. Você pode renovar por R$9,90/ano. No Vitalício fica pra sempre.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">Eterno<span>Amor</span></div>
+    <div class="footer-links">
+      <a href="#">Termos de Uso</a>
+      <a href="#">Política de Privacidade</a>
+      <a href="#">Contato</a>
+      <a href="#">Instagram</a>
+    </div>
+    <p style="opacity:0.6;font-size:0.9rem;">© 2026 Eterno Amor. Todos os direitos reservados.</p>
+    <p style="opacity:0.6;font-size:0.9rem;margin-top:10px;">CNPJ: 00.000.000/0001-00</p>
+  </div>
+</footer>
+
+<script>
+// Contador regressivo pro Dia dos Namorados
+const countDownDate = new Date("Jun 12, 2026 00:00:00").getTime();
+const countdown = setInterval(() => {
+  const now = new Date().getTime();
+  const distance = countDownDate - now;
+  document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
+  document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
+  if (distance < 0) clearInterval(countdown);
+}, 1000);
+
+// Demo interativa
+function atualizarPreview() {
+  const nome1 = document.getElementById("nome1").value || "Nome 1";
+  const nome2 = document.getElementById("nome2").value || "Nome 2";
+  const dataInicio = new Date(document.getElementById("dataInicio").value);
+  document.getElementById("previewNomes").innerText = `${nome1} & ${nome2}`;
+  
+  const agora = new Date();
+  let anos = agora.getFullYear() - dataInicio.getFullYear();
+  let meses = agora.getMonth() - dataInicio.getMonth();
+  if (meses < 0) { anos--; meses += 12; }
+  document.getElementById("previewTempo").innerText = `${anos} ano${anos!==1?'s':''}, ${meses} mes${meses!==1?'es':''}`;
+}
+
+// FAQ Accordion
+document.querySelectorAll('.faq-question').forEach(item => {
+  item.addEventListener('click', () => {
+    item.parentNode.classList.toggle('active');
+  });
+});
+
+// Contador animado de stats
+const stats = document.querySelectorAll('.stat-number');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const target = +entry.target.getAttribute('data-target');
+      let count = 0;
+      const updateCount = () => {
+        const increment = target / 100;
+        if (count < target) {
+          count += increment;
+          entry.target.innerText = Math.ceil(count);
+          setTimeout(updateCount, 20);
+        } else {
+          entry.target.innerText = target;
+        }
+      };
+      updateCount();
+      observer.unobserve(entry.target);
+    }
+  });
+});
+stats.forEach(stat => observer.observe(stat));
+
+// Trocar links de checkout aqui: LINK_CHECKOUT_ESSENCIAL, LINK_CHECKOUT_COMPLETO, LINK_CHECKOUT_VITALICIO
+</script>
+
+<!-- Google Analytics - Trocar ID -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script> -->
+</body>
+</html>
