@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Impressão - Cartões de Conectividade Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --gold-light: #FFF5D0;
+            --gold-main: #FFAE00;
+            --gold-dark: #B8860B;
+            --dark-bg: #050505;
+            --card-w: 9.5cm;
+            --card-h: 6.5cm;
+        }
+
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: #222; 
+            font-family: 'Poppins', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        /* Painel Superior de Controle - Não Sai na Impressão */
+        .no-print-bar {
+            background: #111;
+            padding: 15px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        .btn-print {
+            background: linear-gradient(45deg, var(--gold-main), #FFD580);
+            color: #000;
+            border: none;
+            padding: 10px 35px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 174, 0, 0.4);
+            text-transform: uppercase;
+        }
+
+        /* Página de Impressão A4 Exata */
+        .folha-a4 {
+            width: 21cm;
+            height: 29.7cm;
+            background: #fff;
+            box-sizing: border-box;
+            padding: 1.5cm 0.8cm;
+            display: grid;
+            grid-template-columns: repeat(2, var(--card-w));
+            grid-template-rows: repeat(4, var(--card-h));
+            gap: 0.6cm 0.8cm;
+            justify-content: center;
+            align-content: center;
+            page-break-after: always;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+
+        /* Design do Cartão Individual */
+        .cartao-box {
+            width: var(--card-w);
+            height: var(--card-h);
+            background: var(--dark-bg);
+            border-radius: 12px;
+            box-sizing: border-box;
+            border: 1px solid #222;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            padding: 10px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Detalhe de Brilho de Fundo */
+        .cartao-box::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 80% 20%, rgba(255,174,0,0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Lado Esquerdo: Perfil e Textos */
+        .perfil-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            text-align: left;
+            z-index: 2;
+        }
+
+        .avatar-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Foto Baseada no Print Recebido */
+        .avatar-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--gold-main);
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .user-info .brand {
+            font-size: 0.6em;
+            color: #fff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 300;
+            margin: 0;
+        }
+        .user-info .handle {
+            font-size: 0.7em;
+            color: var(--gold-main);
+            font-weight: 600;
+            margin: -2px 0 0 0;
+        }
+
+        .mid-text {
+            color: #fff;
+            font-size: 0.75em;
+            line-height: 1.3;
+            margin: 5px 0;
+            font-weight: 400;
+        }
+        .mid-text strong {
+            color: var(--gold-main);
+            font-weight: 800;
+        }
+
+        .footer-contact {
+            font-size: 0.58em;
+            color: #aaa;
+            border-top: 1px solid #222;
+            padding-top: 4px;
+        }
+
+        /* Lado Direito: Caixa do QR Code */
+        .qr-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .qr-container {
+            background: #fff;
+            padding: 5px;
+            border-radius: 8px;
+            border: 2px solid var(--gold-main);
+            display: inline-block;
+        }
+
+        .qr-label {
+            color: var(--gold-light);
+            font-size: 0.45em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        /* Configurações de Impressão Nativa */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+            body { background: #fff; }
+            .no-print-bar { display: none; }
+            .folha-a4 {
+                margin: 0;
+                box-shadow: none;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print-bar">
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimir Cartões (A4)</button>
+    </div>
+
+    <!-- Página A4 contendo 8 cartões idênticos configurados -->
+    <div class="folha-a4" id="paginaA4"></div>
+
+    <script>
+        const INSTA_URL = "https://www.instagram.com/_gil.vibe?igsh=YW5vYmtnbmR6NHBy";
+        const TOTAL_CARTOES = 8;
+        const container = document.getElementById("paginaA4");
+
+        // Loop automático para gerar as 8 réplicas exatas dentro da malha A4
+        for (let i = 1; i <= TOTAL_CARTOES; i++) {
+            const cardId = `qrcode-card-${i}`;
+            
+            const cardHTML = `
+                <div class="cartao-box">
+                    <div class="perfil-side">
+                        <div class="avatar-box">
+                            <img src="image_43ae27.jpg" class="avatar-img" alt="Gil">
+                            <div class="user-info">
+                                <span class="brand">Gil Eventos</span>
+                                <span class="handle">@_gil.vibe</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mid-text">
+                            Curtiu o drink?<br>
+                            Poste nos seus stories e <strong>marque o nosso perfil!</strong>
+                        </div>
+                        
+                        <div class="footer-contact">
+                            Contato: (75) 99864-9927
+                        </div>
+                    </div>
+                    
+                    <div class="qr-side">
+                        <div class="qr-container">
+                            <div id="${cardId}"></div>
+                        </div>
+                        <div class="qr-label">Aponte a Câmera</div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML += cardHTML;
+        }
+
+        // Renderização individual dos QR Codes de alta resolução após injeção no DOM
+        window.onload = function() {
+            for (let i = 1; i <= TOTAL_CARTOES; i++) {
+                new QRCode(document.getElementById(`qrcode-card-${i}`), {
+                    text: INSTA_URL,
+                    width: 75,
+                    height: 75,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+        }
+    </script>
+</body>
+</html>
