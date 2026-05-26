@@ -271,68 +271,92 @@
 
     <script>
         const INSTA_URL = "https://www.instagram.com/_gil.vibe?igsh=YW5vYmtnbmR6NHBy";
+        const APP_URL = "https://gileventosfsa-gif.github.io/app-gil-eventos/index.html";
         const TOTAL_CARTOES = 10;
+        
         const containerFrente = document.getElementById("paginaFrente");
         const containerVerso = document.getElementById("paginaVerso");
 
-        // Gerador das Frentes com o Fúria Rubi destacado
+        // Gerador das Frentes (Fúria Rubi + Copy de Impacto)
         for (let i = 1; i <= TOTAL_CARTOES; i++) {
             containerFrente.innerHTML += `
                 <div class="cartao-box">
                     <div class="frente-layout">
-                        <div class="drink-photo-side"></div>
+                        <div class="drink-furia"></div>
                         <div class="frente-text-side">
-                            <div class="frente-title">Viva a<br>Experiência<br><span>Luxury</span></div>
-                            <div class="frente-subtitle">Peça seu drink pelo celular, acompanhe a fila ao vivo e aproveite a festa.</div>
+                            <div class="frente-title">Leve o Bar de<br><span>Luxury</span> para o<br>Seu Evento 🍸</div>
+                            <div class="frente-subtitle">Surpreenda seus convidados com uma experiência inesquecível de coquetelaria premium.</div>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        // Gerador dos Versos com o QR Code de Conectividade
+        // Gerador dos Versos (Drink Uva + Infos + 2 QR Codes Juntos)
         for (let i = 1; i <= TOTAL_CARTOES; i++) {
-            const cardId = `qrcode-card-${i}`;
+            const qrInstaId = `qr-insta-${i}`;
+            const qrAppId = `qr-app-${i}`;
+            
             containerVerso.innerHTML += `
                 <div class="cartao-box">
                     <div class="verso-layout">
-                        <div class="perfil-side">
+                        <div class="drink-uva"></div>
+                        <div class="verso-content-side">
+                            
                             <div class="brand-header">
-                                <span class="brand">Gil Eventos</span>
-                                <span class="handle">@_gil.vibe</span>
+                                <div class="brand-text">
+                                    <span class="brand">Gil Eventos 🍹</span>
+                                    <span class="handle">@_gil.vibe</span>
+                                </div>
+                                <span class="location-tag">FEIRA | SSA</span>
                             </div>
                             
-                            <div class="verso-msg">
-                                Curtiu os nossos drinks?<br>
-                                Poste uma foto e <strong>marque nosso perfil!</strong>
+                            <div class="qrs-wrapper">
+                                <div class="qr-item">
+                                    <div class="qr-container">
+                                        <div id="${qrInstaId}"></div>
+                                    </div>
+                                    <div class="qr-label">Siga no Insta</div>
+                                </div>
+                                <div class="qr-item">
+                                    <div class="qr-container">
+                                        <div id="${qrAppId}"></div>
+                                    </div>
+                                    <div class="qr-label">Menu & Orçamento</div>
+                                </div>
                             </div>
                             
                             <div class="footer-contact">
-                                Contato: (75) 99864-9927
+                                Solicite seu orçamento: (75) 99864-9927
                             </div>
-                        </div>
-                        
-                        <div class="qr-side">
-                            <div class="qr-container">
-                                <div id="${cardId}"></div>
-                            </div>
-                            <div class="qr-label">Siga no Insta</div>
+                            
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        // Renderização dos QR codes nas posições certas do verso
+        // Renderização precisa de ambos os QR codes lado a lado
         window.onload = function() {
             for (let i = 1; i <= TOTAL_CARTOES; i++) {
-                new QRCode(document.getElementById(`qrcode-card-${i}`), {
+                // QR Code do Instagram
+                new QRCode(document.getElementById(`qr-insta-${i}`), {
                     text: INSTA_URL,
-                    width: 62,
-                    height: 62,
+                    width: 52,
+                    height: 52,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+
+                // QR Code do Site / Cardápio com Simulação Online
+                new QRCode(document.getElementById(`qr-app-${i}`), {
+                    text: APP_URL,
+                    width: 52,
+                    height: 52,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
                 });
             }
         }
