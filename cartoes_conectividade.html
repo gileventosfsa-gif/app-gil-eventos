@@ -86,7 +86,7 @@
             display: flex;
         }
 
-        /* FRENTE: Fúria Rubi */
+        /* FRENTE: Fúria Rubi + Geolocalização no Topo */
         .frente-layout {
             width: 100%;
             height: 100%;
@@ -110,13 +110,26 @@
         }
         .frente-text-side {
             width: 55%;
-            padding: 12px 10px 12px 5px;
+            padding: 25px 10px 10px 5px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: center;
             text-align: left;
             z-index: 2;
+        }
+        .frente-location {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 0.48em;
+            color: #aaa;
+            background: #111;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid #222;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
         .frente-title {
             font-size: 0.85em;
@@ -125,7 +138,7 @@
             text-transform: uppercase;
             line-height: 1.2;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
         }
         .frente-title span {
             color: var(--gold-main);
@@ -136,109 +149,129 @@
             line-height: 1.3;
             font-weight: 400;
         }
+        .frente-subtitle strong {
+            color: var(--gold-main);
+            font-weight: 700;
+        }
 
-        /* VERSO: Drink Uva + Espaço Duplo QR Code */
+        /* VERSO EQUILIBRADO: Aperol (Esquerda) + Infos/QRs (Centro) + Uva (Direita) */
         .verso-layout {
             width: 100%;
             height: 100%;
             display: flex;
-            position: relative;
             background: #050505;
         }
-        .drink-uva {
-            width: 35%;
+        .drink-side-left {
+            width: 25%;
             height: 100%;
-            background-image: url('image_43ae27.jpg');
+            background-image: url('https://i.pinimg.com/736x/ab/84/c4/ab84c45b7367fc9b08f51509fa661848.jpg'); /* Aperol */
             background-size: cover;
             background-position: center;
             position: relative;
         }
-        .drink-uva::after {
+        .drink-side-left::after {
             content: '';
             position: absolute;
-            top: 0; right: 0; bottom: 0; width: 50%;
+            top: 0; right: 0; bottom: 0; width: 60%;
             background: linear-gradient(to right, transparent, #050505);
         }
-        .verso-content-side {
-            width: 65%;
-            padding: 8px;
+        .drink-side-right {
+            width: 25%;
+            height: 100%;
+            background-image: url('image_43ae27.jpg'); /* Uva */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .drink-side-right::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0; width: 60%;
+            background: linear-gradient(to left, transparent, #050505);
+        }
+        .verso-center-content {
+            width: 50%;
+            padding: 6px 4px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            align-items: center;
             z-index: 2;
         }
-        .brand-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #1a1a1a;
-            padding-bottom: 3px;
+        .brand-center {
+            text-align: center;
         }
-        .brand-header .brand-text {
-            display: flex;
-            flex-direction: column;
-        }
-        .brand-header .brand {
-            font-size: 0.52em;
+        .brand-center .brand {
+            font-size: 0.58em;
             color: #fff;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            font-weight: 300;
-            margin: 0;
+            font-weight: 700;
+            display: block;
         }
-        .brand-header .handle {
-            font-size: 0.62em;
+        .brand-center .handle {
+            font-size: 0.52em;
             color: var(--gold-main);
-            font-weight: 600;
-            margin: -2px 0 0 0;
-        }
-        .brand-header .location-tag {
-            font-size: 0.45em;
-            color: #aaa;
-            background: #111;
-            padding: 2px 5px;
-            border-radius: 3px;
-            border: 1px solid #222;
-            font-weight: 600;
+            font-weight: 500;
+            margin-top: -1px;
+            display: block;
         }
         
-        /* Área dos dois QR Codes Lado a Lado */
-        .qrs-wrapper {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 6px;
-            margin: 3px 0;
-        }
-        .qr-item {
+        /* Área Vertical Consistente dos QR Codes */
+        .qrs-vertical-box {
             display: flex;
             flex-direction: column;
+            gap: 4px;
+            width: 100%;
             align-items: center;
-            flex: 1;
+        }
+        .qr-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 90%;
+            background: rgba(255,255,255,0.02);
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid #111;
         }
         .qr-container {
             background: #fff;
-            padding: 3px;
-            border-radius: 4px;
-            border: 1.2px solid var(--gold-main);
+            padding: 2px;
+            border-radius: 3px;
+            border: 1px solid var(--gold-main);
             display: inline-block;
+            line-height: 0;
         }
         .qr-label {
-            color: var(--gold-light);
-            font-size: 0.4em;
+            color: #fff;
+            font-size: 0.42em;
             letter-spacing: 0.3px;
             text-transform: uppercase;
-            margin-top: 2px;
             font-weight: 600;
-            text-align: center;
+            text-align: left;
+            line-height: 1.2;
+        }
+        .qr-label span {
+            color: var(--gold-main);
+            display: block;
+            font-size: 0.95em;
         }
 
         .footer-contact {
-            font-size: 0.48em;
-            color: #777;
+            font-size: 0.45em;
+            color: #fff;
             text-align: center;
-            font-weight: 400;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            width: 100%;
+            border-top: 1px solid #111;
+            padding-top: 3px;
+        }
+        .footer-contact span {
+            color: var(--gold-main);
+            font-weight: 700;
         }
 
         @media print {
