@@ -48,7 +48,16 @@
             text-transform: uppercase;
         }
 
-        /* Ajuste do Grid para caber 10 unidades na folha A4 */
+        .print-section-title {
+            color: #fff;
+            margin: 20px 0 5px 0;
+            text-transform: uppercase;
+            font-size: 1.1em;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        /* Grid A4 para 10 unidades */
         .folha-a4 {
             width: 21cm;
             height: 29.7cm;
@@ -63,10 +72,9 @@
             align-content: center;
             page-break-after: always;
             box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            margin: 20px 0;
         }
 
-        /* Design Compacto Corrigido */
+        /* Estrutura Base do Cartão */
         .cartao-box {
             width: var(--card-w);
             height: var(--card-h);
@@ -77,11 +85,71 @@
             position: relative;
             overflow: hidden;
             display: flex;
-            padding: 8px;
-            gap: 8px;
-            align-items: center;
         }
 
+        /* DESIGN DA FRENTE: Foco na Foto e Atração */
+        .frente-layout {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .drink-photo-side {
+            width: 45%;
+            height: 100%;
+            background-image: url('image_43ae27.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        /* Efeito de fusão da foto com o fundo escuro */
+        .drink-photo-side::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; width: 40%;
+            background: linear-gradient(to right, transparent, var(--dark-bg));
+        }
+        .frente-text-side {
+            width: 55%;
+            padding: 12px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+            z-index: 2;
+        }
+        .frente-title {
+            font-size: 0.95em;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .frente-title span {
+            color: var(--gold-main);
+        }
+        .frente-subtitle {
+            font-size: 0.58em;
+            color: #ccc;
+            line-height: 1.3;
+            font-weight: 300;
+        }
+
+        /* DESIGN DO VERSO: Conectividade, QR Code e Contato */
+        .verso-layout {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            padding: 10px;
+            box-sizing: border-box;
+            align-items: center;
+            gap: 10px;
+            background: radial-gradient(circle at 80% 20%, rgba(255,174,0,0.05) 0%, transparent 60%), #050505;
+        }
         .perfil-side {
             flex: 1;
             display: flex;
@@ -89,70 +157,46 @@
             justify-content: space-between;
             height: 100%;
             text-align: left;
-            z-index: 2;
         }
-
-        .avatar-box {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .avatar-img {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            border: 1.5px solid var(--gold-main);
-            object-fit: cover;
-        }
-
-        .user-info {
+        .brand-header {
             display: flex;
             flex-direction: column;
         }
-        .user-info .brand {
-            font-size: 0.52em;
+        .brand-header .brand {
+            font-size: 0.55em;
             color: #fff;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             text-transform: uppercase;
             font-weight: 300;
             margin: 0;
         }
-        .user-info .handle {
-            font-size: 0.62em;
+        .brand-header .handle {
+            font-size: 0.65em;
             color: var(--gold-main);
             font-weight: 600;
-            margin: -3px 0 0 0;
+            margin: -2px 0 0 0;
         }
-
-        /* Ajuste do tamanho da fonte para manter a leitura nítida no tamanho menor */
-        .mid-text {
+        .verso-msg {
             color: #fff;
-            font-size: 0.62em;
-            line-height: 1.2;
-            margin: 3px 0;
-            font-weight: 400;
+            font-size: 0.58em;
+            line-height: 1.3;
+            font-weight: 300;
         }
-        .mid-text strong {
+        .verso-msg strong {
             color: var(--gold-main);
-            font-weight: 800;
         }
-
         .footer-contact {
-            font-size: 0.5em;
-            color: #aaa;
+            font-size: 0.52em;
+            color: #888;
             border-top: 1px solid #1a1a1a;
-            padding-top: 2px;
+            padding-top: 3px;
         }
-
         .qr-side {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 2;
         }
-
         .qr-container {
             background: #fff;
             padding: 4px;
@@ -160,13 +204,12 @@
             border: 1.5px solid var(--gold-main);
             display: inline-block;
         }
-
         .qr-label {
             color: var(--gold-light);
             font-size: 0.42em;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            margin-top: 3px;
+            margin-top: 4px;
             font-weight: 600;
             opacity: 0.8;
         }
@@ -177,7 +220,7 @@
                 margin: 0;
             }
             body { background: #fff; }
-            .no-print-bar { display: none; }
+            .no-print-bar, .print-section-title { display: none; }
             .folha-a4 {
                 margin: 0;
                 box-shadow: none;
