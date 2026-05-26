@@ -282,7 +282,7 @@
         const containerFrente = document.getElementById("paginaFrente");
         const containerVerso = document.getElementById("paginaVerso");
 
-        // Gerador das Frentes Otimizado (Gil Eventos + Destaques Fortes)
+        // GERAÇÃO DAS FRENTES (Fúria Rubi + Gil Eventos Estabilizado)
         for (let i = 1; i <= TOTAL_CARTOES; i++) {
             containerFrente.innerHTML += `
                 <div class="cartao-box">
@@ -298,7 +298,7 @@
             `;
         }
 
-        // Gerador dos Versos (Aperol na Esquerda + Informações Centrais + Uva na Direita)
+        // GERAÇÃO DOS VERSOS CORRIGIDOS (Estrutura Física Alinhada com o Novo Estilo)
         for (let i = 1; i <= TOTAL_CARTOES; i++) {
             const qrInstaId = `qr-insta-${i}`;
             const qrAppId = `qr-app-${i}`;
@@ -306,44 +306,40 @@
             containerVerso.innerHTML += `
                 <div class="cartao-box">
                     <div class="verso-layout">
-                        <div class="drink-side-left"></div>
                         
-                        <div class="verso-center-content">
-                           <div class="brand-center">
-                                <span class="brand">Nossos Canais</span>
-                            </div>
+                        <div class="verso-title-top">Nossos Canais</div>
+                        
+                        <div class="verso-center-row">
+                            <div class="qr-block-side">
+                                <div class="qr-container">
+                                    <div id="${qrInstaId}"></div>
+                                </div>
+                                <div class="qr-label">Siga no Insta<span>@_gil.vibe</span></div>
                             </div>
                             
-                            <div class="qrs-vertical-box">
-                                <div class="qr-row">
-                                    <div class="qr-container">
-                                        <div id="${qrInstaId}"></div>
-                                    </div>
-                                    <div class="qr-label">Siga no Insta<span>@_gil.vibe</span></div>
-                                </div>
-                                <div class="qr-row">
-                                    <div class="qr-container">
-                                        <div id="${qrAppId}"></div>
-                                    </div>
-                                    <div class="qr-label">Menu & Orçamento<span>Simulação Online</span></div>
-                                </div>
-                            </div>
+                            <div class="drink-center-seal"></div>
                             
-                            <div class="footer-contact">
-                                Solicite seu orçamento: <span>(75) 99864-9927</span>
+                            <div class="qr-block-side">
+                                <div class="qr-container">
+                                    <div id="${qrAppId}"></div>
+                                </div>
+                                <div class="qr-label">Menu & Orçamento<span>Simulação Online</span></div>
                             </div>
                         </div>
                         
-                        <div class="drink-side-right"></div>
+                        <div class="footer-contact-flat">
+                            Solicite seu orçamento: <span>(75) 99864-9927</span>
+                        </div>
+                        
                     </div>
                 </div>
             `;
         }
 
-        // Renderização limpa e com excelente taxa de leitura dos QR Codes empilhados
+        // Renderização exata e limpa dos QR Codes
         window.onload = function() {
             for (let i = 1; i <= TOTAL_CARTOES; i++) {
-                // QR Code 1: Instagram
+                // QR Instagram
                 new QRCode(document.getElementById(`qr-insta-${i}`), {
                     text: INSTA_URL,
                     width: 38,
@@ -353,7 +349,7 @@
                     correctLevel : QRCode.CorrectLevel.M
                 });
 
-                // QR Code 2: Web App de Orçamentos
+                // QR App/Site
                 new QRCode(document.getElementById(`qr-app-${i}`), {
                     text: APP_URL,
                     width: 38,
