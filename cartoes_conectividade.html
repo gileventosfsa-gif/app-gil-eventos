@@ -310,22 +310,23 @@
         const containerFrente = document.getElementById("paginaFrente");
         const containerVerso = document.getElementById("paginaVerso");
 
-        // Gerador das Frentes (Fúria Rubi + Copy de Impacto)
+        // Gerador das Frentes Otimizado (Gil Eventos + Destaques Fortes)
         for (let i = 1; i <= TOTAL_CARTOES; i++) {
             containerFrente.innerHTML += `
                 <div class="cartao-box">
                     <div class="frente-layout">
                         <div class="drink-furia"></div>
                         <div class="frente-text-side">
-                            <div class="frente-title">Leve o Bar de<br><span>Luxury</span> para o<br>Seu Evento 🍸</div>
-                            <div class="frente-subtitle">Surpreenda seus convidados com uma experiência inesquecível de coquetelaria premium.</div>
+                            <span class="frente-location">FEIRA | SSA</span>
+                            <div class="frente-title">Leve o Bar da<br><span>Gil Eventos</span><br>para o Seu Evento 🍸</div>
+                            <div class="frente-subtitle">Surpreenda seus convidados com uma <strong>experiência inesquecível</strong> de coquetelaria premium.</div>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        // Gerador dos Versos (Drink Uva + Infos + 2 QR Codes Juntos)
+        // Gerador dos Versos (Aperol na Esquerda + Informações Centrais + Uva na Direita)
         for (let i = 1; i <= TOTAL_CARTOES; i++) {
             const qrInstaId = `qr-insta-${i}`;
             const qrAppId = `qr-app-${i}`;
@@ -333,60 +334,58 @@
             containerVerso.innerHTML += `
                 <div class="cartao-box">
                     <div class="verso-layout">
-                        <div class="drink-uva"></div>
-                        <div class="verso-content-side">
-                            
-                            <div class="brand-header">
-                                <div class="brand-text">
-                                    <span class="brand">Gil Eventos 🍹</span>
-                                    <span class="handle">@_gil.vibe</span>
-                                </div>
-                                <span class="location-tag">FEIRA | SSA</span>
+                        <div class="drink-side-left"></div>
+                        
+                        <div class="verso-center-content">
+                            <div class="brand-center">
+                                <span class="brand">Gil Eventos 🍹</span>
+                                <span class="handle">@_gil.vibe</span>
                             </div>
                             
-                            <div class="qrs-wrapper">
-                                <div class="qr-item">
+                            <div class="qrs-vertical-box">
+                                <div class="qr-row">
                                     <div class="qr-container">
                                         <div id="${qrInstaId}"></div>
                                     </div>
-                                    <div class="qr-label">Siga no Insta</div>
+                                    <div class="qr-label">Siga no Insta<span>@_gil.vibe</span></div>
                                 </div>
-                                <div class="qr-item">
+                                <div class="qr-row">
                                     <div class="qr-container">
                                         <div id="${qrAppId}"></div>
                                     </div>
-                                    <div class="qr-label">Menu & Orçamento</div>
+                                    <div class="qr-label">Menu & Orçamento<span>Simulação Online</span></div>
                                 </div>
                             </div>
                             
                             <div class="footer-contact">
-                                Solicite seu orçamento: (75) 99864-9927
+                                Solicite seu orçamento: <span>(75) 99864-9927</span>
                             </div>
-                            
                         </div>
+                        
+                        <div class="drink-side-right"></div>
                     </div>
                 </div>
             `;
         }
 
-        // Renderização precisa de ambos os QR codes lado a lado
+        // Renderização limpa e com excelente taxa de leitura dos QR Codes empilhados
         window.onload = function() {
             for (let i = 1; i <= TOTAL_CARTOES; i++) {
-                // QR Code do Instagram
+                // QR Code 1: Instagram
                 new QRCode(document.getElementById(`qr-insta-${i}`), {
                     text: INSTA_URL,
-                    width: 52,
-                    height: 52,
+                    width: 38,
+                    height: 38,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.M
                 });
 
-                // QR Code do Site / Cardápio com Simulação Online
+                // QR Code 2: Web App de Orçamentos
                 new QRCode(document.getElementById(`qr-app-${i}`), {
                     text: APP_URL,
-                    width: 52,
-                    height: 52,
+                    width: 38,
+                    height: 38,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.M
