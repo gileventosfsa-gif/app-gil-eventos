@@ -233,54 +233,71 @@
 <body>
 
     <div class="no-print-bar">
-        <button class="btn-print" onclick="window.print()">🖨️ Imprimir Cartões (10 un. por Folha)</button>
+        <button class="btn-print" onclick="window.print()">🖨️ Imprimir Cartões (Frente e Verso)</button>
     </div>
 
-    <div class="folha-a4" id="paginaA4"></div>
+    <div class="print-section-title">FOLHA 1: FRENTE (Imprimir primeiro)</div>
+    <div class="folha-a4" id="paginaFrente"></div>
+
+    <div class="print-section-title">FOLHA 2: VERSO (Virar o papel e imprimir atrás)</div>
+    <div class="folha-a4" id="paginaVerso"></div>
 
     <script>
         const INSTA_URL = "https://www.instagram.com/_gil.vibe?igsh=YW5vYmtnbmR6NHBy";
-        const TOTAL_CARTOES = 10; // Atualizado para 10 unidades
-        const container = document.getElementById("paginaA4");
+        const TOTAL_CARTOES = 10;
+        const containerFrente = document.getElementById("paginaFrente");
+        const containerVerso = document.getElementById("paginaVerso");
 
+        // Gerador das Frentes com o Fúria Rubi destacado
         for (let i = 1; i <= TOTAL_CARTOES; i++) {
-            const cardId = `qrcode-card-${i}`;
-            
-            const cardHTML = `
+            containerFrente.innerHTML += `
                 <div class="cartao-box">
-                    <div class="perfil-side">
-                        <div class="avatar-box">
-                            <img src="image_43ae27.jpg" class="avatar-img" alt="Gil">
-                            <div class="user-info">
-                                <span class="brand">Gil Eventos</span>
-                                <span class="handle">@_gil.vibe</span>
-                            </div>
+                    <div class="frente-layout">
+                        <div class="drink-photo-side"></div>
+                        <div class="frente-text-side">
+                            <div class="frente-title">Viva a<br>Experiência<br><span>Luxury</span></div>
+                            <div class="frente-subtitle">Peça seu drink pelo celular, acompanhe a fila ao vivo e aproveite a festa.</div>
                         </div>
-                        
-                        <div class="mid-text">
-                            Curtiu o drink?<br>
-                            Poste nos stories e <strong>marque nosso perfil!</strong>
-                        </div>
-                        
-                        <div class="footer-contact">
-                            Contato: (75) 99864-9927
-                        </div>
-                    </div>
-                    
-                    <div class="qr-side">
-                        <div class="qr-container">
-                            <div id="${cardId}"></div>
-                        </div>
-                        <div class="qr-label">Aponte a Câmera</div>
                     </div>
                 </div>
             `;
-            
-            container.innerHTML += cardHTML;
         }
 
+        // Gerador dos Versos com o QR Code de Conectividade
+        for (let i = 1; i <= TOTAL_CARTOES; i++) {
+            const cardId = `qrcode-card-${i}`;
+            containerVerso.innerHTML += `
+                <div class="cartao-box">
+                    <div class="verso-layout">
+                        <div class="perfil-side">
+                            <div class="brand-header">
+                                <span class="brand">Gil Eventos</span>
+                                <span class="handle">@_gil.vibe</span>
+                            </div>
+                            
+                            <div class="verso-msg">
+                                Curtiu os nossos drinks?<br>
+                                Poste uma foto e <strong>marque nosso perfil!</strong>
+                            </div>
+                            
+                            <div class="footer-contact">
+                                Contato: (75) 99864-9927
+                            </div>
+                        </div>
+                        
+                        <div class="qr-side">
+                            <div class="qr-container">
+                                <div id="${cardId}"></div>
+                            </div>
+                            <div class="qr-label">Siga no Insta</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Renderização dos QR codes nas posições certas do verso
         window.onload = function() {
-            // Ajustamos o tamanho interno do QR Code para 62x62px para caber perfeitamente no frame menor
             for (let i = 1; i <= TOTAL_CARTOES; i++) {
                 new QRCode(document.getElementById(`qrcode-card-${i}`), {
                     text: INSTA_URL,
