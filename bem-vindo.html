@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Placas de Balcão - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-main: #FFAE00;
+            --gold-gradient: linear-gradient(135deg, #FFF5D0 0%, #FFAE00 50%, #B8860B 100%);
+            --dark-bg: #0A0A0A;
+            --text-light: #FFFFFF;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #222;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Barra de Impressão Superior */
+        .no-print-bar {
+            background: #111;
+            padding: 15px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        .btn-print {
+            background: linear-gradient(45deg, var(--gold-main), #FFD580);
+            color: #000;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 174, 0, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Container que simula a folha A4 exata */
+        .folha-a4 {
+            width: 21.0cm;
+            height: 29.7cm;
+            background: #ffffff;
+            box-sizing: border-box;
+            padding: 1.0cm;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            margin: 20px 0;
+        }
+
+        /* Estrutura Base das Placas */
+        .placa-box {
+            width: 19.0cm;
+            height: 8.5cm;
+            background: radial-gradient(circle at 50% 50%, rgba(255,174,0,0.04) 0%, transparent 80%), var(--dark-bg);
+            border: 2px solid var(--gold-main);
+            border-radius: 12px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        /* Plaquinha menor de Pausa */
+        .placa-box.pausa {
+            height: 6.5cm;
+            border-style: dashed; /* Linha tracejada estilosa para a pausa */
+        }
+
+        /* Detalhes Visuais Premium */
+        .gold-text {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .main-title {
+            font-size: 2.4em;
+            margin: 0 0 10px 0;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1em;
+            font-weight: 300;
+            max-width: 85%;
+            margin: 0 0 15px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .highlight-phrase {
+            color: var(--gold-main);
+            font-size: 0.95em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 1px solid #222;
+            padding-top: 12px;
+            width: 70%;
+        }
+
+        /* Marcas de guia para furar (Olha os ganchinhos aqui) */
+        .guia-furo {
+            position: absolute;
+            bottom: 12px;
+            width: 8px;
+            height: 8px;
+            border: 1px dashed var(--gold-main);
+            border-radius: 50%;
+        }
+        .furo-esq { left: 4.0cm; }
+        .furo-dir { right: 4.0cm; }
+
+        .guia-furo-topo {
+            position: absolute;
+            top: 12px;
+            width: 8px;
+            height: 8px;
+            border: 1px dashed var(--gold-main);
+            border-radius: 50%;
+        }
+
+        /* Configuração de Impressão */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+            body { background: #fff; }
+            .no-print-bar { display: none; }
+            .folha-a4 {
+                margin: 0;
+                box-shadow: none;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print-bar">
+        <button class="btn-print" onclick="window.print()">🖨️ Salvar como PDF / Imprimir A4</button>
+    </div>
+
+    <!-- FOLHA A4 ÚNICA -->
+    <div class="folha-a4">
+
+        <!-- LADO A: FRENTE (BAR ABERTO) -->
+        <div class="placa-box">
+            <div class="main-title gold-text">Bem-vindo à</div>
+            <div class="subtitle" style="font-size: 1.8em; font-weight: 700; color: #fff; margin-bottom: 20px;">
+                🍹 Gil Eventos 🍹
+            </div>
+            <div class="highlight-phrase">Escolha o seu drink e aproveite a vibe!</div>
+            
+            <!-- Guias discretas para você saber onde furar para colocar os ganchinhos da pausa -->
+            <div class="guia-furo furo-esq"></div>
+            <div class="guia-furo furo-dir"></div>
+        </div>
+
+        <!-- LADO B: VERSO (BAR ENCERRADO) -->
+        <div class="placa-box">
+            <div class="main-title gold-text" style="font-size: 2.6em;">Bar Encerrado</div>
+            <div class="subtitle">Obrigado por curtir essa experiência conosco.</div>
+            <div class="highlight-phrase">Até o próximo brinde!</div>
+        </div>
+
+        <!-- PLAQUINHA PENDURÁVEL: PAUSA GERAL -->
+        <div class="placa-box pausa">
+            <!-- Guias no topo para amarrar a cordinha que vai subir para os ganchos da placa principal -->
+            <div class="guia-furo-topo furo-esq"></div>
+            <div class="guia-furo-topo furo-dir"></div>
+
+            <div class="main-title gold-text" style="font-size: 2.0em; letter-spacing: 5px;">Pausa Rápida</div>
+            <div class="subtitle" style="font-size: 1.0em;">Estamos preparando uma nova rodada de energia.</div>
+            <div class="highlight-phrase" style="width: 50%; color: #fff;">Volto em alguns minutos!</div>
+        </div>
+
+    </div>
+
+</body>
+</html>
