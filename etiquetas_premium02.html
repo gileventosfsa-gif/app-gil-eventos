@@ -122,7 +122,7 @@
 
     <div class="folha-a4" id="container"></div>
 
-    <script>
+   <script>
         const frasesBase = [
             "Quem tem limite é cartão de crédito.",
             "Tomei juízo, mas não bateu.",
@@ -142,16 +142,34 @@
         ];
 
         const container = document.getElementById('container');
+        const urlAlvo = "https://nucleoinsight.github.io/eterno-amor-prod/h.html?id=gabriel-beatriz";
 
-        for (let i = 0; i < 40; i++) {
+        // Loop ajustado para criar exatamente 21 etiquetas (3 colunas x 7 linhas) na folha A4
+        for (let i = 0; i < 21; i++) {
             const fraseSorteada = frasesBase[i % frasesBase.length];
             const div = document.createElement('div');
             div.className = 'etiqueta';
+            
+            // Cria a estrutura dividida: QR Code na esquerda e textos organizados na direita
             div.innerHTML = `
-                <div class="frase">${fraseSorteada}</div>
-                <div class="brand-footer">Gil Eventos</div>
+                <div class="qrcode-container" id="qr-${i}"></div>
+                <div class="conteudo-texto">
+                    <div class="frase">${fraseSorteada}</div>
+                    <div class="brand-footer">Gil Eventos</div>
+                </div>
             `;
+            
             container.appendChild(div);
+
+            // Código que gera o QR Code milimetricamente dentro da caixinha branca de cada etiqueta
+            new QRCode(document.getElementById(`qr-${i}`), {
+                text: urlAlvo,
+                width: 55,
+                height: 55,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H // Nível alto de correção para garantir leitura rápida na câmera
+            });
         }
     </script>
 </body>
