@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Etiquetas Luxury - Gil Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <!-- Biblioteca necessária para gerar o QR Code dinamicamente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root { 
             --gold-main: #FFAE00;
@@ -17,31 +19,53 @@
         .folha-a4 {
             width: 210mm;
             height: 297mm;
-            padding: 10mm;
+            padding: 12mm 10mm;
             margin: 20px auto;
             background: white;
             display: grid;
-            grid-template-columns: repeat(4, 1fr); 
-            grid-template-rows: repeat(10, 1fr);
-            gap: 3mm; /* Aumentei levemente o espaço para facilitar o corte */
+            /* Configuração estratégica para 3 colunas e 7 linhas (Total de 21 etiquetas por página) */
+            grid-template-columns: repeat(3, 1fr); 
+            grid-template-rows: repeat(7, 1fr);
+            gap: 4mm;
             box-sizing: border-box;
         }
 
         .etiqueta {
             background: radial-gradient(circle at center, #151515 0%, var(--dark-bg) 100%);
-            border-radius: 4px; /* Cantos levemente arredondados = Luxo */
+            border-radius: 6px; 
+            display: flex;
+            flex-direction: row; /* Coloca o QR Code na esquerda e os textos na direita */
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+            position: relative;
+            border: 1px solid rgba(184, 134, 11, 0.4); 
+            overflow: hidden;
+        }
+
+        /* Caixa branca que envolve o QR Code deixando ele limpo e com borda dourada */
+        .qrcode-container {
+            background: #ffffff;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--gold-main);
+            z-index: 2;
+        }
+
+        /* Caixa que agrupa a frase e a assinatura do Gil Eventos do lado direito */
+        .conteudo-texto {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            width: 62%;
             text-align: center;
-            padding: 8px;
-            box-sizing: border-box;
-            position: relative;
-            border: 1px solid rgba(184, 134, 11, 0.3); /* Borda dourada sutil */
-            overflow: hidden;
+            z-index: 2;
         }
-
         /* Detalhe Dourado Lateral (Selo de Qualidade) */
         .etiqueta::before {
             content: '';
