@@ -52,7 +52,7 @@
 </head>
 <body>
 
-    <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Cartões Interativos</button>
+    <button class="btn-imprimir" id="btnImprimir" onclick="window.print()" disabled style="opacity: 0.5; cursor: not-allowed;">⌛ Carregando QR Codes...</button>
     <div class="folha-a4" id="container"></div>
 
     <script>
