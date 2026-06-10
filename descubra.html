@@ -6,122 +6,29 @@
     <title>Descubra seu Drink - Gil Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    
+    <!-- Scripts do Firebase (Insira abaixo a sua inicialização padrão de projeto) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
-        :root {
-            --gold: #FFD580;
-            --gold-dark: #B8860B;
-            --bg: #0F0F0F;
-            --card: #1E1E1E;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg);
-            color: #EAEAEA;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        .quiz-container {
-            width: 100%;
-            max-width: 450px;
-            background: var(--card);
-            padding: 30px 25px;
-            border-radius: 20px;
-            border: 1px solid #333;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            box-sizing: border-box;
-        }
+        :root { --gold: #FFD580; --gold-dark: #B8860B; --bg: #0F0F0F; --card: #1E1E1E; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: #EAEAEA; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .quiz-container { width: 100%; max-width: 450px; background: var(--card); padding: 30px 25px; border-radius: 20px; border: 1px solid #333; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box; }
         .step { display: none; }
         .step.active { display: block; animation: fadeIn 0.4s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         h2 { color: #fff; font-size: 1.6em; margin-bottom: 10px; font-weight: 600; }
         p { color: #aaa; font-size: 0.95em; margin-bottom: 25px; font-weight: 300; }
-        
-        .input-nome {
-            width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #444;
-            background: #111;
-            color: #fff;
-            font-size: 1.1em;
-            box-sizing: border-box;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .btn-next {
-            width: 100%;
-            padding: 15px;
-            background: var(--gold);
-            color: #000;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 1em;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .btn-option {
-            padding: 15px;
-            background: #252525;
-            border: 1px solid #444;
-            color: #fff;
-            border-radius: 12px;
-            font-size: 1em;
-            cursor: pointer;
-            text-align: left;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .input-nome { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #444; background: #111; color: #fff; font-size: 1.1em; box-sizing: border-box; text-align: center; margin-bottom: 20px; }
+        .btn-next { width: 100%; padding: 15px; background: var(--gold); color: #000; border: none; border-radius: 12px; font-weight: bold; font-size: 1em; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+        .options-grid { display: flex; flex-direction: column; gap: 12px; }
+        .btn-option { padding: 15px; background: #252525; border: 1px solid #444; color: #fff; border-radius: 12px; font-size: 1em; cursor: pointer; text-align: left; transition: 0.2s; display: flex; align-items: center; gap: 15px; }
         .btn-option:active { transform: scale(0.98); background: #2a2a2a; }
-        
-        /* Loading */
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #333;
-            border-top: 5px solid var(--gold);
-            border-radius: 50%;
-            margin: 30px auto;
-            animation: spin 1s linear infinite;
-        }
+        .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid var(--gold); border-radius: 50%; margin: 30px auto; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Banner Eterno Amor */
-        .banner-noivos {
-            margin-top: 25px;
-            padding: 20px;
-            background: linear-gradient(145deg, #151515, #000);
-            border: 1px solid var(--gold-dark);
-            border-radius: 15px;
-            text-align: center;
-        }
-        .btn-noivos {
-            background: linear-gradient(90deg, #FF6700, #FF9500);
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 15px;
-            font-size: 0.9em;
-            box-shadow: 0 4px 15px rgba(255,103,0,0.3);
-        }
+        .banner-noivos { margin-top: 25px; padding: 20px; background: linear-gradient(145deg, #151515, #000); border: 1px solid var(--gold-dark); border-radius: 15px; text-align: center; }
+        .btn-noivos { background: linear-gradient(90deg, #FF6700, #FF9500); color: white; text-decoration: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; display: inline-block; margin-top: 15px; font-size: 0.9em; box-shadow: 0 4px 15px rgba(255,103,0,0.3); }
     </style>
 </head>
 <body>
@@ -168,7 +75,6 @@
     <div class="step" id="step-resultado">
         <h2 style="color: var(--gold);">Combinação Perfeita! 🎉</h2>
         <p id="parabens-nome"></p>
-        
         <div style="font-size: 4em; margin: 15px 0;" id="drink-emoji">🍹</div>
         <h3 id="drink-nome" style="font-size: 1.6em; margin: 5px 0; color: #fff;"></h3>
         <p id="drink-desc" style="font-size: 0.9em; padding: 0 10px;"></p>
@@ -178,26 +84,36 @@
             <span style="font-size: 1.2em;">⭐</span>
             <h4 style="margin: 5px 0; color: var(--gold); font-size: 1.1em;">Inspirado no Amor</h4>
             <p style="font-size: 0.8em; margin: 5px 0; line-height: 1.4;">Este drink reflete a energia e a história de <strong>Gabriel & Beatriz</strong>. Deixe uma mensagem para o casal!</p>
-            <!-- Substitua a URL abaixo pelo link real da sua página Eterno Amor -->
-            <a href="https://nucleoinsight.github.io/eterno-amor-prod/h.html?id=gabriel-beatriz" class="btn-noivos">Ver História & Deixar Recado ❤️</a>
+            <a href="https://nucleoinsight.github.io/eterno-amor-prod/h.html?id=gabriel-beatriz" class="btn-noivos" onclick="registrarCliqueFinal()">Ver História & Deixar Recado ❤️</a>
         </div>
     </div>
 </div>
 
 <script>
-    let dadosQuiz = { nome: '', humor: '', sabor: '' };
+    // Configuração do seu Firebase (Substitua pelos dados corretos do seu projeto)
+    const firebaseConfig = { apiKey: "SUA_API_KEY", authDomain: "SEU_DOMAIN", projectId: "SEU_PROJECT_ID", storageBucket: "SEU_BUCKET", messagingSenderId: "SEU_SENDER", appId: "SEU_APP_ID" };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const db = firebase.firestore();
 
-    // Banco de dados simulado local baseado nas opções de perfil
+    // Captura automática do parâmetro ?origem da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const origemUrl = urlParams.get('origem') || 'acesso_direto';
+
+    let dadosQuiz = { nome: '', humor: '', sabor: '', origem: origemUrl, timestamp: new Date() };
+
+    // Registro do passo 1: Abriu a página
+    db.collection("metricas_evento").add({ acao: "1_acesso_pagina", origem: origemUrl, horario: new Date() });
+
     const bancoDrinks = {
-        'animado_doce': { nome: 'Morango Selvagem Premium', desc: 'Combinação explosiva e adocicada, perfeita para manter a energia no topo da pista.', emoji: '🍓' },
-        'animado_citrico': { nome: 'Gin Tônica Imperial', desc: 'Refrescância pura com notas cítricas acentuadas para quem não quer parar de dançar.', emoji: '🍋' },
-        'animado_forte': { nome: 'Moscou Mule da Casa', desc: 'Sabor marcante com espuma densa de gengibre para quem busca presença.', emoji: '🥃' },
-        'cansado_doce': { nome: 'Piña Colada Luxury', desc: 'Cremosa, doce e tropical. Um verdadeiro abraço em forma de coquetel para recuperar as energias.', emoji: '🥥' },
-        'cansado_citrico': { nome: 'Caipirinha de Limão Premium', desc: 'O clássico brasileiro injetando uma dose massiva de refrescância cítrica no seu sistema.', emoji: '🍹' },
-        'cansado_forte': { nome: 'Negroni do Barman', desc: 'Complexo, amargo e potente. Ideal para reiniciar o paladar de forma cirúrgica.', emoji: '🥂' },
-        'romantico_doce': { nome: 'Coquetel Eterno Amor', desc: 'Notas suaves de frutas vermelhas com um toque sedutor, ideal para celebrar momentos especiais.', emoji: '❤️' },
-        'romantico_citrico': { nome: 'Aperol Spritz Elegance', desc: 'O equilíbrio perfeito entre o leve amargor e a citricidade borbulhante do espumante.', emoji: '🍊' },
-        'romantico_forte': { nome: 'Old Fashioned Gil', desc: 'Robusto, aromático e carregado de história. Feito para paladares maduros e sintonizados.', emoji: '🎩' }
+        'animado_doce': { nome: 'Morango Selvagem — O Drink da Pista 🍓', desc: 'Combinação explosiva, adocicada e cheia de brilho. Perfeita para ditar o ritmo da pista.', emoji: '🍓' },
+        'animado_citrico': { nome: 'Glow Gin — Luxo & Ostentação 👑', desc: 'Refrescância cirúrgica com notas cítricas acentuadas. Para quem quer turistar de taça cheia nas fotos.', emoji: '🍋' },
+        'animado_forte': { nome: 'Moscou Mule Premium 🔥', desc: 'Sabor acentuado com espuma densa de gengibre. Para paladares intensos e dominantes.', emoji: '🥃' },
+        'cansado_doce': { nome: 'Piña Colada Luxury 🥥', desc: 'Cremosa, tropical e doce. O verdadeiro reset de energia para te jogar de volta ao jogo.', emoji: '🥥' },
+        'cansado_citrico': { nome: 'Caipirinha Imperial Refrescante 🍹', desc: 'O clássico brasileiro elevado ao nível premium. Acidez e frescor sob medida.', emoji: '🍹' },
+        'cansado_forte': { nome: 'Negroni do Barman 🎩', desc: 'Complexo, aromático e potente. Perfeito para restabelecer os sentidos instantaneamente.', emoji: '🥂' },
+        'romantico_doce': { nome: 'Coquetel Eterno Amor ❤️', desc: 'Suavidade extrema à base de frutas vermelhas. Um brinde apaixonado feito para celebrar o momento.', emoji: '❤️' },
+        'romantico_citrico': { nome: 'Aperol Spritz — O Queridinho do Insta 🍊', desc: 'Equilíbrio impecável entre o leve amargor e o frescor borbulhante do espumante.', emoji: '🍊' },
+        'romantico_forte': { nome: 'Old Fashioned de Elite 🥃', desc: 'Robusto, histórico e denso. Feito exclusivamente para paladares maduros e sintonizados.', emoji: '🎩' }
     };
 
     function irParaPasso(numero) {
@@ -205,6 +121,7 @@
             const nomeInput = document.getElementById('nome-quiz').value.trim();
             if(!nomeInput) { alert('Por favor, nos diga seu nome!'); return; }
             dadosQuiz.nome = nomeInput;
+            db.collection("metricas_evento").add({ acao: "2_iniciou_quiz", nome: dadosQuiz.nome, origem: origemUrl, horario: new Date() });
         }
         document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
         document.getElementById(`step-${numero}`).classList.add('active');
@@ -217,56 +134,37 @@
 
     function finalizarQuiz(saborValor) {
         dadosQuiz.sabor = saborValor;
-        
-        // Ativa Tela de Loading
         document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
         document.getElementById('step-loading').classList.add('active');
-        
-        // Customiza o texto do loading usando o nome do convidado
         document.getElementById('loading-texto').innerText = `Processando a alquimia de ${dadosQuiz.nome}...`;
 
         setTimeout(() => {
-            // Processa a recomendação baseada no cruzamento de dados
             const chave = `${dadosQuiz.humor}_${dadosQuiz.sabor}`;
             const drinkRecomendado = bancoDrinks[chave] || bancoDrinks['animado_citrico'];
             
-            // Renderiza os dados na tela final
             document.getElementById('parabens-nome').innerHTML = `<strong>${dadosQuiz.nome}</strong>, seu perfil sensorial identificou:`;
             document.getElementById('drink-emoji').innerText = drinkRecomendado.emoji;
             document.getElementById('drink-nome').innerText = drinkRecomendado.nome;
             document.getElementById('drink-desc').innerText = drinkRecomendado.desc;
             
-            // Muda para a tela de resultado
             document.getElementById('step-loading').classList.remove('active');
             document.getElementById('step-resultado').classList.add('active');
             
-            // Dispara explosão pesada de confetes de emojis (🎉🍹🥂🔥)
+            // Grava os resultados completos e o progresso no Firebase
+            db.collection("metricas_evento").add({ acao: "3_viu_resultado", nome: dadosQuiz.nome, humor: dadosQuiz.humor, sabor: dadosQuiz.sabor, drink: drinkRecomendado.nome, origem: origemUrl, horario: new Date() });
+            
             dispararExplosao();
         }, 1800);
     }
 
+    function registrarCliqueFinal() {
+        db.collection("metricas_evento").add({ acao: "4_clique_eterno_amor", nome: dadosQuiz.nome, origem: origemUrl, horario: new Date() });
+    }
+
     function dispararExplosao() {
         const escopoConfetti = confetti.create(null, { resize: true, useWorker: true });
-        
-        // Explosão centralizada de elementos tradicionais misturados aos emojis do tema
-        escopoConfetti({
-            particleCount: 80,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#FFD580', '#FFAE00', '#FFFFFF']
-        });
-        escopoConfetti({
-            particleCount: 30,
-            spread: 50,
-            origin: { y: 0.6 },
-            scalars: [2.5, 3.5],
-            shapes: [
-                confetti.shapeFromText({ text: '🍹' }),
-                confetti.shapeFromText({ text: '🥂' }),
-                confetti.shapeFromText({ text: '🔥' }),
-                confetti.shapeFromText({ text: '🎉' })
-            ]
-        });
+        escopoConfetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#FFD580', '#FFAE00', '#FFFFFF'] });
+        escopoConfetti({ particleCount: 30, spread: 50, origin: { y: 0.6 }, scalars: [2.5, 3.5], shapes: [confetti.shapeFromText({ text: '🍹' }), confetti.shapeFromText({ text: '🥂' }), confetti.shapeFromText({ text: '🔥' }), confetti.shapeFromText({ text: '🎉' })] });
     }
 </script>
 </body>
