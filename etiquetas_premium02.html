@@ -2,105 +2,46 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Novas Etiquetas Interativas - Gil Eventos</title>
+    <title>Etiquetas Luxury Interativas - Gil Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root { 
             --gold-main: #FFAE00;
             --dark-bg: #050505;
+            --red-alert: #FF3B30;
         }
-
         body { margin: 0; padding: 0; background: #1a1a1a; font-family: 'Poppins', sans-serif; }
-
         .btn-imprimir {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(90deg, #FF6700, #FF9500);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 103, 0, 0.4);
-            z-index: 9999;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(90deg, #FF6700, #FF9500); color: white;
+            border: none; padding: 12px 30px; font-size: 14px; font-weight: bold;
+            border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 103, 0, 0.4);
+            z-index: 9999; text-transform: uppercase; letter-spacing: 1px;
         }
-
         .folha-a4 {
-            width: 210mm;
-            height: 297mm;
-            padding: 12mm 10mm;
-            margin: 80px auto 20px auto;
-            background: white;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); 
-            grid-template-rows: repeat(7, 1fr);
-            box-sizing: border-box;
+            width: 210mm; height: 297mm; padding: 12mm 10mm; margin: 80px auto 20px auto;
+            background: white; display: grid; grid-template-columns: repeat(3, 1fr); 
+            grid-template-rows: repeat(7, 1fr); box-sizing: border-box;
         }
-
-        /* Etiquetas coladas com linha fina cinza para facilitar o corte perfeito */
         .etiqueta {
             background: radial-gradient(circle at center, #151515 0%, var(--dark-bg) 100%) !important;
-            display: flex;
-            flex-direction: column; 
-            justify-content: center;
-            align-items: center;
-            padding: 8px;
-            box-sizing: border-box;
-            position: relative;
-            border: 0.5px solid #e0e0e0; 
-            overflow: hidden;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 8px; box-sizing: border-box; position: relative; border: 0.5px solid #e0e0e0; 
+            overflow: hidden; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
         }
-
-        /* QR Code ampliado para escaneamento instantâneo */
         .qrcode-container {
-            background: #ffffff !important;
-            padding: 6px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--gold-main);
-            z-index: 2;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
+            background: #ffffff !important; padding: 6px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--gold-main); z-index: 2;
+            -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
         }
-
-        .conteudo-chamada {
-            text-align: center;
-            margin-top: 8px;
-            z-index: 2;
-            width: 90%;
-        }
-
-        .cta-texto {
-            color: #fff !important;
-            font-size: 7pt;
-            font-weight: 700;
-            line-height: 1.2;
-            min-height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
+        .conteudo-chamada { text-align: center; margin-top: 8px; z-index: 2; width: 90%; }
+        .cta-texto { color: #fff !important; font-size: 7.5pt; font-weight: 700; line-height: 1.2; min-height: 22px; }
         .brand-footer {
-            color: var(--gold-main) !important;
-            font-size: 5pt;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 4px;
+            color: var(--gold-main) !important; font-size: 5pt; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px;
         }
-
         @media print {
             body { background: white; }
             .btn-imprimir { display: none; }
@@ -112,40 +53,40 @@
 <body>
 
     <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Cartões Interativos</button>
-
     <div class="folha-a4" id="container"></div>
 
     <script>
-        // Os 3 gatilhos estratégicos para o Teste AB em campo
-        const ctasValidas = [
-            "🚨 NÃO ESCANEIE!<br><span style='color: #FF9500;'>A não ser que queira um spoiler do bar...</span>",
-            "Descubra o seu Drink Ideal<br><span style='color: #FF9500;'>em 3 segundos 🔮</span>",
-            "Sua próxima rodada depende deste código.<br><span style='color: #FF9500;'>Toque para jogar 🎲</span>"
+        // Definição das CTAs com tags de cor e parâmetros de rastreamento específicos
+        const configuracaoEtiquetas = [
+            { text: "<span style='color: var(--red-alert); font-weight:900;'>🚨 NÃO ESCANEIE!</span><br>A não ser que queira um spoiler do bar...", ref: "nao_escaneie" },
+            { text: "Descubra seu Drink Ideal<br>em <span style='color: var(--gold-main);'>3 segundos 🔮</span>", ref: "drink_ideal" },
+            { text: "<span style='color: var(--red-alert);'>Sua próxima rodada</span><br>depende deste código. 🎲", ref: "proxima_rodada" }
         ];
 
         const container = document.getElementById('container');
-        const urlAlvo = "https://gileventosfsa-gif.github.io/app-gil-eventos/descubra.html";
+        const urlBase = "https://gileventosfsa-gif.github.io/app-gil-eventos/descubra.html";
 
         for (let i = 0; i < 21; i++) {
-            const ctaSelecionada = ctasValidas[i % ctasValidas.length];
+            const config = configuracaoEtiquetas[i % configuracaoEtiquetas.length];
             const div = document.createElement('div');
             div.className = 'etiqueta';
             
             div.innerHTML = `
                 <div class="qrcode-container" id="qr-${i}"></div>
                 <div class="conteudo-chamada">
-                    <div class="cta-texto">${ctaSelecionada}</div>
+                    <div class="cta-texto">${config.text}</div>
                     <div class="brand-footer">Gil Eventos Luxury</div>
                 </div>
             `;
-            
             container.appendChild(div);
 
-            // QR Code redimensionado para 80px (foco físico muito mais rápido)
+            // Injeção automática da origem no link do QR Code
+            const urlFinal = `${urlBase}?origem=${config.ref}`;
+
             new QRCode(document.getElementById(`qr-${i}`), {
-                text: urlAlvo,
-                width: 80,
-                height: 80,
+                text: urlFinal,
+                width: 82,
+                height: 82,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.M
