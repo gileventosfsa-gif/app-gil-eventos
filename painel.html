@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Métricas - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root { --gold: #FFD580; --bg: #0F0F0F; --card: #1E1E1E; --red: #FF3B30; --green: #34C759; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: #EAEAEA; margin: 0; padding: 20px; display: none; }
+        .dashboard { max-width: 1000px; margin: 0 auto; }
+        h1 { color: #fff; font-size: 2em; margin-bottom: 5px; }
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
+        .card-stat { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #333; text-align: center; }
+        .card-stat h3 { margin: 0; font-size: 0.9em; color: #aaa; text-transform: uppercase; }
+        .card-stat .num { font-size: 2.5em; font-weight: 800; color: var(--gold); margin: 5px 0; }
+        .section-title { font-size: 1.2em; color: #fff; margin-top: 30px; border-left: 4px solid var(--gold); padding-left: 10px; }
+        .lista-origem { background: var(--card); border-radius: 12px; padding: 15px; border: 1px solid #333; margin-top: 15px; }
+        .linha-metrica { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
+        .linha-metrica:last-child { border: none; }
+        .taxa { font-size: 0.85em; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <h1>Métricas do Evento 📊</h1>
+    <p style="color: #aaa; margin: 0;">Acompanhamento em tempo real do funil de conversão das etiquetas.</p>
+
+    <div class="section-title">Funil de Engajamento</div>
+    <div class="grid-stats">
+        <div class="card-stat">
+            <h3>1. Leituras (Acessos)</h3>
+            <div class="num" id="f1">0</div>
+            <span class="taxa">Base do Funil (100%)</span>
+        </div>
+        <div class="card-stat">
+            <h3>2. Iniciarão Quiz</h3>
+            <div class="num" id="f2">0</div>
+            <span class="taxa" id="p2">0% de conversão</span>
+        </div>
+        <div class="card-stat">
+            <h3>3. Viram Drink</h3>
+            <div class="num" id="f3">0</div>
+            <span class="taxa" id="p3">0% de conversão</span>
+        </div>
+        <div class="card-stat">
+            <h3>4. Eterno Amor</h3>
+            <div class="num" id="f4">0</div>
+            <span class="taxa" style="color: var(--green);" id="p4">0% de sucesso</span>
+        </div>
+    </div>
+
+    <div class="section-title">Desempenho dos Gatilhos (Teste AB)</div>
+    <div class="lista-origem">
+        <div class="linha-metrica">
+            <span>🚨 <strong>NÃO ESCANEIE!</strong> (Vermelho Urgência)</span>
+            <span id="origem-nao_escaneie" style="font-weight: bold; color: var(--gold);">0 acessos</span>
+        </div>
+        <div class="linha-metrica">
+            <span>🔮 <strong>Descubra seu Drink</strong> (Dourado Luxo)</span>
+            <span id="origem-drink_ideal" style="font-weight: bold; color: var(--gold);">0 acessos</span>
+        </div>
+        <div class="linha-metrica">
+            <span>🎲 <strong>Sua próxima rodada</strong> (Vermelho Perda)</span>
+            <span id="origem-proxima_rodada" style="font-weight: bold; color: var(--gold);">0 acessos</span>
+        </div>
+        <div class="linha-metrica">
+            <span>🔗 Outros / Direto</span>
+            <span id="origem-outros" style="font-weight: bold; color: #aaa;">0 acessos</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuração do seu Firebase (Insira os mesmos dados do descubra.html)
+    const firebaseConfig = { apiKey: "SUA_API_KEY", authDomain: "SEU_DOMAIN", projectId: "SEU_PROJECT_ID", storageBucket: "SEU_BUCKET", messagingSenderId: "SEU_SENDER", appId: "SEU_APP_ID" };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const db = firebase.firestore();
+
+    // Segurança Simples de Acesso
+    const senha = prompt("Digite a senha master do painel:");
+    if (senha === "gil2026") { // Altere a senha se necessário
+        document.body.style.display = "block";
+        inicializarPainel();
+    } else {
+        alert("Senha incorreta!");
+        window.location.href = "about:blank";
+    }
+
+    function inicializarPainel() {
+        // Escuta o banco em tempo real sem precisar dar F5 na página
+        db.collection("metricas_evento").onSnapshot((snapshot) => {
+            let f1 = 0, f2 = 0, f3 = 0, f4 = 0;
+            let origens = { nao_escaneie: 0, drink_ideal: 0, proxima_rodada: 0, outros: 0 };
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                
+                // Contagem do Funil
+                if (data.acao === "1_acesso_pagina") {
+                    f1++;
+                    // Contagem do Teste AB (Apenas no primeiro acesso)
+                    if (origens[data.origem] !== undefined) {
+                        origens[data.origem]++;
+                    } else {
+                        origens.outros++;
+                    }
+                }
+                if (data.acao === "2_iniciou_quiz") f2++;
+                if (data.acao === "3_viu_resultado") f3++;
+                if (data.acao === "4_clique_eterno_amor") f4++;
+            });
+
+            // Atualiza os números no painel
+            document.getElementById('f1').innerText = f1;
+            document.getElementById('f2').innerText = f2;
+            document.getElementById('f3').innerText = f3;
+            document.getElementById('f4').innerText = f4;
+
+            // Calcula porcentagens de conversão em relação ao total de acessos
+            document.getElementById('p2').innerText = f1 > 0 ? `${Math.round((f2 / f1) * 100)}% de conversão` : '0% de conversão';
+            document.getElementById('p3').innerText = f1 > 0 ? `${Math.round((f3 / f1) * 100)}% de conversão` : '0% de conversão';
+            document.getElementById('p4').innerText = f1 > 0 ? `${Math.round((f4 / f1) * 100)}% de sucesso` : '0% de sucesso';
+
+            // Atualiza o placar do Teste AB
+            document.getElementById('origem-nao_escaneie').innerText = `${origens.nao_escaneie} acessos`;
+            document.getElementById('origem-drink_ideal').innerText = `${origens.drink_ideal} acessos`;
+            document.getElementById('origem-proxima_rodada').innerText = `${origens.proxima_rodada} acessos`;
+            document.getElementById('origem-outros').innerText = `${origens.outros} acessos`;
+        });
+    }
+</script>
+</body>
+</html>
