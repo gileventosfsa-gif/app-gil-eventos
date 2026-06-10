@@ -101,8 +101,18 @@
     }
 
     function inicializarPainel() {
-        // Escuta o banco em tempo real sem precisar dar F5 na página
-        db.collection("metricas_evento").onSnapshot((snapshot) => {
+        // Captura o evento da URL do painel (?evento=nome_do_evento). Se não houver, usa 'padrao'
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventoId = urlParams.get('evento') || 'padrao';
+
+        // Exibe o nome do evento filtrado no título do painel para controle técnico
+        const tituloPainel = document.querySelector('h1');
+        if (tituloPainel) { tituloPainel.innerText += ` - ${eventoId.toUpperCase()}`; }
+
+        // Escuta o banco filtrando apenas os dados do evento ativo na URL
+        db.collection("metricas_evento")
+          .where("evento", "==", eventoId)
+          .onSnapshot((snapshot) => {
             let f1 = 0, f2 = 0, f3 = 0, f4 = 0;
             let origens = { nao_escaneie: 0, drink_ideal: 0, proxima_rodada: 0, outros: 0 };
 
