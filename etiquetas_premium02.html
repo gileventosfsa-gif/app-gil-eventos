@@ -92,6 +92,15 @@
                 correctLevel: QRCode.CorrectLevel.M
             });
         }
+
+        // Ativa o botão de impressão apenas após a renderização completa dos componentes
+        window.addEventListener("load", () => {
+            const btn = document.getElementById("btnImprimir");
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
+            btn.innerHTML = "🖨️ Imprimir Cartões Interativos";
+        });
     </script>
 </body>
 </html>
