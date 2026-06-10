@@ -103,14 +103,15 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
 
-    // Captura automática do parâmetro ?origem da URL
+    // Captura automática dos parâmetros de origem e evento da URL
     const urlParams = new URLSearchParams(window.location.search);
     const origemUrl = urlParams.get('origem') || 'acesso_direto';
+    const eventoId = urlParams.get('evento') || 'padrao';
 
-    let dadosQuiz = { nome: '', humor: '', sabor: '', origem: origemUrl, timestamp: new Date() };
+    let dadosQuiz = { nome: '', humor: '', sabor: '', origem: origemUrl, evento: eventoId, timestamp: new Date() };
 
-    // Registro do passo 1: Abriu a página
-    db.collection("metricas_evento").add({ acao: "1_acesso_pagina", origem: origemUrl, horario: new Date() });
+    // Registro do passo 1: Abriu a página com identificador do evento
+    db.collection("metricas_evento").add({ acao: "1_acesso_pagina", origem: origemUrl, evento: eventoId, horario: new Date() });
 
     const bancoDrinks = {
         'animado_doce': { nome: 'Morango Selvagem — O Drink da Pista 🍓', desc: 'Combinação explosiva, adocicada e cheia de brilho. Perfeita para ditar o ritmo da pista.', emoji: '🍓' },
