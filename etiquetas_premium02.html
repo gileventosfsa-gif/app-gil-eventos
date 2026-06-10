@@ -2,20 +2,17 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Etiquetas Luxury - Gil Eventos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <title>Novas Etiquetas Interativas - Gil Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root { 
             --gold-main: #FFAE00;
-            --gold-light: #FFF5D0;
-            --gold-dark: #B8860B;
             --dark-bg: #050505;
         }
 
         body { margin: 0; padding: 0; background: #1a1a1a; font-family: 'Poppins', sans-serif; }
 
-        /* Botão União de Impressão */
         .btn-imprimir {
             position: fixed;
             top: 20px;
@@ -33,9 +30,7 @@
             z-index: 9999;
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: 0.2s;
         }
-        .btn-imprimir:active { transform: translateX(-50%) scale(0.95); }
 
         .folha-a4 {
             width: 210mm;
@@ -46,85 +41,69 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr); 
             grid-template-rows: repeat(7, 1fr);
-            gap: 4mm;
             box-sizing: border-box;
         }
 
+        /* Etiquetas coladas com linha fina cinza para facilitar o corte perfeito */
         .etiqueta {
             background: radial-gradient(circle at center, #151515 0%, var(--dark-bg) 100%) !important;
-            border-radius: 6px; 
             display: flex;
-            flex-direction: row; 
-            justify-content: space-between;
+            flex-direction: column; 
+            justify-content: center;
             align-items: center;
-            padding: 10px;
+            padding: 8px;
             box-sizing: border-box;
             position: relative;
-            border: 1px solid rgba(184, 134, 11, 0.6); 
+            border: 0.5px solid #e0e0e0; 
             overflow: hidden;
-            /* Solução para o erro da imagem: Força o fundo escuro no PDF */
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
 
-        /* Foto sutil de fundo (Tema Drink Coquetelaria) */
-        .etiqueta::before {
-            content: "";
-            position: absolute;
-            right: -10px;
-            bottom: -10px;
-            width: 70px;
-            height: 70px;
-            /* Imagem base em vetor de um coquetel elegante */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFAE00' opacity='0.08'%3E%3Cpath d='M21 2H3v2l8 9v5H6v2h12v-2h-5v-5l8-9V2zM7.43 7L5.65 5h12.7l-1.78 2H7.43z'/%3E%3C/svg%3E");
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: 1;
-        }
-
+        /* QR Code ampliado para escaneamento instantâneo */
         .qrcode-container {
             background: #ffffff !important;
-            padding: 4px;
-            border-radius: 4px;
+            padding: 6px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--gold-main);
+            border: 2px solid var(--gold-main);
             z-index: 2;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
 
-        .conteudo-texto {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 62%;
+        .conteudo-chamada {
             text-align: center;
+            margin-top: 8px;
             z-index: 2;
+            width: 90%;
         }
 
-        .frase {
-            color: var(--gold-light) !important;
-            font-size: 7.5pt;
-            font-weight: 300;
-            line-height: 1.3;
-            margin-bottom: 5px;
-            word-wrap: break-word;
+        .cta-texto {
+            color: #fff !important;
+            font-size: 7pt;
+            font-weight: 700;
+            line-height: 1.2;
+            min-height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .brand-footer {
             color: var(--gold-main) !important;
-            font-size: 6pt;
+            font-size: 5pt;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
+            margin-top: 4px;
         }
 
         @media print {
             body { background: white; }
-            .btn-imprimir { display: none; } /* Esconde o botão no PDF */
+            .btn-imprimir { display: none; }
             .folha-a4 { margin: 0; padding: 12mm 10mm; page-break-after: always; box-shadow: none; }
             @page { size: A4 portrait; margin: 0; }
         }
@@ -132,56 +111,41 @@
 </head>
 <body>
 
-    <button class="btn-imprimir" onclick="window.print()">🖨️ Gerar PDF / Imprimir</button>
+    <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir Cartões Interativos</button>
 
     <div class="folha-a4" id="container"></div>
 
     <script>
-        const frasesBase = [
-            "Quem tem limite é cartão de crédito.",
-            "Tomei juízo, mas não bateu.",
-            "Relaxa, o mundo dá vodkas!",
-            "Na falta de amor, +1 drink!",
-            "Não tenho problema com bebida!",
-            "Hoje só termina amanhã!",
-            "Não faça drama, me faça um drink!",
-            "Remédio: Paracetaloka!",
-            "Nunca fiz amigos bebendo leite.",
-            "Alguém viu o balde que eu chutei?",
-            "Nada como um drink após o outro.",
-            "Se não me lembro, não fiz!",
-            "Hoje é o dia da maldade!",
-            "Melhor que 1 drink, só 2!",
-            "Só vim pela bebida!"
+        // Os 3 gatilhos estratégicos para o Teste AB em campo
+        const ctasValidas = [
+            "🚨 NÃO ESCANEIE!<br><span style='color: #FF9500;'>A não ser que queira um spoiler do bar...</span>",
+            "Descubra o seu Drink Ideal<br><span style='color: #FF9500;'>em 3 segundos 🔮</span>",
+            "Sua próxima rodada depende deste código.<br><span style='color: #FF9500;'>Toque para jogar 🎲</span>"
         ];
 
         const container = document.getElementById('container');
-        const urlAlvo = "https://nucleoinsight.github.io/eterno-amor-prod/h.html?id=gabriel-beatriz";
+        const urlAlvo = "https://gileventosfsa-gif.github.io/app-gil-eventos/descubra.html";
 
         for (let i = 0; i < 21; i++) {
-            const fraseSorteada = frasesBase[i % frasesBase.length];
+            const ctaSelecionada = ctasValidas[i % ctasValidas.length];
             const div = document.createElement('div');
             div.className = 'etiqueta';
             
             div.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; width: 33%;">
-                    <div class="qrcode-container" id="qr-${i}"></div>
-                    <div style="color: var(--gold-main); font-size: 3.8pt; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px; text-align: center; line-height: 1.1;">
-                        Escaneie-me<br><span style="color: #fff; font-size: 3.2pt;">❤️ Histórias</span>
-                    </div>
-                </div>
-                <div class="conteudo-texto">
-                    <div class="frase">${fraseSorteada}</div>
-                    <div class="brand-footer">Gil Eventos</div>
+                <div class="qrcode-container" id="qr-${i}"></div>
+                <div class="conteudo-chamada">
+                    <div class="cta-texto">${ctaSelecionada}</div>
+                    <div class="brand-footer">Gil Eventos Luxury</div>
                 </div>
             `;
             
             container.appendChild(div);
 
+            // QR Code redimensionado para 80px (foco físico muito mais rápido)
             new QRCode(document.getElementById(`qr-${i}`), {
                 text: urlAlvo,
-                width: 55,
-                height: 55,
+                width: 80,
+                height: 80,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.M
