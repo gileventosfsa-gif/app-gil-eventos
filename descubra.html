@@ -159,17 +159,16 @@
             document.getElementById('step-loading').classList.remove('active');
             document.getElementById('step-resultado').classList.add('active');
             
-            // Grava os resultados completos e o progresso no Firebase
-            db.collection("metricas_evento").add({ acao: "3_viu_resultado", nome: dadosQuiz.nome, humor: dadosQuiz.humor, sabor: dadosQuiz.sabor, drink: drinkRecomendado.nome, origem: origemUrl, horario: new Date() });
+            // Grava os resultados completos e o progresso no Firebase com identificador do evento
+            db.collection("metricas_evento").add({ acao: "3_viu_resultado", nome: dadosQuiz.nome, humor: dadosQuiz.humor, sabor: dadosQuiz.sabor, drink: drinkRecomendado.nome, origem: origemUrl, evento: eventoId, horario: new Date() });
             
             dispararExplosao();
         }, 1800);
     }
 
     function registrarCliqueFinal() {
-        db.collection("metricas_evento").add({ acao: "4_clique_eterno_amor", nome: dadosQuiz.nome, origem: origemUrl, horario: new Date() });
+        db.collection("metricas_evento").add({ acao: "4_clique_eterno_amor", nome: dadosQuiz.nome, origem: origemUrl, evento: eventoId, horario: new Date() });
     }
-
     function dispararExplosao() {
         const escopoConfetti = confetti.create(null, { resize: true, useWorker: true });
         escopoConfetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#FFD580', '#FFAE00', '#FFFFFF'] });
