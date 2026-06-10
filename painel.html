@@ -77,8 +77,16 @@
 </div>
 
 <script>
-    // Configuração do seu Firebase (Insira os mesmos dados do descubra.html)
-    const firebaseConfig = { apiKey: "SUA_API_KEY", authDomain: "SEU_DOMAIN", projectId: "SEU_PROJECT_ID", storageBucket: "SEU_BUCKET", messagingSenderId: "SEU_SENDER", appId: "SEU_APP_ID" };
+    // Configuração oficial do Firebase integrada do projeto Gil Eventos
+    const firebaseConfig = { 
+        apiKey: "AIzaSyDLPi5Mf6_9ypigmf3v9Qe9YYPUr1mfaHk", 
+        authDomain: "gil-eventos-app-911fe.firebaseapp.com", 
+        projectId: "gil-eventos-app-911fe", 
+        storageBucket: "gil-eventos-app-911fe.firebasestorage.app", 
+        messagingSenderId: "503025880352", 
+        appId: "1:503025880352:web:694b7f2889cff501c7db45", 
+        measurementId: "G-3DZ1P5C0M3" 
+    };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
 
