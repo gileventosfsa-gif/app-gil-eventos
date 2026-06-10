@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Métricas - Gil Eventos</title>
+    <title>Dashboard Interativo - Gil Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -13,7 +13,16 @@
         :root { --gold: #FFD580; --bg: #0F0F0F; --card: #1E1E1E; --red: #FF3B30; --green: #34C759; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); color: #EAEAEA; margin: 0; padding: 20px; display: none; }
         .dashboard { max-width: 1000px; margin: 0 auto; }
-        h1 { color: #fff; font-size: 2em; margin-bottom: 5px; }
+        
+        .header-painel { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+        h1 { color: #fff; font-size: 2em; margin: 0; }
+        
+        .acoes-banco { display: flex; gap: 10px; }
+        .btn-painel { font-family: 'Poppins', sans-serif; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.85em; }
+        .btn-salvar { background: var(--green); color: #fff; }
+        .btn-zerar { background: var(--red); color: #fff; }
+        .btn-painel:active { transform: scale(0.95); }
+
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin: 20px 0; }
         .card-stat { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #333; text-align: center; }
         .card-stat h3 { margin: 0; font-size: 0.9em; color: #aaa; text-transform: uppercase; }
@@ -28,8 +37,16 @@
 <body>
 
 <div class="dashboard">
-    <h1>Métricas do Evento 📊</h1>
-    <p style="color: #aaa; margin: 0;">Acompanhamento em tempo real do funil de conversão das etiquetas.</p>
+    <div class="header-painel">
+        <div>
+            <h1>Métricas do Evento 📊</h1>
+            <p style="color: #aaa; margin: 0;">Acompanhamento em tempo real do funil de conversão.</p>
+        </div>
+        <div class="acoes-banco">
+            <button class="btn-painel btn-salvar" onclick="salvarEventoAtual()">💾 Salvar Evento</button>
+            <button class="btn-painel btn-zerar" onclick="zerarDadosAtuais()">🗑️ Zerar Painel</button>
+        </div>
+    </div>
 
     <div class="section-title">Funil de Engajamento</div>
     <div class="grid-stats">
@@ -90,9 +107,13 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
 
+    // Memória local para guardar os valores que estão na tela
+    let dadosGlobaisAtuais = { f1: 0, f2: 0, f3: 0, f4: 0, nao_escaneie: 0, drink_ideal: 0, proxima_rodada: 0, outros: 0 };
+    let referenciasDocumentos = [];
+
     // Segurança Simples de Acesso
     const senha = prompt("Digite a senha master do painel:");
-    if (senha === "9859") { // Altere a senha se necessário
+    if (senha === "9859") {
         document.body.style.display = "block";
         inicializarPainel();
     } else {
@@ -101,28 +122,17 @@
     }
 
     function inicializarPainel() {
-        // Captura o evento da URL do painel (?evento=nome_do_evento). Se não houver, usa 'padrao'
-        const urlParams = new URLSearchParams(window.location.search);
-        const eventoId = urlParams.get('evento') || 'padrao';
-
-        // Exibe o nome do evento filtrado no título do painel para controle técnico
-        const tituloPainel = document.querySelector('h1');
-        if (tituloPainel) { tituloPainel.innerText += ` - ${eventoId.toUpperCase()}`; }
-
-        // Escuta o banco filtrando apenas os dados do evento ativo na URL
-        db.collection("metricas_evento")
-          .where("evento", "==", eventoId)
-          .onSnapshot((snapshot) => {
+        db.collection("metricas_evento").onSnapshot((snapshot) => {
             let f1 = 0, f2 = 0, f3 = 0, f4 = 0;
             let origens = { nao_escaneie: 0, drink_ideal: 0, proxima_rodada: 0, outros: 0 };
+            referenciasDocumentos = [];
 
             snapshot.forEach((doc) => {
+                referenciasDocumentos.push(doc.id);
                 const data = doc.data();
                 
-                // Contagem do Funil
                 if (data.acao === "1_acesso_pagina") {
                     f1++;
-                    // Contagem do Teste AB (Apenas no primeiro acesso)
                     if (origens[data.origem] !== undefined) {
                         origens[data.origem]++;
                     } else {
@@ -134,22 +144,76 @@
                 if (data.acao === "4_clique_eterno_amor") f4++;
             });
 
-            // Atualiza os números no painel
+            // Atualiza os dados na memória global para salvamento posterior
+            dadosGlobaisAtuais = { f1, f2, f3, f4, ...origens };
+
+            // Atualiza o HTML
             document.getElementById('f1').innerText = f1;
             document.getElementById('f2').innerText = f2;
             document.getElementById('f3').innerText = f3;
             document.getElementById('f4').innerText = f4;
 
-            // Calcula porcentagens de conversão em relação ao total de acessos
             document.getElementById('p2').innerText = f1 > 0 ? `${Math.round((f2 / f1) * 100)}% de conversão` : '0% de conversão';
             document.getElementById('p3').innerText = f1 > 0 ? `${Math.round((f3 / f1) * 100)}% de conversão` : '0% de conversão';
             document.getElementById('p4').innerText = f1 > 0 ? `${Math.round((f4 / f1) * 100)}% de sucesso` : '0% de sucesso';
 
-            // Atualiza o placar do Teste AB
             document.getElementById('origem-nao_escaneie').innerText = `${origens.nao_escaneie} acessos`;
             document.getElementById('origem-drink_ideal').innerText = `${origens.drink_ideal} acessos`;
             document.getElementById('origem-proxima_rodada').innerText = `${origens.proxima_rodada} acessos`;
             document.getElementById('origem-outros').innerText = `${origens.outros} acessos`;
+        });
+    }
+
+    // Função para arquivar o relatório consolidado do evento
+    function salvarEventoAtual() {
+        if (dadosGlobaisAtuais.f1 === 0) {
+            alert("Não há dados na tela para salvar!");
+            return;
+        }
+
+        const nomeEvento = prompt("Digite o nome identificador do evento para salvar (Ex: Aniversario_Prissilia):");
+        if (!nomeEvento || nomeEvento.trim() === "") {
+            alert("Salvamento cancelado. É obrigatório dar um nome ao evento.");
+            return;
+        }
+
+        db.collection("historico_eventos").add({
+            nome_evento: nomeEvento.trim(),
+            data_salvamento: new Date(),
+            metricas: dadosGlobaisAtuais
+        })
+        .then(() => {
+            alert(`Sucesso! Os dados de "${nomeEvento}" foram arquivados com segurança.`);
+        })
+        .catch((error) => {
+            console.error("Erro ao salvar evento: ", error);
+            alert("Erro ao salvar no banco de dados.");
+        });
+    }
+
+    // Função para limpar os registros atuais do banco de dados brutos
+    function zerarDadosAtuais() {
+        if (referenciasDocumentos.length === 0) {
+            alert("O painel já está zerado!");
+            return;
+        }
+
+        const confirmar = confirm("🚨 ATENÇÃO: Isso vai APAGAR em definitivo todos os acessos atuais do banco brutos. Certifique-se de ter clicado em SALVAR antes. Deseja continuar?");
+        if (!confirmar) return;
+
+        let batch = db.batch();
+        referenciasDocumentos.forEach((id) => {
+            let ref = db.collection("metricas_evento").doc(id);
+            batch.delete(ref);
+        });
+
+        batch.commit()
+        .then(() => {
+            alert("Painel limpo com sucesso! Pronto para a próxima festa.");
+        })
+        .catch((error) => {
+            console.error("Erro ao limpar dados: ", error);
+            alert("Ocorreu um erro ao tentar limpar o banco.");
         });
     }
 </script>
