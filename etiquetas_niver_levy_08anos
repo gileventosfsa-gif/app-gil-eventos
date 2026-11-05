@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Etiquetas Retangulares - Niver Leví 8 Anos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --gold-main: #FFAE00;
+            --dark-bg: #050505;
+            --border-color: #333;
+        }
+
+        body { margin: 0; padding: 0; background: #222; font-family: 'Poppins', sans-serif; }
+
+        /* Configuração da Folha A4 */
+        .folha-a4 {
+            width: 210mm;
+            height: 297mm;
+            padding: 10mm;
+            margin: 20px auto;
+            background: white;
+            display: grid;
+            /* 4 colunas iguais */
+            grid-template-columns: repeat(4, 1fr); 
+            /* 10 linhas */
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2mm; 
+            box-sizing: border-box;
+        }
+
+        /* Design da Etiqueta Retangular */
+        .etiqueta {
+            border: 1px solid var(--border-color);
+            background: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 5px;
+            box-sizing: border-box;
+            position: relative;
+            border-left: 4px solid var(--gold-main);
+        }
+
+        .frase {
+            color: white;
+            font-weight: 600;
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 3px;
+        }
+
+        .brand-footer {
+            color: var(--gold-main);
+            font-size: 5pt;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: var(--gold-main);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        @media print {
+            body { background: none; }
+            .folha-a4 { margin: 0; border: none; }
+            .btn-print { display: none; }
+            .etiqueta { border: 0.1pt solid #eee; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print" onclick="window.print()">IMPRIMIR 40 ETIQUETAS (A4)</button>
+
+    <div class="folha-a4" id="container"></div>
+
+    <script>
+        const frasesBase = [
+            "Combustível de Super-Herói!",
+            "Velocidade Máxima do Sonic!",
+            "Capitu-Drink: Edição Capivara!",
+            "Leví 8 Anos: Modo Turbo!",
+            "Recarregando os Anéis Dourados!",
+            "Golpe de Energia da Capoeira!",
+            "Faixa Preta em Drinks Especiais!",
+            "Drink do Capitão Leví!",
+            "Proibido para Vilões!",
+            "Vitamina de Superpoderes!",
+            "Giro Sônico em Cada Gole!",
+            "100% Energia, 0% Açúcar Falso!",
+            "Poder da Capivara Ativado!",
+            "Aprovado pelo Professor Juninho!",
+            "Poção Secreta do Papai Gil!",
+            "Acelera que é Niver do Leví!"
+        ];
+
+        const container = document.getElementById('container');
+
+        // Gerar 40 etiquetas repetindo as frases personalizadas
+        for (let i = 0; i < 40; i++) {
+            const fraseSorteada = frasesBase[i % frasesBase.length];
+            const div = document.createElement('div');
+            div.className = 'etiqueta';
+            div.innerHTML = `
+                <div class="frase">${fraseSorteada}</div>
+                <div class="brand-footer">GIL EVENTOS • LEVÍ 8 ANOS</div>
+            `;
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>
