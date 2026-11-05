@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Etiquetas Retangulares 3D - Niver Levy 8 Anos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --sonic-blue: #0044CC;
+            --sonic-gold: #FFC107;
+            --capivara-brown: #6D4C41;
+            --capivara-green: #2E7D32;
+        }
+
+        body { margin: 0; padding: 0; background: #e0e0e0; font-family: 'Poppins', sans-serif; }
+
+        /* Configuração da Folha A4 */
+        .folha-a4 {
+            width: 210mm;
+            height: 297mm;
+            padding: 10mm;
+            margin: 20px auto;
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2mm; 
+            box-sizing: border-box;
+        }
+
+        /* Base da Etiqueta com Imagem de Fundo */
+        .etiqueta {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            padding: 5px;
+            box-sizing: border-box;
+            position: relative;
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        /* Máscara clara para dar leitura ao texto */
+        .etiqueta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.65);
+            z-index: 1;
+        }
+
+        /* Estilo Tema Sonic */
+        .etiqueta.sonic {
+            border: 2px solid var(--sonic-blue);
+            /* Substitua pelo nome/URL da imagem do Sonic */
+            background-image: url('sonic.jpg');
+        }
+
+        /* Estilo Tema Capivara */
+        .etiqueta.capivara {
+            border: 2px solid var(--capivara-brown);
+            /* Substitua pelo nome/URL da imagem da Capivara */
+            background-image: url('capivara.jpg');
+        }
+
+        .frase {
+            position: relative;
+            z-index: 2;
+            font-weight: 900;
+            font-size: 6.5pt;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-top: 4px;
+            color: #000;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+        }
+
+        .brand-footer {
+            position: relative;
+            z-index: 2;
+            font-size: 4.5pt;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            width: 90%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .etiqueta.sonic .brand-footer { background: var(--sonic-gold); color: #000; }
+        .etiqueta.capivara .brand-footer { background: var(--capivara-green); color: #fff; }
+
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: var(--sonic-blue);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        @media print {
+            body { background: none; }
+            .folha-a4 { margin: 0; border: none; }
+            .btn-print { display: none; }
+            .etiqueta { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print" onclick="window.print()">IMPRIMIR 40 ETIQUETAS (A4)</button>
+
+    <div class="folha-a4" id="container"></div>
+
+    <script>
+        const listaSonic = [
+            "Velocidade Máxima do Sonic!",
+            "Recarregando os Anéis Dourados!",
+            "Proibido para Vilões!",
+            "Giro Sônico em Cada Gole!",
+            "100% Energia, 0% Açúcar Falso!",
+            "Foco, Força e Super Sonic!",
+            "O Drink Mais Rápido do Mundo!",
+            "Combustível de Super-Herói!"
+        ];
+
+        const listaCapivara = [
+            "Capitu-Drink: Edição Capivara!",
+            "Capivara Gamer & Estilo!",
+            "Capivara de Boa na Lagoa!",
+            "Poder da Capivara Ativado!",
+            "Aprovado pelo Professor Juninho!",
+            "Golpe de Energia da Capoeira!",
+            "Poção Secreta do Papai Gil!",
+            "Acelera que é Niver do Levy!"
+        ];
+
+        const container = document.getElementById('container');
+
+        for (let i = 0; i < 40; i++) {
+            const div = document.createElement('div');
+            
+            if (i % 2 === 0) {
+                const texto = listaSonic[(i / 2) % listaSonic.length];
+                div.className = 'etiqueta sonic';
+                div.innerHTML = `
+                    <div class="frase">${texto}</div>
+                    <div class="brand-footer">LEVY • 8 ANOS • SONIC</div>
+                `;
+            } else {
+                const texto = listaCapivara[Math.floor(i / 2) % listaCapivara.length];
+                div.className = 'etiqueta capivara';
+                div.innerHTML = `
+                    <div class="frase">${texto}</div>
+                    <div class="brand-footer">LEVY • 8 ANOS • CAPIVARA</div>
+                `;
+            }
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>
