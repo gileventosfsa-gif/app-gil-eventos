@@ -8,9 +8,8 @@
         :root { 
             --sonic-blue: #0055BF;
             --sonic-gold: #FFD700;
-            --sonic-red: #FF2A2A;
-            --bg-card: #F0F8FF;
-            --border-color: #0055BF;
+            --capivara-brown: #8D5524;
+            --capivara-green: #2E7D32;
         }
 
         body { margin: 0; padding: 0; background: #e0e0e0; font-family: 'Poppins', sans-serif; }
@@ -23,18 +22,14 @@
             margin: 20px auto;
             background: white;
             display: grid;
-            /* 4 colunas iguais */
             grid-template-columns: repeat(4, 1fr); 
-            /* 10 linhas */
             grid-template-rows: repeat(10, 1fr);
             gap: 2mm; 
             box-sizing: border-box;
         }
 
-        /* Design da Etiqueta 3D Festiva */
+        /* Base da Etiqueta */
         .etiqueta {
-            border: 2px solid var(--border-color);
-            background: linear-gradient(135deg, #ffffff 0%, var(--bg-card) 100%);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -43,34 +38,50 @@
             padding: 4px;
             box-sizing: border-box;
             position: relative;
-            border-radius: 8px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 6px;
+        }
+
+        /* Estilo 1: Tema Sonic */
+        .etiqueta.sonic {
+            border: 2px solid var(--sonic-blue);
+            background: linear-gradient(135deg, #ffffff 0%, #E0F7FA 100%);
+        }
+        .etiqueta.sonic .brand-footer {
+            background: var(--sonic-gold);
+            color: #000;
+        }
+
+        /* Estilo 2: Tema Capivara */
+        .etiqueta.capivara {
+            border: 2px solid var(--capivara-brown);
+            background: linear-gradient(135deg, #ffffff 0%, #F1F8E9 100%);
+        }
+        .etiqueta.capivara .brand-footer {
+            background: var(--capivara-green);
+            color: #fff;
         }
 
         .icone-topo {
-            font-size: 11pt;
-            margin-bottom: 1px;
-            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+            font-size: 10pt;
+            margin-top: 1px;
         }
 
         .frase {
-            color: #111;
             font-weight: 700;
-            font-size: 6.5pt;
+            font-size: 6pt;
             text-transform: uppercase;
             line-height: 1.1;
             margin: 1px 0;
-            text-shadow: 0 0 1px rgba(0,0,0,0.1);
         }
+        .etiqueta.sonic .frase { color: #0D47A1; }
+        .etiqueta.capivara .frase { color: #332211; }
 
         .brand-footer {
-            color: var(--sonic-blue);
-            font-size: 5pt;
+            font-size: 4.5pt;
             font-weight: 900;
             letter-spacing: 0.5px;
-            background: var(--sonic-gold);
-            padding: 1px 6px;
-            border-radius: 4px;
+            padding: 1px 4px;
+            border-radius: 3px;
             width: 90%;
         }
 
@@ -93,7 +104,8 @@
             body { background: none; }
             .folha-a4 { margin: 0; border: none; }
             .btn-print { display: none; }
-            .etiqueta { border: 1px solid #999; box-shadow: none; }
+            .etiqueta.sonic { border: 1.5px solid var(--sonic-blue); }
+            .etiqueta.capivara { border: 1.5px solid var(--capivara-brown); }
             @page { size: A4; margin: 0; }
         }
     </style>
@@ -105,37 +117,54 @@
     <div class="folha-a4" id="container"></div>
 
     <script>
-        const dadosEtiquetas = [
-            { texto: "Combustível de Super-Herói!", icone: "⚡🦔" },
-            { texto: "Velocidade Máxima do Sonic!", icone: "🌀👟" },
-            { texto: "Capitu-Drink: Edição Capivara!", icon: "🦫🍹" },
-            { texto: "Levy 8 Anos: Modo Turbo!", icone: "🎮🎂" },
-            { texto: "Recarregando os Anéis Dourados!", icone: "🟡✨" },
-            { texto: "Golpe de Energia da Capoeira!", icone: "🥋🔥" },
-            { texto: "Faixa Preta em Drinks Especiais!", icone: "🥋🥤" },
-            { texto: "Drink do Capitão Levy!", icone: "⭐👑" },
-            { texto: "Proibido para Vilões!", icone: "🚫🤖" },
-            { texto: "Vitamina de Superpoderes!", icone: "🍏💪" },
-            { texto: "Giro Sônico em Cada Gole!", icone: "🌀🥤" },
-            { texto: "100% Energia, 0% Açúcar Falso!", icone: "⚡🍃" },
-            { texto: "Poder da Capivara Ativado!", icone: "🦫🌿" },
-            { texto: "Aprovado pelo Professor Juninho!", icone: "🥋🏆" },
-            { texto: "Poção Secreta do Papai Gil!", icone: "🧪👨‍👦" },
-            { texto: "Acelera que é Niver do Levy!", icone: "🚀🎉" }
+        // Bloco 1: Etiquetas 100% Sonic
+        const listaSonic = [
+            { texto: "Velocidade Máxima do Sonic!", icone: "⚡🦔👟" },
+            { texto: "Recarregando os Anéis Dourados!", icone: "🟡✨🏆" },
+            { texto: "Proibido para Vilões!", icone: "🚫🤖💥" },
+            { texto: "Giro Sônico em Cada Gole!", icone: "🌀🥤🚀" },
+            { texto: "100% Energia, 0% Açúcar Falso!", icone: "⚡🍃💪" },
+            { texto: "Foco, Força e Super Sonic!", icone: "⭐🎮🔥" },
+            { texto: "O Drink Mais Rápido do Mundo!", icone: "🏃‍♂️💨🍹" },
+            { texto: "Combustível de Super-Herói!", icone: "⚡🌟🦸‍♂️" }
+        ];
+
+        // Bloco 2: Etiquetas 100% Capivara
+        const listaCapivara = [
+            { texto: "Capitu-Drink: Edição Capivara!", icone: "🦫🌿🍹" },
+            { texto: "Capivara Gamer & Estilo!", icone: "🦫🎮😎" },
+            { texto: "Capivara de Boa na Lagoa!", icone: "🦫🌊🌴" },
+            { texto: "Poder da Capivara Ativado!", icone: "🦫✨💚" },
+            { texto: "Aprovado pelo Professor Juninho!", icone: "🥋🏆🌿" },
+            { texto: "Golpe de Energia da Capoeira!", icone: "🥋🔥🦫" },
+            { texto: "Poção Secreta do Papai Gil!", icone: "🧪👨‍👦🦫" },
+            { texto: "Acelera que é Niver do Levy!", icone: "🎉🦫🎂" }
         ];
 
         const container = document.getElementById('container');
 
-        // Gerar 40 etiquetas preenchendo a folha A4 com os elementos visuais
+        // Gerar 40 etiquetas alternando entre Sonic e Capivara (com Y corrigido)
         for (let i = 0; i < 40; i++) {
-            const item = dadosEtiquetas[i % dadosEtiquetas.length];
             const div = document.createElement('div');
-            div.className = 'etiqueta';
-            div.innerHTML = `
-                <div class="icone-topo">${item.icone || '⭐'}</div>
-                <div class="frase">${item.texto}</div>
-                <div class="brand-footer">LEVY • 8 ANOS</div>
-            `;
+            
+            // Alterna entre o bloco do Sonic (pares) e Capivara (ímpares)
+            if (i % 2 === 0) {
+                const item = listaSonic[(i / 2) % listaSonic.length];
+                div.className = 'etiqueta sonic';
+                div.innerHTML = `
+                    <div class="icone-topo">${item.icone}</div>
+                    <div class="frase">${item.texto}</div>
+                    <div class="brand-footer">LEVY • 8 ANOS • SONIC</div>
+                `;
+            } else {
+                const item = listaCapivara[Math.floor(i / 2) % listaCapivara.length];
+                div.className = 'etiqueta capivara';
+                div.innerHTML = `
+                    <div class="icone-topo">${item.icone}</div>
+                    <div class="frase">${item.texto}</div>
+                    <div class="brand-footer">LEVY • 8 ANOS • CAPIVARA</div>
+                `;
+            }
             container.appendChild(div);
         }
     </script>
