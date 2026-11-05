@@ -2,18 +2,18 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Etiquetas Retangulares - Niver Leví 8 Anos</title>
+    <title>Etiquetas Retangulares - Niver Levy 8 Anos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
             --sonic-blue: #0055BF;
-            --sonic-yellow: #FFD700;
-            --capivara-brown: #8D5524;
-            --bg-card: #E0F7FA;
+            --sonic-gold: #FFD700;
+            --sonic-red: #FF2A2A;
+            --bg-card: #F0F8FF;
             --border-color: #0055BF;
         }
 
-        body { margin: 0; padding: 0; background: #f0f0f0; font-family: 'Poppins', sans-serif; }
+        body { margin: 0; padding: 0; background: #e0e0e0; font-family: 'Poppins', sans-serif; }
 
         /* Configuração da Folha A4 */
         .folha-a4 {
@@ -31,28 +31,36 @@
             box-sizing: border-box;
         }
 
-        /* Design da Etiqueta Festiva */
+        /* Design da Etiqueta 3D Festiva */
         .etiqueta {
-            border: 2px dashed var(--border-color);
-            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            background: linear-gradient(135deg, #ffffff 0%, var(--bg-card) 100%);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             text-align: center;
             padding: 4px;
             box-sizing: border-box;
             position: relative;
-            border-radius: 6px;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .icone-topo {
+            font-size: 11pt;
+            margin-bottom: 1px;
+            filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
         }
 
         .frase {
             color: #111;
             font-weight: 700;
-            font-size: 7pt;
+            font-size: 6.5pt;
             text-transform: uppercase;
             line-height: 1.1;
-            margin-bottom: 2px;
+            margin: 1px 0;
+            text-shadow: 0 0 1px rgba(0,0,0,0.1);
         }
 
         .brand-footer {
@@ -60,6 +68,10 @@
             font-size: 5pt;
             font-weight: 900;
             letter-spacing: 0.5px;
+            background: var(--sonic-gold);
+            padding: 1px 6px;
+            border-radius: 4px;
+            width: 90%;
         }
 
         .btn-print {
@@ -81,7 +93,7 @@
             body { background: none; }
             .folha-a4 { margin: 0; border: none; }
             .btn-print { display: none; }
-            .etiqueta { border: 1px dotted #888; }
+            .etiqueta { border: 1px solid #999; box-shadow: none; }
             @page { size: A4; margin: 0; }
         }
     </style>
@@ -93,35 +105,36 @@
     <div class="folha-a4" id="container"></div>
 
     <script>
-        const frasesBase = [
-            "Sonic & Capivara: Modo Turbo!",
-            "Leví 8 Anos: Veloz e Feroz!",
-            "Coquetel Oficial do Capitão Leví!",
-            "Capivara Gamer & Super Sonic!",
-            "Combustível de Campeão!",
-            "Velocidade Máxima nos 8 Anos!",
-            "Suco Secreto da Ilha Verde!",
-            "Treino de Capoeira & Sabor!",
-            "Energia Pura com o Sonic!",
-            "Festa do Leví: Liberado Brincar!",
-            "Capivara de Boa na Lagoa!",
-            "Anéis Dourados e Muita Diversão!",
-            "Faixa Preta em Alegria!",
-            "Foco, Força e Super Sonic!",
-            "Parabéns Leví! 8 Anos de Sucesso!",
-            "O Drink Mais Rápido do Mundo!"
+        const dadosEtiquetas = [
+            { texto: "Combustível de Super-Herói!", icone: "⚡🦔" },
+            { texto: "Velocidade Máxima do Sonic!", icone: "🌀👟" },
+            { texto: "Capitu-Drink: Edição Capivara!", icon: "🦫🍹" },
+            { texto: "Levy 8 Anos: Modo Turbo!", icone: "🎮🎂" },
+            { texto: "Recarregando os Anéis Dourados!", icone: "🟡✨" },
+            { texto: "Golpe de Energia da Capoeira!", icone: "🥋🔥" },
+            { texto: "Faixa Preta em Drinks Especiais!", icone: "🥋🥤" },
+            { texto: "Drink do Capitão Levy!", icone: "⭐👑" },
+            { texto: "Proibido para Vilões!", icone: "🚫🤖" },
+            { texto: "Vitamina de Superpoderes!", icone: "🍏💪" },
+            { texto: "Giro Sônico em Cada Gole!", icone: "🌀🥤" },
+            { texto: "100% Energia, 0% Açúcar Falso!", icone: "⚡🍃" },
+            { texto: "Poder da Capivara Ativado!", icone: "🦫🌿" },
+            { texto: "Aprovado pelo Professor Juninho!", icone: "🥋🏆" },
+            { texto: "Poção Secreta do Papai Gil!", icone: "🧪👨‍👦" },
+            { texto: "Acelera que é Niver do Levy!", icone: "🚀🎉" }
         ];
 
         const container = document.getElementById('container');
 
-        // Gerar 40 etiquetas com a nova temática infantil/festiva
+        // Gerar 40 etiquetas preenchendo a folha A4 com os elementos visuais
         for (let i = 0; i < 40; i++) {
-            const fraseSorteada = frasesBase[i % frasesBase.length];
+            const item = dadosEtiquetas[i % dadosEtiquetas.length];
             const div = document.createElement('div');
             div.className = 'etiqueta';
             div.innerHTML = `
-                <div class="frase">${fraseSorteada}</div>
-                <div class="brand-footer">LEVÍ • 8 ANOS 🦔 capivara</div>
+                <div class="icone-topo">${item.icone || '⭐'}</div>
+                <div class="frase">${item.texto}</div>
+                <div class="brand-footer">LEVY • 8 ANOS</div>
             `;
             container.appendChild(div);
         }
