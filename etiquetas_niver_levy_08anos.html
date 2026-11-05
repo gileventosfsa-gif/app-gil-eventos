@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Etiquetas Retangulares - Niver Leví 8 Anos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --gold-main: #FFAE00;
-            --dark-bg: #050505;
-            --border-color: #333;
+            --sonic-blue: #0055BF;
+            --sonic-yellow: #FFD700;
+            --capivara-brown: #8D5524;
+            --bg-card: #E0F7FA;
+            --border-color: #0055BF;
         }
 
-        body { margin: 0; padding: 0; background: #222; font-family: 'Poppins', sans-serif; }
+        body { margin: 0; padding: 0; background: #f0f0f0; font-family: 'Poppins', sans-serif; }
 
         /* Configuração da Folha A4 */
         .folha-a4 {
@@ -29,35 +31,35 @@
             box-sizing: border-box;
         }
 
-        /* Design da Etiqueta Retangular */
+        /* Design da Etiqueta Festiva */
         .etiqueta {
-            border: 1px solid var(--border-color);
-            background: var(--dark-bg);
+            border: 2px dashed var(--border-color);
+            background: var(--bg-card);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 5px;
+            padding: 4px;
             box-sizing: border-box;
             position: relative;
-            border-left: 4px solid var(--gold-main);
+            border-radius: 6px;
         }
 
         .frase {
-            color: white;
-            font-weight: 600;
-            font-size: 7.5pt;
+            color: #111;
+            font-weight: 700;
+            font-size: 7pt;
             text-transform: uppercase;
             line-height: 1.1;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .brand-footer {
-            color: var(--gold-main);
+            color: var(--sonic-blue);
             font-size: 5pt;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .btn-print {
@@ -65,20 +67,21 @@
             top: 20px;
             right: 20px;
             padding: 15px 30px;
-            background: var(--gold-main);
-            color: black;
+            background: var(--sonic-blue);
+            color: white;
             border: none;
             border-radius: 50px;
             font-weight: bold;
             cursor: pointer;
             z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         @media print {
             body { background: none; }
             .folha-a4 { margin: 0; border: none; }
             .btn-print { display: none; }
-            .etiqueta { border: 0.1pt solid #eee; }
+            .etiqueta { border: 1px dotted #888; }
             @page { size: A4; margin: 0; }
         }
     </style>
@@ -91,34 +94,34 @@
 
     <script>
         const frasesBase = [
-            "Combustível de Super-Herói!",
-            "Velocidade Máxima do Sonic!",
-            "Capitu-Drink: Edição Capivara!",
-            "Leví 8 Anos: Modo Turbo!",
-            "Recarregando os Anéis Dourados!",
-            "Golpe de Energia da Capoeira!",
-            "Faixa Preta em Drinks Especiais!",
-            "Drink do Capitão Leví!",
-            "Proibido para Vilões!",
-            "Vitamina de Superpoderes!",
-            "Giro Sônico em Cada Gole!",
-            "100% Energia, 0% Açúcar Falso!",
-            "Poder da Capivara Ativado!",
-            "Aprovado pelo Professor Juninho!",
-            "Poção Secreta do Papai Gil!",
-            "Acelera que é Niver do Leví!"
+            "Sonic & Capivara: Modo Turbo!",
+            "Leví 8 Anos: Veloz e Feroz!",
+            "Coquetel Oficial do Capitão Leví!",
+            "Capivara Gamer & Super Sonic!",
+            "Combustível de Campeão!",
+            "Velocidade Máxima nos 8 Anos!",
+            "Suco Secreto da Ilha Verde!",
+            "Treino de Capoeira & Sabor!",
+            "Energia Pura com o Sonic!",
+            "Festa do Leví: Liberado Brincar!",
+            "Capivara de Boa na Lagoa!",
+            "Anéis Dourados e Muita Diversão!",
+            "Faixa Preta em Alegria!",
+            "Foco, Força e Super Sonic!",
+            "Parabéns Leví! 8 Anos de Sucesso!",
+            "O Drink Mais Rápido do Mundo!"
         ];
 
         const container = document.getElementById('container');
 
-        // Gerar 40 etiquetas repetindo as frases personalizadas
+        // Gerar 40 etiquetas com a nova temática infantil/festiva
         for (let i = 0; i < 40; i++) {
             const fraseSorteada = frasesBase[i % frasesBase.length];
             const div = document.createElement('div');
             div.className = 'etiqueta';
             div.innerHTML = `
                 <div class="frase">${fraseSorteada}</div>
-                <div class="brand-footer">GIL EVENTOS • LEVÍ 8 ANOS</div>
+                <div class="brand-footer">LEVÍ • 8 ANOS 🦔 capivara</div>
             `;
             container.appendChild(div);
         }
