@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Etiquetas Especiais - Levy 8 Anos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --capoeira-gold: #D4AF37;
+            --mae-pink: #E91E63;
+            --vo-purple: #7B1FA2;
+        }
+
+        body { margin: 0; padding: 0; background: #e0e0e0; font-family: 'Poppins', sans-serif; }
+
+        .folha-a4 {
+            width: 210mm;
+            height: 297mm;
+            padding: 10mm;
+            margin: 20px auto;
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); 
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2mm; 
+            box-sizing: border-box;
+        }
+
+        .etiqueta {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            padding: 4px;
+            box-sizing: border-box;
+            position: relative;
+            border-radius: 6px;
+        }
+
+        /* Tema Capoeira */
+        .etiqueta.capoeira {
+            border: 2px solid var(--capoeira-gold);
+            background: linear-gradient(135deg, #FFFDE7 0%, #FFF9C4 100%);
+        }
+        .etiqueta.capoeira .brand-footer { background: var(--capoeira-gold); color: #000; }
+        .etiqueta.capoeira .frase { color: #5D4037; }
+
+        /* Tema Mãe */
+        .etiqueta.mae {
+            border: 2px solid var(--mae-pink);
+            background: linear-gradient(135deg, #FCE4EC 0%, #F8BBD0 100%);
+        }
+        .etiqueta.mae .brand-footer { background: var(--mae-pink); color: #fff; }
+        .etiqueta.mae .frase { color: #880E4F; }
+
+        /* Tema Vó */
+        .etiqueta.vo {
+            border: 2px solid var(--vo-purple);
+            background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+        }
+        .etiqueta.vo .brand-footer { background: var(--vo-purple); color: #fff; }
+        .etiqueta.vo .frase { color: #4A148C; }
+
+        .icone-topo { font-size: 10pt; margin-top: 1px; }
+
+        .frase {
+            font-weight: 700;
+            font-size: 6pt;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin: 1px 0;
+        }
+
+        .brand-footer {
+            font-size: 4.5pt;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            width: 90%;
+        }
+
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background: #7B1FA2;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        @media print {
+            body { background: none; }
+            .folha-a4 { margin: 0; border: none; }
+            .btn-print { display: none; }
+            @page { size: A4; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print" onclick="window.print()">IMPRIMIR 40 ETIQUETAS (A4)</button>
+
+    <div class="folha-a4" id="container"></div>
+
+    <script>
+        const grupoCapoeira = [
+            { texto: "Ginga de Campeão!", icone: "🥋🔥" },
+            { texto: "Axé na Roda e Muita Energia!", icone: "🪘✨" },
+            { texto: "Cordão de Ouro: Força e Arte!", icone: "⭐💛" },
+            { texto: "Aprovado no Jogo da Capoeira!", icone: "🌿🏆" }
+        ];
+
+        const grupoMae = [
+            { texto: "Feito com Amor de Mãe!", icone: "💖🦫" },
+            { texto: "O Melhor Abraço e o Bolo!", icone: "🎂🥰" },
+            { texto: "Carinho de Mãe em Cada Gole!", icone: "✨🍹" },
+            { texto: "Amor de Mãe é a Melhor Poção!", icone: "🧪❤️" }
+        ];
+
+        const grupoVo = [
+            { texto: "O Xodó da Vovó!", icone: "👵💕" },
+            { texto: "Bebida com Benção de Vó!", icone: "✨🍵" },
+            { texto: "Mimo Especial da Vovó!", icone: "👑💖" },
+            { texto: "Amor de Vó Não Tem Fim!", icone: "🌟👵" }
+        ];
+
+        const container = document.getElementById('container');
+
+        // Distribuição: 20 Capoeira, 10 Mãe, 10 Vó
+        for (let i = 0; i < 40; i++) {
+            const div = document.createElement('div');
+            
+            if (i < 20) {
+                const item = grupoCapoeira[i % grupoCapoeira.length];
+                div.className = 'etiqueta capoeira';
+                div.innerHTML = `
+                    <div class="icone-topo">${item.icone}</div>
+                    <div class="frase">${item.texto}</div>
+                    <div class="brand-footer">LEVY • CAPOEIRA</div>
+                `;
+            } else if (i < 30) {
+                const item = grupoMae[(i - 20) % grupoMae.length];
+                div.className = 'etiqueta mae';
+                div.innerHTML = `
+                    <div class="icone-topo">${item.icone}</div>
+                    <div class="frase">${item.texto}</div>
+                    <div class="brand-footer">LEVY • COM AMOR DA MÃE</div>
+                `;
+            } else {
+                const item = grupoVo[(i - 30) % grupoVo.length];
+                div.className = 'etiqueta vo';
+                div.innerHTML = `
+                    <div class="icone-topo">${item.icone}</div>
+                    <div class="frase">${item.texto}</div>
+                    <div class="brand-footer">LEVY • MIMO DA VOVÓ</div>
+                `;
+            }
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>
