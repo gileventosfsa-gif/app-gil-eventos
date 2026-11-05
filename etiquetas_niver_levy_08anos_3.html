@@ -44,7 +44,7 @@
             overflow: hidden;
         }
 
-        /* Máscara clara para dar leitura ao texto */
+        /* Máscara clara para dar leitura ao texto sobre a imagem */
         .etiqueta::before {
             content: '';
             position: absolute;
@@ -53,17 +53,17 @@
             z-index: 1;
         }
 
-        /* Estilo Tema Sonic (Gradiente vibrante garantido) */
+        /* Estilo Tema Sonic */
         .etiqueta.sonic {
             border: 2px solid var(--sonic-blue);
-            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            background-image: url('https://i.postimg.cc/v1L72zKk/sonic.jpg');
         }
 
-        /* Estilo Tema Capivara (Gradiente da natureza garantido) */
-        .etiqueta.capivara {
-            border: 2px solid var(--capivara-brown);
-            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
-        }
+        /* Estilo Tema Capivara (Alternando as 4 artes diferentes) */
+        .etiqueta.capivara-1 { border: 2px solid var(--capivara-brown); background-image: url('https://i.postimg.cc/hJb8ZrYN/capivara-1.jpg'); }
+        .etiqueta.capivara-2 { border: 2px solid var(--capivara-brown); background-image: url('https://i.postimg.cc/1gc07HdL/capivara-2.jpg'); }
+        .etiqueta.capivara-3 { border: 2px solid var(--capivara-brown); background-image: url('https://i.postimg.cc/8FBdXHY2/capivara-3.jpg'); }
+        .etiqueta.capivara-4 { border: 2px solid var(--capivara-brown); background-image: url('https://i.postimg.cc/Jyc3YqFg/capivara-4.jpg'); }
 
         .frase {
             position: relative;
@@ -90,7 +90,7 @@
         }
 
         .etiqueta.sonic .brand-footer { background: var(--sonic-gold); color: #000; }
-        .etiqueta.capivara .brand-footer { background: var(--capivara-green); color: #fff; }
+        .etiqueta[class*="capivara"] .brand-footer { background: var(--capivara-green); color: #fff; }
 
         .btn-print {
             position: fixed;
@@ -124,48 +124,48 @@
 
     <script>
         const listaSonic = [
-            { texto: "Velocidade Máxima do Sonic!", icone: "⚡🦔👟" },
-            { texto: "Recarregando os Anéis Dourados!", icone: "🟡✨🏆" },
-            { texto: "Proibido para Vilões!", icone: "🚫🤖💥" },
-            { texto: "Giro Sônico em Cada Gole!", icone: "🌀🥤🚀" },
-            { texto: "100% Energia, 0% Açúcar Falso!", icone: "⚡🍃💪" },
-            { texto: "Foco, Força e Super Sonic!", icone: "⭐🎮🔥" },
-            { texto: "O Drink Mais Rápido do Mundo!", icone: "🏃‍♂️💨🍹" },
-            { texto: "Combustível de Super-Herói!", icone: "⚡🌟🦸‍♂️" }
+            "Velocidade Máxima do Sonic!",
+            "Recarregando os Anéis Dourados!",
+            "Proibido para Vilões!",
+            "Giro Sônico em Cada Gole!",
+            "100% Energia, 0% Açúcar Falso!",
+            "Foco, Força e Super Sonic!",
+            "O Drink Mais Rápido do Mundo!",
+            "Combustível de Super-Herói!"
         ];
 
         const listaCapivara = [
-            { texto: "Capitu-Drink: Edição Capivara!", icone: "🦫🌿🍹" },
-            { texto: "Capivara Gamer & Estilo!", icone: "🦫🎮😎" },
-            { texto: "Capivara de Boa na Lagoa!", icone: "🦫🌊🌴" },
-            { texto: "Poder da Capivara Ativado!", icone: "🦫✨💚" },
-            { texto: "Aprovado pelo Professor Juninho!", icone: "🥋🏆🌿" },
-            { texto: "Golpe de Energia da Capoeira!", icone: "🥋🔥🦫" },
-            { texto: "Poção Secreta do Papai Gil!", icone: "🧪👨‍👦🦫" },
-            { texto: "Acelera que é Niver do Levy!", icone: "🎉🦫🎂" }
+            "Capitu-Drink: Edição Capivara!",
+            "Capivara Gamer & Estilo!",
+            "Capivara de Boa na Lagoa!",
+            "Poder da Capivara Ativado!",
+            "Aprovado pelo Professor Juninho!",
+            "Golpe de Energia da Capoeira!",
+            "Poção Secreta do Papai Gil!",
+            "Acelera que é Niver do Levy!"
         ];
 
         const container = document.getElementById('container');
+        let capivaraIndex = 1;
 
         for (let i = 0; i < 40; i++) {
             const div = document.createElement('div');
             
             if (i % 2 === 0) {
-                const item = listaSonic[(i / 2) % listaSonic.length];
+                const texto = listaSonic[(i / 2) % listaSonic.length];
                 div.className = 'etiqueta sonic';
                 div.innerHTML = `
-                    <div style="font-size: 10pt; z-index:2; position:relative; margin-top:2px;">${item.icone}</div>
-                    <div class="frase">${item.texto}</div>
+                    <div class="frase">${texto}</div>
                     <div class="brand-footer">LEVY • 8 ANOS • SONIC</div>
                 `;
             } else {
-                const item = listaCapivara[Math.floor(i / 2) % listaCapivara.length];
-                div.className = 'etiqueta capivara';
+                const texto = listaCapivara[Math.floor(i / 2) % listaCapivara.length];
+                div.className = `etiqueta capivara-${capivaraIndex}`;
                 div.innerHTML = `
-                    <div style="font-size: 10pt; z-index:2; position:relative; margin-top:2px;">${item.icone}</div>
-                    <div class="frase">${item.texto}</div>
+                    <div class="frase">${texto}</div>
                     <div class="brand-footer">LEVY • 8 ANOS • CAPIVARA</div>
                 `;
+                capivaraIndex = capivaraIndex >= 4 ? 1 : capivaraIndex + 1;
             }
             container.appendChild(div);
         }
