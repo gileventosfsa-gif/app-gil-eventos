@@ -6,9 +6,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --sonic-blue: #0055BF;
-            --sonic-gold: #FFD700;
-            --capivara-brown: #8D5524;
+            --sonic-blue: #0044CC;
+            --sonic-gold: #FFC107;
+            --capivara-brown: #6D4C41;
             --capivara-green: #2E7D32;
         }
 
@@ -41,20 +41,20 @@
             border-radius: 6px;
         }
 
-        /* Estilo 1: Tema Sonic */
+        /* Estilo 1: Tema Sonic (Azul vibrante e fundo colorido) */
         .etiqueta.sonic {
-            border: 2px solid var(--sonic-blue);
-            background: linear-gradient(135deg, #ffffff 0%, #E0F7FA 100%);
+            border: 2.5px solid var(--sonic-blue);
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
         }
         .etiqueta.sonic .brand-footer {
             background: var(--sonic-gold);
             color: #000;
         }
 
-        /* Estilo 2: Tema Capivara */
+        /* Estilo 2: Tema Capivara (Tons da natureza mais vivos) */
         .etiqueta.capivara {
-            border: 2px solid var(--capivara-brown);
-            background: linear-gradient(135deg, #ffffff 0%, #F1F8E9 100%);
+            border: 2.5px solid var(--capivara-brown);
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
         }
         .etiqueta.capivara .brand-footer {
             background: var(--capivara-green);
@@ -62,7 +62,7 @@
         }
 
         .icone-topo {
-            font-size: 10pt;
+            font-size: 10.5pt;
             margin-top: 1px;
         }
 
@@ -74,7 +74,7 @@
             margin: 1px 0;
         }
         .etiqueta.sonic .frase { color: #0D47A1; }
-        .etiqueta.capivara .frase { color: #332211; }
+        .etiqueta.capivara .frase { color: #1B5E20; }
 
         .brand-footer {
             font-size: 4.5pt;
@@ -104,8 +104,8 @@
             body { background: none; }
             .folha-a4 { margin: 0; border: none; }
             .btn-print { display: none; }
-            .etiqueta.sonic { border: 1.5px solid var(--sonic-blue); }
-            .etiqueta.capivara { border: 1.5px solid var(--capivara-brown); }
+            .etiqueta.sonic { border: 2px solid var(--sonic-blue); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .etiqueta.capivara { border: 2px solid var(--capivara-brown); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             @page { size: A4; margin: 0; }
         }
     </style>
@@ -117,7 +117,6 @@
     <div class="folha-a4" id="container"></div>
 
     <script>
-        // Bloco 1: Etiquetas 100% Sonic
         const listaSonic = [
             { texto: "Velocidade Máxima do Sonic!", icone: "⚡🦔👟" },
             { texto: "Recarregando os Anéis Dourados!", icone: "🟡✨🏆" },
@@ -129,7 +128,6 @@
             { texto: "Combustível de Super-Herói!", icone: "⚡🌟🦸‍♂️" }
         ];
 
-        // Bloco 2: Etiquetas 100% Capivara
         const listaCapivara = [
             { texto: "Capitu-Drink: Edição Capivara!", icone: "🦫🌿🍹" },
             { texto: "Capivara Gamer & Estilo!", icone: "🦫🎮😎" },
@@ -143,11 +141,9 @@
 
         const container = document.getElementById('container');
 
-        // Gerar 40 etiquetas alternando entre Sonic e Capivara (com Y corrigido)
         for (let i = 0; i < 40; i++) {
             const div = document.createElement('div');
             
-            // Alterna entre o bloco do Sonic (pares) e Capivara (ímpares)
             if (i % 2 === 0) {
                 const item = listaSonic[(i / 2) % listaSonic.length];
                 div.className = 'etiqueta sonic';
